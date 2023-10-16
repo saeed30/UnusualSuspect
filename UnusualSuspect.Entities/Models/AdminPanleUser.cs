@@ -1,8 +1,8 @@
-﻿using School.Entities.Identity;
+﻿using UnusualSuspect.Entities.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace School.Entities.Models;
+namespace UnusualSuspect.Entities.Models;
 
 /// <summary>
 /// کاربران پنل مدیریت

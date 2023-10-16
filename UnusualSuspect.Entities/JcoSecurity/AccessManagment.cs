@@ -1,4 +1,4 @@
-﻿using School.Entities.Identity;
+﻿using UnusualSuspect.Entities.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace School.Entities.JcoSecurity;
+namespace UnusualSuspect.Entities.JcoSecurity;
 
 public class ActionForRole : BaseEntity<int>
 {

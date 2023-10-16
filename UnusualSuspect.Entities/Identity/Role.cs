@@ -1,10 +1,10 @@
-﻿using School.Entities.JcoSecurity;
+﻿using UnusualSuspect.Entities.JcoSecurity;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace School.Entities.Identity;
+namespace UnusualSuspect.Entities.Identity;
 
 public class Role : IdentityRole<int>, IEntity
 {

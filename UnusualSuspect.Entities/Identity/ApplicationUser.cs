@@ -1,5 +1,5 @@
-﻿using School.Entities.JcoSecurity;
-using School.Entities.Models;
+﻿using UnusualSuspect.Entities.JcoSecurity;
+using UnusualSuspect.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace School.Entities.Identity;
+namespace UnusualSuspect.Entities.Identity;
 
 public class ApplicationUser : IdentityUser<int>, IEntity<int>
 {
@@ -51,21 +51,8 @@ public class ApplicationUser : IdentityUser<int>, IEntity<int>
     [NotMapped, Display(Name = "نوع دسترسی")]
     public int? AccessTypeId { set; get; }
 
-    [Display(Name = "حوزه فعالیت")]
-    public int? CityId { get; set; }
-    [ForeignKey("CityId")]
-    public virtual City? City { set; get; }
 
-    //[Display(Name = "استان")]
-    //public int? StateId { get; set; }
-    //[ForeignKey("StateId")]
-    //public virtual Region Province { set; get; }
 
-    //[Display(Name = "آدرس")]
-    //public string Address { get; set; }
-    //[Display(Name = "کد پستی")]
-    //[StringLength(11)]
-    //public string PostalCode { get; set; }
     public bool IsActive { set; get; }
     //public virtual ICollection<AdminPanleUser> AdminPanleUsers { set; get; }
     //public virtual ICollection<Customer> Customers { set; get; }

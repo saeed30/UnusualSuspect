@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace School.Entities.Models;
+namespace UnusualSuspect.Entities.Models;
 
 /// <summary>
 /// تنظیمات نرم افزار

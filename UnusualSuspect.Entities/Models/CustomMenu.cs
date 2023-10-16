@@ -1,9 +1,9 @@
-﻿using School.Entities.JcoSecurity;
+﻿using UnusualSuspect.Entities.JcoSecurity;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace School.Entities.Models;
+namespace UnusualSuspect.Entities.Models;
 
 public class CustomMenu:BaseEntity<int>
 {
