@@ -1,0 +1,65 @@
+﻿@{
+    var SModel = (AMACtionSearchViewModel)ViewData["SearchModel"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = SModel.TitlePage;
+}
+
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+            <a href="@Url.Action("ShowAllControllers","AccessManagement")">برگشت</a>
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-flush">
+    <div class="card-body">
+
+
+        @(Html.Kendo().Grid<AmAction>()
+        .Name("grid")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.Id).Title("شناسه").Filterable(false);
+            columns.Bound(c => c.Name).Title("نام اکشن");
+            columns.Bound(c => c.FarsiName).Title("اسم فارسی");
+            columns.Bound(c => c.SoftSection.TypeName).Title("بخش");
+
+            columns.Bound(p => p.Id).ClientTemplate("<button type='button' class='k-button k-button-icontext EditItem' data-id='#=id#' data-type='0' data-remote='/AccessManagement/EditActionOfController?ActionId=#=Id#'><i class='fas fa-edit text-primary'></i></button>").Title(" ").Filterable(false).Width(50);
+
+        })
+    .Pageable(pager => pager
+            .Input(true)
+            .Info(true)
+            .PreviousNext(true)
+            .Refresh(true)
+          )
+    .Filterable().Sortable()
+    .DataSource(dataSource => dataSource
+    .Ajax().Sort(a => a.Add("Id").Ascending())
+    .PageSize(20)
+    .Model(model =>
+    {
+        model.Id(p => p.Id);
+
+    })
+        .Read(read => read.Action("ShowAllctionsOfController_Read", "AccessManagement",new { ControllerId = SModel.ControllerId }))
+    ))
+    </div>
+</div>
+
+<script id="GridToolbarTemplate" type="text/x-kendo-template">
+
+     <div class="refreshBtnContainer">
+        <a data-remote="/AccessManagement/UpdateControllers" class="btn btn-success btn-create  w-content">
+            <span class="k-icon k-i-add color-white"></span>
+           آپدیت کنترلرها
+        </a>
+    </div>
+
+</script>

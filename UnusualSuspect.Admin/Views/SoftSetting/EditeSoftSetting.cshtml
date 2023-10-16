@@ -1,0 +1,189 @@
+﻿@model SoftSetting
+@{
+    ViewBag.Title = "تتنظیمات نرم افزار";
+}
+<script src="~/js/fileinput.min.js"></script>
+<script src="~/vendor/tinymce/tinymce.min.js"></script>
+<script src="~/vendor/tinymce/themes/silver/theme.js"></script>
+
+
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+        </div>
+    </div>
+</div>
+
+<div class="card card-flush">
+    <div class="card-body">
+        @using (Html.BeginForm("EditeSoftSetting", "SoftSetting", FormMethod.Post, new { id = "CreateEditSoftSettingForm", dir = "rtl", enctype = "multipart/form-data", @class = "form-horizontal" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.BussinessTitle, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.BussinessTitle, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.SmallTitle, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.SmallTitle, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.ContactUsPhoneNumber, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.ContactUsPhoneNumber, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.ContactUsMobileNumber, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.ContactUsMobileNumber, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.SMSNumber, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.SMSNumber, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.FaxNumber, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.FaxNumber, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.ContactUsEmail, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.ContactUsEmail, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.Address, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.TextAreaFor(model => model.Address, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.PostalCode, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.PostalCode, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.SiteAdress, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.SiteAdress, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div> 
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.ContentContactUsPage, new { @class = "control-label col-md-3" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.ContentContactUsPage, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters">
+                <label class="col-md-3 control-label">آپلود لوگوی اصلی</label>
+                <div class="col-md-6">
+                    <input name="MainLogoFile" id="MainLogoFile" type="file" class="file" multiple data-show-upload="false" data-show-caption="false" data-show-remove="false" accept="image/jpeg,image/png" data-browse-class="btn btn-o btn-default" data-browse-label="Browse Images">
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters">
+                <label class="col-md-3 control-label">آپلود لوگوی کوچک</label>
+                <div class="col-md-6">
+                    <input name="MinLogoFile" id="MinLogoFile" type="file" class="file" multiple data-show-upload="false" data-show-caption="false" data-show-remove="false" accept="image/jpeg,image/png" data-browse-class="btn btn-o btn-default" data-browse-label="Browse Images">
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters">
+                <label class="col-md-3 control-label">آپلود واترمارک تصاویر</label>
+                <div class="col-md-6">
+                    <input name="WaterMarkFile" id="WaterMarkFile" type="file" class="file" multiple data-show-upload="false" data-show-caption="false" data-show-remove="false" accept="image/jpeg,image/png" data-browse-class="btn btn-o btn-default" data-browse-label="Browse Images">
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                <label class="col-md-3 control-label">آپلود آیکون صفحه جستجو</label>
+                <div class="col-md-6">
+                    <input name="SearchIconFile" id="SearchIconFile" type="file" class="file" multiple data-show-upload="false" data-show-caption="false" data-show-remove="false" accept="image/jpeg,image/png" data-browse-class="btn btn-o btn-default" data-browse-label="Browse Images">
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                <label class="col-md-3 control-label">تصویر پس زمینه صفحات</label>
+                <div class="col-md-6">
+                    <input name="BackGroundImageFile" id="BackGroundImageFile" type="file" class="file" multiple data-show-upload="false" data-show-caption="false" data-show-remove="false" accept="image/jpeg,image/png" data-browse-class="btn btn-o btn-default" data-browse-label="Browse Images">
+                </div>
+            </div>
+            <div class="form-group  row no-gutters">
+                <div class="col-md-offset-3 col-md-6">
+                    <button id="CreateItemBtn" type="submit" class="btn btn-primary">ثبت</button>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        RenderTinyMce("#ContentContactUsPage", null);
+        RenderTinyMce("#Biography", $("#BussinessTitle"));
+        $('#CreateEditSoftSettingForm').bootstrapValidator({
+            live: 'enabled',
+            feedbackIcons: {
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                ContentContactUsPage: {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                }
+            },
+        }).on('success.form.bv', function (e) {
+            e.preventDefault();
+            var $form = $(e.target);
+            var formData = new FormData(this);
+            var bv = $form.data('bootstrapValidator');
+            for (var value of formData.values()) {
+                console.log(value);
+            }
+            jQuery.ajaxSettings.traditional = true;
+            $.ajax({
+                beforeSend: function () {
+                    $form.addClass("DisableItems");
+                },
+                url: $form.attr("action"),
+                type: $form.attr("method"),
+                data: formData,
+                success: function (result) {
+                    if (result.Success) {
+                        toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $("button[type='submit']").prop('disabled', false);
+                        $form.removeClass("DisableItems");
+                    }
+                    else {
+                        $("button[type='submit']").prop('disabled', false);
+                        toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $form.removeClass("DisableItems");
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+    });
+</script>
+

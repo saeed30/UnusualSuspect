@@ -1,0 +1,189 @@
+﻿@model ApplicationUser
+
+<div class="modal-header" id="kt_modal_add_user_header">
+    <h2 class="fw-bolder">@ViewBag.Title </h2>
+    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal" data-kt-users-modal-action="close">
+
+        <span class="svg-icon svg-icon-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="black"></rect>
+                <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="black"></rect>
+            </svg>
+        </span>
+    </div>
+</div>
+
+
+@using (Html.BeginForm("CreateCustomerUser", "ApplicationUser", FormMethod.Post, new { id = "CreateCustomerUserForm", @class = "form-horizontal", enctype = "multipart/form-data" }))
+{
+<div class="modal-body scroll-y">
+
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.SoftwarerRoleList)
+
+
+
+    <div class="form-group row no-gutters">
+        <label class="required control-label col-md-3"> نام</label>
+        <div class="col-md-9">
+            @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control", autocomplete = "off" })
+        </div>
+    </div>
+
+    <div class="form-group row no-gutters">
+        <label class="required control-label col-md-3"> نام خانوادگی</label>
+        <div class="col-md-9">
+            @Html.TextBoxFor(model => model.LastName, new { @class = "form-control", autocomplete = "off" })
+        </div>
+    </div>
+
+
+    @if (Model.Id == 0)
+    {
+
+        <div class="form-group row no-gutters">
+            <label class="required control-label col-md-3"> شماره همراه </label>
+            <div class="col-md-9">
+                @Html.TextBoxFor(model => model.PhoneNumber, new { @class = "form-control", autocomplete = "off" })
+            </div>
+        </div>
+
+        @*<div class="form-group row no-gutters">
+                <label class="required control-label col-md-3">  رمز عبور </label>
+                <div class="col-md-9">
+                    @Html.PasswordFor(model => model.ApplicationUser.Password, new { @class = "form-control", autocomplete = "off" })
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters">
+                <label class="required control-label col-md-3"> تکرار رمز عبور </label>
+                <div class="col-md-9">
+                    @Html.PasswordFor(model => model.ApplicationUser.ConfirmPassword, new { @class = "form-control", autocomplete = "off" })
+                </div>
+            </div>*@
+
+    }
+
+    <div class="form-group  row no-gutters">
+        <label class="col-md-3 control-label">نقش </label>
+        <div class="col-md-9">
+            @await Component.InvokeAsync("UserRoleList", new { UserName = Model.UserName })
+        </div>
+    </div>
+</div>
+
+    <div class="modal-footer no-gutters" style="padding-right:32px;">
+        <div class="col-md-9 ">
+            <button id="EditItemBtn" type="submit" class="btn btn-primary">ذخیره</button>
+            <button id="test" type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#CreateCustomerUserForm').bootstrapValidator({
+            live: 'enabled',
+            feedbackIcons: {
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                'FirstName': {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                },
+                'LastName': {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                },
+                'PhoneNumber': {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                },
+                //"ApplicationUser.Password": {
+                //    validators: {
+                //        notEmpty: {
+
+                //        },
+                //        stringLength: {
+                //            min: 6
+                //        }
+                //    }
+                //},
+                //"ApplicationUser.ConfirmPassword": {
+                //    validators: {
+                //        notEmpty: {
+                //        },
+                //        identical: {
+                //            field: 'ApplicationUser.Password',
+
+                //        },
+                //        stringLength: {
+                //            min: 6
+                //        }
+                //    }
+                //}
+            },
+        }).on('success.form.bv', function (e) {
+            e.preventDefault();
+            var $CheckBoxs = $("input.RoleSelection");
+            var RolesList = "";
+            $CheckBoxs.each(function () {
+                if ($(this).is(':checked'))
+                    RolesList += $(this).val() + ",";
+            });
+            $("#SoftwarerRoleList").val(RolesList);
+            var $form = $(e.target);
+            var formData = new FormData(this);
+            var bv = $form.data('bootstrapValidator');
+            jQuery.ajaxSettings.traditional = true;
+            $.ajax({
+                beforeSend: function () {
+                    $form.addClass("DisableItems");
+                },
+                url: $form.attr("action"),
+                type: $form.attr("method"),
+                data: formData,
+                success: function (result) {
+                    console.log(result);
+                    if (result.Success) {
+                        toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $("#grid").data("kendoGrid").dataSource.read();
+                        $('#ModalDiv').modal('hide');
+
+                        $('#grid').data('kendoGrid').dataSource.read().then(function () {
+                            var dataGrid = $('#grid').data('kendoGrid');
+                            let dataView = dataGrid.dataSource.view();
+
+                            for (let i = 0; i < dataView.length; i++) {
+
+                                if (dataView[i].Id == result.Id) {
+
+                                    dataGrid.table.find("tr[data-uid='" + dataView[i].uid + "']").addClass("alert-success-row");
+                                }
+                            }
+                        });
+
+                    }
+                    else {
+                        $("button[type='submit']").prop('disabled', false);
+                        toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $form.removeClass("DisableItems");
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+    });
+
+
+</script>

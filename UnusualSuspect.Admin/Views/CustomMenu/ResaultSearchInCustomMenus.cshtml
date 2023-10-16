@@ -1,0 +1,89 @@
+﻿@model List<CustomMenu>
+@{
+    Layout = null; 
+    var Smodel = (CustomMenuSearchViewModel)ViewData["SearchModel"];
+
+}
+<div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>
+                        کد
+                    </th>
+                    <th>
+                        آیکون
+                    </th>
+
+                    <th>
+                        عنوان منو
+                    </th>
+                    <th>
+                        نوع منو
+                    </th>
+                    <th>
+                        منو پدر
+                    </th>
+                    <th>
+                        اکشن اصلی
+                    </th>
+                    <th>
+                        اکشن نوتیفیکیشن
+                    </th>
+                    <th>پارامتر</th>
+
+                    <th>
+                        موقعیت  قرار گیری
+                    </th>
+                    <th style="min-width:85px;">
+                        <a class="RefreshBtn pull-left" style="padding:4px;">
+                            <span class="fa fa-refresh"></span>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="table">
+                @foreach (var item in Model)
+                {
+                    <tr id="@(item.Id)" data-positioninpage="@item.PositionId" data-id="@item.Id">
+                        <td>@Html.DisplayFor(modelItem => item.Id)</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.FontAweSomeIcon))
+                            {
+                                <span class="fa IconFontAweSome @item.FontAweSomeIcon"></span>
+                            }
+                            else
+                            {
+                                <img class="img-circle IconImage @(item.PatchIcon!=null ?"":"hide")" src="@item.PatchIcon" />
+                            }
+                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.SoftSection.TypeName)</td>
+                        <td>@(item.ParentCustomMenu != null ? item.ParentCustomMenu.Name : "")</td>
+                        <td>@(item.AMActionId != null ? item.AmAction.EnglishName : "")</td>
+                        <td>@Html.DisplayFor(modelItem => item.NotifName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Parameter)</td>
+                        <td style="text-align:center;">
+                            @if (item.ParentId == null)
+                            {
+                                <span style="cursor:pointer;font-size:1.3em;font-weight:bold" class="bi bi-arrow-up text-primary up"></span>
+                                <span style="cursor:pointer;font-size:1.3em;font-weight:bold" class="fa bi-arrow-down text-danger down"></span>
+                            }
+                        </td>
+                        <td class="buttonRows">
+                            <a  data-remote="@Url.Action("CreateEditCustomMenu",new { CustomMenuId=item.Id})" data-id="@item.Id" class="btn h-auto btn-sm btn-light-primary EditItem" data-toggle="Edit">
+                                <i class="bi bi-pencil pe-0"></i>
+                            </a>
+                            <a data-id="@item.Id" class="btn h-auto btn-sm btn-light-danger DeleteItemtype2 btn-no-text" data-action="@Url.Action("DeleteCustomMenu")" data-titlesweet="آیا مطمئن هستید" data-textsweet="در صورت اطمینان از حذف آیتم بر روی تائید کلیک کنید." data-cancelbtn="انصراف" data-confirmbtn="تائید">
+                                <i class="fa fa-trash"></i>
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@await Component.InvokeAsync("PagingResultGrid", new { ResultSum = Smodel.ResultCount, PageSize = Smodel.PageSize, Step = Smodel.Step })

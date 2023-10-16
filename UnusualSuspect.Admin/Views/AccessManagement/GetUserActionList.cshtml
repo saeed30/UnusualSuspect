@@ -1,0 +1,30 @@
+﻿@model List<AmAction>
+
+@{
+    Layout = null;
+    var ActionGrouping = Model.GroupBy(c => c.AMController).ToList();
+}
+@foreach (var item in ActionGrouping)
+{
+    <div class="row ControllerDiv">
+        <div class="col-md-12">
+            <input class="ControlCheckBox" type="checkbox" id="@item.Key.Name" checked="@(!item.Any(x=>!x.Selected))" />
+            <span>
+                <span class="Clable">
+                    <span>@(string.IsNullOrEmpty(item.Key.EnglishName) ? item.Key.Name : item.Key.EnglishName)</span>
+                    <span style="font-weight:bold;font-size:1.1em;" class="fa fa-angle-down"></span>
+                </span>
+            </span>
+
+        </div>
+    </div>
+    <div class="row ActionDiv">
+        @foreach (var ActionOB in item)
+        {
+            <div class="col-sm-4">
+                <label><input type="checkbox" checked="@ActionOB.Selected" class="@(item.Key.Name) ActionSelection" value="@ActionOB.Id" /> <span>@(string.IsNullOrEmpty(ActionOB.EnglishName) ? ActionOB.Name : ActionOB.EnglishName)</span></label>
+            </div>
+        }
+    </div>
+
+}

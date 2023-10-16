@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = ViewBag.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-flush">
+    <div class="card-body ">
+
+     
+
+        @(Html.Kendo().Grid<AMController>()
+        .Name("grid")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.Id).Title("شناسه").Filterable(false);
+            columns.Bound(c => c.Name).Title("نام کنترلر");
+            columns.Bound(c => c.FarsiName).Title("نام فارسی");
+            columns.Bound(p => p.Id).ClientTemplate(" <a class='btn btn-light-info m-b-10'  href='/AccessManagement/ShowAllctionsOfController?ControllerId=#=Id#' style=''>مشاهده اکشن ها</a> ").Title(" ").Filterable(false).Width(170);
+
+            columns.Bound(p => p.Id).ClientTemplate("<button type='button' class='k-button k-button-icontext EditItem' data-id='#=Id#' data-type='0' data-remote='/AccessManagement/EditController?ControllerId=#=Id#'><i class='fas fa-edit text-primary'></i></button>").Title(" ").Filterable(false).Width(50);
+
+        })
+    .ToolBar(toolbar =>
+    {
+        toolbar.ClientTemplateId("GridToolbarTemplate");
+    })
+    .Pageable(pager => pager
+            .Input(true)
+            .Info(true)
+            .PreviousNext(true)
+            .Refresh(true)
+          )
+    .Filterable().Sortable()
+    .DataSource(dataSource => dataSource
+    .Ajax().Sort(a => a.Add("Id").Ascending())
+    .PageSize(20)
+    .Model(model =>
+    {
+        model.Id(p => p.Id);
+
+    })
+        .Read(read => read.Action("ShowAllControllers_Read", "AccessManagement").Type(HttpVerbs.Post))
+    ))
+    </div>
+</div>
+
+<script id="GridToolbarTemplate" type="text/x-kendo-template">
+
+     <div class="refreshBtnContainer">
+        <a href="/AccessManagement/UpdateControllers" class="btn btn-success  w-content">
+            <span class="k-icon k-i-add color-white"></span>
+           آپدیت کنترلرها
+        </a>
+    </div>
+
+</script>

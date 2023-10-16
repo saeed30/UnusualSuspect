@@ -1,0 +1,13 @@
+﻿@model List<Role>
+
+@{
+    Layout = null;
+}
+<div class="row">
+    @foreach (var CustomerRoleOB in Model)
+    {
+        <div class="col-sm-4">
+            <label><input type="checkbox" checked="@CustomerRoleOB.Selected" class="RoleSelection" value="@CustomerRoleOB.Id" /> <span>@CustomerRoleOB.Title</span></label>
+        </div>
+    }
+</div>

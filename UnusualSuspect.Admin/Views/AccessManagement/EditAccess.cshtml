@@ -1,0 +1,165 @@
+﻿@model ApplicationUser
+@using  UnusualSuspect.Services.JcoSecurity
+@inject IAccessManagmentService accessManagmentService
+@{
+    ViewBag.Title = ViewBag.TitlePage;
+}
+
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+            <a href="@Url.Action("RegisterAdminPanelUser","AdminPanleUser")" class="btn btn-red"><span>برگشت</span></a>
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-flush">
+    <div class="card-body">
+        @using (Html.BeginForm("EditAccess", "AccessManagement", FormMethod.Post, new { id = "AccessRoleForm" }))
+        {
+
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(c => c.Id)
+            @Html.HiddenFor(c => c.UserName)
+            @Html.HiddenFor(c => c.SoftSectionId)
+            @Html.HiddenFor(c => c.ActionList)
+            @Html.HiddenFor(c => c.SoftwarerRoleList)
+            <div class="form-horizontal">
+                <div class="form-group  row no-gutters  mb-2">
+                    @Html.LabelFor(model => model.AccessTypeId, new { @class = "control-label col-md-2" })
+                    <div class="col-md-5">
+                        @Html.DropDownListFor(model => model.AccessTypeId, accessManagmentService.RetrieveAccessTypeList(), new { @class = "form-select" })
+                    </div>
+                </div>
+                <div class="form-group row no-gutters mb-2">
+                    <div class="col-md-2"></div>
+                    <div style="min-height:30px;" class="col-md-10" id="ResultGetActon">
+                        @if (Model.AccessTypeId == 2)
+                        {
+                            @await Component.InvokeAsync("UserActionList", new { SoftSectionId = Model.SoftSectionId, UserName = Model.UserName })
+                        }
+                        @if (Model.AccessTypeId == 1)
+                        {
+                            @await Component.InvokeAsync("UserRoleList", new { SoftSectionId = Model.SoftSectionId, UserName = Model.UserName })
+                        }
+                    </div>
+                </div>
+                <div class="form-group  row no-gutters ">
+                    <div class="col-md-2"></div>
+                    <div class=" col-md-10">
+                        <input type="submit" value="ذخیره" class="btn btn-primary" />
+                    </div>
+                </div>
+                <div class="form-group  row no-gutters ">
+                    <div class="col-md-offset-2 col-md-10" id="ResultAction" style="text-align:center">
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#AccessRoleForm').bootstrapValidator({
+            live: 'enabled',
+            feedbackIcons: {
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                AccessTypeId: {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                }
+            }
+        }).on('success.form.bv', function (e) {
+            e.preventDefault();
+
+            var $CheckBoxs = $("input.ActionSelection");
+            var ItemsList = "";
+            $CheckBoxs.each(function () {
+                if ($(this).is(':checked'))
+                    ItemsList += $(this).val() + ",";
+            });
+            $("#ActionList").val(ItemsList);
+
+            var $CheckBoxs = $("input.RoleSelection");
+            var RolesList = "";
+            $CheckBoxs.each(function () {
+                if ($(this).is(':checked'))
+                    RolesList += $(this).val() + ",";
+            });
+            $("#SoftwarerRoleList").val(RolesList);
+            var $form = $(e.target);
+            var formData = new FormData(this);
+            var bv = $form.data('bootstrapValidator');
+            jQuery.ajaxSettings.traditional = true;
+
+            $.ajax({
+                beforeSend: function () {
+                    $form.addClass("DisableItems");
+                },
+                url: $form.attr("action"),
+                type: $form.attr("method"),
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    if (result.Success) {
+                        toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        window.location.href = result.Url;
+                    }
+                    else {
+                        toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $form.removeClass("DisableItems");
+                    }
+                }
+            });
+        });
+
+        $("select#AccessTypeId").on('change', function (e) {
+            var optionSelected = $("option:selected", this);
+            var AccessTypeId = this.value;
+            if (AccessTypeId == 2)
+            {
+                $("#ResultGetActon").addClass("DisableItems");
+                $.get("@Url.Action("GetUserActionList", "AccessManagement")", {
+                    UserName: $("#UserName").val(),
+                    SoftSectionId: $("#SoftSectionId").val()
+                }, function (result) {
+                    $("#ResultGetActon").html(result);
+                    $("#ResultGetActon").removeClass("DisableItems");
+                });
+            }
+            if (AccessTypeId == 1)
+            {
+                $("#ResultGetActon").addClass("DisableItems");
+                $.get("@Url.Action("GetUserRoleList", "AccessManagement")", {
+                    UserName: $("#UserName").val(),
+                    SoftSectionId: $("#SoftSectionId").val()
+                }, function (result) {
+                    $("#ResultGetActon").html(result);
+                    $("#ResultGetActon").removeClass("DisableItems");
+                });
+            }
+        });
+
+        $(document).on("click", ".Clable", function () {
+            $(this).closest(".ControllerDiv").next(".ActionDiv").slideToggle();
+            $(this).find(".fa").toggleClass("fa-angle-down").toggleClass("fa-angle-up");
+        });
+        $(document).on("change", ".ControllerDiv .ControlCheckBox", function () {
+            var CHeckValue = $(this).is(':checked');
+            $(this).closest(".ControllerDiv").next(".ActionDiv").find("input.ActionSelection").prop('checked', CHeckValue);
+        });
+    });
+</script>
+

@@ -1,0 +1,50 @@
+﻿@inject IApplicationUserService _ApplicationUserService;
+@inject UnusualSuspect.Services.Contracts.Identity.IApplicationRoleService _ApplicationRoleService;
+
+@{
+    List<string> lst = new List<string>();
+    //var userInfo = _AdminPanleUser.DetailsAdminPanleUser(_AdminPanleUser.DetailsAdminPanleUserWhitUserName(User.Identity.Name).Id);
+    var userInfo = _ApplicationUserService.DetailsUser(User.Identity.Name);
+    var hasSingleWorkFlow = _ApplicationRoleService.GetUserRoleNames(User.Identity.Name).Any(w => w == "" || w == "" || w == "");
+
+}
+@if (userInfo != null)
+{
+    <div class="userInfo">
+        <p class="mb-1">
+            <b>
+                @if (userInfo.FullName.Trim() != "")
+            {
+                @userInfo.FullName
+            }
+            else
+            {
+                @userInfo.UserName
+            }
+            </b>
+        </p>
+            <div>
+            @if (userInfo.Document == null)
+            {
+
+                <img src="~/images/blank.png" alt="blank.png">
+            }
+            else
+            { 
+
+                <img src="@Url.Action("ImageFetch", "Home", new { s = 200, i = userInfo.Document?.Id })" />
+            }
+        </div>
+        <p class="mb-1">
+            <b>
+                <a href="/Profile/EditPassword" style="color:white;" class="btn btn-link">
+                    تغییر کلمه عبور
+                </a>
+            </b>
+        </p>
+
+
+
+
+    </div>
+}

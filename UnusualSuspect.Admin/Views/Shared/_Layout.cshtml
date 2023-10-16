@@ -1,0 +1,226 @@
+﻿@*09112546453  09334409878 09334406734*@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="content-language" content="fa" />
+    <meta http-equiv="content-type" content="text/html;charset=uft-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>@ViewBag.Title</title>
+
+
+
+    <link href="~/plugins/custom/fullcalendar/fullcalendar.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="~/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+
+    <link href="~/vendor/bootstrapvalidator/css/bootstrapValidator.css" rel="stylesheet" />
+    <link href="~/js/sweetalert.css" rel="stylesheet" />
+    <link href="~/vendor/select2/css/select2.css" rel="stylesheet" />
+    <link href="~/vendor/bootstrap-fileinput/fileinput.css" rel="stylesheet" />
+    <link href="~/vendor/bootstrap-fileinput/fileinput-rtl.css" rel="stylesheet" />
+    <link href="~/css/glyphicon.css" rel="stylesheet" />
+    <link href="~/vendor/persian-datepicker/css/persian-datepicker.min.css" rel="stylesheet" />
+    <link href="~/css/style.bundle.css" asp-append-version="true" rel="stylesheet" type="text/css" />
+
+
+    <link href="~/css/Kendo/web/kendo.bootstrap.mobile.min.css" rel="stylesheet" />
+    <link href="~/css/Kendo/web/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+    <link href="~/css/Kendo/web/kendo.rtl.min.css" rel="stylesheet" />
+    <link href="~/css/BootstrapValidator.css" rel="stylesheet" />
+    <link href="~/vendor/toastr/toastr.css" rel="stylesheet" />
+    <link href="~/asset/fonts/jco-icon/00-feather-iconly-straight-streamline/feather-iconly-straight-streamline/css/jco-icon-embedded.css" rel="stylesheet" />
+    <link href="~/asset/persianDatepicker-master/css/persianDatepicker-default.css" rel="stylesheet" />
+    <link href="~/vendor/@@fortawesome/css/fontawesome.min.css" rel="stylesheet" />
+    <!-- EditPassword -->
+    <link href="~/css/style.css" rel="stylesheet" />
+
+    <script src="~/vendor/jquery/jquery.min.js"></script>
+    <link href="~/js/sweetalert.css" rel="stylesheet" />
+    <script src="~/js/sweetalert.min.js"></script>
+
+    <script src="~/plugins/global/plugins.bundle.js"></script>
+    <script src="~/js/scripts.bundle.js"></script>
+    <script src="~/vendor/bootstrapvalidator/js/bootstrapValidator.js"></script>
+    <script src="~/vendor/bootstrapvalidator/js/language/fa_IR.js"></script>
+    <script src="~/js/jquery-migrate.min.js"></script>
+    <script src="~/vendor/persian-date/persian-date.min.js"></script>
+    <script src="~/vendor/persian-datepicker/js/persian-datepicker.min.js"></script>
+
+
+    <script src="~/js/Kendo/kendo.all.min.js"></script>
+    <script src="~/js/Kendo/kendo.aspnetmvc.min.js"></script>
+    <script src="~/js/Kendo/kendo.timezones.min.js"></script>
+    <script src="~/js/Kendo/messages/kendo.messages.fa-IR.min.js"></script>
+
+    <!-- Persiandate -->
+    <script src="~/js/anyresolver/anyresolver.date.js"></script>
+    <script src="~/js/anyresolver/anyresolver.persiandate.js"></script>
+    <script src="~/js/Persiandate.js"></script>
+    <script src="~/vendor/@@fortawesome/js/fontawesome.min.js"></script>
+    <link href="~/css/site.css" asp-append-version="true" rel="stylesheet" />
+    <link rel="stylesheet" asp-append-version="true" href="~/css/rtl-style.css">
+    <style>
+        .aside-menu .menu-item .menu-icon {
+            font-size: 15px;
+            color: #b5b4b4;
+        }
+
+        .aside-dark .menu .menu-item .menu-link .menu-title {
+            color: #b5b4b4;
+        }
+
+        .menu-sub {
+            margin-right: 20px;
+        }
+    </style>
+    @RenderSection("jsheader", false)
+</head>
+
+
+<body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed @*toolbar-enabled toolbar-fixed*@ aside-enabled aside-fixed" style="--kt-toolbar-height:55px;--kt-toolbar-height-tablet-and-mobile:55px">
+
+    <div class="d-flex flex-column flex-root">
+        <div class="page d-flex flex-row flex-column-fluid">
+            <div id="kt_aside" class="aside aside-dark aside-hoverable" data-kt-drawer="true" data-kt-drawer-name="aside" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="{default:'200px', '300px': '250px'}" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_aside_mobile_toggle">
+                <!--begin::Brand-->
+                <div class="aside-logo flex-column-auto" id="kt_aside_logo">
+                    <!--begin::Logo-->
+                    <a href="/">
+                        @*<img alt="Logo" src="~/media/logos/logo-1-dark.svg" class="h-25px logo" />*@
+                    </a>
+                    <!--end::Logo-->
+                    <!--begin::Aside toggler-->
+                    <div id="kt_aside_toggle" class="btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle" data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body" data-kt-toggle-name="aside-minimize">
+                        <!--begin::Svg Icon | path: icons/duotune/arrows/arr079.svg-->
+                        <span class="svg-icon svg-icon-1 rotate-180">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path opacity="0.5" d="M14.2657 11.4343L18.45 7.25C18.8642 6.83579 18.8642 6.16421 18.45 5.75C18.0358 5.33579 17.3642 5.33579 16.95 5.75L11.4071 11.2929C11.0166 11.6834 11.0166 12.3166 11.4071 12.7071L16.95 18.25C17.3642 18.6642 18.0358 18.6642 18.45 18.25C18.8642 17.8358 18.8642 17.1642 18.45 16.75L14.2657 12.5657C13.9533 12.2533 13.9533 11.7467 14.2657 11.4343Z" fill="black" />
+                                <path d="M8.2657 11.4343L12.45 7.25C12.8642 6.83579 12.8642 6.16421 12.45 5.75C12.0358 5.33579 11.3642 5.33579 10.95 5.75L5.40712 11.2929C5.01659 11.6834 5.01659 12.3166 5.40712 12.7071L10.95 18.25C11.3642 18.6642 12.0358 18.6642 12.45 18.25C12.8642 17.8358 12.8642 17.1642 12.45 16.75L8.2657 12.5657C7.95328 12.2533 7.95328 11.7467 8.2657 11.4343Z" fill="black" />
+                            </svg>
+                        </span>
+                        <!--end::Svg Icon-->
+                    </div>
+                    <!--end::Aside toggler-->
+                </div>
+                <!--end::Brand-->
+                <!--begin::Aside menu-->
+
+                <div class="rightPanel pt-4">
+
+                    @await Html.PartialAsync("_UserProfile")
+                    @await Component.InvokeAsync("DynamicAdminMenu")
+
+                </div>
+
+            </div>
+
+            <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
+
+                @await Html.PartialAsync("_AdminProfile")
+                @*@await Html.PartialAsync("_Alerts")*@
+                @{
+                    if (TempData.ContainsKey(UnusualSuspect.Admin.Infrastructure.Alert.TempDataKey))
+                    {
+                        var alerts = System.Text.Json.JsonSerializer.Deserialize<List<UnusualSuspect.Admin.Infrastructure.Alert>>(TempData[UnusualSuspect.Admin.Infrastructure.Alert.TempDataKey].ToString());
+                        foreach (var alert in alerts)
+                        {
+                            var dismissableClass = alert.Dismissable ? "alert-dismissable" : null;
+                            <div class="alert alert-@alert.AlertStyle @dismissableClass">
+                                @if (alert.Dismissable)
+                                {
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                }
+                                @Html.Raw(alert.Message)
+                            </div>
+                        }
+
+                    }
+                }
+                <div class="mainContent">
+                    @RenderBody()
+
+                </div>
+                <div class="content">
+                    <div class="OverLayDiv hide"></div>
+                    @*@RenderBody()*@
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="kt_scrolltop" class="scrolltop" data-kt-scrolltop="true">
+
+        <span class="svg-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <rect opacity="0.5" x="13" y="6" width="13" height="2" rx="1" transform="rotate(90 13 6)" fill="black" />
+                <path d="M12.5657 8.56569L16.75 12.75C17.1642 13.1642 17.8358 13.1642 18.25 12.75C18.6642 12.3358 18.6642 11.6642 18.25 11.25L12.7071 5.70711C12.3166 5.31658 11.6834 5.31658 11.2929 5.70711L5.75 11.25C5.33579 11.6642 5.33579 12.3358 5.75 12.75C6.16421 13.1642 6.83579 13.1642 7.25 12.75L11.4343 8.56569C11.7467 8.25327 12.2533 8.25327 12.5657 8.56569Z" fill="black" />
+            </svg>
+        </span>
+
+    </div>
+
+
+    <div id='ModalDiv' class='modal fade ' data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id='myModalContent' style="direction:rtl">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="~/js/CustomJavaScript.js"></script>
+    <script src="~/plugins/custom/fullcalendar/fullcalendar.bundle.js"></script>
+    <script src="~/js/custom/widgets.js"></script>
+    <script src="~/vendor/select2/js/select2.min.js"></script>
+    <script src="~/vendor/toastr/toastr.min.js"></script>
+    <script src="~/vendor/bootstrap-fileinput/fileinput.js"></script>
+    <script src="~/js/sweetalert.min.js"></script>
+    <script src="~/asset/persianDatepicker-master/js/persianDatepicker.js"></script>
+    <script src="~/js/custom/apps/chat/chat.js"></script>
+    <script src="~/js/custom/modals/create-app.js"></script>
+    <script src="~/js/custom/modals/upgrade-plan.js"></script>
+    <script src="~/js/FillterSearchInGrids.js" asp-append-version="true"></script>
+    <script src="~/js/site.js"></script>
+
+    <script src="~/vendor/bootstrap-fileinput/locales/fa.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+
+
+
+
+        //PersianDatepicker($('.datetimepicker'));
+        $('.date').persianDatepicker({
+            formatDate: 'YYYY/0M/0D',
+        });
+
+
+
+
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+        function sync_handler(e) {
+            this.read();
+        }
+    </script>
+
+</body>
+</html>

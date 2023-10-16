@@ -1,0 +1,18 @@
+﻿@{
+    if (TempData.ContainsKey(UnusualSuspect.Admin.Infrastructure.Alert.TempDataKey))
+    {
+        var alerts = System.Text.Json.JsonSerializer.Deserialize<List<UnusualSuspect.Admin.Infrastructure.Alert>>(TempData[UnusualSuspect.Admin.Infrastructure.Alert.TempDataKey].ToString());
+        foreach (var alert in alerts)
+        {
+            var dismissableClass = alert.Dismissable ? "alert-dismissable" : null;
+            <div class="alert alert-@alert.AlertStyle @dismissableClass">
+                @if (alert.Dismissable)
+                {
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                }
+                @Html.Raw(alert.Message)
+            </div>
+        }
+
+    }
+}

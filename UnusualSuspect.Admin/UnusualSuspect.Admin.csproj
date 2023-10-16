@@ -1,0 +1,139 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+	<Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-UnusualSuspect.Admin-5F3607FA-5668-40C8-BBF6-758037BDF431</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\CustomerUserController.cs" />
+    <Compile Remove="Controllers\SpecialFeature1Controller.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\js\pages\account\EditProfile.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\js\pages\account\EditProfile.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Areas\Identity\Pages\Account\AccessDenied.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\ConfirmPhoneNumber.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\ExternalLogin.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\ForgetPasswordConfrimCode.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\ForgotPassword.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\Login.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\Logout.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\RegisterConfirmation.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\ResetPassword.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\ResetPasswordConfirmation.cshtml" />
+    <None Include="Areas\Identity\Pages\Account\_ViewImports.cshtml" />
+    <None Include="Views\AccessManagement\CreateEditRole.cshtml" />
+    <None Include="Views\AccessManagement\EditAccess.cshtml" />
+    <None Include="Views\AccessManagement\GetActionList.cshtml" />
+    <None Include="Views\AccessManagement\GetUserActionList.cshtml" />
+    <None Include="Views\AccessManagement\GetUserRoleList.cshtml" />
+    <None Include="Views\AccessManagement\SearchAMAction.cshtml" />
+    <None Include="Views\AccessManagement\SearchController.cshtml" />
+    <None Include="Views\AccessManagement\SearchSoftwareRole.cshtml" />
+    <None Include="Views\AccessManagement\ShowAllControllers.cshtml" />
+    <None Include="Views\AccessManagement\ShowAllctionsOfController.cshtml" />
+    <None Include="Views\AccessManagement\ShowAllSoftwareRoles.cshtml" />
+    <None Include="Views\AccessManagement\_EditActionController.cshtml" />
+    <None Include="Views\AccessManagement\_EditController.cshtml" />
+    <None Include="Views\Shared\Components\ActionsList\Default.cshtml" />
+    <None Include="Views\Shared\Components\DynamicAdminMenu\Default.cshtml" />
+    <None Include="Views\Shared\Components\PagingResultGrid\Default.cshtml" />
+    <None Include="Views\Shared\Components\UserActionList\Default.cshtml" />
+    <None Include="Views\Shared\Components\UserRoleList\Default.cshtml" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Farsi-numerals\Webfonts\Woff2\IRANSansXFaNum-Bold.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Farsi-numerals\Webfonts\Woff2\IRANSansXFaNum-Regular.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\IranSansX fonts.pdf" />
+    <None Include="wwwroot\asset\fonts\IranSansX\licenses.pdf" />
+    <None Include="wwwroot\asset\fonts\IranSansX\NonEnglish\Webfont NonEn\woff2\IRANSansXNoEn-Bold.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\NonEnglish\Webfont NonEn\woff2\IRANSansXNoEn-Regular.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\About_Different_formats.pdf" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Farsi_numerals\English to Farsi numbers help.pdf" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Farsi_numerals\webFonts\fonts\woff2\IRANSansWeb%28FaNum%29.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Farsi_numerals\webFonts\fonts\woff2\IRANSansWeb%28FaNum%29_Black.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Farsi_numerals\webFonts\fonts\woff2\IRANSansWeb%28FaNum%29_Bold.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Farsi_numerals\webFonts\fonts\woff2\IRANSansWeb%28FaNum%29_Light.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Farsi_numerals\webFonts\fonts\woff2\IRANSansWeb%28FaNum%29_Medium.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Farsi_numerals\webFonts\fonts\woff2\IRANSansWeb%28FaNum%29_UltraLight.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\license.pdf" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Non_English\WebFonts\fonts\woff2\IRANSansWeb%28NoEn%29.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Non_English\WebFonts\fonts\woff2\IRANSansWeb%28NoEn%29_Black.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Non_English\WebFonts\fonts\woff2\IRANSansWeb%28NoEn%29_Bold.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Non_English\WebFonts\fonts\woff2\IRANSansWeb%28NoEn%29_Light.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Non_English\WebFonts\fonts\woff2\IRANSansWeb%28NoEn%29_Medium.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\Non_English\WebFonts\fonts\woff2\IRANSansWeb%28NoEn%29_UltraLight.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\WebFonts\fonts\woff2\IRANSansWeb.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\WebFonts\fonts\woff2\IRANSansWeb_Black.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\WebFonts\fonts\woff2\IRANSansWeb_Bold.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\WebFonts\fonts\woff2\IRANSansWeb_Light.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\WebFonts\fonts\woff2\IRANSansWeb_Medium.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Old version\IRANSans5.5 %28No support%29\WebFonts\fonts\woff2\IRANSansWeb_UltraLight.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Webfonts\fonts\woff2\IRANSansX-Bold.woff2" />
+    <None Include="wwwroot\asset\fonts\IranSansX\Webfonts\fonts\woff2\IRANSansX-Regular.woff2" />
+    <None Include="wwwroot\asset\fonts\jco-icon\00-feather-iconly-straight-streamline\feather-iconly-straight-streamline\font\jco-icon.svg" />
+    <None Include="wwwroot\asset\fonts\jco-icon\00-feather-iconly-straight-streamline\feather-iconly-straight-streamline\font\jco-icon.woff2" />
+    <None Include="wwwroot\asset\fonts\jco-icon\01-feather\fontello-589df007\font\jco-feather-icon.svg" />
+    <None Include="wwwroot\asset\fonts\jco-icon\01-feather\fontello-589df007\font\jco-feather-icon.woff2" />
+    <None Include="wwwroot\asset\fonts\jco-icon\02-iconly\fontello-e8e1739e\font\jco-iconly-icon.svg" />
+    <None Include="wwwroot\asset\fonts\jco-icon\02-iconly\fontello-e8e1739e\font\jco-iconly-icon.woff2" />
+    <None Include="wwwroot\js\pages\account\EditProfile.js" />
+    <None Include="wwwroot\js\Pages\Profile\EditPassword.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.12">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.10" />
+    <PackageReference Include="SkiaSharp" Version="2.88.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UnusualSuspect.IocConfig\UnusualSuspect.IocConfig.csproj" />
+    <ProjectReference Include="..\UnusualSuspect.Services\UnusualSuspect.Services.csproj" />
+    <ProjectReference Include="..\UnusualSuspect.ViewComponents\UnusualSuspect.ViewComponents.csproj" />
+    <ProjectReference Include="..\UnusualSuspect.ViewModels\UnusualSuspect.ViewModels.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Kendo.Mvc">
+      <HintPath>..\Dll\Kendo.Mvc.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\BaseInfo\" />
+    <Folder Include="wwwroot\Files\MiscFiles\" />
+    <Folder Include="wwwroot\Files\ProductImage\" />
+    <Folder Include="wwwroot\js\Pages\BaseInfo\" />
+    <Folder Include="wwwroot\js\Pages\Account\" />
+    <Folder Include="wwwroot\media\Document\" />
+    <Folder Include="wwwroot\media\BrandIcon\" />
+    <Folder Include="wwwroot\media\IconMenu\" />
+    <Folder Include="wwwroot\media\ShippingTypeIcon\" />
+    <Folder Include="wwwroot\media\RegionImagePatch\" />
+    <Folder Include="wwwroot\media\ProductWarrantyIcon\" />
+    <Folder Include="wwwroot\media\SpecialFeatureIcon\" />
+    <Folder Include="wwwroot\media\UserImage\" />
+    <Folder Include="wwwroot\media\SlideImages\" />
+  </ItemGroup>
+
+</Project>

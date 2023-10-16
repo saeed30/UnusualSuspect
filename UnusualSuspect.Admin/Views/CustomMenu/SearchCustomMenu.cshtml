@@ -1,0 +1,18 @@
+﻿@model CustomMenuSearchViewModel
+
+<form method="post" action="@Url.Action("ResaultSearchInCustomMenus")"class="SearchForm" id="SearchForm">
+    <div class="row mx-n1">
+        <div class="col-md-6 col-sm-6 px-1">
+            @Html.EditorFor(model => model.KeyWord, new { htmlAttributes = new { @class = "form-control", placeholder = "جستجو بر اساس کلکمات کلیدی"}, })
+        </div>
+        <div class="col-md-2 col-sm-2 px-1">
+            @Html.DropDownListFor(model => model.SortTypeId, Model.SortTypeList, new { @class = "form-control" })
+        </div>
+        <div class="col-md-2 col-sm-2 px-1">
+            @Html.DropDownListFor(model => model.PageSize, Model.PageSizeList, new { @class = "form-control" })
+        </div>
+        <div class="col-md-2 col-sm-2 px-1">
+            <button type="submit" class="btn btn-light-primary btn-block"><i class="fa fa-search ps-1"></i><span>جستجو</span> </button>
+        </div>
+    </div>
+</form>

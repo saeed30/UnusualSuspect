@@ -1,0 +1,106 @@
+﻿
+@model ApplicationUser
+
+@{
+    ViewData["Title"] = "ویرایش پروفایل";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+        </div>
+    </div>
+</div>
+
+<div class="card card-flush">
+    <div class="card-body">
+        @using (Html.BeginForm("EditProfile", "Account", FormMethod.Post, new { id = "EditProfileForm", @class = "form-horizontal", enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.Id)
+            @Html.HiddenFor(model => model.PatchImage)
+
+
+
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.FirstName, new { @class = "control-label col-md-2" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.LastName, new { @class = "control-label col-md-2" })
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" }, })
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                <label class="control-label col-md-2 MobileLabel"> موبایل</label>
+                <div class="col-md-6">
+                    @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" }, })
+                </div>
+            </div>
+          
+                <div class="form-group row no-gutters  ">
+                    @Html.LabelFor(model => model.NationalCode, new { @class = "control-label col-md-2" })
+                    <div class="col-md-6">
+                        @Html.EditorFor(model => model.NationalCode, new { htmlAttributes = new { @class = "form-control" }, })
+                    </div>
+                </div>
+           
+            <div class="form-group row no-gutters">
+
+                <label class="control-label col-md-2 MobileLabel"> تصویر پروفایل</label>
+                <div class="col-md-4">
+
+                    <input name="Image" id="Image" type="file">
+                </div>
+            </div>
+
+
+            <div class="form-group  row no-gutters">
+                <div class="col-md-offset-3 col-md-6">
+                    <button id="CreateItemBtn" type="submit" class="btn btn-primary">ثبت</button>
+                </div>
+
+            </div>
+        }
+
+    </div>
+</div>
+
+
+<script src="~/js/pages/account/editprofile.js"></script>
+@section scripts{
+
+    <script type="text/javascript">
+
+        var url1 = null;
+            if ("@Model.PatchImage"!= "") {
+              url1 = "@Model.PatchImage";
+        }
+
+        $("#Image").fileinput({
+            theme: 'fas',
+            language: 'fa',
+            initialPreview: [url1],
+            allowedFileExtensions: ['jpg', 'png', 'gif', 'jpeg'],
+            initialPreviewConfig: [
+                                 @Html.Raw(Model.FileConfig)
+                             ],
+            initialPreviewAsData: true,
+            showRemove: false,
+            showUpload: false,
+            showCancel: false,
+            showUploadedThumbs: false
+        });
+
+
+    </script>
+}
+

@@ -1,0 +1,43 @@
+﻿@inject ISoftSettingService softSettingService;
+@{
+
+    var MiscOB = softSettingService.GetSoftSetting();
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - @MiscOB.SmallTitle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    @RenderSection("SocialMetaTags", required: false)
+
+    <link href="~/vendor/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="~/vendor/bootstrap-rtl/bootstrap-rtl.min.css" rel="stylesheet" />
+    <link href="~/css/BootstrapValidator.css" rel="stylesheet" />
+    @*<link href="~/css/font-awesome.css" rel="stylesheet" />*@
+    @*<link href="~/css/fontiran.css" rel="stylesheet" />*@
+    <link href="~/vendor/toastr/toastr.min.css" rel="stylesheet" />
+    @*<link href="~/css/irfonts.css" rel="stylesheet" />*@
+    <link href="~/js/sweetalert.css" rel="stylesheet" />
+    <link href="~/css/LayoutTwo.css" rel="stylesheet" />
+
+    <script src="~/vendor/jquery/jquery.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/vendor/bootstrap/dist/js/bootstrap.js"></script>
+    @*<script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>*@
+    <script src="~/vendor/bootstrapvalidator/js/bootstrapValidator.min.js"></script>
+    <script src="~/vendor/bootstrapvalidator/js/language/fa_IR.js"></script>
+
+</head>
+<body>
+    <main role="main" class="@ViewBag.MainMarginTop">
+        @RenderBody()
+    </main>
+    <script src="~/vendor/toastr/toastr.min.js"></script>
+    @*<script src="~/js/wow.min.js"></script>*@
+    <script src="~/js/CustomJavaScript.js"></script>
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

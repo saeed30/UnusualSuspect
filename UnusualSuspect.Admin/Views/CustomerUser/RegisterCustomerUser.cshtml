@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = ViewBag.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-flush">
+    <div class="card-body">
+        @(Html.Kendo().Grid<UsersInRoleViewModel>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.UserId).Title("شناسه");
+        columns.Bound(c => c.FirstName).Title("نام");
+        columns.Bound(c => c.LastName).Title("نام خانوادگی");
+        columns.Bound(c => c.PhoneNumber).Title("شماره همراه");
+
+        columns.Bound(p => p.UserId).ClientTemplate("<a type='button' class='k-button k-button-icontext' data-id='#=UserId#' data-type='0' href='/Member/CreateMember?username=#=Username#'><i class='fas fa-edit text-primary'></i></a>").Title(" ").Filterable(false).Width(50);
+        columns.Bound(p => p.UserId).ClientTemplate("<button  data-id='#=UserId#' type='button' class='k-button k-button-icontext DeleteItem' data-action='/CustomerUser/DeleteCustomerUser' data-titlesweet='آیا مطمئن هستید' data-textsweet='در صورت اطمینان از حذف کاربر بر روی تائید کلیک کنید.' , SharedLocalizer['آیتم]' data-cancelbtn='انصراف' data-confirmbtn='تائید'><i class='fas fa-trash-alt text-danger'></i></button>").Title(" ").Filterable(false).Width(50);
+
+    })
+    .ToolBar(toolbar =>
+    {
+        //toolbar.ClientTemplateId("GridToolbarTemplate");
+    })
+    .Pageable(pager => pager
+            .Input(true)
+            .Info(true)
+            .PreviousNext(true)
+            .Refresh(true)
+          )
+    .Filterable().Sortable()
+    .DataSource(dataSource => dataSource
+    .Ajax().Sort(a => a.Add("UserId").Descending())
+    .PageSize(20)
+    .Model(model =>
+    {
+        model.Id(p => p.UserId);
+
+    })
+        .Read(read => read.Action("RegisterCustomerUser_read", "CustomerUser"))
+    ))
+    </div>
+</div>
+
+<script id="GridToolbarTemplate" type="text/x-kendo-template">
+
+     @*<div class="refreshBtnContainer">
+        <a href="/Member/CreateMember" class="btn btn-success    w-content">
+            <span class="k-icon k-i-add color-white"></span>
+            ثبت کاربر جدید
+        </a>
+    </div>*@
+
+</script>

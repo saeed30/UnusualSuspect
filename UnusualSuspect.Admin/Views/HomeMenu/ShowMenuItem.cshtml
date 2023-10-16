@@ -1,0 +1,89 @@
+﻿@{
+    ViewBag.Title = ViewBag.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-flush">
+    <div class="card-body">
+        @(Html.Kendo().Grid<HomeMenu>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.Id).Title("شناسه").Filterable(false);
+        columns.Bound(c => c.Title).Title("عنوان");
+        columns.Bound(c => c.Link).Title("لینک");
+        columns.Bound(c => c.Priority).Title("اولویت");
+        columns.Bound(c => c.IsActive).ClientTemplate("# if(IsActive==true){ #" +
+        "  <span  class='btn btn-success activecls' rel='#=Id#'>فعال</span>  " +
+        "# } else  { #" +
+        "<span  class='btn btn-danger activecls'rel='#=Id#'>غیر فعال</span>" +
+        "# } #"
+        ).Title("فعال/غیرفعال ؟");
+
+        columns.Bound(p => p.Id).ClientTemplate("<button data-modaltype='modal-lg'  type='button' class='k-button k-button-icontext EditItem' data-id='#=id#' data-type='0' data-remote='/HomeMenu/CreateEditMenuItem?homeMenuId=#=Id#'><i class='fas fa-edit text-primary'></i></button>").Title(" ").Filterable(false).Width(50);
+        columns.Bound(p => p.Id).ClientTemplate("<button  data-id='#=Id#' type='button' class='k-button k-button-icontext DeleteItem' data-action='/HomeMenu/DeleteMenuItem' data-titlesweet='آیا مطمئن هستید' data-textsweet='در صورت اطمینان از حذف آیتم منو بر روی تائید کلیک کنید.' , SharedLocalizer['آیتم]' data-cancelbtn='انصراف' data-confirmbtn='تائید'><i class='fas fa-trash-alt text-danger'></i></button>").Title(" ").Filterable(false).Width(50);
+
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.ClientTemplateId("GridToolbarTemplate");
+    })
+    .Pageable(pager => pager
+            .Input(true)
+            .Info(true)
+            .PreviousNext(true)
+            .Refresh(true)
+          )
+    .Filterable().Sortable()
+    .DataSource(dataSource => dataSource
+    .Ajax().Sort(a => a.Add("Id").Descending())
+    .PageSize(20)
+    .Model(model =>
+    {
+        model.Id(p => p.Id);
+
+    })
+        .Read(read => read.Action("ShowMenuItem_read", "HomeMenu"))
+    ))
+    </div>
+</div>
+
+<script id="GridToolbarTemplate" type="text/x-kendo-template">
+
+     <div class="refreshBtnContainer">
+        <a data-modaltype="modal-lg"  data-remote="/HomeMenu/CreateEditMenuItem" class="btn btn-success btn-create  w-content">
+            <span class="k-icon k-i-add color-white"></span>
+           ثبت منو
+        </a>
+    </div>
+
+</script>
+
+@section scripts{
+    <script src="~/vendor/bootstrap4-toggle/bootstrap4-toggle.min.js"></script>
+    <script>
+    $(document).on("click", ".activecls", function () {
+       var cid = $(this).attr('rel');
+            $.ajax({
+            type: "POST",
+            url: "@Url.Action("ActiveDeactiveMenuItem", "HomeMenu")",
+            data: { id: cid },
+                success: function (data) {
+            $("#grid").data("kendoGrid").dataSource.read();
+            $("#grid").data("kendoGrid").refresh();
+            }
+            });
+        });
+    </script>}

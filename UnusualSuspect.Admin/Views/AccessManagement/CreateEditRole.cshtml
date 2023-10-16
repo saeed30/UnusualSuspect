@@ -1,0 +1,164 @@
+﻿@model Role
+@using  UnusualSuspect.Services.JcoSecurity
+@inject IAccessManagmentService accessManagmentService
+@{
+    ViewBag.Title = ViewBag.Title;
+}
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-flush">
+    <div class="card-body">
+        @using (Html.BeginForm("CreateEditRole", "AccessManagement", FormMethod.Post, new { id = "AccessRoleForm" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(c => c.ActionList)
+            @Html.HiddenFor(c => c.Id)
+            @Html.HiddenFor(c => c.CreateOrEdit)
+
+            <div class="form-group row no-gutters">
+                <label class="control-label col-md-2">نام (انگلیسی)</label>
+                <div class="col-md-5">
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", autocomplete = "off" }, })
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters">
+                <label class="control-label col-md-2">نام (فارسی)</label>
+                <div class="col-md-5">
+                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control", autocomplete = "off" }, })
+                </div>
+            </div>
+
+            <div class="form-group row no-gutters ">
+                @Html.LabelFor(model => model.SoftSectionId, new { @class = "control-label col-md-2" })
+                <div class="col-md-5">
+                    @Html.DropDownListFor(model => model.SoftSectionId, accessManagmentService.SoftSectionListForCreateRole(), new { @class = "form-select", autocomplete = "off" })
+                </div>
+            </div>
+
+            @*<div class="form-group row no-gutters">
+                @Html.LabelFor(model => model.ApplicationRoleId, new { @class = "control-label col-md-2" })
+                <div class="col-md-9">
+                    @Html.DropDownListFor(model => model.ApplicationRoleId, accessManagmentService.ApplicationRoleList(), new { @class = "form-select", autocomplete = "off" })
+                </div>
+            </div>*@
+
+            <div class="form-group row no-gutters">
+                <div class="col-md-2"></div>
+                <div style="min-height:30px;" class="col-md-10" id="ResultGetActon">
+                    @if (Model.Id != 0)
+                    {
+                        @await Component.InvokeAsync("ActionsList", new { SoftSectionId = Model.SoftSectionId, SoftwarerRoleId = Model.Id })
+                    }
+                </div>
+            </div>
+            <div class="form-group row no-gutters">
+                <div class="col-md-2"></div>
+                <div class="col-md-7 ">
+                    <button id="EditItemBtn" type="submit" class="btn btn-primary">ذخیره</button>
+                    <a href="@Url.Action("ShowAllSoftwareRoles","AccessManagement")" class="btn btn-light">انصراف</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#AccessRoleForm').bootstrapValidator({
+            live: 'enabled',
+            feedbackIcons: {
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                Name: {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                },
+                SoftSectionId: {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                }
+            }
+        }).on('success.form.bv', function (e) {
+            e.preventDefault();
+            jQuery.ajaxSettings.traditional = true;
+            var $CheckBoxs = $("input.ActionSelection");
+            var ItemsList = "";
+            $CheckBoxs.each(function () {
+                if ($(this).is(':checked'))
+                    ItemsList += $(this).val() + ",";
+            });
+            $("#ActionList").val(ItemsList);
+            var $form = $(e.target);
+            var formData = new FormData(this);
+            var bv = $form.data('bootstrapValidator');
+
+            $.ajax({
+                beforeSend: function () {
+                    $form.addClass("DisableItems");
+                },
+                url: $form.attr("action"),
+                type: $form.attr("method"),
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    console.log(result);
+                    if (result.Success) {
+                        toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        window.location.href = "@Url.Action("ShowAllSoftwareRoles", "AccessManagement")";
+                    }
+                    else {
+                        $("button[type='submit']").prop('disabled', false);
+                        toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $form.removeClass("DisableItems");
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+
+        $("select#SoftSectionId").on('change', function (e) {
+            var optionSelected = $("option:selected", this);
+            var SoftSectionId = this.value;
+            $("#ResultGetActon").addClass("DisableItems");
+            $.get("@Url.Action("GetActionList", "AccessManagement")", {
+                SoftSectionId: SoftSectionId,
+                SoftwarerRoleId: $("#Id").val()
+            }, function (result) {
+                $("#ResultGetActon").html(result);
+                $("#ResultGetActon").removeClass("DisableItems");
+            });
+        });
+
+
+        $(document).on("click", ".Clable", function () {
+            $(this).closest(".ControllerDiv").next(".ActionDiv").slideToggle();
+            $(this).find(".fa").toggleClass("fa-angle-down").toggleClass("fa-angle-up");
+        });
+        $(document).on("change", ".ControllerDiv .ControlCheckBox", function () {
+            var CHeckValue = $(this).is(':checked');
+            $(this).closest(".ControllerDiv").next(".ActionDiv").find("input.ActionSelection").prop('checked', CHeckValue);
+        });
+    });
+</script>

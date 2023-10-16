@@ -1,0 +1,67 @@
+﻿@model List<CustomMenu>
+@{
+    ViewBag.Title = "مدیریت منوهای پنل مدیریت";
+    var Smodel = (CustomMenuSearchViewModel)ViewData["SearchModel"];
+}
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-flush">
+    <div class="card-body">
+        <a data-remote="@Url.Action("CreateEditCustomMenu")" class="btn btn-success btn-create wow zoomIn text-white"><span>ثبت آیتم</span></a>
+
+        @await Html.PartialAsync("SearchCustomMenu", new CustomMenuSearchViewModel())
+        <div id="ResultSearchList">
+            @await Html.PartialAsync("ResaultSearchInCustomMenus", Model.ToList())
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            SubmitSearch($('#SearchForm'));
+            RenderSelectTwo($(".selectTwo"));
+            $(document).on("click", ".up,.down", function () {
+                var row = $(this).closest("tr");
+                if ($(this).is(".up")) {
+                    $.get("@Url.Action("ChangePositionCustomMenu", "CustomMenu")", {
+                        SecondCustomMenuId: row.prev().data("id"),
+                        SelectedCustomMenuId: row.data("id"),
+                    }, function (data) {
+                        if (data == 1) {
+                            var Temp = row.data("positioninpage");
+                            row.data("positioninpage", row.prev().data("positioninpage"));
+                            row.prev().data("positioninpage", Temp);
+                            row.insertBefore(row.prev());
+                            row.addClass("alert-info");
+                        }
+                    });
+                } else {
+                    $.get("@Url.Action("ChangePositionCustomMenu", "CustomMenu")", {
+                        SecondCustomMenuId: row.next().data("id"),
+                        SelectedCustomMenuId: row.data("id"),
+                    }, function (data) {
+                        if (data == 1) {
+                            var Temp = row.data("positioninpage");
+                            row.data("positioninpage", row.next().data("positioninpage"));
+                            row.next().data("positioninpage", Temp);
+                            row.insertAfter(row.next());
+                            row.addClass("alert-danger");
+                        }
+
+                    });
+                }
+            });
+        });
+    </script>
+}

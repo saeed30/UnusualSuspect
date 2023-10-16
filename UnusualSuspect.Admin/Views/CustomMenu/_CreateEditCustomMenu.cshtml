@@ -1,0 +1,162 @@
+﻿@model CustomMenu
+@inject ICustomeMenuService  customeMenuService
+@*@inject INotificationService  notificationService*@
+@inject UnusualSuspect.Services.JcoSecurity.IAccessManagmentService accessManagmentService
+@{
+    Layout = null;
+}
+
+<script src="~/js/fileinput.min.js"></script>
+<div class="modal-header">
+    <h4 id="myModalLabel">
+        @ViewBag.TitlePage
+    </h4>
+    <button type="button" class="close " data-bs-dismiss="modal" aria-hidden="true">&times;</button>
+</div>
+@using (Html.BeginForm("CreateEditCustomMenu", "CustomMenu", FormMethod.Post, new { id = "CreateEditCustomMenuForm", enctype = "multipart/form-data" }))
+{
+<div class="modal-body">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+
+    <div class="form-group row no-gutters">
+        @Html.LabelFor(x => x.SoftSectionId, new { @class = "control-label col-md-3" })
+        <div class="col-md-9">
+            @Html.DropDownListFor(model => model.SoftSectionId, accessManagmentService.SoftSectionList(" - - - - - "), new { @class = "form-select selectTwo" })
+        </div>
+    </div>
+    <div class="form-group row no-gutters">
+        @Html.LabelFor(x => x.ParentId, new { @class = "control-label col-md-3" })
+
+        <div class="col-md-9">
+            @Html.DropDownListFor(model => model.ParentId, customeMenuService.ParentCustomMenuUsersList("انتخاب منو پدر"), new { @class = "form-select selectTwo" })
+        </div>
+    </div>
+
+    <div class="form-group row no-gutters">
+        @Html.LabelFor(x => x.AMActionId, new { @class = "control-label col-md-3" })
+        <div class="col-md-9">
+            @Html.DropDownListFor(model => model.AMActionId, (Model.AMActionId == null ? new List<SelectListItem>
+                    {
+                    new SelectListItem() { Text = "انتخاب اکشن اصلی", Value ="" }
+                    } : accessManagmentService.AmActionsList(Model.SoftSectionId, " - - - - - ")), new { @class = "form-select selectTwo" })
+        </div>
+    </div>
+    <div class="form-group row no-gutters">
+        @Html.LabelFor(x => x.NotifName, new { @class = "control-label col-md-3" })
+@*        <div class="col-md-9">
+            @Html.DropDownListFor(model => model.NotifName, notificationService.NotificationAdminsList("انتخاب نوتیفیکیشن"), new { @class = "form-select selectTwo" })
+        </div>
+*@    </div>
+    <div class="form-group row no-gutters">
+        @Html.LabelFor(x => x.Parameter, new { @class = "control-label col-md-3" })
+        <div class="col-md-9">
+            @Html.EditorFor(model => model.Parameter, new { htmlAttributes = new { @class = "form-control" }, })
+        </div>
+    </div>
+    <div class="form-group row no-gutters">
+        <label class="control-label col-md-3">عنوان </label>
+        <div class="col-md-9">
+            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" }, })
+        </div>
+    </div>
+
+    <div class="form-group row no-gutters">
+        @Html.LabelFor(x => x.FontAweSomeIcon, new { @class = "control-label col-md-3" })
+        <div class="col-md-9">
+            @Html.EditorFor(model => model.FontAweSomeIcon, new { htmlAttributes = new { @class = "form-control" }, })
+        </div>
+    </div>
+    <div class="form-group row no-gutters">
+        @Html.LabelFor(x => x.PatchIcon, new { @class = "control-label col-md-3" })
+        <div class="col-md-9">
+            <input name="Image" id="Image" type="file" class="file" data-show-upload="false" data-show-caption="false" data-show-remove="false" accept="image/jpeg,image/png" data-browse-class="btn btn-o btn-default" data-browse-label="انتخاب آیکون">
+        </div>
+    </div>
+</div>
+    <div class="modal-footer row mx-0 no-gutters">
+        <div class="col-md-3"></div>
+        <div class=" col-md-9">
+            <button id="EditItemBtn" type="submit" class="btn btn-primary">ذخیره</button>
+            <button id="test" type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+        </div>
+
+    </div>
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#CreateEditCustomMenuForm').bootstrapValidator({
+            live: 'enabled',
+            feedbackIcons: {
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                'ApplicationUser.Fname': {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                },
+                'ApplicationUser.Lname': {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                },
+                'ApplicationUser.Email': {
+                    validators: {
+                        emailAddress: {
+                        }
+                    }
+                }
+            },
+        }).on('success.form.bv', function (e) {
+            e.preventDefault();
+            var $form = $(e.target);
+            var formData = new FormData(this);
+            var bv = $form.data('bootstrapValidator');
+            jQuery.ajaxSettings.traditional = true;
+            $.ajax({
+                beforeSend: function () {
+                    $form.addClass("DisableItems");
+                },
+                url: $form.attr("action"),
+                type: $form.attr("method"),
+                data: formData,
+                success: function (result) {
+                    console.log(result);
+                    if (result.Success) {
+                        toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $.post("@Url.Action("ResaultSearchInCustomMenus")", {
+                            KeyWord: $("#KeyWord").val(),
+                            SortTypeId: $("#SortTypeId").val(),
+                            PageSize: $("#PageSize").val(),
+                            Step: Step
+                        }, function (data) {
+                            $("#ResultSearchList").html(data);
+                            $form.removeClass("DisableItems");
+                            $("table tbody tr#" + result.Id).addClass("alert-success")
+                            $('#ModalDiv').modal('hide');
+                        });
+                    }
+                    else {
+                        toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $("button[type='submit']").prop('disabled', false);
+                        $form.removeClass("DisableItems");
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+        RenderSelectTwoInModel($(".selectTwo"));
+        $("#CreateEditCustomMenuForm select#SoftSectionId").on('change', function (e) {
+            var optionSelected = $("option:selected", this);
+            var jsonData = {};
+            jsonData["SoftSectionId"] = this.value;
+            ReturnSelectListItems("#CreateEditCustomMenuForm select#AMActionId", "/CustomMenu/RetrieveActions", jsonData);
+            ReturnSelectListItems("#CreateEditCustomMenuForm select#ParentId", "/CustomMenu/RetrieveParentMenus", jsonData)
+        });
+    });
+</script>

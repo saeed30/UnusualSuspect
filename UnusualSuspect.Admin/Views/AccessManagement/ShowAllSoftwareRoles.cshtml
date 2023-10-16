@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = ViewBag.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack">
+        <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+            <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@ViewBag.Title</h1>
+        </div>
+        <div class="d-flex align-items-center py-1">
+
+        </div>
+    </div>
+</div>
+
+
+<div class="card card-flush">
+    <div class="card-body">
+
+        @await Html.PartialAsync("SearchSoftwareRole")
+
+        @(Html.Kendo().Grid<Role>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(c => c.Id).Title("شناسه").Filterable(false);
+        columns.Bound(c => c.SoftSection.TypeName).Title("بخش");
+        columns.Bound(c => c.Name).Title("عنوان انگلیسی");
+        columns.Bound(c => c.Title).Title("عنوان عنوان فارسی");
+        //columns.Bound(c => c.ApplicationRole.Name).Title("نقش");
+
+        columns.Bound(p => p.Id).ClientTemplate("<a  class='k-button k-button-icontext' data-id='#=id#' data-type='0' href='/AccessManagement/CreateEditRole?Id=#=Id#'><i class='fas fa-edit text-primary'></i></a>").Title(" ").Filterable(false).Width(50);
+        columns.Bound(p => p.Id).ClientTemplate("<button  data-id='#=Id#' type='button' class='k-button k-button-icontext DeleteItem' data-action='/AccessManagement/DeleteSoftwareRole' data-titlesweet='آیا مطمئن هستید' data-textsweet='در صورت اطمینان از حذف آیتم بر روی تائید کلیک کنید.' , SharedLocalizer['آیتم]' data-cancelbtn='انصراف' data-confirmbtn='تائید'><i class='fas fa-trash-alt text-danger'></i></button>").Title(" ").Filterable(false).Width(50);
+
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.ClientTemplateId("GridToolbarTemplate");
+    })
+    .Pageable(pager => pager
+            .Input(true)
+            .Info(true)
+            .PreviousNext(true)
+            .Refresh(true)
+          )
+    .Filterable().Sortable()
+    .DataSource(dataSource => dataSource
+    .Ajax().Sort(a => a.Add("Id").Descending())
+    .PageSize(20)
+    .Model(model =>
+    {
+        model.Id(p => p.Id);
+
+    })
+        .Read(read => read.Action("ShowAllSoftwareRoles_Read", "AccessManagement"))
+    ))
+    </div>
+</div>
+
+<script id="GridToolbarTemplate" type="text/x-kendo-template">
+
+     <div class="refreshBtnContainer">
+        <a href="/AccessManagement/CreateEditRole" class="btn btn-success">
+            <span class="k-icon k-i-add color-white"></span>
+           تعریف نقش جدید
+        </a>
+    </div>
+
+</script>

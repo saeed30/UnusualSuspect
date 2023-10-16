@@ -1,0 +1,18 @@
+﻿@model List<Role>
+
+@{
+    Layout = null;
+}
+<div class="row">
+    @foreach (var CustomerRoleOB in Model)
+    {
+        int[] RolesId = { 1, 2, 3, 5, 12 };//necessary Roles
+        List<int> authorsRange = new List<int>(RolesId);
+        if (!authorsRange.Contains(CustomerRoleOB.Id))
+        {
+        <div class="col-sm-4">
+            <label><input type="checkbox" checked="@CustomerRoleOB.Selected" class="RoleSelection" value="@CustomerRoleOB.Id" /> <span>@CustomerRoleOB.Title</span></label>
+        </div>
+        }
+    }
+</div>

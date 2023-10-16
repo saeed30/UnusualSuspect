@@ -1,0 +1,150 @@
+﻿@model LoginViewModel
+@inject ISoftSettingService _SoftSettingService;
+@{
+    var miscSettingOB = _SoftSettingService.GetSoftSetting();
+    ViewBag.Title = $"سامانه {miscSettingOB.BussinessTitle}";
+
+}
+@using (Html.BeginForm("NewConfirmSendedCode", "Account", FormMethod.Post, new { id = "confirmFormcodeuser", dir = "rtl", enctype = "multipart/form-data", @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    <input asp-for="ReturnUrl" type="hidden" />
+    <input type="hidden" placeholder="شماره همراه" asp-for="PhoneNumber">
+
+    <div class="k-codeSection">
+        <p>کد تایید به شماره <span dir="ltr"></span> ارسال شد</p>
+        <div class="k-code-container mb-3">
+            @*<input type="tel" class="k-code" maxlength=1 id="p_1" />
+                <input type="tel" class="k-code" maxlength=1 id="p_2" />
+                <input type="tel" class="k-code" maxlength=1 id="p_3" />
+                <input type="tel" class="k-code" maxlength=1 id="p_4" />*@
+
+            <input type="tel" id="p_1" class="k-code" maxlength=1 name="CodeValidatePhone[]" required>
+            <input type="tel" id="p_2" class="k-code" maxlength=1 name="CodeValidatePhone[]" required>
+            <input type="tel" id="p_3" class="k-code" maxlength=1 name="CodeValidatePhone[]" required>
+            <input type="tel" id="p_4" class="k-code" maxlength=1 name="CodeValidatePhone[]" required>
+            <input type="tel" id="p_5" class="k-code" maxlength=1 name="CodeValidatePhone[]" required>
+
+        </div>
+        <button type="submit" id='submit' class="confirmCode">ورود</button>
+        @*<button id='submit'>
+                ورود
+            </button>*@
+    </div>
+
+    <div class="k-timerResend">
+        <a href="@Url.Action("Login",new  { PhoneNumber=Model.PhoneNumber})" class="k-changeNumber">تغییر شماره</a>
+        <div class="k-timerResend">
+            @*<span class="k-countdown"></span>
+                <a href="javascript:;" class="k-reSend">ارسال مجدد</a>*@
+
+            <a data-remote="@Url.Action("ReSendCodeToPhoneNumber",new  { PhoneNumber=Model.PhoneNumber})" href="javascript:;" class="k-reSend reSend">ارسال مجدد</a>
+            <span class="k-countdown"></span>
+
+        </div>
+    </div>
+
+}
+
+
+<script src="~/asset/js/confirmCode.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#p_1").focus();
+        timer();
+        $('#confirmFormcodeuser').bootstrapValidator({
+            live: 'enabled',
+            feedbackIcons: {
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            locale: 'fa_IR',
+            group: '.code-box',
+            fields: {
+                //'CodeValidatePhone[]': {
+                //    validators: {
+                //        notEmpty: {
+                //            message: ' '
+                //        },
+                //        numeric: {
+                //            message: ' ',
+                //        },
+                //        callback: {
+                //            callback: function (value, validator) {
+                //                return isValidDigit(value);
+                //            }
+                //        },
+                //    }
+                //}
+            },
+        }).on('success.form.bv', function (e) {
+            e.preventDefault();
+            var $form = $(e.target);
+            var formData = new FormData(this);
+            var bv = $form.data('bootstrapValidator');
+            formData.set('PhoneNumberCode', $("#p_1").val() + $("#p_2").val() + $("#p_3").val() + $("#p_4").val() + $("#p_5").val());
+            jQuery.ajaxSettings.traditional = true;
+            $.ajax({
+                beforeSend: function () {
+                    $form.addClass("DisableItems");
+                },
+                url: $form.attr("action"),
+                type: $form.attr("method"),
+                data: formData,
+                success: function (result) {
+                    if (result.Success) {
+                        window.location.href = result.Url;
+                    }
+                    else {
+
+                        $("button[type='submit']").prop('disabled', false);
+                        toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $form.removeClass("DisableItems");
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+        $(document).on("keyup", ".k-code", function () {
+            $(".k-code").each(function () {
+                if ($(this).val() != "") {
+                    $(".confirmCode").addClass('active');
+                } else {
+                    $(".confirmCode").removeClass('active');
+                }
+            });
+        });
+
+
+
+        $(document).on("click", ".reSend", function () {
+            $.get($(this).data("remote"), {
+            }, function (result) {
+                if (result.Success) {
+                    toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                    timer();
+                    $(".countdown").show();
+                    $(this).hide();
+                }
+                else {
+                    toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                }
+            });
+        });
+
+        $(document).on("click", ".changeNumber", function () {
+            $.get($(this).data("remote"), {
+            }, function (result) {
+                if (result.Success) {
+                    toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                    timer();
+                }
+                else {
+                    toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                }
+            });
+        });
+    });
+
+</script>

@@ -1,0 +1,78 @@
+﻿@model List<CustomMenu>
+@*@inject INotificationService  notificationService*@
+
+
+<ul>
+    @if(Model != null)
+    {
+        foreach (var menuItem in Model.OrderBy(m => m.PositionId))
+    {
+        if (menuItem.ChildeCustomeMenus == null || menuItem.ChildeCustomeMenus.Count == 0)
+        {
+            <li>
+                <a href="@(menuItem.AmAction == null ? "" : ("/" + menuItem.AmAction.AMController.Name + "/" + menuItem.AmAction.Name + menuItem.Parameter))">
+                    <span>
+                        @if (menuItem.FontAweSomeIcon != null)
+                        {
+                            <i class="fa fa-bars"></i>
+                        }
+                        else
+                        {
+                            <img class="menuIcon" src="@menuItem.PatchIcon" />
+                        }
+                        @menuItem.Name
+                    </span>
+@*                    @if (menuItem.NotifName != null)
+                    {
+                        <span class="badge pull-left bg-success">@notificationService.GetNotificationAdminPanel(menuItem.NotifName)</span>
+                    }
+*@                </a>
+            </li>
+        }
+        else
+        {
+            <li>
+                <a data-bs-toggle="collapse" href="#@("collapseExample"+menuItem.Id.ToString())" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    <span>
+                        <i class="fa fa-bars"></i>
+                        @menuItem.Name
+                    </span>
+                    <i class="fa fa-angle-down"></i>
+                </a>
+                <div class="collapse" id="@("collapseExample"+menuItem.Id.ToString())">
+                    <div class="card card-body">
+                        <ul class="p-0 inner-ul">
+
+                            @foreach (var menuItem2 in menuItem.ChildeCustomeMenus.ToList().OrderBy(m=>m.PositionId))
+                            {
+                                <li>
+                                    <a href="@(menuItem2.AmAction == null ? "" : ("/" + menuItem2.AmAction.AMController.Name + "/" + menuItem2.AmAction.Name + menuItem2.Parameter))">
+                                        @menuItem2.Name
+@*                                        @if (menuItem2.NotifName != null)
+                                        {
+                                            <span class="badge pull-left bg-success">@notificationService.GetNotificationAdminPanel(menuItem2.NotifName)</span>
+                                        }
+*@                                    </a>
+                                </li>
+                            }
+
+                        </ul>
+                    </div>
+                </div>
+            </li>
+
+        }
+    }
+    }
+    
+
+    <li>
+        <a href="@Url.Action("Logout","Profile")">
+            <span>
+                <i class="fa fa-bars"></i>
+                خروج
+            </span>
+        </a>
+    </li>
+
+</ul>

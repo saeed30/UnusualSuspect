@@ -1,0 +1,151 @@
+﻿@model LoginViewModel
+@inject ISoftSettingService _SoftSettingService;
+@{
+    var miscSettingOB = _SoftSettingService.GetSoftSetting();
+    ViewBag.Title = $"سامانه {miscSettingOB.BussinessTitle}";
+
+}
+
+<div class="col-lg-5 mx-auto p-5">
+    @using (Html.BeginForm("ConfirmSendedCode", "Account", FormMethod.Post, new { id = "confirmFormcodeuser", dir = "rtl", enctype = "multipart/form-data", @class = "form-horizontal" }))
+    {
+        <h5 class="text-center">
+            ورود به سایت @miscSettingOB?.BussinessTitle
+        </h5>
+        <p class="sign-label my-2">
+            کد تایید را وارد کنید
+        </p>
+
+        @Html.AntiForgeryToken()
+        <div class="number-box">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <input type="hidden" placeholder="شماره همراه" asp-for="PhoneNumber">
+            <div class="code-box on">
+                <div>
+                    <p>کد تایید به شماره <span dir="ltr"></span> ارسال شد</p>
+                    <div class="code-container">
+                        <input type="tel" id="p_1" class="k-code" placeholder="-" name="CodeValidatePhone[]" min="0" max="9" required>
+                        <input type="tel" id="p_2" class="k-code" placeholder="-" name="CodeValidatePhone[]" min="0" max="9" required>
+                        <input type="tel" id="p_3" class="k-code" placeholder="-" name="CodeValidatePhone[]" min="0" max="9" required>
+                        <input type="tel" id="p_4" class="k-code" placeholder="-" name="CodeValidatePhone[]" min="0" max="9" required>
+                        <input type="tel" id="p_5" class="k-code" placeholder="-" name="CodeValidatePhone[]" min="0" max="9" required>
+                    </div>
+                </div>
+                <div class="flex-center">
+                    <button type="submit" class="mt-2 confirmCode">ورود</button>
+
+                </div>
+                <div>
+                    <a href="@Url.Action("Login",new  { PhoneNumber=Model.PhoneNumber})"  class="changeNumber">تغییر شماره</a>
+                    <div>
+                        <a data-remote="@Url.Action("ReSendCodeToPhoneNumber",new  { PhoneNumber=Model.PhoneNumber})" href="javascript:;" class="reSend">ارسال مجدد</a>
+                        <span class="countdown"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".code-container #p_1").focus();
+        doFocus();
+        timer();
+        $('#confirmFormcodeuser').bootstrapValidator({
+            live: 'enabled',
+            feedbackIcons: {
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            locale: 'fa_IR',
+            group: '.code-box',
+            fields: {
+                //'CodeValidatePhone[]': {
+                //    validators: {
+                //        notEmpty: {
+                //            message: ' '
+                //        },
+                //        numeric: {
+                //            message: ' ',
+                //        },
+                //        callback: {
+                //            callback: function (value, validator) {
+                //                return isValidDigit(value);
+                //            }
+                //        },
+                //    }
+                //}
+            },
+        }).on('success.form.bv', function (e) {
+            e.preventDefault();
+            var $form = $(e.target);
+            var formData = new FormData(this);
+            var bv = $form.data('bootstrapValidator');
+            formData.set('PhoneNumberCode', $("#p_1").val() + $("#p_2").val() + $("#p_3").val() + $("#p_4").val() + $("#p_5").val());
+            jQuery.ajaxSettings.traditional = true;
+            $.ajax({
+                beforeSend: function () {
+                    $form.addClass("DisableItems");
+                },
+                url: $form.attr("action"),
+                type: $form.attr("method"),
+                data: formData,
+                success: function (result) {
+                    if (result.Success) {
+                        window.location.href = result.Url;
+                    }
+                    else {
+
+                        $("button[type='submit']").prop('disabled', false);
+                        toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $form.removeClass("DisableItems");
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+        $(document).on("keyup", ".code", function () {
+            $(".code").each(function () {
+                if ($(this).val() != "") {
+                    $(".confirmCode").addClass('active');
+                } else {
+                    $(".confirmCode").removeClass('active');
+                }
+            });
+        });
+
+
+
+        $(document).on("click", ".reSend", function () {
+            $.get($(this).data("remote"), {
+            }, function (result) {
+                if (result.Success) {
+                    toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                    timer();
+                    $(".countdown").show();
+                    $(this).hide();
+                }
+                else {
+                    toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                }
+            });
+        });
+
+        $(document).on("click", ".changeNumber", function () {
+            $.get($(this).data("remote"), {
+            }, function (result) {
+                if (result.Success) {
+                    toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                    timer();
+                }
+                else {
+                    toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                }
+            });
+        });
+    });
+
+</script>

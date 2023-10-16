@@ -1,0 +1,132 @@
+﻿@model AmAction
+@using  UnusualSuspect.Services.JcoSecurity
+@inject IAccessManagmentService accessManagmentService
+
+<div class="modal-header">
+    <h4 id="myModalLabel">@ViewBag.TitlePage</h4>
+    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal" data-kt-users-modal-action="close">
+
+        <span class="svg-icon svg-icon-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="black"></rect>
+                <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="black"></rect>
+            </svg>
+        </span>
+    </div>
+</div>
+<div class="modal-body">
+
+    @using (Html.BeginForm("EditActionOfController", "AccessManagement", FormMethod.Post, new { id = "EditActionOfControllerForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.AMControllerId)
+        <div class="form-group row no-gutters">
+            <label class="control-label col-sm-2">نام کنترلر</label>
+            <div class="col-sm-10">
+                @Html.EditorFor(model => model.AMController.Name, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" }, })
+            </div>
+        </div>
+        <div class="form-group row no-gutters">
+            <label class="control-label col-sm-2">نام اکشن</label>
+            <div class="col-sm-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" }, })
+            </div>
+        </div>
+        <div class="form-group row no-gutters">
+            <label class="control-label col-sm-2">نام فارسی اککشن</label>
+            <div class="col-sm-10">
+                @Html.EditorFor(model => model.FarsiName, new { htmlAttributes = new { @class = "form-control" }, })
+            </div>
+        </div>
+        <div class="form-group row no-gutters">
+            <label class="control-label col-sm-2">انتخاب بخش</label>
+            <div class="col-sm-10">
+                @Html.DropDownListFor(model => model.SoftSectionId, accessManagmentService.SoftSectionList(" - - - - - "), new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="modal-footer no-gutters">
+            <div class="col-md-offset-3 col-md-9">
+                <button id="EditItemBtn" type="submit" class="btn btn-primary">ذخیره</button>
+                <button id="test" type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+            </div>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#EditActionOfControllerForm').bootstrapValidator({
+            live: 'enabled',
+            feedbackIcons: {
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                EnglishName: {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                },
+                UserTypeRoleId: {
+                    validators: {
+                        notEmpty: {
+                        }
+                    }
+                }
+            }
+        }).on('success.form.bv', function (e) {
+            e.preventDefault();
+            var $form = $(e.target);
+            var formData = new FormData(this);
+            var bv = $form.data('bootstrapValidator');
+            jQuery.ajaxSettings.traditional = true;
+            $.ajax({
+                beforeSend: function () {
+                    $form.addClass("DisableItems");
+                },
+                url: $form.attr("action"),
+                type: $form.attr("method"),
+                data: formData,
+                success: function (result) {
+                    console.log(result);
+                    if (result.Success) {
+                        toastr.success(result.MessageList, '', { positionClass: "toast-bottom-center" });
+
+                        $("#grid").data("kendoGrid").dataSource.read();
+                        $('#ModalDiv').modal('hide');
+
+
+                        $('#grid').data('kendoGrid').dataSource.read().then(function () {
+                            var dataGrid = $('#grid').data('kendoGrid');
+                            let dataView = dataGrid.dataSource.view();
+
+                            for (let i = 0; i < dataView.length; i++) {
+
+                                if (dataView[i].Id == result.Id) {
+
+                                    dataGrid.table.find("tr[data-uid='" + dataView[i].uid + "']").addClass("alert-success-row");
+                                }
+                            }
+                        });
+                    }
+                    else {
+                        $("button[type='submit']").prop('disabled', false);
+                        toastr.error(result.MessageList, '', { positionClass: "toast-bottom-center" });
+                        $form.removeClass("DisableItems");
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+
+    });
+</script>
+
+
+
+
+
+
