@@ -1,19 +1,19 @@
 ﻿using ElmahCore.Mvc;
 using ElmahCore.Sql;
-using School.Common;
-using School.Common.Exceptions;
-using School.Common.Extensions;
-using School.Common.Utilities;
-using School.DataLayer.Context;
-using School.Entities.Identity;
-using School.Services;
-using School.Services.Contracts;
-using School.Services.Contracts.Identity;
-using School.Services.Identity;
-using School.Services.IServices;
-using School.Services.JcoSecurity;
-using School.Services.Services;
-using School.ViewModels.Settings;
+using UnusualSuspect.Common;
+using UnusualSuspect.Common.Exceptions;
+using UnusualSuspect.Common.Extensions;
+using UnusualSuspect.Common.Utilities;
+using UnusualSuspect.DataLayer.Context;
+using UnusualSuspect.Entities.Identity;
+using UnusualSuspect.Services;
+using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.Services.Identity;
+using UnusualSuspect.Services.IServices;
+using UnusualSuspect.Services.JcoSecurity;
+using UnusualSuspect.Services.Services;
+using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -35,7 +35,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace School.IocConfig;
+namespace UnusualSuspect.IocConfig;
 
 public static class ServiceCollectionExtensions
 {
@@ -75,7 +75,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddQuartz(q =>
         {
-            q.UseMicrosoftDependencyInjectionScopedJobFactory();
+					q.UseDefaultThreadPool(maxConcurrency: 1);
         });
         services.AddQuartzHostedService(
             q => q.WaitForJobsToComplete = true);
@@ -127,8 +127,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAccessManagmentService, AccessManagmentService>();
         services.AddScoped<ICustomeMenuService, CustomeMenuService>();
         services.AddScoped<IFileService, FileService>();
-        services.AddScoped<IStaffService, StaffService>();
-        services.AddScoped<IStudentService, StudentService>();
         return services;
     }
 
@@ -160,12 +158,12 @@ public static class ServiceCollectionExtensions
                 ClockSkew = TimeSpan.Zero,
                 RequireSignedTokens = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(secretKey),
                 RequireExpirationTime = false,
-                ValidateLifetime = false,
+                ValidateLifetime = true,
                 ValidateAudience = true,
-                ValidAudience = jwtSettings.Audience,
                 ValidateIssuer = true,
+                IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                ValidAudience = jwtSettings.Audience,
                 ValidIssuer = jwtSettings.Issuer,
                 TokenDecryptionKey = new SymmetricSecurityKey(encryptionKey)
             };
@@ -208,13 +206,13 @@ public static class ServiceCollectionExtensions
 
                     await usermanager.UpdateLastLoginDateAsync(user);
                 },
-                OnChallenge = context =>
-                {
-                    if (context.AuthenticateFailure != null)
-                        throw new AppException(ApiResultStatusCode.UnAuthorized, "Authenticate failure.", HttpStatusCode.Unauthorized, context.AuthenticateFailure, null);
-                    throw new AppException(ApiResultStatusCode.UnAuthorized, "You are unauthorized to access this resource.", HttpStatusCode.Unauthorized);
+                //OnChallenge = context =>
+                //{
+                //    if (context.AuthenticateFailure != null)
+                //        throw new AppException(ApiResultStatusCode.UnAuthorized, "Authenticate failure.", HttpStatusCode.Unauthorized, context.AuthenticateFailure, null);
+                //    throw new AppException(ApiResultStatusCode.UnAuthorized, "You are unauthorized to access this resource.", HttpStatusCode.Unauthorized);
 
-                }
+                //}
             };
         });
     }

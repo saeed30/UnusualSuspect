@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
 	<Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -9,14 +9,15 @@
   <ItemGroup>
     <PackageReference Include="ElmahCore" Version="2.1.2" />
     <PackageReference Include="ElmahCore.Sql" Version="2.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.12" />
-    <PackageReference Include="Quartz" Version="3.5.0" />
-    <PackageReference Include="Quartz.Extensions.Hosting" Version="3.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.12" />
+    <PackageReference Include="Quartz" Version="3.7.0" />
+    <PackageReference Include="Quartz.Extensions.Hosting" Version="3.7.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\School.Services\School.Services.csproj" />
-    <ProjectReference Include="..\School.ViewModels\School.ViewModels.csproj" />
+    <ProjectReference Include="..\UnusualSuspect.Common\UnusualSuspect.Common.csproj" />
+    <ProjectReference Include="..\UnusualSuspect.Services\UnusualSuspect.Services.csproj" />
+    <ProjectReference Include="..\UnusualSuspect.ViewModels\UnusualSuspect.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

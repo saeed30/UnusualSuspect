@@ -1,14 +1,14 @@
-﻿using School.DataLayer.Context;
-using School.Entities.Identity;
-using School.Services.Config;
-using School.ViewModels.Settings;
+﻿using UnusualSuspect.DataLayer.Context;
+using UnusualSuspect.Entities.Identity;
+using UnusualSuspect.Services.Config;
+using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace School.IocConfig;
+namespace UnusualSuspect.IocConfig;
 
 public static class AddIdentityOptionsExtensions
 {
@@ -29,6 +29,7 @@ public static class AddIdentityOptionsExtensions
         {
             var provider = services.BuildServiceProvider();
             setApplicationCookieOptions(provider, identityOptionsCookies, projectSetting.SiteSetting);
+            provider.InitializeDb();
         });
 
         return services;

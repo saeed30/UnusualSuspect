@@ -1,10 +1,12 @@
-﻿using School.DataLayer.Common;
-using School.Services.Contracts.Identity;
-using School.ViewModels.Settings;
+﻿using UnusualSuspect.DataLayer.Common;
+using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Microsoft.EntityFrameworkCore;
+using UnusualSuspect.DataLayer.Context;
 
-namespace School.IocConfig;
+namespace UnusualSuspect.IocConfig;
 
 public static class DbContextOptionsExtensions
 {
@@ -26,6 +28,8 @@ public static class DbContextOptionsExtensions
             var identityDbInitialize = scope.ServiceProvider.GetRequiredService<IIdentityDbInitializer>();
             identityDbInitialize.Initialize();
             identityDbInitialize.SeedData();
+            //using (var context = scope.ServiceProvider.GetService<ApplicationDbContext>())
+            //    context.Database.Migrate();
         }
     }
 }

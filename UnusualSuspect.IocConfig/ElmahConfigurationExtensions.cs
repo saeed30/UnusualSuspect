@@ -1,10 +1,10 @@
 ﻿using ElmahCore.Mvc;
-using School.ViewModels.Settings;
+using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using System;
 
-namespace School.IocConfig;
+namespace UnusualSuspect.IocConfig;
 
 public static class ElmahConfigurationExtensions
 {

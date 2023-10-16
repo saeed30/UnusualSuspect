@@ -1,7 +1,7 @@
-﻿using School.IocConfig;
+﻿using UnusualSuspect.IocConfig;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace School.IocConfig;
+namespace UnusualSuspect.IocConfig;
 
 public static class IdentityServicesRegistry
 {
