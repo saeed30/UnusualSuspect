@@ -1,0 +1,195 @@
+﻿@model  UnusualSuspect.ViewModels.Models.PagingResaultSearchViewModel
+
+@{
+    Layout = null;
+    int NumberPage = ((Model.ResultSum % Model.PageSize) == 0) ? Model.ResultSum / Model.PageSize : Model.ResultSum / Model.PageSize + 1;
+}
+<div class="PagingDiv mb-3">
+    <ul class="list-inline">
+
+        @if (Model.Step == 1)
+        {
+
+            <li >
+                <button type="button" class="btn btn-outline-secondary btn-sm previous " disabled>صفحه قبل</button>
+            </li>
+        }
+        else
+        {
+
+            <li >
+                <button type="button" class="btn btn-outline-secondary btn-sm previous">صفحه قبل</button>
+            </li>
+        }
+        @if (NumberPage <= 10)
+        {
+            for (int i = 1; i <= NumberPage; i++)
+            {
+                if (i == Model.Step)
+                {
+                    <li>
+                        <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>@(i)</button>
+                    </li>
+                }
+                else
+                {
+                    <li  > 
+                        <button data-step="@(i)" type="button" class="btn btn-outline-secondary btn-sm Page-number">@(i)</button>
+                    </li>
+                }
+
+            }
+        }
+        else if (NumberPage > 10)
+        {
+            if (Model.Step <= 5)
+            {
+                for (int i = 1; i <= Model.Step + 2; i++)
+                {
+
+                    if (i == Model.Step)
+                    {
+                        <li>
+                            <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>@(i)</button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <button data-step="@(i)" type="button"  class="btn btn-outline-secondary btn-sm Page-number">@(i)</button>
+                        </li>
+                    }
+                }
+                <li>
+                    <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>...</button>
+                </li>
+                for (int i = NumberPage - 2; i <= NumberPage; i++)
+                {
+
+                    if (i == Model.Step)
+                    {
+                        <li>
+                            <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>@(i)</button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li >
+                            <button data-step="@(i)" type="button"  class="btn btn-outline-secondary btn-sm Page-number">@(i)</button>
+                        </li>
+                    }
+                }
+            }
+            else if (Model.Step >= NumberPage - 5)
+            {
+                for (int i = 1; i <= 2; i++)
+                {
+
+                    if (i == Model.Step)
+                    {
+                        <li>
+                            <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>@(i)</button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li >
+                            <button  data-step="@(i)" type="button"  class="btn btn-outline-secondary btn-sm Page-number">@(i)</button>
+                        </li>
+                    }
+                }
+
+                <li>
+                    <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>...</button>
+                </li>
+                for (int i = Model.Step - 2; i <= NumberPage; i++)
+                {
+
+                    if (i == Model.Step)
+                    {
+                        <li>
+                            <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>@(i)</button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li >
+                            <button data-step="@(i)" type="button"  class="btn btn-outline-secondary btn-sm Page-number">@(i)</button>
+                        </li>
+                    }
+                }
+
+            }
+            else
+            {
+                for (int i = 1; i <= 2; i++)
+                {
+
+                    if (i == Model.Step)
+                    {
+                        <li>
+                            <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>@(i)</button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li >
+                            <button data-step="@(i)" type="button"  class="btn btn-outline-secondary btn-sm Page-number">@(i)</button>
+                        </li>
+                    }
+                }
+                <li>
+                    <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>...</button>
+                </li>
+                for (int i = Model.Step - 2; i <= Model.Step + 2; i++)
+                {
+                    if (i == Model.Step)
+                    {
+                        <li>
+                            <button type="button"  class="btn btn-outline-secondary btn-sm " disabled>@(i)</button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <button  data-step="@(i)" type="button"  class="btn btn-outline-secondary btn-sm Page-number">@(i)</button>
+                        </li>
+                    }
+                }
+                <li>
+                    <button type="button"  class="btn btn-outline-secondary btn-sm" disabled>...</button>
+                </li>
+                for (int i = NumberPage - 2; i <= NumberPage; i++)
+                {
+
+                    if (i == Model.Step)
+                    {
+                        <li>
+                            <button type="button"  class="btn btn-outline-secondary btn-sm" disabled>@(i)</button>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <button  data-step="@(i)" type="button"  class="btn btn-outline-secondary btn-sm Page-number">@(i)</button>
+                        </li>
+                    }
+                }
+            }
+        }
+        @if (Model.Step == NumberPage || Model.ResultSum==0)
+        {
+
+            <li>
+                <button  type="button"  class="btn btn-outline-secondary btn-sm next " disabled>صفحه بعد</button>
+            </li>
+        }
+        else
+        {
+
+            <li>
+                <button type="button" class="btn btn-outline-secondary btn-sm next">صفحه بعد</button>
+            </li>
+        }
+    </ul>
+</div>
