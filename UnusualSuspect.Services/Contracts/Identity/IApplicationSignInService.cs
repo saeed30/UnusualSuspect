@@ -1,0 +1,16 @@
+﻿using UnusualSuspect.Entities.Identity;
+using UnusualSuspect.ViewModels.JcoSecurity;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using UnusualSuspect.ViewModels.Settings;
+
+namespace UnusualSuspect.Services.Contracts.Identity;
+
+public interface IApplicationSignInService
+{
+    Task SignInAsync(ApplicationUser currentUser, bool v);
+    Task<ApplicationUser> ValidateSecurityStampAsync(ClaimsPrincipal principal);
+    Task<SignInResult> PasswordSignInAsync(LogOnModel model);
+    Task SignOutAsync();
+}

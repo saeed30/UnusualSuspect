@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+	<Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Services\CustomerUserService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UnusualSuspect.DataLayer\UnusualSuspect.DataLayer.csproj" />
+    <ProjectReference Include="..\UnusualSuspect.Entities\UnusualSuspect.Entities.csproj" />
+    <ProjectReference Include="..\UnusualSuspect.ViewModels\UnusualSuspect.ViewModels.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Dapper" Version="2.1.11" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.2" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Aspose.Cells">
+		  <HintPath>..\Dll\Aspose.Cells.dll</HintPath>
+		</Reference>
+		<Reference Include="Aspose.Cells.GridWeb">
+		  <HintPath>..\Dll\Aspose.Cells.GridWeb.dll</HintPath>
+		</Reference>
+		<Reference Include="Kendo.Mvc">
+			<HintPath>..\Dll\Kendo.Mvc.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+</Project>
