@@ -14,15 +14,15 @@ namespace UnusualSuspect.Entities.GameModels
 		public bool IsActive { get; set; }
 		public int UserId { get; set; }
 		[ForeignKey("UserId")]
-		public virtual required ApplicationUser ApplicationUser { get; set; }
+		public virtual ApplicationUser ApplicationUser { get; set; }
 		public int GameId { get; set; }
 		[ForeignKey("GameId")]
-		public virtual required Game Game { get; set; }
+		public virtual Game Game { get; set; }
 		public int RoleCardId { get; set; }
 		[ForeignKey("RoleCardId")]
-		public virtual required RoleCard RoleCard { get; set; }
+		public virtual RoleCard RoleCard { get; set; }
 		public int CharacterCardId { get; set; }
 		[ForeignKey("CharacterCardId")]
-		public virtual required CharacterCard CharacterCard { get; set; }
+		public virtual CharacterCard CharacterCard { get; set; }
 	}
 }

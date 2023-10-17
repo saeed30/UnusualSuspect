@@ -8,7 +8,7 @@ namespace UnusualSuspect.Entities.GameModels
 {
 	public class Question : BaseEntity
 	{
-		public required string QuestionContent { get; set; }
+		public string QuestionContent { get; set; }
 		public bool IsActive { get; set; }
 	}
 }

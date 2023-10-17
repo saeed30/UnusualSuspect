@@ -19,12 +19,12 @@ namespace UnusualSuspect.Entities.Models
 		}
 		[StringLength(64)]
 		[Display(Name = "شماره تلفن")]
-		public required string PhoneNumber { get; set; }
+		public string PhoneNumber { get; set; }
 		[StringLength(512)]
 		[Display(Name = "محتوای پیامک")]
-		public required string MessageContent { get; set; }
+		public string MessageContent { get; set; }
 		[Display(Name = "زمان افزدن به صف ارسال")]
-		public required DateTime DateTimeAddedToQueue { get; set; }
+		public DateTime DateTimeAddedToQueue { get; set; }
 		[Display(Name = "زمان آخرین تلاش جهت ارسال")]
 		public DateTime? DateTimeSent { get; set; }
 		[Display(Name = "وضعیت ارسال")]

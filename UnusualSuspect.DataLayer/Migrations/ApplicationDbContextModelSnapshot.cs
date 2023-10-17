@@ -54,6 +54,9 @@ namespace UnusualSuspect.DataLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ApplicationUserId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
 
@@ -64,6 +67,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("UserId");
 
@@ -78,6 +83,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<string>("ProviderKey")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("ApplicationUserId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
 
@@ -85,6 +93,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("UserId");
 
@@ -123,6 +133,155 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CharacterCard", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CharacterCard");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Game", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FinishedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsFinished")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Game");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Participate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CharacterCardId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<short>("OrderOfParticipation")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("RoleCardId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterCardId");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("RoleCardId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Participate");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Question", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("QuestionContent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Question");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.QuestionGame", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderOfUsage")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("QuestionGame");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.RoleCard", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoleCard");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Identity.ApplicationUser", b =>
@@ -184,9 +343,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("MobileToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NationalCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
@@ -635,14 +791,12 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("KeyName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ModifyDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TableName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -737,6 +891,76 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.ToTable("ObjectType");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.Models.SmsLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateTimeAddedToQueue")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateTimeSent")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("Identifier")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReadForSending")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSend")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MessageContent")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<short>("SendAttemptCount")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("SendingError")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<short?>("SmsSendingStatusId")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("StatusMessage")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SmsSendingStatusId");
+
+                    b.ToTable("SmsLog");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.Models.SmsSendingStatus", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SmsSendingStatus");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.Models.SoftSetting", b =>
                 {
                     b.Property<int>("Id")
@@ -806,6 +1030,10 @@ namespace UnusualSuspect.DataLayer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", null)
+                        .WithMany("Claims")
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -814,6 +1042,10 @@ namespace UnusualSuspect.DataLayer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", null)
+                        .WithMany("Logins")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -843,6 +1075,60 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Participate", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.CharacterCard", "CharacterCard")
+                        .WithMany()
+                        .HasForeignKey("CharacterCardId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.GameModels.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.GameModels.RoleCard", "RoleCard")
+                        .WithMany()
+                        .HasForeignKey("RoleCardId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("CharacterCard");
+
+                    b.Navigation("Game");
+
+                    b.Navigation("RoleCard");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.QuestionGame", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.GameModels.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Identity.ApplicationUser", b =>
@@ -923,7 +1209,7 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired();
 
                     b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
-                        .WithMany()
+                        .WithMany("ActionForUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1022,6 +1308,24 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("ObjectType");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.Models.SmsLog", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.Models.SmsSendingStatus", "SmsSendingStatus")
+                        .WithMany()
+                        .HasForeignKey("SmsSendingStatusId");
+
+                    b.Navigation("SmsSendingStatus");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.Identity.ApplicationUser", b =>
+                {
+                    b.Navigation("ActionForUsers");
+
+                    b.Navigation("Claims");
+
+                    b.Navigation("Logins");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Identity.Role", b =>

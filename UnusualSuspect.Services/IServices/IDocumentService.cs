@@ -26,7 +26,7 @@ public interface IDocumentService
     ResultAction CreateDocument(Document model);
     //ResultAction CreateDocumentComment(DocumentComment model);
     Task<List<Document>> CurrentNews(ApplicationDbContext Db, int takeCount, string Language, CancellationToken CancellationToken);
-    string DeleteDocument(int DocumentId);
+    string? DeleteDocument(int DocumentId);
     ResultAction DeleteDocument(int DocumentId, string UserName);
     ResultAction DeleteDocumentComment(int DocumentCommentId, string UserName);
     Document DetailsDocument(long DocumentId);

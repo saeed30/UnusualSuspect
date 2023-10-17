@@ -13,11 +13,15 @@ namespace UnusualSuspect.Entities.Models;
 /// </summary>
 public class Document : BaseEntity
 {
-	public required string DocumentName { set; get; }
-	public required byte[] File { set; get; }
+	public Document()
+	{
+		ModifyDate = DateTime.Now;
+	}
+	public string DocumentName { set; get; }
+	public byte[] File { set; get; }
 
-	public required DateTime ModifyDate { set; get; }
-	public required string DocumentType { set; get; }
+	public DateTime ModifyDate { set; get; }
+	public string DocumentType { set; get; }
 	public string? TableName { set; get; }
 	public string? KeyName { set; get; }
 

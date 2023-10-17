@@ -3,11 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UnusualSuspect.Entities.Models
 {
-	public class SmsSendingStatus
+	public class SmsSendingStatus : BaseEntity<short>
 	{
-		[Key]
-		[DatabaseGenerated(DatabaseGeneratedOption.None)]
-		public short Id { get; set; }
-		public required string Name { get; set; }
+		public string Name { get; set; }
 	}
 }

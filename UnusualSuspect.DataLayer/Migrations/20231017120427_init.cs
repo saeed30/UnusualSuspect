@@ -53,6 +53,20 @@ namespace UnusualSuspect.DataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CharacterCard",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterCard", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Document",
                 columns: table => new
                 {
@@ -62,12 +76,27 @@ namespace UnusualSuspect.DataLayer.Migrations
                     File = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     ModifyDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DocumentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TableName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    KeyName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    TableName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    KeyName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Document", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Game",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IsFinished = table.Column<bool>(type: "bit", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FinishedTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Game", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -98,6 +127,46 @@ namespace UnusualSuspect.DataLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ObjectType", x => x.ObjectKey);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Question",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    QuestionContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Question", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoleCard",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoleCard", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SmsSendingStatus",
+                columns: table => new
+                {
+                    Id = table.Column<short>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SmsSendingStatus", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -150,7 +219,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     FireBaseToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NationalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DocumentId = table.Column<int>(type: "int", nullable: true),
                     AppVersion = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PatchImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -182,6 +250,62 @@ namespace UnusualSuspect.DataLayer.Migrations
                         name: "FK_AspNetUsers_Document_DocumentId",
                         column: x => x.DocumentId,
                         principalTable: "Document",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuestionGame",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    QuestionId = table.Column<int>(type: "int", nullable: false),
+                    GameId = table.Column<int>(type: "int", nullable: false),
+                    OrderOfUsage = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestionGame", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_QuestionGame_Game_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Game",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_QuestionGame_Question_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Question",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SmsLog",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    MessageContent = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    DateTimeAddedToQueue = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateTimeSent = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SmsSendingStatusId = table.Column<short>(type: "smallint", nullable: true),
+                    StatusMessage = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
+                    Identifier = table.Column<long>(type: "bigint", nullable: true),
+                    SendingError = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsSend = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsReadForSending = table.Column<bool>(type: "bit", nullable: false),
+                    SendAttemptCount = table.Column<short>(type: "smallint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SmsLog", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SmsLog_SmsSendingStatus_SmsSendingStatusId",
+                        column: x => x.SmsSendingStatusId,
+                        principalTable: "SmsSendingStatus",
                         principalColumn: "Id");
                 });
 
@@ -262,11 +386,17 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ApplicationUserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserClaims_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AspNetUserClaims_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -282,11 +412,17 @@ namespace UnusualSuspect.DataLayer.Migrations
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ApplicationUserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserLogins_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AspNetUserLogins_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -342,6 +478,48 @@ namespace UnusualSuspect.DataLayer.Migrations
                         column: x => x.ObjectTypeId,
                         principalTable: "ObjectType",
                         principalColumn: "ObjectKey");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Participate",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderOfParticipation = table.Column<short>(type: "smallint", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    GameId = table.Column<int>(type: "int", nullable: false),
+                    RoleCardId = table.Column<int>(type: "int", nullable: false),
+                    CharacterCardId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Participate", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Participate_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Participate_CharacterCard_CharacterCardId",
+                        column: x => x.CharacterCardId,
+                        principalTable: "CharacterCard",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Participate_Game_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Game",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Participate_RoleCard_RoleCardId",
+                        column: x => x.RoleCardId,
+                        principalTable: "RoleCard",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -643,9 +821,19 @@ namespace UnusualSuspect.DataLayer.Migrations
                 filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserClaims_ApplicationUserId",
+                table: "AspNetUserClaims",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
                 table: "AspNetUserClaims",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserLogins_ApplicationUserId",
+                table: "AspNetUserLogins",
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserLogins_UserId",
@@ -705,6 +893,41 @@ namespace UnusualSuspect.DataLayer.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Participate_CharacterCardId",
+                table: "Participate",
+                column: "CharacterCardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Participate_GameId",
+                table: "Participate",
+                column: "GameId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Participate_RoleCardId",
+                table: "Participate",
+                column: "RoleCardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Participate_UserId",
+                table: "Participate",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestionGame_GameId",
+                table: "QuestionGame",
+                column: "GameId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestionGame_QuestionId",
+                table: "QuestionGame",
+                column: "QuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SmsLog_SmsSendingStatusId",
+                table: "SmsLog",
+                column: "SmsSendingStatusId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SoftwarerRoleForUser_RoleId",
                 table: "SoftwarerRoleForUser",
                 column: "RoleId");
@@ -761,6 +984,15 @@ namespace UnusualSuspect.DataLayer.Migrations
                 name: "LogObject");
 
             migrationBuilder.DropTable(
+                name: "Participate");
+
+            migrationBuilder.DropTable(
+                name: "QuestionGame");
+
+            migrationBuilder.DropTable(
+                name: "SmsLog");
+
+            migrationBuilder.DropTable(
                 name: "SoftSetting");
 
             migrationBuilder.DropTable(
@@ -771,6 +1003,21 @@ namespace UnusualSuspect.DataLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "ObjectType");
+
+            migrationBuilder.DropTable(
+                name: "CharacterCard");
+
+            migrationBuilder.DropTable(
+                name: "RoleCard");
+
+            migrationBuilder.DropTable(
+                name: "Game");
+
+            migrationBuilder.DropTable(
+                name: "Question");
+
+            migrationBuilder.DropTable(
+                name: "SmsSendingStatus");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

@@ -21,7 +21,7 @@ namespace UnusualSuspect.Entities.GameModels
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int Id { get; set; }
-		public required string	Title { get; set; }
+		public string	Title { get; set; }
 		public bool IsActive { get; set; }
 	}
 }

@@ -13,7 +13,7 @@ namespace UnusualSuspect.Entities.GameModels
 			IsFinished = false;
 		}
 		public bool IsFinished { get; set; }
-		public required DateTime CreateTime { get; set; }
+		public DateTime CreateTime { get; set; }
 		public DateTime? FinishedTime { get; set; }
 	}
 }

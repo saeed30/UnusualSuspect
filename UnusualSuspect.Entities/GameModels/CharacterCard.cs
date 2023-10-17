@@ -8,6 +8,7 @@ namespace UnusualSuspect.Entities.GameModels
 {
 	public class CharacterCard : BaseEntity
 	{
-		public required string	Title { get; set; }
+		public string	Title { get; set; }
+		public string ImageUrl { get; set; }
 	}
 }
