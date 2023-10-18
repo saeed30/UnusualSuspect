@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UnusualSuspect.Entities.GameModels
 {
 	public class QuestionGame : BaseEntity
 	{
-		public int QuestionId { get; set; }
+		public short QuestionId { get; set; }
+		[ForeignKey("QuestionId")]
 		public virtual Question Question { get; set; }
 		public int GameId { get; set; }
+		[ForeignKey("GameId")]
 		public virtual Game Game { get; set; }
-		public int OrderOfUsage { get; set; }
+		public short Turn { get; set; }
 	}
 }

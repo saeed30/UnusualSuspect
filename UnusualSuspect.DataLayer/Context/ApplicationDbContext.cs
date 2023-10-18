@@ -54,6 +54,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 				.ValueGeneratedNever();
 		modelBuilder.Entity<SmsSendingStatus>().Property(x => x.Id)
 				.ValueGeneratedNever();
+		modelBuilder.Entity<GameType>().Property(x => x.Id)
+				.ValueGeneratedNever();
 	}
 
 
