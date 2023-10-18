@@ -75,7 +75,7 @@ app.UseElmahCore(_ProjectSetting.SiteSetting);
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseRateLimiter();
 // Enable middleware to serve generated Swagger as a JSON endpoint.
 app.UseSwagger();
 

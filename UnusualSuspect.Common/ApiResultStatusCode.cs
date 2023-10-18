@@ -28,5 +28,8 @@ public enum ApiResultStatusCode
     LogicError = 5,
 
     [Display(Name = "خطای احراز هویت")]
-    UnAuthorized = 6
+    UnAuthorized = 6,
+
+	  [Display(Name = "نیاز به تلاش مجدد")]
+	  NeedToRetry = 7
 }
