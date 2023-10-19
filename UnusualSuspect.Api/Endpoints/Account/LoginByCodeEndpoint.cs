@@ -25,7 +25,6 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 		this.iJwtService = iJwtService;
 		this.iApplicationUserManager = iApplicationUserManager;
 	}
-	[EnableRateLimiting("fixed")]
 	[HttpPost("api/[namespace]/LoginByCode")]
 	public override async Task<ActionResult<ApiResult<AccessToken>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken)
 	{

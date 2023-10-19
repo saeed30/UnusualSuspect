@@ -35,6 +35,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 namespace UnusualSuspect.IocConfig;
 
@@ -51,14 +52,25 @@ public static class ServiceCollectionExtensions
 		})
 				.AddEntityFrameworkStores<ApplicationDbContext>()
 				.AddDefaultTokenProviders();
-		services.AddRateLimiter(opt =>
+		//services.AddRateLimiter(options =>
+		//{
+		//	options.RejectionStatusCode = 429;
+		//	options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+		//			RateLimitPartition.GetSlidingWindowLimiter(
+		//					partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+		//					factory: partition => new SlidingWindowRateLimiterOptions
+		//					{
+		//						AutoReplenishment = true,
+		//						PermitLimit = 100,
+		//						QueueLimit = 0,
+		//						Window = TimeSpan.FromMinutes(1),
+		//						SegmentsPerWindow = 6
+		//					}));
+		//});
+		services.AddRateLimiter(options =>
 		{
-			opt.AddFixedWindowLimiter("fixed", options =>
-			{
-				options.Window = TimeSpan.FromSeconds(10);
-				options.PermitLimit = 3;
-				options.QueueLimit = 0;
-			});
+			options.RejectionStatusCode = 429;
+			options.AddPolicy<string, CustomRateLimiterPolicy>(nameof(CustomRateLimiterPolicy));
 		});
 		services.AddElmahCore(configuration, Settings);
 		AddJwtAuthentication(services, Settings.JwtSettings);

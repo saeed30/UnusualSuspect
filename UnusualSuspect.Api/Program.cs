@@ -84,7 +84,7 @@ app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "UnusualSusp
 
 app.UseEndpoints(endpoints =>
 {
-	endpoints.MapControllers();
+	endpoints.MapControllers().RequireRateLimiting(nameof(CustomRateLimiterPolicy));
 });
 
 app.Run();
