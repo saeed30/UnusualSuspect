@@ -90,8 +90,12 @@ public class DocumentService : IDocumentService
 
 	}
 
+	public async Task<Document?> GetDocumentAsync(int Id)
+	{
+		return await _Document.FirstOrDefaultAsync(m => m.Id == Id);
+	}
 
-	public Document GetDocument(int Id)
+	public Document? GetDocument(int Id)
 	{
 		return _Document.FirstOrDefault(m => m.Id == Id);
 	}

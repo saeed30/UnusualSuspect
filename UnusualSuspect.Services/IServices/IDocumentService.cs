@@ -44,5 +44,6 @@ public interface IDocumentService
 	Task<List<Document>> SelectedDocuments(int takeCount, string Language, CancellationToken CancellationToken);
 	List<Document> DocumentListOfGroup(int DocumentGroupId, int CategoryId, string Language);
 	List<int> DocumentCategoryList(int DocumentId);
-	Document GetDocument(int Id);
+	Task<Document?> GetDocumentAsync(int Id);
+	Document? GetDocument(int Id);
 }

@@ -18,7 +18,7 @@ namespace UnusualSuspect.Api.Endpoints.User
 		{
 			this.iApplicationUserManager = iApplicationUserManager;
 		}
-		[HttpPost("api/[namespace]/GetProfileInfo")]
+		[HttpGet("api/[namespace]/GetProfileInfo")]
 		public override async Task<ActionResult<ApiResult<GetProfileInfoResponse>>> HandleAsync(CancellationToken cancellationToken = default)
 		{
 			var user = await iApplicationUserManager.FindByNameAsync(HttpContext.User.Identity.Name);
