@@ -27,6 +27,10 @@ namespace UnusualSuspect.Services.Services
 			_JoinedPreGame = uow.Set<JoinedPreGame>();
 			_ReadyToGameStatus = uow.Set<ReadyToGameStatus>();
 		}
+		public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+		{
+			return await _uow.SaveChangesAsync(cancellationToken);
+		}
 		public async Task<PreGameGroup> StartPreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default)
 		{
 			var oldPreGames = await _JoinedPreGame.Where(x => x.UserId == userId).ToListAsync(cancellationToken);
@@ -78,15 +82,24 @@ namespace UnusualSuspect.Services.Services
 			preGame.CalulatedJoinedUsers = (short)count;
 		}
 
-		public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-		{
-			return await _uow.SaveChangesAsync(cancellationToken);
-		}
-
 		public async Task RemoveUserFromPreGame(int preGameGroupId, CancellationToken cancellationToken = default)
 		{
 			await _JoinedPreGame.Where(x => x.PreGameGroupId == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
 			await _PreGameGroup.Where(x => x.Id == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
+		}
+
+		public async Task<JoinedPreGame> AddUserToPreGameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default)
+		{
+			JoinedPreGame joinedPreGame = new JoinedPreGame()
+			{
+				UserId = userId,
+				IsOwnerOfPreGroup = true,
+				JoinTime = DateTime.Now,
+				PreGameGroupId = preGameGroupId,
+				ReadyToGameStatusId = (int)ReadyToGameStatusEnum.Ready
+			};
+			await _JoinedPreGame.AddAsync(joinedPreGame, cancellationToken);
+			return joinedPreGame;
 		}
 	}
 }
