@@ -56,6 +56,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 				.ValueGeneratedNever();
 		modelBuilder.Entity<GameType>().Property(x => x.Id)
 				.ValueGeneratedNever();
+		modelBuilder.Entity<ReadyToGameStatus>().Property(x => x.Id)
+			.ValueGeneratedNever();
 	}
 
 

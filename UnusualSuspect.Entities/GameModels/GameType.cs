@@ -8,5 +8,6 @@ namespace UnusualSuspect.Entities.GameModels
 	{
 		public string Name { get; set; }
 		public short NumberOfPlayers { get; set; }
+		public bool IsActive { get; set; }
 	}
 }
