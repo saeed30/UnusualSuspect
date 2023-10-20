@@ -34,7 +34,7 @@ namespace UnusualSuspect.IocConfig
 					partition => new FixedWindowRateLimiterOptions
 					{
 						AutoReplenishment = true,
-						PermitLimit = 100,
+						PermitLimit = 10,
 						Window = TimeSpan.FromMinutes(1),
 					});
 		}

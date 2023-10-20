@@ -30,23 +30,24 @@ public class ApplicationUser : IdentityUser<int>, IEntity<int>
 	public string? PatchImage { get; set; }
 	public DateTime DateCreate { get; set; }
 
-	public virtual ICollection<ActionForUser> ActionForUsers { set; get; }
-	//public virtual ICollection<LogObject> LogObjects { set; get; }
-	//public virtual ICollection<SoftwarerRoleForUser> SoftwarerRoleForUsers { set; get; }
-	public virtual ICollection<IdentityUserClaim<int>> Claims { get; set; }
-	public virtual ICollection<IdentityUserLogin<int>> Logins { get; set; }
-	//public virtual ICollection<IdentityUserToken<int>> Tokens { get; set; }
 
 
 
 	public bool IsActive { set; get; }
-	//public virtual ICollection<AdminPanleUser> AdminPanleUsers { set; get; }
-	//public virtual ICollection<Customer> Customers { set; get; }
 
 	public string? Token { get; set; }
 	public string? PhoneNumberValidationCode { get; set; }
 	public string? CodeForResetPassword { get; set; }
 	public DateTime? SendCodeDate { set; get; }
+	public string? NickName { get; set; }
+	public virtual ICollection<ActionForUser> ActionForUsers { set; get; }
+	public virtual ICollection<IdentityUserClaim<int>> Claims { get; set; }
+	public virtual ICollection<IdentityUserLogin<int>> Logins { get; set; }
+	//public virtual ICollection<LogObject> LogObjects { set; get; }
+	//public virtual ICollection<SoftwarerRoleForUser> SoftwarerRoleForUsers { set; get; }
+	//public virtual ICollection<IdentityUserToken<int>> Tokens { get; set; }
+	//public virtual ICollection<AdminPanleUser> AdminPanleUsers { set; get; }
+	//public virtual ICollection<Customer> Customers { set; get; }
 
 	[NotMapped]
 	public string FullName { get { return FirstName + " " + LastName; } }

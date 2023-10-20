@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using UnusualSuspect.ViewModels.Settings;
 using System;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
@@ -25,13 +26,14 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 		this.iJwtService = iJwtService;
 		this.iApplicationUserManager = iApplicationUserManager;
 	}
+	[AllowAnonymous]
 	[HttpPost("api/[namespace]/LoginByCode")]
 	public override async Task<ActionResult<ApiResult<AccessToken>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken)
 	{
 		string msg = ValidateLoginByCodeRequest(loginByCodeRequest);
 		if(msg != null)
 			return new ApiResult<AccessToken>(false, ApiResultStatusCode.BadRequest, null, msg);
-		var user = iApplicationUserManager.FindByName(loginByCodeRequest.Username);
+		var user = await iApplicationUserManager.FindByNameAsync(loginByCodeRequest.Username);
 		if (user == null)
 			return new ApiResult<AccessToken>(false, ApiResultStatusCode.NotFound, null, "کاربر مورد نظر یافت نشد!");
 		if(user.SendCodeDate.HasValue && user.SendCodeDate.Value.AddMinutes(5) < DateTime.Now)

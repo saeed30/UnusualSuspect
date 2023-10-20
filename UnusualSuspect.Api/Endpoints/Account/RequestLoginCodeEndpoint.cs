@@ -12,6 +12,7 @@ using System;
 using System.Reflection.Emit;
 using UnusualSuspect.Services.Contracts;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
@@ -32,7 +33,7 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 		this.setting = setting ?? throw new ArgumentNullException(nameof(setting));
 		this.smsService = smsService;
 	}
-
+	[AllowAnonymous]
 	[HttpPost("api/[namespace]/RequestLoginCode")]
 	public override async Task<ActionResult<ApiResult<string>>> HandleAsync([FromBody] string phoneNumber, CancellationToken cancellationToken)
 	{
@@ -41,7 +42,7 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 				, "لطفا شماره همراه خود را به درستی وارد نمایید");
 		Random generator = new Random();
 		string code = generator.Next(100000, 999999).ToString("D6");
-		var user = iApplicationUserManager.FindByName(phoneNumber);
+		var user = await iApplicationUserManager.FindByNameAsync(phoneNumber);
 		if(user != null)
 		{
 			user.PhoneNumberValidationCode = code;
@@ -63,7 +64,7 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 			await iApplicationUserManager.CreateAsync(user, Guid.NewGuid().ToString());
 		}
 		if (setting.Value.IsTesting)
-			return new ApiResult<string>(true, ApiResultStatusCode.Success, code, "ورود با موفقیت انجام شد");
+			return new ApiResult<string>(true, ApiResultStatusCode.Success, code, "کد تایید: " + code);
 		if (await smsService.SendSmsAsync(phoneNumber,
 			Common.Enums.SmsMessageTextEnum.LoginCodeSms, new List<string> { code }))
 			return new ApiResult<string>(true, ApiResultStatusCode.Success, "", "کد تایید به شماره همراه شما ارسال شد");

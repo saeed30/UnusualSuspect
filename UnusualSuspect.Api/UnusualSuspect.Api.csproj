@@ -33,5 +33,9 @@
     <ProjectReference Include="..\UnusualSuspect.IocConfig\UnusualSuspect.IocConfig.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Endpoints\Document\" />
+  </ItemGroup>
+
 
 </Project>

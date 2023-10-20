@@ -78,7 +78,11 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 		services.AddScoped<IPrincipal>(provider => provider.GetRequiredService<IHttpContextAccessor>()?.HttpContext?.User ?? ClaimsPrincipal.Current);
 		services.AddScoped<IIdentityDbInitializer, IdentityDbInitializer>();
+		services.AddScoped<IDocumentService, DocumentService>();
+		services.AddScoped<ILogService, LogService>();
+		services.AddScoped<IUploadServise, UploadServise>();
 		services.AddScoped<IApplicationUserManager, ApplicationUserManager>();
+		services.AddScoped<IApplicationUserService, ApplicationUserService>();
 		services.AddScoped<IApplicationSignInService, ApplicationSignInManager>();
 		services.AddScoped<IApplicationRoleService, ApplicationRoleManager>();
 		services.AddScoped<IJwtService, JwtService>();

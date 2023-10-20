@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Xml.Linq;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -368,7 +369,7 @@ public class DocumentService : IDocumentService
 		}
 
 	}
-	public Document SaveFormFile(IFormFile file, string tableName, string keyName)
+	public async Task<Document?> SaveFormFile(IFormFile file, string tableName, string keyName, int? documentId = null)
 	{
 		if (file == null || file.Length < 1)
 			return null;
@@ -380,16 +381,31 @@ public class DocumentService : IDocumentService
 		if (keyName != null)
 			keyName = keyName.ToLower();
 		var UploadeFile = _IuploadServise.GetFileDataAsync(file);
-		var document = new Document
+		Document? document = null;
+		if (documentId.HasValue)
+			document = await _Document.FirstOrDefaultAsync(x => x.Id == documentId.Value);
+		if (document == null)
 		{
-			DocumentName = _IuploadServise.GetUniqueFileName(file),
-			File = UploadeFile.Result,
-			DocumentType = Extension,
-			ModifyDate = DateTime.Now,
-			TableName = tableName,
-			KeyName = keyName
-		};
-		_Document.Add(document);
+			document = new Document
+			{
+				DocumentName = _IuploadServise.GetUniqueFileName(file),
+				File = UploadeFile.Result,
+				DocumentType = Extension,
+				ModifyDate = DateTime.Now,
+				TableName = tableName,
+				KeyName = keyName
+			};
+			_Document.Add(document);
+		}
+		else
+		{
+			document.DocumentName = _IuploadServise.GetUniqueFileName(file);
+			document.File = UploadeFile.Result;
+			document.DocumentType = Extension;
+			document.ModifyDate = DateTime.Now;
+			document.TableName = tableName;
+			document.KeyName = keyName;
+		}
 		return document;
 	}
 	public ResultAction CreateDocumentFile(IFormFile file, string TableName, ExtensionFileEnum extensionFile = ExtensionFileEnum.Image)
@@ -409,12 +425,12 @@ public class DocumentService : IDocumentService
 			}
 			string documentName = _IuploadServise.GetUniqueFileName(file);
 
-			if (Extension == ".ogg" || Extension == ".mp4")
-			{
-				var UploadeVideoFile = _IuploadServise.SaveFileAsync(file, $"wwwroot\\media\\Document", true);
-				documentName = UploadeVideoFile.Result.MessageList;
+			//if (Extension == ".ogg" || Extension == ".mp4")
+			//{
+			//	var UploadeVideoFile = _IuploadServise.SaveFileAsync(file, $"wwwroot\\media\\Document", true);
+			//	documentName = UploadeVideoFile.Result.MessageList;
 
-			}
+			//}
 
 			var UploadeFile = _IuploadServise.GetFileDataAsync(file);
 
@@ -604,15 +620,15 @@ public class DocumentService : IDocumentService
 		return DocumentTypes;
 	}
 
-	public Document DocumentDetails(int DocumentId, ApplicationDbContext Db)
+	public Document? DocumentDetails(int DocumentId)
 	{
 		return _Document.FirstOrDefault(x => x.Id == DocumentId);
 	}
-	public async Task<List<Document>> CurrentNews(ApplicationDbContext Db, int takeCount, string Language, CancellationToken CancellationToken)
+	public async Task<List<Document>> CurrentNews(int takeCount, string Language, CancellationToken CancellationToken)
 	{
 		return await _Document.Where(x => /*x.IsActive &&*/ (string.IsNullOrEmpty(Language))).OrderByDescending(x => x.Id).Take(takeCount).ToListAsync(CancellationToken);
 	}
-	public async Task<List<Document>> SelectedDocuments(ApplicationDbContext Db, int takeCount, string Language, CancellationToken CancellationToken)
+	public async Task<List<Document>> SelectedDocuments(int takeCount, string Language, CancellationToken CancellationToken)
 	{
 		return await _Document.Where(x =>/* x.IsActive && x.Selected &&*/ (string.IsNullOrEmpty(Language))).OrderByDescending(x => x.Id).Take(takeCount).ToListAsync(CancellationToken);
 	}
