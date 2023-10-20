@@ -11,7 +11,7 @@ using UnusualSuspect.Common.Utilities;
 using Aspose.Cells;
 using UnusualSuspect.Common.Attribute;
 
-namespace UnusualSuspect.Services;
+namespace UnusualSuspect.Services.Services;
 
 public class FileService : IFileService
 {

@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnusualSuspect.Services;
+namespace UnusualSuspect.Services.Services;
 
 public class FireBaseService : IFireBaseService
 {

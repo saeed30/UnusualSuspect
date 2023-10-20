@@ -6,7 +6,6 @@ using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Context;
 using UnusualSuspect.Entities.Identity;
-using UnusualSuspect.Services;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Identity;

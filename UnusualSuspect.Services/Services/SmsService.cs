@@ -8,7 +8,7 @@ using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 
-namespace UnusualSuspect.Services;
+namespace UnusualSuspect.Services.Services;
 
 public class SmsService : ISmsService
 {
