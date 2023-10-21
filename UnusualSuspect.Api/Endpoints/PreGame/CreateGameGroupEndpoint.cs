@@ -1,0 +1,37 @@
+﻿using Ardalis.ApiEndpoints;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading;
+using System.Threading.Tasks;
+using UnusualSuspect.Api.Endpoints.Account;
+using UnusualSuspect.Api.Endpoints.User;
+using UnusualSuspect.Common;
+using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.ViewModels.Api.Endpoints.PreGame;
+
+namespace UnusualSuspect.Api.Endpoints.PreGame;
+
+public sealed class CreateGameGroupEndpoint : EndpointBaseAsync
+.WithRequest<short>
+.WithActionResult<ApiResult<CreateGameGroupResponse>>
+{
+	private readonly IGameService gameService;
+	private readonly IApplicationUserManager iApplicationUserManager;
+	public CreateGameGroupEndpoint(IGameService gameService, IApplicationUserManager iApplicationUserManager)
+	{
+		this.gameService = gameService;
+		this.iApplicationUserManager = iApplicationUserManager;
+	}
+	[HttpPost("api/[namespace]/GetProfileInfo")]
+	public async override Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync(short id, CancellationToken cancellationToken = default)
+	{
+		var user = await iApplicationUserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+		if(user == null)
+			return new ApiResult<CreateGameGroupResponse>(false,ApiResultStatusCode.NotFound,null , "کاربر جاری یافت نشد");
+		var result = await gameService.CreatePreGameGroup(user.Id, id);
+		return new ApiResult<CreateGameGroupResponse>(true, ApiResultStatusCode.Success, new CreateGameGroupResponse()
+		{
+			GameGroupId = result.Id
+		});
+	}
+}

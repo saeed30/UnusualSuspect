@@ -7,6 +7,7 @@ using UnusualSuspect.Common;
 using UnusualSuspect.DataLayer.Common;
 using Microsoft.AspNetCore.Http;
 using UnusualSuspect.Services.IServices;
+using UnusualSuspect.ViewModels.Api.Endpoints.Document;
 
 namespace UnusualSuspect.Api.Endpoints.Document
 {
@@ -31,10 +32,5 @@ namespace UnusualSuspect.Api.Endpoints.Document
 				FileName = doc.DocumentName
 			});
 		}
-	}
-	public class DocumentGetResponse
-	{
-		public string FileName { get; set; }
-		public byte[] File { get; set; }
 	}
 }

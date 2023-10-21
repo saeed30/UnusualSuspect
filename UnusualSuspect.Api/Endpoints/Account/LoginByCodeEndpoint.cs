@@ -11,6 +11,7 @@ using UnusualSuspect.ViewModels.Settings;
 using System;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
+using UnusualSuspect.ViewModels.Api.Endpoints.Account;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
@@ -66,9 +67,4 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 		loginByCodeRequest.Username = username;
 		return null;
 	}
-}
-public class LoginByCodeRequest
-{
-	public string Username { get; set; }
-	public string Code { get; set; }
 }

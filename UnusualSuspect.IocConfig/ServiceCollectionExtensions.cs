@@ -35,6 +35,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Quartz.Impl.AdoJobStore.Common;
 
 namespace UnusualSuspect.IocConfig;
 
@@ -90,6 +91,8 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IFireBaseService, FireBaseService>();
 
 
+		var provider = services.BuildServiceProvider();
+		provider.InitializeDb();
 
 		return services;
 

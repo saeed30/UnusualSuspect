@@ -11,11 +11,12 @@ namespace UnusualSuspect.Services.Contracts
 	public interface IGameService
 	{
 		Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-		Task<PreGameGroup> StartPreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default);
+		Task<PreGameGroup> CreatePreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default);
 		Task<JoinedPreGame> AddUserToPreGameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default);
 		Task RemoveFromAllUserPreGames(List<JoinedPreGame> joinedPreGame, int userId, CancellationToken cancellationToken = default);
 		Task RemoveUserFromPreGame(JoinedPreGame joinedPreGame, int userId, CancellationToken cancellationToken = default);
 		Task RemoveUserFromPreGame(int preGameGroupId, CancellationToken cancellationToken = default);
 		Task RecalculatePreGameGroupUsers(int preGameGroupId, CancellationToken cancellationToken = default);
+		Task ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default);
 	}
 }

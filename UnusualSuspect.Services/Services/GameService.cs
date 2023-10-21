@@ -31,7 +31,7 @@ namespace UnusualSuspect.Services.Services
 		{
 			return await _uow.SaveChangesAsync(cancellationToken);
 		}
-		public async Task<PreGameGroup> StartPreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default)
+		public async Task<PreGameGroup> CreatePreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default)
 		{
 			var oldPreGames = await _JoinedPreGame.Where(x => x.UserId == userId).ToListAsync(cancellationToken);
 			if (oldPreGames.Any())
@@ -58,7 +58,7 @@ namespace UnusualSuspect.Services.Services
 
 		public async Task RemoveFromAllUserPreGames(List<JoinedPreGame> joinedPreGame, int userId, CancellationToken cancellationToken = default)
 		{
-			if(joinedPreGame ==  null || !joinedPreGame.Any())
+			if (joinedPreGame == null || !joinedPreGame.Any())
 				return;
 			for (int i = 0; i < joinedPreGame.Count; i++)
 				await RemoveUserFromPreGame(joinedPreGame[i], userId, cancellationToken);
@@ -66,7 +66,7 @@ namespace UnusualSuspect.Services.Services
 
 		public async Task RemoveUserFromPreGame(JoinedPreGame joinedPreGame, int userId, CancellationToken cancellationToken = default)
 		{
-			if(joinedPreGame.IsOwnerOfPreGroup || !await _JoinedPreGame.AnyAsync(x=>x.UserId != userId && x.PreGameGroupId == joinedPreGame.PreGameGroupId, cancellationToken))
+			if (joinedPreGame.IsOwnerOfPreGroup || !await _JoinedPreGame.AnyAsync(x => x.UserId != userId && x.PreGameGroupId == joinedPreGame.PreGameGroupId, cancellationToken))
 			{
 				await RemoveUserFromPreGame(joinedPreGame.PreGameGroupId);
 			}
@@ -76,7 +76,7 @@ namespace UnusualSuspect.Services.Services
 		public async Task RecalculatePreGameGroupUsers(int preGameGroupId, CancellationToken cancellationToken = default)
 		{
 			var preGame = await _PreGameGroup.Where(x => x.Id == preGameGroupId).SingleAsync(cancellationToken);
-			int count = await _JoinedPreGame.CountAsync(x=>x.PreGameGroupId == preGameGroupId, cancellationToken);
+			int count = await _JoinedPreGame.CountAsync(x => x.PreGameGroupId == preGameGroupId, cancellationToken);
 			if (count > 32000)
 				throw new Exception("invalid user count. preGameGroupId: " + preGameGroupId);
 			preGame.CalulatedJoinedUsers = (short)count;
@@ -87,7 +87,18 @@ namespace UnusualSuspect.Services.Services
 			await _JoinedPreGame.Where(x => x.PreGameGroupId == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
 			await _PreGameGroup.Where(x => x.Id == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
 		}
-
+		public async Task ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default)
+		{
+			var joinedPreGame = await _JoinedPreGame.SingleAsync(x=>
+				x.UserId == userId && x.PreGameGroupId == preGameGroupId, cancellationToken);
+			joinedPreGame.ReadyToGameStatusId = (short)readyToGameStatusEnum;
+		}
+		public async Task<UnusualSuspectServiceResult<bool>> StartPreGameGroup(int preGameGroupId)
+		{
+			if (await _JoinedPreGame.AnyAsync(x => x.PreGameGroupId == preGameGroupId && x.ReadyToGameStatusId != (short)ReadyToGameStatusEnum.Ready))
+				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(ErrorType.ThereIsUnreadyUserInGroup));
+			return new UnusualSuspectServiceResult<bool>(true);
+		}
 		public async Task<JoinedPreGame> AddUserToPreGameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default)
 		{
 			JoinedPreGame joinedPreGame = new JoinedPreGame()
@@ -100,6 +111,19 @@ namespace UnusualSuspect.Services.Services
 			};
 			await _JoinedPreGame.AddAsync(joinedPreGame, cancellationToken);
 			return joinedPreGame;
+		}
+		public async Task CombineGroupsToStartGames(CancellationToken cancellationToken = default)
+		{
+			var gameTypes = await _GameType.Where(x => x.IsActive).ToListAsync(cancellationToken);
+			foreach (var gameType in gameTypes)
+			{
+				CombineGroupsToStartGamesByGameType(gameType, cancellationToken);
+			}
+		}
+
+		private void CombineGroupsToStartGamesByGameType(GameType gameType, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
