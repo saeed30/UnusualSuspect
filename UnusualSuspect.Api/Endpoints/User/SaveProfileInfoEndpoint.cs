@@ -1,12 +1,13 @@
 ﻿using Ardalis.ApiEndpoints;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Threading;
-using UnusualSuspect.Common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading;
+using System.Threading.Tasks;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Models;
+using UnusualSuspect.DataLayer;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Services;
-using UnusualSuspect.DataLayer;
 using UnusualSuspect.ViewModels.Api.Endpoints.User;
 
 namespace UnusualSuspect.Api.Endpoints.User;
@@ -34,7 +35,7 @@ public sealed class SaveProfileInfoEndpoint : EndpointBaseAsync
 		user.NickName = request.NickName;
 		user.ImageFile = request.UserImage;
 		var result = await applicationUserService.EditApplicationUser(user, true);
-		if(!result.Success)
+		if (!result.Success)
 			return new ApiResult(false, ApiResultStatusCode.ServerError, result.MessageList);
 		await _uow.SaveChangesAsync(cancellationToken);
 		return new ApiResult(true, ApiResultStatusCode.Success);

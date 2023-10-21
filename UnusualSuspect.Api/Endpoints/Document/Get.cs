@@ -1,11 +1,9 @@
 ﻿using Ardalis.ApiEndpoints;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using System.Threading;
-using UnusualSuspect.Api.Endpoints.User;
-using UnusualSuspect.Common;
-using UnusualSuspect.DataLayer.Common;
-using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.IServices;
 using UnusualSuspect.ViewModels.Api.Endpoints.Document;
 
@@ -24,7 +22,7 @@ namespace UnusualSuspect.Api.Endpoints.Document
 		public override async Task<ActionResult<ApiResult<DocumentGetResponse>>> HandleAsync(int id, CancellationToken cancellationToken)
 		{
 			var doc = await documentService.GetDocumentAsync(id);
-			if(doc == null)
+			if (doc == null)
 				return new ApiResult<DocumentGetResponse>(false, ApiResultStatusCode.NotFound, null, "فایل یافت نشد");
 			return new ApiResult<DocumentGetResponse>(true, ApiResultStatusCode.Success, new DocumentGetResponse()
 			{

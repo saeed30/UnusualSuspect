@@ -1,18 +1,17 @@
 ﻿using Ardalis.ApiEndpoints;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Threading;
-using UnusualSuspect.Common;
-using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.ViewModels.Identity;
-using UnusualSuspect.Common.Utilities;
-using Microsoft.Extensions.Options;
-using UnusualSuspect.ViewModels.Settings;
-using System;
-using System.Reflection.Emit;
-using UnusualSuspect.Services.Contracts;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Models;
+using UnusualSuspect.Common.Utilities;
+using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
@@ -37,13 +36,13 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 	[HttpPost("api/[namespace]/RequestLoginCode")]
 	public override async Task<ActionResult<ApiResult<string>>> HandleAsync([FromBody] string phoneNumber, CancellationToken cancellationToken)
 	{
-		if(!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phoneNumber))
+		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phoneNumber))
 			return new ApiResult<string>(false, ApiResultStatusCode.NeedToRetry, ""
 				, "لطفا شماره همراه خود را به درستی وارد نمایید");
 		Random generator = new Random();
 		string code = generator.Next(100000, 999999).ToString("D6");
 		var user = await iApplicationUserManager.FindByNameAsync(phoneNumber);
-		if(user != null)
+		if (user != null)
 		{
 			user.PhoneNumberValidationCode = code;
 			user.SendCodeDate = DateTime.Now;

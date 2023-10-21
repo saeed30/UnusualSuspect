@@ -1,16 +1,18 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.RateLimiting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Microsoft.Extensions.Options;
 using System.Threading.RateLimiting;
-using System.Threading.Tasks;
+using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.IocConfig
 {
 	public class CustomRateLimiterPolicy : IRateLimiterPolicy<string>
 	{
+		private readonly IOptions<ProjectSetting> setting;
+		public CustomRateLimiterPolicy(IOptions<ProjectSetting> setting)
+		{
+			this.setting = setting;
+		}
 		public Func<OnRejectedContext, CancellationToken, ValueTask>? OnRejected { get; } =
 				(context, _) =>
 				{
@@ -19,14 +21,15 @@ namespace UnusualSuspect.IocConfig
 				};
 		public RateLimitPartition<string> GetPartition(HttpContext httpContext)
 		{
+			RateLimiterSetting rateSetting = setting.Value.RateLimiterSetting;
 			if (httpContext.User.Identity?.IsAuthenticated == true)
 			{
 				return RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity.Name!,
 						partition => new FixedWindowRateLimiterOptions
 						{
 							AutoReplenishment = true,
-							PermitLimit = 1_000,
-							Window = TimeSpan.FromMinutes(1),
+							PermitLimit = rateSetting.AuthenticatedUserAllowedRequestCount,
+							Window = TimeSpan.FromSeconds(rateSetting.AuthenticatedUserRequestPeriodInSeconds),
 						});
 			}
 
@@ -34,8 +37,8 @@ namespace UnusualSuspect.IocConfig
 					partition => new FixedWindowRateLimiterOptions
 					{
 						AutoReplenishment = true,
-						PermitLimit = 10,
-						Window = TimeSpan.FromMinutes(1),
+						PermitLimit = rateSetting.AnonymousUserAllowedRequestCount,
+						Window = TimeSpan.FromSeconds(rateSetting.AnonymousUserRequestPeriodInSeconds),
 					});
 		}
 	}

@@ -1,8 +1,10 @@
-﻿namespace UnusualSuspect.ViewModels.Settings;
+﻿
+namespace UnusualSuspect.ViewModels.Settings;
 
 public class ProjectSetting
 {
 	public bool IsTesting { get; set; }
+	public RateLimiterSetting RateLimiterSetting { get; set; }
 	public ConnectionStrings ConnectionStrings { get; set; }
 	public JwtSettings JwtSettings { get; set; }
 	public IdentitySettings IdentitySettings { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace UnusualSuspect.ViewModels.Api;
+﻿namespace UnusualSuspect.ViewModels.Api.File;
 
 public class FileContentViewModel
 {

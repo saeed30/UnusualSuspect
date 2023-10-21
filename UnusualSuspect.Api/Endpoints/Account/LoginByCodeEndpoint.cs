@@ -1,17 +1,15 @@
 ﻿using Ardalis.ApiEndpoints;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Threading;
-using UnusualSuspect.Common;
-using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.ViewModels.Identity;
-using UnusualSuspect.Common.Utilities;
-using Microsoft.Extensions.Options;
-using UnusualSuspect.ViewModels.Settings;
-using System;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Models;
+using UnusualSuspect.Common.Utilities;
+using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.ViewModels.Api.Endpoints.Account;
+using UnusualSuspect.ViewModels.Identity;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
@@ -32,19 +30,19 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 	public override async Task<ActionResult<ApiResult<AccessToken>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken)
 	{
 		string msg = ValidateLoginByCodeRequest(loginByCodeRequest);
-		if(msg != null)
+		if (msg != null)
 			return new ApiResult<AccessToken>(false, ApiResultStatusCode.BadRequest, null, msg);
 		var user = await iApplicationUserManager.FindByNameAsync(loginByCodeRequest.Username);
 		if (user == null)
 			return new ApiResult<AccessToken>(false, ApiResultStatusCode.NotFound, null, "کاربر مورد نظر یافت نشد!");
-		if(user.SendCodeDate.HasValue && user.SendCodeDate.Value.AddMinutes(5) < DateTime.Now)
+		if (user.SendCodeDate.HasValue && user.SendCodeDate.Value.AddMinutes(5) < DateTime.Now)
 			return new ApiResult<AccessToken>(false, ApiResultStatusCode.BadRequest, null, "اعتبار کد تایید شما به پایان رسیده است. لطفا مجدد تلاش نمایید.");
 		if (user.PhoneNumberValidationCode != loginByCodeRequest.Code)
 			return new ApiResult<AccessToken>(false, ApiResultStatusCode.NeedToRetry, null, "کد وارد شده صحیح نیست");
 		var token = await iJwtService.GenerateAsync(user);
 		user.PhoneNumberValidationCode = null;
 		user.SendCodeDate = null;
-		if(!user.PhoneNumberConfirmed)
+		if (!user.PhoneNumberConfirmed)
 		{
 			user.PhoneNumberConfirmed = true;
 			user.IsActive = true;

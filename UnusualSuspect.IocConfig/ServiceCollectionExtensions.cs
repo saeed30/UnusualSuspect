@@ -1,6 +1,21 @@
 ﻿using ElmahCore.Mvc;
 using ElmahCore.Sql;
-using UnusualSuspect.Common;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Quartz;
+using System.Globalization;
+using System.Net;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Text;
+using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Exceptions;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Utilities;
@@ -13,29 +28,6 @@ using UnusualSuspect.Services.IServices;
 using UnusualSuspect.Services.JcoSecurity;
 using UnusualSuspect.Services.Services;
 using UnusualSuspect.ViewModels.Settings;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Quartz;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
-using Quartz.Impl.AdoJobStore.Common;
 
 namespace UnusualSuspect.IocConfig;
 
@@ -52,6 +44,25 @@ public static class ServiceCollectionExtensions
 		})
 				.AddEntityFrameworkStores<ApplicationDbContext>()
 				.AddDefaultTokenProviders();
+		services.AddElmahCore(configuration, Settings);
+		AddJwtAuthentication(services, Settings.JwtSettings);
+		AddQuartzHostedService(services, Settings);
+		services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+		services.AddScoped<IPrincipal>(provider => provider.GetRequiredService<IHttpContextAccessor>()?.HttpContext?.User ?? ClaimsPrincipal.Current);
+		services.AddScoped<IIdentityDbInitializer, IdentityDbInitializer>();
+		services.AddScoped<IDocumentService, DocumentService>();
+		services.AddScoped<ILogService, LogService>();
+		services.AddScoped<IUploadServise, UploadServise>();
+		services.AddScoped<IApplicationUserManager, ApplicationUserManager>();
+		services.AddScoped<IApplicationUserService, ApplicationUserService>();
+		services.AddScoped<IApplicationSignInService, ApplicationSignInManager>();
+		services.AddScoped<IApplicationRoleService, ApplicationRoleManager>();
+		services.AddScoped<IJwtService, JwtService>();
+		services.AddScoped<ISmsService, SmsService>();
+		services.AddScoped<IFileService, FileService>();
+		services.AddScoped<IFireBaseService, FireBaseService>();
+
+
 		//services.AddRateLimiter(options =>
 		//{
 		//	options.RejectionStatusCode = 429;
@@ -72,25 +83,6 @@ public static class ServiceCollectionExtensions
 			options.RejectionStatusCode = 429;
 			options.AddPolicy<string, CustomRateLimiterPolicy>(nameof(CustomRateLimiterPolicy));
 		});
-		services.AddElmahCore(configuration, Settings);
-		AddJwtAuthentication(services, Settings.JwtSettings);
-		AddQuartzHostedService(services, Settings);
-		services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-		services.AddScoped<IPrincipal>(provider => provider.GetRequiredService<IHttpContextAccessor>()?.HttpContext?.User ?? ClaimsPrincipal.Current);
-		services.AddScoped<IIdentityDbInitializer, IdentityDbInitializer>();
-		services.AddScoped<IDocumentService, DocumentService>();
-		services.AddScoped<ILogService, LogService>();
-		services.AddScoped<IUploadServise, UploadServise>();
-		services.AddScoped<IApplicationUserManager, ApplicationUserManager>();
-		services.AddScoped<IApplicationUserService, ApplicationUserService>();
-		services.AddScoped<IApplicationSignInService, ApplicationSignInManager>();
-		services.AddScoped<IApplicationRoleService, ApplicationRoleManager>();
-		services.AddScoped<IJwtService, JwtService>();
-		services.AddScoped<ISmsService, SmsService>();
-		services.AddScoped<IFileService, FileService>();
-		services.AddScoped<IFireBaseService, FireBaseService>();
-
-
 		var provider = services.BuildServiceProvider();
 		provider.InitializeDb();
 

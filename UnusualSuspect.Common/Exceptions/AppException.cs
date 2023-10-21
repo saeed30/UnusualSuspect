@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using UnusualSuspect.Common.Enums;
 
 namespace UnusualSuspect.Common.Exceptions;
 
