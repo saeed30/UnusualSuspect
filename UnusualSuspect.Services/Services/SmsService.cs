@@ -4,9 +4,9 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using UnusualSuspect.Entities.Models;
-using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
+using UnusualSuspect.DataLayer.Contracts;
 
 namespace UnusualSuspect.Services.Services;
 

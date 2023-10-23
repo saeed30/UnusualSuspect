@@ -61,6 +61,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ISmsService, SmsService>();
 		services.AddScoped<IFileService, FileService>();
 		services.AddScoped<IFireBaseService, FireBaseService>();
+		services.AddScoped<IGameService, GameService>();
 
 
 		//services.AddRateLimiter(options =>
@@ -241,7 +242,7 @@ public static class ServiceCollectionExtensions
 		services.AddElmah<SqlErrorLog>(options =>
 		{
 			options.Path = siteSetting.SiteSetting.ElmahPath;
-			options.ConnectionString = configuration.GetConnectionString("ApplicationConnectionString");
+			options.ConnectionString = configuration.GetConnectionString("ElmahConnectionString");
 			//options.CheckPermissionAction = httpContext => httpContext.User.Identity.IsAuthenticated;
 		});
 	}

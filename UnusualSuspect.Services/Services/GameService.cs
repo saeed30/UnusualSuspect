@@ -123,7 +123,8 @@ namespace UnusualSuspect.Services.Services
 
 		private void CombineGroupsToStartGamesByGameType(GameType gameType, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+
 		}
+
 	}
 }

@@ -11,7 +11,7 @@ using UnusualSuspect.ViewModels.Api.Endpoints.PreGame;
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 
 public sealed class CreateGameGroupEndpoint : EndpointBaseAsync
-.WithRequest<short>
+.WithRequest<CreateGameGroupRequest>
 .WithActionResult<ApiResult<CreateGameGroupResponse>>
 {
 	private readonly IGameService gameService;
@@ -22,12 +22,12 @@ public sealed class CreateGameGroupEndpoint : EndpointBaseAsync
 		this.iApplicationUserManager = iApplicationUserManager;
 	}
 	[HttpPost("api/[namespace]/GetProfileInfo")]
-	public async override Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync(short id, CancellationToken cancellationToken = default)
+	public async override Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync(CreateGameGroupRequest id, CancellationToken cancellationToken = default)
 	{
 		var user = await iApplicationUserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 		if (user == null)
 			return new ApiResult<CreateGameGroupResponse>(false, ApiResultStatusCode.NotFound, null, "کاربر جاری یافت نشد");
-		var result = await gameService.CreatePreGameGroup(user.Id, id);
+		var result = await gameService.CreatePreGameGroup(user.Id, id.KeyValue);
 		return new ApiResult<CreateGameGroupResponse>(true, ApiResultStatusCode.Success, new CreateGameGroupResponse()
 		{
 			GameGroupId = result.Id

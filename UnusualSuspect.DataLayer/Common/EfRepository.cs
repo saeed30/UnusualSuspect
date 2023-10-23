@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnusualSuspect.DataLayer.Context;
+using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Entities;
 
 namespace UnusualSuspect.DataLayer.Common;

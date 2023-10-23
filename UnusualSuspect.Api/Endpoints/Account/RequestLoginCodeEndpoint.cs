@@ -11,13 +11,14 @@ using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.ViewModels.Api.Endpoints.Account;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
 public class RequestLoginCodeEndpoint : EndpointBaseAsync
-	.WithRequest<string>
-	.WithActionResult<ApiResult<string>>
+	.WithRequest<RequestLoginCodeRequest>
+	.WithActionResult<ApiResult>
 {
 	private readonly IJwtService iJwtService;
 	private readonly IApplicationUserManager iApplicationUserManager;
@@ -34,14 +35,15 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 	}
 	[AllowAnonymous]
 	[HttpPost("api/[namespace]/RequestLoginCode")]
-	public override async Task<ActionResult<ApiResult<string>>> HandleAsync([FromBody] string phoneNumber, CancellationToken cancellationToken)
+	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] RequestLoginCodeRequest phoneNumber, CancellationToken cancellationToken)
 	{
-		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phoneNumber))
-			return new ApiResult<string>(false, ApiResultStatusCode.NeedToRetry, ""
+		string phone = phoneNumber.KeyValue;
+		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
+			return new ApiResult(false, ApiResultStatusCode.NeedToRetry
 				, "لطفا شماره همراه خود را به درستی وارد نمایید");
 		Random generator = new Random();
 		string code = generator.Next(100000, 999999).ToString("D6");
-		var user = await iApplicationUserManager.FindByNameAsync(phoneNumber);
+		var user = await iApplicationUserManager.FindByNameAsync(phone);
 		if (user != null)
 		{
 			user.PhoneNumberValidationCode = code;
@@ -52,8 +54,8 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 		{
 			user = new Entities.Identity.ApplicationUser()
 			{
-				UserName = phoneNumber,
-				PhoneNumber = phoneNumber,
+				UserName = phone,
+				PhoneNumber = phone,
 				PhoneNumberConfirmed = false,
 				DateCreate = DateTime.Now,
 				IsActive = false,
@@ -63,11 +65,11 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 			await iApplicationUserManager.CreateAsync(user, Guid.NewGuid().ToString());
 		}
 		if (setting.Value.IsTesting)
-			return new ApiResult<string>(true, ApiResultStatusCode.Success, code, "کد تایید: " + code);
-		if (await smsService.SendSmsAsync(phoneNumber,
+			return new ApiResult(true, ApiResultStatusCode.Success, "کد تایید: " + code);
+		if (await smsService.SendSmsAsync(phone,
 			Common.Enums.SmsMessageTextEnum.LoginCodeSms, new List<string> { code }))
-			return new ApiResult<string>(true, ApiResultStatusCode.Success, "", "کد تایید به شماره همراه شما ارسال شد");
-		return new ApiResult<string>(false, ApiResultStatusCode.ServerError, ""
+			return new ApiResult(true, ApiResultStatusCode.Success, "کد تایید به شماره همراه شما ارسال شد");
+		return new ApiResult(false, ApiResultStatusCode.ServerError
 			, "اشکالی در زمان ارسال کد به شماره همراه شما رخ داد. لطفا مجدد تلاش نمایید");
 	}
 }
