@@ -10,7 +10,7 @@ using UnusualSuspect.Services.IServices;
 namespace UnusualSuspect.Api.Endpoints.Document
 {
 	public class Get : EndpointBaseAsync
-	.WithRequest<DocumentGetRequest>
+	.WithRequest<string>
 	.WithActionResult<ApiResult<DocumentGetResponse>>
 	{
 		private readonly IDocumentService documentService;
@@ -19,9 +19,12 @@ namespace UnusualSuspect.Api.Endpoints.Document
 			this.documentService = documentService;
 		}
 		[HttpGet("api/[namespace]/{id}", Name = "[namespace]_[controller]")]
-		public override async Task<ActionResult<ApiResult<DocumentGetResponse>>> HandleAsync(DocumentGetRequest id, CancellationToken cancellationToken)
+		public override async Task<ActionResult<ApiResult<DocumentGetResponse>>> HandleAsync(string id, CancellationToken cancellationToken)
 		{
-			var doc = await documentService.GetDocumentAsync(id.KeyValue);
+			int documentId;
+			if(!int.TryParse(id, out documentId))
+				return new ApiResult<DocumentGetResponse>(false, ApiResultStatusCode.BadRequest, null, "کد فایل به درستی ارسال نشد");
+			var doc = await documentService.GetDocumentAsync(documentId);
 			if (doc == null)
 				return new ApiResult<DocumentGetResponse>(false, ApiResultStatusCode.NotFound, null, "فایل یافت نشد");
 			return new ApiResult<DocumentGetResponse>(true, ApiResultStatusCode.Success, new DocumentGetResponse()

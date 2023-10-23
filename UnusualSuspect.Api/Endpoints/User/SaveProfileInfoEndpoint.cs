@@ -27,7 +27,7 @@ public sealed class SaveProfileInfoEndpoint : EndpointBaseAsync
 		_uow = uow;
 	}
 	[HttpPost("api/[namespace]/SaveProfileInfoEndpoint")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync(SaveProfileInfoRequest request, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] SaveProfileInfoRequest request, CancellationToken cancellationToken = default)
 	{
 		var user = await applicationUserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 		if (user == null)

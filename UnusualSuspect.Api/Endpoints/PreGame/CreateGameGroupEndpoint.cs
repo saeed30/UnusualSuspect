@@ -21,13 +21,14 @@ public sealed class CreateGameGroupEndpoint : EndpointBaseAsync
 		this.gameService = gameService;
 		this.iApplicationUserManager = iApplicationUserManager;
 	}
-	[HttpPost("api/[namespace]/GetProfileInfo")]
-	public async override Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync(CreateGameGroupRequest id, CancellationToken cancellationToken = default)
+	[HttpPost("api/[namespace]/CreateGameGroup")]
+	public async override Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync([FromBody] CreateGameGroupRequest id, CancellationToken cancellationToken = default)
 	{
 		var user = await iApplicationUserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 		if (user == null)
 			return new ApiResult<CreateGameGroupResponse>(false, ApiResultStatusCode.NotFound, null, "کاربر جاری یافت نشد");
 		var result = await gameService.CreatePreGameGroup(user.Id, id.KeyValue);
+		await gameService.SaveChangesAsync();
 		return new ApiResult<CreateGameGroupResponse>(true, ApiResultStatusCode.Success, new CreateGameGroupResponse()
 		{
 			GameGroupId = result.Id

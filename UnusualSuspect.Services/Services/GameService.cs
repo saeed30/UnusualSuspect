@@ -1,11 +1,4 @@
-﻿using Aspose.Cells;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
@@ -89,7 +82,7 @@ namespace UnusualSuspect.Services.Services
 		}
 		public async Task ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default)
 		{
-			var joinedPreGame = await _JoinedPreGame.SingleAsync(x=>
+			var joinedPreGame = await _JoinedPreGame.SingleAsync(x =>
 				x.UserId == userId && x.PreGameGroupId == preGameGroupId, cancellationToken);
 			joinedPreGame.ReadyToGameStatusId = (short)readyToGameStatusEnum;
 		}

@@ -37,7 +37,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 
-app.UseDeveloperExceptionPage();
+if (app.Environment.IsDevelopment())
+	app.UseDeveloperExceptionPage();
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Add(
@@ -47,11 +48,7 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseHttpsRedirection();
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
-app.UseElmahCore(_ProjectSetting.SiteSetting);
+app.UseElmahCore(_ProjectSetting);
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {

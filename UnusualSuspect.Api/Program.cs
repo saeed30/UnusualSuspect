@@ -83,7 +83,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseElmahCore(_ProjectSetting.SiteSetting);
+app.UseElmahCore(_ProjectSetting);
 
 app.UseRouting();
 app.UseAuthentication();
