@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.ViewModels.Api.Endpoints.PreGame;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 

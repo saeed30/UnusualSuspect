@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using UnusualSuspect.ApiViewModels.Endpoints.Account;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.ViewModels.Api.Endpoints.Account;
 using UnusualSuspect.ViewModels.Identity;
 
 namespace UnusualSuspect.Api.Endpoints.Account;

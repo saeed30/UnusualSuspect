@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using UnusualSuspect.ApiViewModels.Endpoints.Document;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.IServices;
-using UnusualSuspect.ViewModels.Api.Endpoints.Document;
 
 namespace UnusualSuspect.Api.Endpoints.Document
 {

@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using UnusualSuspect.ApiViewModels.Endpoints.User;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Services;
-using UnusualSuspect.ViewModels.Api.Endpoints.User;
 
 namespace UnusualSuspect.Api.Endpoints.User;
 

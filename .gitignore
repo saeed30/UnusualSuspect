@@ -24,3 +24,5 @@
 /UnusualSuspect.Api/bin/Debug/net7.0
 /UnusualSuspect.Admin/wwwroot
 /UnusualSuspect.Api/bin/Release/net7.0
+/UnusualSuspect.ApiViewModels/obj
+/UnusualSuspect.ApiViewModels/bin

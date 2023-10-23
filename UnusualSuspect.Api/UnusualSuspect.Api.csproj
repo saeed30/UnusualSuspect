@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\UnusualSuspect.ApiViewModels\UnusualSuspect.ApiViewModels.csproj" />
     <ProjectReference Include="..\UnusualSuspect.Common\UnusualSuspect.Common.csproj" />
     <ProjectReference Include="..\UnusualSuspect.DataLayer\UnusualSuspect.DataLayer.csproj" />
     <ProjectReference Include="..\UnusualSuspect.Entities\UnusualSuspect.Entities.csproj" />
