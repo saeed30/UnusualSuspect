@@ -2,14 +2,12 @@
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
-using System;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
 using ElmahCore;
 using UnusualSuspect.Common.Models;
+using UnusualSuspect.ApiViewModels.Enums;
 
 namespace UnusualSuspect.IocConfig;
 
@@ -37,7 +35,7 @@ public static class ElmahConfigurationExtensions
 				context.Response.ContentType = "application/problem+json";
 				var traceId = Activity.Current?.Id ?? context?.TraceIdentifier;
 				var problemDetails = new ApiResult(false,
-					Common.Enums.ApiResultStatusCode.ServerError, $"appName:error: {traceId}");
+					ApiResultStatusCode.ServerError, $"appName:error: {traceId}");
 				context.Response.StatusCode = 500;
 				var stream = context.Response.Body;
 				await JsonSerializer.SerializeAsync(stream, problemDetails);

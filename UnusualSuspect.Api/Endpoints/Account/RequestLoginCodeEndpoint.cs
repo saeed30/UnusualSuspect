@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Endpoints.Account;
-using UnusualSuspect.Common.Enums;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts;

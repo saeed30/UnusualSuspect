@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using UnusualSuspect.Common.Enums;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
 
 namespace UnusualSuspect.Common.Utilities;

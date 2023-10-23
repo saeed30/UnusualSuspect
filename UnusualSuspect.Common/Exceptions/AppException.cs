@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using UnusualSuspect.Common.Enums;
+using UnusualSuspect.ApiViewModels.Enums;
 
 namespace UnusualSuspect.Common.Exceptions;
 

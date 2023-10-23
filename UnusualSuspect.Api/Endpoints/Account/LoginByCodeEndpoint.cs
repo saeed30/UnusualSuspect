@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Endpoints.Account;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
@@ -15,7 +16,7 @@ namespace UnusualSuspect.Api.Endpoints.Account;
 
 public class LoginByCodeEndpoint : EndpointBaseAsync
 	.WithRequest<LoginByCodeRequest>
-	.WithActionResult<ApiResult<AccessToken>>
+	.WithActionResult<ApiResult<LoginByCodeRespond>>
 {
 	private readonly IJwtService iJwtService;
 	private readonly IApplicationUserManager iApplicationUserManager;
@@ -27,18 +28,18 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 	}
 	[AllowAnonymous]
 	[HttpPost("api/[namespace]/LoginByCode")]
-	public override async Task<ActionResult<ApiResult<AccessToken>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken)
+	public override async Task<ActionResult<ApiResult<LoginByCodeRespond>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken)
 	{
 		string msg = ValidateLoginByCodeRequest(loginByCodeRequest);
 		if (msg != null)
-			return new ApiResult<AccessToken>(false, ApiResultStatusCode.BadRequest, null, msg);
+			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, msg);
 		var user = await iApplicationUserManager.FindByNameAsync(loginByCodeRequest.Username);
 		if (user == null)
-			return new ApiResult<AccessToken>(false, ApiResultStatusCode.NotFound, null, "کاربر مورد نظر یافت نشد!");
+			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.NotFound, null, "کاربر مورد نظر یافت نشد!");
 		if (user.SendCodeDate.HasValue && user.SendCodeDate.Value.AddMinutes(5) < DateTime.Now)
-			return new ApiResult<AccessToken>(false, ApiResultStatusCode.BadRequest, null, "اعتبار کد تایید شما به پایان رسیده است. لطفا مجدد تلاش نمایید.");
+			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, "اعتبار کد تایید شما به پایان رسیده است. لطفا مجدد تلاش نمایید.");
 		if (user.PhoneNumberValidationCode != loginByCodeRequest.Code)
-			return new ApiResult<AccessToken>(false, ApiResultStatusCode.NeedToRetry, null, "کد وارد شده صحیح نیست");
+			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.NeedToRetry, null, "کد وارد شده صحیح نیست");
 		var token = await iJwtService.GenerateAsync(user);
 		user.PhoneNumberValidationCode = null;
 		user.SendCodeDate = null;
@@ -48,7 +49,13 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 			user.IsActive = true;
 		}
 		await iApplicationUserManager.UpdateLastLoginDateAsync(user);
-		return new ApiResult<AccessToken>(true, ApiResultStatusCode.Success, token, "ورود با موفقیت انجام شد");
+		return new ApiResult<LoginByCodeRespond>(true, ApiResultStatusCode.Success, new LoginByCodeRespond()
+		{
+			access_token = token.access_token,
+			expires_in = token.expires_in,
+			refresh_token = token.refresh_token,
+			token_type = token.token_type
+		}, "ورود با موفقیت انجام شد");
 	}
 
 	private string ValidateLoginByCodeRequest(LoginByCodeRequest loginByCodeRequest)

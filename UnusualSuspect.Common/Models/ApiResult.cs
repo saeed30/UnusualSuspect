@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using UnusualSuspect.Common.Enums;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Extensions;
 
 namespace UnusualSuspect.Common.Models;

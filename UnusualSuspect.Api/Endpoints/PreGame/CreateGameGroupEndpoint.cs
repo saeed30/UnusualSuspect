@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
-using UnusualSuspect.Common.Enums;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;

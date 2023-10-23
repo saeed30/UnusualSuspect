@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-
+﻿
 namespace UnusualSuspect.ApiViewModels.Endpoints.User
 {
-	public sealed class SaveProfileInfoRequest
+	public sealed class SaveProfileInfoRequest<T>
 	{
 		public string? NickName { get; set; }
-		public IFormFile UserImage { get; set; }
+		public T UserImage { get; set; }
 	}
 }

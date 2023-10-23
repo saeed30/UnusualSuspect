@@ -15,7 +15,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
-using UnusualSuspect.Common.Enums;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Exceptions;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Utilities;

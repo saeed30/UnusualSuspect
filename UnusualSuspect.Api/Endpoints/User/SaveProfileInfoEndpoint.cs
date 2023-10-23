@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Endpoints.User;
-using UnusualSuspect.Common.Enums;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.Services.Contracts.Identity;
@@ -13,7 +13,7 @@ using UnusualSuspect.Services.Services;
 namespace UnusualSuspect.Api.Endpoints.User;
 
 public sealed class SaveProfileInfoEndpoint : EndpointBaseAsync
-.WithRequest<SaveProfileInfoRequest>
+.WithRequest<SaveProfileInfoRequest<IFormFile>>
 .WithActionResult<ApiResult>
 {
 	private readonly IApplicationUserManager applicationUserManager;
@@ -27,7 +27,7 @@ public sealed class SaveProfileInfoEndpoint : EndpointBaseAsync
 		_uow = uow;
 	}
 	[HttpPost("api/[namespace]/SaveProfileInfoEndpoint")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] SaveProfileInfoRequest request, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] SaveProfileInfoRequest<IFormFile> request, CancellationToken cancellationToken = default)
 	{
 		var user = await applicationUserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 		if (user == null)
