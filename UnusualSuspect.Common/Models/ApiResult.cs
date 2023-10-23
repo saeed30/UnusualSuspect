@@ -1,25 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using UnusualSuspect.ApiViewModels.Enums;
-using UnusualSuspect.Common.Extensions;
 
 namespace UnusualSuspect.Common.Models;
 
-public class ApiResult
+public class ApiResult : ApiViewModels.ApiResult
 {
-	public bool IsSuccess { get; set; }
-	public ApiResultStatusCode StatusCode { get; set; }
-
-	[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-	public string Message { get; set; }
-
 	public ApiResult(bool isSuccess, ApiResultStatusCode statusCode, string? message = null)
+		 : base(isSuccess, statusCode, message)
 	{
-		IsSuccess = isSuccess;
-		StatusCode = statusCode;
-		Message = message ?? statusCode.ToDisplay();
 	}
-
 	#region Implicit Operators
 	public static implicit operator ApiResult(OkResult result)
 	{
@@ -54,16 +43,12 @@ public class ApiResult
 	#endregion
 }
 
-public class ApiResult<TData> : ApiResult
+public class ApiResult<TData> : ApiViewModels.ApiResult<TData>
 		where TData : class
 {
-	[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-	public TData Data { get; set; }
-
 	public ApiResult(bool isSuccess, ApiResultStatusCode statusCode, TData data, string? message = null)
-			: base(isSuccess, statusCode, message)
+	: base(isSuccess, statusCode, data, message)
 	{
-		Data = data;
 	}
 
 	#region Implicit Operators

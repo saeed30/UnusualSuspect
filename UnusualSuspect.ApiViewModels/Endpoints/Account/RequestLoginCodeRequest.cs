@@ -1,7 +1,9 @@
-﻿using UnusualSuspect.ApiViewModels.InputParameters;
+﻿using System;
+using UnusualSuspect.ApiViewModels.InputParameters;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.Account
 {
+	[Serializable]
 	public class RequestLoginCodeRequest : ValueParameters<string>
 	{
 	}

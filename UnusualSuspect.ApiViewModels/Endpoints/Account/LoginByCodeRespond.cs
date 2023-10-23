@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.Account
 {
+	[Serializable]
 	public class LoginByCodeRespond
 	{
 		public string access_token { get; set; }
