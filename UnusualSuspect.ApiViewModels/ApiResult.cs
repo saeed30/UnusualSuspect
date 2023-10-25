@@ -24,13 +24,13 @@ namespace UnusualSuspect.ApiViewModels
 	public class ApiResult<TData> : ApiResult
 		where TData : class
 	{
-		public ApiResult(bool isSuccess, ApiResultStatusCode statusCode, TData data, string? message = null)
+		public ApiResult(bool isSuccess, ApiResultStatusCode statusCode, TData? data, string? message = null)
 			: base(isSuccess, statusCode, message)
 		{
 			Data = data;
 		}
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-		public TData Data { get; set; }
+		public TData? Data { get; set; }
 
 	}
 }

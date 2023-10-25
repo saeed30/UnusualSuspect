@@ -46,7 +46,7 @@ public class ApiResult : ApiViewModels.ApiResult
 public class ApiResult<TData> : ApiViewModels.ApiResult<TData>
 		where TData : class
 {
-	public ApiResult(bool isSuccess, ApiResultStatusCode statusCode, TData data, string? message = null)
+	public ApiResult(bool isSuccess, ApiResultStatusCode statusCode, TData? data = null, string? message = null)
 	: base(isSuccess, statusCode, data, message)
 	{
 	}

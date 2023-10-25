@@ -243,7 +243,7 @@ public class ApplicationUserService : IApplicationUserService
 
 
 
-			await _ApplicationUser.AddAsync(model);
+			_ApplicationUser.Add(model);
 			//_uow.SaveChanges();
 
 			_ILogService.AddLog(new LogObject()

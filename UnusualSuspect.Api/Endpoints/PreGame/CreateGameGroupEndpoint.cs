@@ -28,10 +28,13 @@ public sealed class CreateGameGroupEndpoint : EndpointBaseAsync
 		if (user == null)
 			return new ApiResult<CreateGameGroupResponse>(false, ApiResultStatusCode.NotFound, null, "کاربر جاری یافت نشد");
 		var result = await gameService.CreatePreGameGroup(user.Id, id.KeyValue);
+		if(!result.Success)
+			return new ApiResult<CreateGameGroupResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
+
 		await gameService.SaveChangesAsync();
 		return new ApiResult<CreateGameGroupResponse>(true, ApiResultStatusCode.Success, new CreateGameGroupResponse()
 		{
-			GameGroupId = result.Id
+			GameGroupId = result.Result.Id
 		});
 	}
 }

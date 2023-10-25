@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common;
 using UnusualSuspect.Common.Enums;
 
 namespace UnusualSuspect.Services;
 
-public class UnusualSuspectServiceResult<TResult> : ServiceResult<TResult, UnusualSuspectErrorResult, ErrorType>
+public class UnusualSuspectServiceResult<TResult> : ServiceResult<TResult, UnusualSuspectErrorResult, LogicErrorCode>
 {
 	public UnusualSuspectServiceResult(TResult result)
 		: this(success: true, result: result, errors: null)
@@ -34,7 +35,7 @@ public class UnusualSuspectServiceResult<TResult> : ServiceResult<TResult, Unusu
 	}
 }
 
-public class UnusualSuspectServiceResult<TResult, TError> : ServiceResult<TResult, UnusualSuspectErrorResult<TError>, ErrorType>
+public class UnusualSuspectServiceResult<TResult, TError> : ServiceResult<TResult, UnusualSuspectErrorResult<TError>, LogicErrorCode>
 {
 	public UnusualSuspectServiceResult(TResult result)
 		: this(success: true, result: result, errors: null)

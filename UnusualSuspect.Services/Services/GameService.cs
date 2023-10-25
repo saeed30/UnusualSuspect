@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
@@ -24,8 +25,11 @@ namespace UnusualSuspect.Services.Services
 		{
 			return await _uow.SaveChangesAsync(cancellationToken);
 		}
-		public async Task<PreGameGroup> CreatePreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default)
+		public async Task<UnusualSuspectServiceResult<PreGameGroup>> CreatePreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default)
 		{
+			GameType? gameType = await _GameType.FirstOrDefaultAsync(x => x.Id == gameTypeId);
+			if (gameType == null)
+				return new UnusualSuspectServiceResult<PreGameGroup>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameTypeId));
 			var oldPreGames = await _JoinedPreGame.Where(x => x.UserId == userId).ToListAsync(cancellationToken);
 			if (oldPreGames.Any())
 				await RemoveFromAllUserPreGames(oldPreGames, userId, cancellationToken);
@@ -33,10 +37,10 @@ namespace UnusualSuspect.Services.Services
 			{
 				CalulatedJoinedUsers = 1,
 				CreatedTime = DateTime.Now,
-				GameTypeId = gameTypeId,
+				GameType = gameType,
 				ReadyToGameTime = null
 			};
-			await _PreGameGroup.AddAsync(group, cancellationToken);
+			_PreGameGroup.Add(group);
 			JoinedPreGame joinedPreGame = new JoinedPreGame()
 			{
 				UserId = userId,
@@ -45,8 +49,8 @@ namespace UnusualSuspect.Services.Services
 				PreGameGroup = group,
 				ReadyToGameStatusId = (int)ReadyToGameStatusEnum.Ready
 			};
-			await _JoinedPreGame.AddAsync(joinedPreGame, cancellationToken);
-			return group;
+			_JoinedPreGame.Add(joinedPreGame);
+			return new UnusualSuspectServiceResult<PreGameGroup>(group);
 		}
 
 		public async Task RemoveFromAllUserPreGames(List<JoinedPreGame> joinedPreGame, int userId, CancellationToken cancellationToken = default)
@@ -89,7 +93,7 @@ namespace UnusualSuspect.Services.Services
 		public async Task<UnusualSuspectServiceResult<bool>> StartPreGameGroup(int preGameGroupId)
 		{
 			if (await _JoinedPreGame.AnyAsync(x => x.PreGameGroupId == preGameGroupId && x.ReadyToGameStatusId != (short)ReadyToGameStatusEnum.Ready))
-				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(ErrorType.ThereIsUnreadyUserInGroup));
+				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.ThereIsUnreadyUserInGroup));
 			return new UnusualSuspectServiceResult<bool>(true);
 		}
 		public async Task<JoinedPreGame> AddUserToPreGameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default)
@@ -102,7 +106,7 @@ namespace UnusualSuspect.Services.Services
 				PreGameGroupId = preGameGroupId,
 				ReadyToGameStatusId = (int)ReadyToGameStatusEnum.Ready
 			};
-			await _JoinedPreGame.AddAsync(joinedPreGame, cancellationToken);
+			_JoinedPreGame.Add(joinedPreGame);
 			return joinedPreGame;
 		}
 		public async Task CombineGroupsToStartGames(CancellationToken cancellationToken = default)
