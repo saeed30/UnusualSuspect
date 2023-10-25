@@ -1,12 +1,16 @@
 ﻿using System;
+using UnityEngine;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.Account
 {
 	[Serializable]
 	public class LoginByCodeRequest
 	{
-		[SerializeField] 
-		public string Username { get; set; }
-		public string Code { get; set; }
+		[SerializeField]
+		private string code;
+		[SerializeField]
+		private string username;
+		public string Username { get => username; set => username = value; }
+		public string Code { get => code; set => code = value; }
 	}
 }

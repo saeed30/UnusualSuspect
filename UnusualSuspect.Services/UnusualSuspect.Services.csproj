@@ -26,10 +26,10 @@
 
 	<ItemGroup>
 		<Reference Include="Aspose.Cells">
-		  <HintPath>..\Dll\Aspose.Cells.dll</HintPath>
+		  <HintPath>..\Dll\Aspose\Aspose.Cells.dll</HintPath>
 		</Reference>
 		<Reference Include="Aspose.Cells.GridWeb">
-		  <HintPath>..\Dll\Aspose.Cells.GridWeb.dll</HintPath>
+		  <HintPath>..\Dll\Aspose\Aspose.Cells.GridWeb.dll</HintPath>
 		</Reference>
 		<Reference Include="Kendo.Mvc">
 			<HintPath>..\Dll\Kendo.Mvc.dll</HintPath>

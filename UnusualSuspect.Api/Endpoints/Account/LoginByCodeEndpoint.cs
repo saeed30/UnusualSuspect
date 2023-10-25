@@ -52,7 +52,7 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 		return new ApiResult<LoginByCodeRespond>(true, ApiResultStatusCode.Success, new LoginByCodeRespond()
 		{
 			access_token = token.access_token,
-			expires_in = token.expires_in,
+			Expires_in = token.expires_in,
 			refresh_token = token.refresh_token,
 			token_type = token.token_type
 		}, "ورود با موفقیت انجام شد");
