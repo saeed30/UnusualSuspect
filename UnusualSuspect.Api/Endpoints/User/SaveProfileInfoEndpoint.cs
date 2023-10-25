@@ -12,7 +12,7 @@ using UnusualSuspect.Services.Services;
 
 namespace UnusualSuspect.Api.Endpoints.User;
 
-public sealed class SaveProfileInfoEndpoint : EndpointBaseAsync
+public sealed class SaveProfileInfoEndpoint : MyBaseEndpointAuthenticated
 .WithRequest<SaveProfileInfoRequest<IFormFile>>
 .WithActionResult<ApiResult>
 {
@@ -29,7 +29,7 @@ public sealed class SaveProfileInfoEndpoint : EndpointBaseAsync
 	[HttpPost("api/[namespace]/SaveProfileInfoEndpoint")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] SaveProfileInfoRequest<IFormFile> request, CancellationToken cancellationToken = default)
 	{
-		var user = await applicationUserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+		var user = await applicationUserManager.FindByNameAsync(CurrentUser.Username);
 		if (user == null)
 			return new ApiResult(false, ApiResultStatusCode.NotFound, "اطلاعات کاربری یافت نشد!");
 		user.NickName = request.NickName;

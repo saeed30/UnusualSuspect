@@ -51,10 +51,10 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 		await iApplicationUserManager.UpdateLastLoginDateAsync(user);
 		return new ApiResult<LoginByCodeRespond>(true, ApiResultStatusCode.Success, new LoginByCodeRespond()
 		{
-			access_token = token.access_token,
+			Access_token = token.access_token,
 			Expires_in = token.expires_in,
-			refresh_token = token.refresh_token,
-			token_type = token.token_type
+			Refresh_token = token.refresh_token,
+			Token_type = token.token_type
 		}, "ورود با موفقیت انجام شد");
 	}
 

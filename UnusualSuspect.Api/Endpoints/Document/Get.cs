@@ -10,7 +10,7 @@ using UnusualSuspect.Services.IServices;
 
 namespace UnusualSuspect.Api.Endpoints.Document
 {
-	public class Get : EndpointBaseAsync
+	public class Get : MyBaseEndpointAuthenticated
 	.WithRequest<string>
 	.WithActionResult<ApiResult<DocumentGetResponse>>
 	{
