@@ -7,24 +7,25 @@ using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Contracts;
+using UnusualSuspect.DataLayer.Contracts.Repository;
 
 namespace UnusualSuspect.Services.Services;
 
 public class SmsService : ISmsService
 {
 	private readonly IOptionsSnapshot<ProjectSetting> _setting;
-	private readonly IAsyncRepository<SmsLog> asyncRepository;
+	private readonly ISmsLogRepository smsLogRepository;
 
 	public SmsService(
-			IOptionsSnapshot<ProjectSetting> setting, IAsyncRepository<SmsLog> asyncRepository)
+			IOptionsSnapshot<ProjectSetting> setting, ISmsLogRepository smsLogRepository)
 	{
 		_setting = setting ?? throw new ArgumentNullException(nameof(setting));
-		this.asyncRepository = asyncRepository;
+		this.smsLogRepository = smsLogRepository;
 	}
 
 	public SmsLog SaveSmsSentLog(SmsLog smsLog)
 	{
-		return asyncRepository.Add(smsLog);
+		return smsLogRepository.Add(smsLog);
 	}
 
 	public async Task<bool> SendSmsAsync(string Mobile, SmsMessageTextEnum message, List<string> parameters = null)

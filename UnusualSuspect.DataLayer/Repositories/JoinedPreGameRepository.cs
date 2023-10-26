@@ -33,6 +33,10 @@ namespace UnusualSuspect.DataLayer.Repositories
 		{
 			return await joinedPreGame.Where(x => x.PreGameGroupId == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
 		}
+		public async Task ExecuteDeleteUserJoinedPreGameGroupAsync(int userId, CancellationToken cancellationToken = default)
+		{
+			await joinedPreGame.Where(x => x.UserId == userId).ExecuteDeleteAsync(cancellationToken);
+		}
 
 		public async Task ExecuteDeleteUserJoinedPreGameGroupAsync(int userId, int preGameGroupId, CancellationToken cancellationToken = default)
 		{

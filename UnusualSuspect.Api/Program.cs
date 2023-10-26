@@ -14,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 using UnusualSuspect.DataLayer.Common;
 using Hangfire;
 using HangfireBasicAuthenticationFilter;
-using UnusualSuspect.Api.Backgroud;
+using UnusualSuspect.Api.Background;
 using UnusualSuspect.DataLayer.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,10 +29,10 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
 	options.SuppressInferBindingSourcesForParameters = true;
 });
-ConfigurationManager Configuration = builder.Configuration;
-builder.Services.Configure<ProjectSetting>(options => Configuration.Bind(options));
-ProjectSetting _ProjectSetting = builder.Services.GetSiteSettings();
-builder.Services.AddCustomServices(Configuration);
+ConfigurationManager configuration = builder.Configuration;
+builder.Services.Configure<ProjectSetting>(options => configuration.Bind(options));
+ProjectSetting projectSetting = builder.Services.GetSiteSettings();
+builder.Services.AddCustomServices(configuration);
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -68,7 +68,7 @@ builder.Services.AddHangfire(config => config
 	.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
 	.UseSimpleAssemblyNameTypeSerializer()
 	.UseRecommendedSerializerSettings()
-	.UseSqlServerStorage(_ProjectSetting.ConnectionStrings.HangfireConnectionString));
+	.UseSqlServerStorage(projectSetting.ConnectionStrings.HangfireConnectionString));
 // Hangfire Server
 builder.Services.AddHangfireServer();
 
@@ -83,7 +83,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseElmahCore(_ProjectSetting);
+app.UseElmahCore(projectSetting);
 
 app.UseRouting();
 app.UseAuthentication();

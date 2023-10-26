@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Extensions;
 
 namespace UnusualSuspect.Common.Models;
 
 public class ApiResult : ApiViewModels.ApiResult
 {
 	public ApiResult(bool isSuccess, ApiResultStatusCode statusCode, string? message = null)
-		 : base(isSuccess, statusCode, message)
+		 : base(isSuccess, statusCode, message ?? statusCode.ToDisplay())
 	{
 	}
 	#region Implicit Operators
@@ -47,7 +48,7 @@ public class ApiResult<TData> : ApiViewModels.ApiResult<TData>
 		where TData : class
 {
 	public ApiResult(bool isSuccess, ApiResultStatusCode statusCode, TData? data = null, string? message = null)
-	: base(isSuccess, statusCode, data, message)
+	: base(isSuccess, statusCode, data, message ?? statusCode.ToDisplay())
 	{
 	}
 
@@ -95,7 +96,7 @@ public class ApiResult<TData> : ApiViewModels.ApiResult<TData>
 
 	public static implicit operator ApiResult<TData>(NotFoundObjectResult result)
 	{
-		return new ApiResult<TData>(false, ApiResultStatusCode.NotFound, (TData)result.Value);
+		return new ApiResult<TData>(false, ApiResultStatusCode.NotFound, (TData?)result.Value);
 	}
 	#endregion
 }
