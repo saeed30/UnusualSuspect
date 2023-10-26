@@ -12,18 +12,24 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Common;
 
+public class EfRepository<T> : EfRepository<T, int> where T : BaseEntity, new()
+{
+	public EfRepository(IUnitOfWork uow, ILogger<EfRepository<T, int>> logger) : base(uow, logger)
+	{
+	}
+}
 /// <summary>
 /// Source: My reference app https://github.com/dotnet-architecture/eShopOnWeb
 /// Check it out if you need filtering/paging/etc.
 /// Also consider Ardalis.Specification and its built-in generic repository
 /// </summary>
-public class EfRepository<T> : IAsyncRepository<T> where T : BaseEntity, new()
+public class EfRepository<T, TY> : IAsyncRepository<T, TY> where T : BaseEntity<TY>, new() where TY : IEquatable<TY>
 {
 	private readonly IUnitOfWork _uow;
-	private readonly ILogger<EfRepository<T>> logger;
+	private readonly ILogger<EfRepository<T, TY>> logger;
 	private readonly DbSet<T> _Entity;
 
-	public EfRepository(IUnitOfWork uow, ILogger<EfRepository<T>> logger)
+	public EfRepository(IUnitOfWork uow, ILogger<EfRepository<T, TY>> logger)
 	{
 		_uow = uow;
 		this.logger = logger;
@@ -31,9 +37,9 @@ public class EfRepository<T> : IAsyncRepository<T> where T : BaseEntity, new()
 
 	}
 
-	public virtual async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+	public virtual async Task<T?> GetByIdAsync(TY id, CancellationToken cancellationToken = default)
 	{
-		return await _Entity.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+		return await _Entity.FirstOrDefaultAsync(a => a.Id.Equals(id), cancellationToken);
 	}
 
 	public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default)
@@ -71,7 +77,7 @@ public class EfRepository<T> : IAsyncRepository<T> where T : BaseEntity, new()
 		return await _uow.SaveChangesAsync(cancellationToken);
 	}
 
-	public void DeleteById(int id)
+	public void DeleteById(TY id)
 	{
 		var entity = new T
 		{
@@ -80,8 +86,8 @@ public class EfRepository<T> : IAsyncRepository<T> where T : BaseEntity, new()
 		Delete(entity);
 	}
 
-	public async Task<int> ExecuteDeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+	public async Task<int> ExecuteDeleteByIdAsync(TY id, CancellationToken cancellationToken = default)
 	{
-		return await _Entity.Where(x => x.Id == id).ExecuteDeleteAsync(cancellationToken);
+		return await _Entity.Where(x => x.Id.Equals(id)).ExecuteDeleteAsync(cancellationToken);
 	}
 }

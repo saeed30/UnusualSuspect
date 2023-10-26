@@ -2,13 +2,18 @@
 
 namespace UnusualSuspect.DataLayer.Contracts;
 
+public interface IAsyncRepository<T> : IAsyncRepository<T, int> where T : BaseEntity
+{
+
+}
 /// <summary>
 /// Source: My reference app https://github.com/dotnet-architecture/eShopOnWeb
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IAsyncRepository<T> where T : BaseEntity
+/// <typeparam name="TY"></typeparam>
+public interface IAsyncRepository<T, in TY> where T : BaseEntity<TY>
 {
-	Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+	Task<T?> GetByIdAsync(TY id, CancellationToken cancellationToken = default);
 
 	Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default);
 
@@ -21,8 +26,8 @@ public interface IAsyncRepository<T> where T : BaseEntity
 	void Update(T entity);
 
 	void Delete(T entity);
-	void DeleteById(int id);
-	Task<int> ExecuteDeleteByIdAsync(int id, CancellationToken cancellationToken = default);
+	void DeleteById(TY id);
+	Task<int> ExecuteDeleteByIdAsync(TY id, CancellationToken cancellationToken = default);
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
 	//Task<int> CountAsync(ISpecification<T> spec);
