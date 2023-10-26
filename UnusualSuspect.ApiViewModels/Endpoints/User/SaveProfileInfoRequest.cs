@@ -7,8 +7,11 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 	public sealed class SaveProfileInfoRequest<T>
 	{
 		[SerializeField]
-		public string? NickName { get; set; }
+		private string? nickName;
 		[SerializeField]
-		public T UserImage { get; set; }
+		private T userImage;
+
+		public string? NickName { get => nickName; set => nickName = value; }
+		public T UserImage { get => userImage; set => userImage = value; }
 	}
 }

@@ -7,6 +7,8 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
 	public class CreateGameGroupResponse
 	{
 		[SerializeField]
-		public int GameGroupId { get; set; }
+		private int gameGroupId;
+
+		public int GameGroupId { get => gameGroupId; set => gameGroupId = value; }
 	}
 }

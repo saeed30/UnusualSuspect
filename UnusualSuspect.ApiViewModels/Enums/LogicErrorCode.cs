@@ -1,10 +1,19 @@
-﻿
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace UnusualSuspect.ApiViewModels.Enums
 {
+	[Serializable]
 	public enum LogicErrorCode
 	{
+		[Display(Name = "امکان دسترسی وجود ندارد")]
 		AccessIsDenied = 1,
 		ThereIsUnreadyUserInGroup = 2,
 		InvalidGameTypeId = 3,
+		UserDoNotOwnTheGroup = 4,
+		InvalidPreGameGroupId = 5,
+		InvalidUsername = 6,
+		UserAlreadyJoinedPreGameGroup = 7,
+		UserJoinedPreGameGroupNotFound = 8
 	}
 }

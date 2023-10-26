@@ -22,9 +22,9 @@ public class SmsService : ISmsService
 		this.asyncRepository = asyncRepository;
 	}
 
-	public async Task<SmsLog> SaveSmsSentLog(SmsLog smsLog, CancellationToken cancellationToken)
+	public SmsLog SaveSmsSentLog(SmsLog smsLog)
 	{
-		return await asyncRepository.AddAsync(smsLog, cancellationToken);
+		return asyncRepository.Add(smsLog);
 	}
 
 	public async Task<bool> SendSmsAsync(string Mobile, SmsMessageTextEnum message, List<string> parameters = null)

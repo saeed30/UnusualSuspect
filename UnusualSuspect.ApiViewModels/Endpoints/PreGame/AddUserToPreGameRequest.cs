@@ -7,8 +7,11 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
 	public class AddUserToPreGameRequest
 	{
 		[SerializeField]
-		public int PreGameGroupId { get; set; }
+		private int preGameGroupId;
 		[SerializeField]
-		public string UserPhoneNumber { get; set; }
+		private string userPhoneNumber;
+
+		public int PreGameGroupId { get => preGameGroupId; set => preGameGroupId = value; }
+		public string UserPhoneNumber { get => userPhoneNumber; set => userPhoneNumber = value; }
 	}
 }

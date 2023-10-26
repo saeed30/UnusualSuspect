@@ -8,5 +8,5 @@ public interface ISmsService
 {
     Task<bool> SendSmsAsync(string mobile, SmsMessageTextEnum message, List<string> parameters = null);
     Task<bool> SendSmsAsync(string mobile,string message);
-    Task<SmsLog> SaveSmsSentLog(SmsLog smsLog, CancellationToken cancellationToken);
+    SmsLog SaveSmsSentLog(SmsLog smsLog);
 }

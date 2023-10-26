@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace UnusualSuspect.ApiViewModels.Enums
 {
+	[Serializable]
 	public enum ApiResultStatusCode
 	{
 		[Display(Name = "عملیات با موفقیت انجام شد")]

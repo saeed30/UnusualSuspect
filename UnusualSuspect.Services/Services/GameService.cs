@@ -1,25 +1,34 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DNTPersianUtils.Core;
+using Microsoft.EntityFrameworkCore;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.DataLayer;
+using UnusualSuspect.DataLayer.Contracts;
+using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.Services.Contracts.Identity;
 
 namespace UnusualSuspect.Services.Services
 {
 	public class GameService : IGameService
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly DbSet<PreGameGroup> _PreGameGroup;
+		private readonly IPreGameGroupRepository preGameGroupRepository;
+		private readonly IJoinedPreGameRepository joinedPreGameRepository;
+		
 		private readonly DbSet<GameType> _GameType;
-		private readonly DbSet<JoinedPreGame> _JoinedPreGame;
-		private readonly DbSet<ReadyToGameStatus> _ReadyToGameStatus;
-		public GameService(IUnitOfWork uow)
+		private readonly IApplicationUserManager applicationUserManager;
+
+		public GameService(IUnitOfWork uow,
+			IPreGameGroupRepository preGameGroupRepository,
+			IJoinedPreGameRepository joinedPreGameRepository,
+			IApplicationUserManager applicationUserManager)
 		{
 			_uow = uow;
-			_PreGameGroup = uow.Set<PreGameGroup>();
+			this.preGameGroupRepository = preGameGroupRepository;
 			_GameType = uow.Set<GameType>();
-			_JoinedPreGame = uow.Set<JoinedPreGame>();
-			_ReadyToGameStatus = uow.Set<ReadyToGameStatus>();
+			this.joinedPreGameRepository = joinedPreGameRepository;
+			this.applicationUserManager = applicationUserManager;
 		}
 		public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 		{
@@ -30,9 +39,9 @@ namespace UnusualSuspect.Services.Services
 			GameType? gameType = await _GameType.FirstOrDefaultAsync(x => x.Id == gameTypeId);
 			if (gameType == null)
 				return new UnusualSuspectServiceResult<PreGameGroup>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameTypeId));
-			var oldPreGames = await _JoinedPreGame.Where(x => x.UserId == userId).ToListAsync(cancellationToken);
+			var oldPreGames = await joinedPreGameRepository.PreGameGroupOfUserAsync(userId, cancellationToken);
 			if (oldPreGames.Any())
-				await RemoveFromAllUserPreGames(oldPreGames, userId, cancellationToken);
+				await RemoveFromAllUserPreGames(oldPreGames.ToList(), userId, cancellationToken);
 			PreGameGroup group = new PreGameGroup()
 			{
 				CalulatedJoinedUsers = 1,
@@ -40,7 +49,7 @@ namespace UnusualSuspect.Services.Services
 				GameType = gameType,
 				ReadyToGameTime = null
 			};
-			_PreGameGroup.Add(group);
+			preGameGroupRepository.Add(group);
 			JoinedPreGame joinedPreGame = new JoinedPreGame()
 			{
 				UserId = userId,
@@ -49,7 +58,7 @@ namespace UnusualSuspect.Services.Services
 				PreGameGroup = group,
 				ReadyToGameStatusId = (int)ReadyToGameStatusEnum.Ready
 			};
-			_JoinedPreGame.Add(joinedPreGame);
+			joinedPreGameRepository.Add(joinedPreGame);
 			return new UnusualSuspectServiceResult<PreGameGroup>(group);
 		}
 
@@ -58,57 +67,88 @@ namespace UnusualSuspect.Services.Services
 			if (joinedPreGame == null || !joinedPreGame.Any())
 				return;
 			for (int i = 0; i < joinedPreGame.Count; i++)
-				await RemoveUserFromPreGame(joinedPreGame[i], userId, cancellationToken);
+				await RemoveUserFromPreGameGroup(joinedPreGame[i], userId, cancellationToken);
 		}
 
-		public async Task RemoveUserFromPreGame(JoinedPreGame joinedPreGame, int userId, CancellationToken cancellationToken = default)
+		public async Task RemoveUserFromPreGameGroup(JoinedPreGame joinedPreGame, int userId, CancellationToken cancellationToken = default)
 		{
-			if (joinedPreGame.IsOwnerOfPreGroup || !await _JoinedPreGame.AnyAsync(x => x.UserId != userId && x.PreGameGroupId == joinedPreGame.PreGameGroupId, cancellationToken))
+			if (joinedPreGame.IsOwnerOfPreGroup || !await joinedPreGameRepository.ExistsInPreGameGroupExceptUserAsync(userId, joinedPreGame.PreGameGroupId, cancellationToken))
 			{
-				await RemoveUserFromPreGame(joinedPreGame.PreGameGroupId);
+				await RemovePreGameGroup(joinedPreGame.PreGameGroupId, cancellationToken);
 			}
-			await _JoinedPreGame.Where(x => x.UserId == userId && x.PreGameGroupId == joinedPreGame.PreGameGroupId).ExecuteDeleteAsync(cancellationToken);
+			await joinedPreGameRepository.ExecuteDeleteUserJoinedPreGameGroupAsync(userId,joinedPreGame.PreGameGroupId, cancellationToken);
 			await RecalculatePreGameGroupUsers(joinedPreGame.PreGameGroupId, cancellationToken);
 		}
 		public async Task RecalculatePreGameGroupUsers(int preGameGroupId, CancellationToken cancellationToken = default)
 		{
-			var preGame = await _PreGameGroup.Where(x => x.Id == preGameGroupId).SingleAsync(cancellationToken);
-			int count = await _JoinedPreGame.CountAsync(x => x.PreGameGroupId == preGameGroupId, cancellationToken);
+			var preGame = await preGameGroupRepository.GetByIdAsync(preGameGroupId, cancellationToken);
+			if(preGame == null)
+				throw new Exception("preGameGroup not found. preGameGroupId: " + preGameGroupId);
+			int count = await joinedPreGameRepository.UserCountJoinedPreGameGroupAsync(preGameGroupId, cancellationToken);
 			if (count > 32000)
 				throw new Exception("invalid user count. preGameGroupId: " + preGameGroupId);
 			preGame.CalulatedJoinedUsers = (short)count;
 		}
 
-		public async Task RemoveUserFromPreGame(int preGameGroupId, CancellationToken cancellationToken = default)
+		public async Task RemovePreGameGroup(int preGameGroupId, CancellationToken cancellationToken = default)
 		{
-			await _JoinedPreGame.Where(x => x.PreGameGroupId == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
-			await _PreGameGroup.Where(x => x.Id == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
+			await joinedPreGameRepository.ExecuteDeleteAllJoinedPreGameGroupAsync(preGameGroupId, cancellationToken);
+			await preGameGroupRepository.ExecuteDeleteByIdAsync(preGameGroupId, cancellationToken);
 		}
-		public async Task ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default)
+		public async Task<UnusualSuspectServiceResult<bool>> ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default)
 		{
-			var joinedPreGame = await _JoinedPreGame.SingleAsync(x =>
-				x.UserId == userId && x.PreGameGroupId == preGameGroupId, cancellationToken);
+			var joinedPreGame = await joinedPreGameRepository.GetByUserIdPreGameGroupIdAsync(userId, preGameGroupId, cancellationToken);
+			if(joinedPreGame == null)
+				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserJoinedPreGameGroupNotFound));
 			joinedPreGame.ReadyToGameStatusId = (short)readyToGameStatusEnum;
+			return new UnusualSuspectServiceResult<bool>(true);
 		}
 		public async Task<UnusualSuspectServiceResult<bool>> StartPreGameGroup(int preGameGroupId)
 		{
-			if (await _JoinedPreGame.AnyAsync(x => x.PreGameGroupId == preGameGroupId && x.ReadyToGameStatusId != (short)ReadyToGameStatusEnum.Ready))
+			if (!await joinedPreGameRepository.AllJoinedPreGameGroupUsersAreReadyAsync(preGameGroupId))
 				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.ThereIsUnreadyUserInGroup));
 			return new UnusualSuspectServiceResult<bool>(true);
 		}
-		public async Task<JoinedPreGame> AddUserToPreGameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default)
+		public async Task<UnusualSuspectServiceResult<JoinedPreGame>> AddUserToPreGameGroup(int addingUserId, string username, int preGameGroupId, CancellationToken cancellationToken = default)
 		{
+			var user = await applicationUserManager.FindByNameAsync(username);
+			if(user == null)
+				return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidUsername));
+			return await AddUserToPreGameGroup(addingUserId, user.Id, preGameGroupId, cancellationToken);
+		}
+		public async Task<UnusualSuspectServiceResult<JoinedPreGame>> AddUserToPreGameGroup(int addingUserId, int userId, int preGameGroupId, CancellationToken cancellationToken = default)
+		{
+			bool ownsTheGroup = CheckUserOwnsThePreGameGroup(addingUserId, preGameGroupId);
+			if(!ownsTheGroup)
+				return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotOwnTheGroup));
+			PreGameGroup? preGameGroup = await preGameGroupRepository.GetByIdAsync(preGameGroupId, cancellationToken);
+			if (preGameGroup == null)
+				return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));
+			bool alreadyJoinedPreGameGroup = CheckUserJoinedPreGameGroup(userId, preGameGroupId);
+			if(alreadyJoinedPreGameGroup)
+				return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.UserAlreadyJoinedPreGameGroup));
 			JoinedPreGame joinedPreGame = new JoinedPreGame()
 			{
 				UserId = userId,
 				IsOwnerOfPreGroup = true,
 				JoinTime = DateTime.Now,
-				PreGameGroupId = preGameGroupId,
+				PreGameGroup = preGameGroup,
 				ReadyToGameStatusId = (int)ReadyToGameStatusEnum.Ready
 			};
-			_JoinedPreGame.Add(joinedPreGame);
-			return joinedPreGame;
+			joinedPreGameRepository.Add(joinedPreGame);
+			return new UnusualSuspectServiceResult<JoinedPreGame>(joinedPreGame);
 		}
+
+		private bool CheckUserJoinedPreGameGroup(int userId, int preGameGroupId)
+		{
+			throw new NotImplementedException();
+		}
+
+		private bool CheckUserOwnsThePreGameGroup(int addingUserId, int preGameGroupId)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task CombineGroupsToStartGames(CancellationToken cancellationToken = default)
 		{
 			var gameTypes = await _GameType.Where(x => x.IsActive).ToListAsync(cancellationToken);

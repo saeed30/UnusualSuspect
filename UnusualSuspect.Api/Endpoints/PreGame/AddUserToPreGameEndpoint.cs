@@ -6,6 +6,7 @@ using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.ApiViewModels.Enums;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame
 {
@@ -14,16 +15,18 @@ namespace UnusualSuspect.Api.Endpoints.PreGame
 		.WithActionResult<ApiResult>
 	{
 		private readonly IGameService gameService;
-		private readonly IApplicationUserManager iApplicationUserManager;
-		public AddUserToPreGameEndpoint(IGameService gameService, IApplicationUserManager iApplicationUserManager)
+		public AddUserToPreGameEndpoint(IGameService gameService)
 		{
 			this.gameService = gameService;
-			this.iApplicationUserManager = iApplicationUserManager;
 		}
 		[HttpPost("api/[namespace]/AddUserToPreGame")]
 		public override async Task<ActionResult<ApiResult>> HandleAsync(AddUserToPreGameRequest request, CancellationToken cancellationToken = default)
 		{
-			return null;
+			var result = await gameService.AddUserToPreGameGroup(CurrentUser.UserId, request.UserPhoneNumber, request.PreGameGroupId);
+			if (!result.Success)
+				return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
+			await gameService.SaveChangesAsync(cancellationToken);
+			return new ApiResult(true, ApiResultStatusCode.Success);
 		}
 	}
 }

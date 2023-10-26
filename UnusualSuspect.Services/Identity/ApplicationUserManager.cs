@@ -95,27 +95,27 @@ public class ApplicationUserManager : IApplicationUserManager
         }
     }
 
-    public Task<IdentityResult> CreateAsync(ApplicationUser user, string password)
+    public async Task<IdentityResult> CreateAsync(ApplicationUser user, string password)
     {
-        return _userManager.CreateAsync(user, password);
+        return await _userManager.CreateAsync(user, password);
     }
-    public Task<IdentityResult> AddPasswordAsync(ApplicationUser user, string password)
+    public async Task<IdentityResult> AddPasswordAsync(ApplicationUser user, string password)
     {
-        return _userManager.AddPasswordAsync(user, password);
+        return await _userManager.AddPasswordAsync(user, password);
     }
-    public Task<IdentityResult> DeleteAsync(ApplicationUser user)
+    public async Task<IdentityResult> DeleteAsync(ApplicationUser user)
     {
-        return _userManager.DeleteAsync(user);
-    }
-
-    public Task<ApplicationUser> FindByIdAsync(string id)
-    {
-        return _userManager.FindByIdAsync(id);
+        return await _userManager.DeleteAsync(user);
     }
 
-    public Task<ApplicationUser> FindByNameAsync(string name)
+    public async Task<ApplicationUser?> FindByIdAsync(string id)
     {
-        return _userManager.FindByNameAsync(name);
+        return await _userManager.FindByIdAsync(id);
+    }
+
+    public async Task<ApplicationUser?> FindByNameAsync(string name)
+    {
+        return await _userManager.FindByNameAsync(name);
     }
     public async Task SetFireBaseToken(ApplicationUser user, string token, CancellationToken cancellationToken)
     {

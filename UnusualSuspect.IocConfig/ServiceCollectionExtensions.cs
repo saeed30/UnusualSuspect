@@ -20,6 +20,8 @@ using UnusualSuspect.Common.Exceptions;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Context;
+using UnusualSuspect.DataLayer.Contracts.Repository;
+using UnusualSuspect.DataLayer.Repositories;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
@@ -61,6 +63,8 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ISmsService, SmsService>();
 		services.AddScoped<IFileService, FileService>();
 		services.AddScoped<IFireBaseService, FireBaseService>();
+		services.AddScoped<IJoinedPreGameRepository, JoinedPreGameRepository>();
+		services.AddScoped<IPreGameGroupRepository, PreGameGroupRepository>();
 		services.AddScoped<IGameService, GameService>();
 
 

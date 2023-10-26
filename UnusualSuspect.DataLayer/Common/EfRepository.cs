@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Castle.Core.Logging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -6,6 +8,7 @@ using System.Threading.Tasks;
 using UnusualSuspect.DataLayer.Context;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Entities;
+using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Common;
 
@@ -14,51 +17,71 @@ namespace UnusualSuspect.DataLayer.Common;
 /// Check it out if you need filtering/paging/etc.
 /// Also consider Ardalis.Specification and its built-in generic repository
 /// </summary>
-public class EfRepository<T> : IAsyncRepository<T> where T : BaseEntity
+public class EfRepository<T> : IAsyncRepository<T> where T : BaseEntity, new()
 {
-  protected readonly ApplicationDbContext _dbContext;
+	private readonly IUnitOfWork _uow;
+	private readonly ILogger<EfRepository<T>> logger;
+	private readonly DbSet<T> _Entity;
 
-  public EfRepository(ApplicationDbContext dbContext)
-  {
-    _dbContext = dbContext;
-  }
+	public EfRepository(IUnitOfWork uow, ILogger<EfRepository<T>> logger)
+	{
+		_uow = uow;
+		this.logger = logger;
+		_Entity = uow.Set<T>();
 
-  public virtual async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken)
-  {
-    return await _dbContext.Set<T>().FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
-  }
+	}
 
-  public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken)
-  {
-    return await _dbContext.Set<T>().ToListAsync(cancellationToken);
-  }
+	public virtual async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+	{
+		return await _Entity.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+	}
 
-  /// <inheritdoc />
-  public async Task<IReadOnlyList<T>> ListAllAsync(
-    int perPage,
-    int page,
-          CancellationToken cancellationToken)
-  {
-    return await _dbContext.Set<T>().Skip(perPage * (page - 1)).Take(perPage).ToListAsync(cancellationToken);
-  }
+	public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default)
+	{
+		return await _Entity.ToListAsync(cancellationToken);
+	}
 
-  public async Task<T> AddAsync(T entity, CancellationToken cancellationToken)
-  {
-    await _dbContext.Set<T>().AddAsync(entity, cancellationToken);
-    await _dbContext.SaveChangesAsync(cancellationToken);
+	/// <inheritdoc />
+	public async Task<IReadOnlyList<T>> ListAllAsync(
+		int perPage,
+		int page,
+					CancellationToken cancellationToken = default)
+	{
+		return await _Entity.Skip(perPage * (page - 1)).Take(perPage).ToListAsync(cancellationToken);
+	}
 
-    return entity;
-  }
+	public T Add(T entity)
+	{
+		_Entity.Add(entity);
+		return entity;
+	}
 
-  public async Task UpdateAsync(T entity, CancellationToken cancellationToken)
-  {
-    _dbContext.Entry(entity).State = EntityState.Modified;
-    await _dbContext.SaveChangesAsync(cancellationToken);
-  }
+	public void Update(T entity)
+	{
+		_uow.Entry(entity).State = EntityState.Modified;
+	}
 
-  public async Task DeleteAsync(T entity, CancellationToken cancellationToken)
-  {
-    _dbContext.Set<T>().Remove(entity);
-    await _dbContext.SaveChangesAsync(cancellationToken);
-  }
+	public void Delete(T entity)
+	{
+		_Entity.Remove(entity);
+	}
+
+	public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+	{
+		return await _uow.SaveChangesAsync(cancellationToken);
+	}
+
+	public void DeleteById(int id)
+	{
+		var entity = new T
+		{
+			Id = id
+		};
+		Delete(entity);
+	}
+
+	public async Task<int> ExecuteDeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+	{
+		return await _Entity.Where(x => x.Id == id).ExecuteDeleteAsync(cancellationToken);
+	}
 }

@@ -7,8 +7,11 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Document
 	public class DocumentGetResponse
 	{
 		[SerializeField]
-		public string FileName { get; set; }
+		private string fileName;
 		[SerializeField]
-		public byte[] File { get; set; }
+		private byte[] file;
+
+		public string FileName { get => fileName; set => fileName = value; }
+		public byte[] File { get => file; set => file = value; }
 	}
 }
