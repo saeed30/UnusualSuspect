@@ -18,19 +18,20 @@ public sealed class CreateGameGroupEndpoint : MyBaseEndpointAuthenticated
 .WithRequest<CreateGameGroupRequest>
 .WithActionResult<ApiResult<CreateGameGroupResponse>>
 {
-	private readonly IGameService gameService;
+	private readonly IGameService _gameService;
 	public CreateGameGroupEndpoint(IGameService gameService)
 	{
-		this.gameService = gameService;
+		this._gameService = gameService;
 	}
 	[HttpPost("api/[namespace]/CreateGameGroup")]
-	public async override Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync([FromBody] CreateGameGroupRequest id, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync(
+		[FromBody] CreateGameGroupRequest id, CancellationToken cancellationToken = default)
 	{
-		var result = await gameService.CreatePreGameGroup(CurrentUser.UserId, id.KeyValue);
+		var result = await _gameService.CreatePreGameGroup(CurrentUser.UserId, id.KeyValue, cancellationToken);
 		if(!result.Success)
 			return new ApiResult<CreateGameGroupResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
 
-		await gameService.SaveChangesAsync();
+		await _gameService.SaveChangesAsync(cancellationToken);
 		return new ApiResult<CreateGameGroupResponse>(true, ApiResultStatusCode.Success, new CreateGameGroupResponse()
 		{
 			GameGroupId = result.Result.Id

@@ -9,7 +9,7 @@ using UnusualSuspect.Common.Utilities;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 
-public class AddUserToPreGameEndpoint : MyBaseEndpointAuthenticated
+public sealed class AddUserToPreGameEndpoint : MyBaseEndpointAuthenticated
 	.WithRequest<AddUserToPreGameRequest>
 	.WithActionResult<ApiResult>
 {
@@ -19,7 +19,8 @@ public class AddUserToPreGameEndpoint : MyBaseEndpointAuthenticated
 		this._gameService = gameService;
 	}
 	[HttpPost("api/[namespace]/AddUserToPreGame")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] AddUserToPreGameRequest request, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] AddUserToPreGameRequest request,
+		CancellationToken cancellationToken = default)
 	{
 		string phone = request.UserPhoneNumber;
 		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))

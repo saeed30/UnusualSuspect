@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
 {
 	[Serializable]
-	public class AddUserToPreGameRequest
+	public sealed class AddUserToPreGameRequest
 	{
 		[SerializeField]
 		private int preGameGroupId;

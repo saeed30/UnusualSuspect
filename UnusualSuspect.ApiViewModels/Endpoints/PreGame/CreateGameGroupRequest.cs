@@ -4,7 +4,7 @@ using UnusualSuspect.ApiViewModels.InputParameters;
 namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
 {
 	[Serializable]
-	public class CreateGameGroupRequest : ValueParameters<short>
+	public sealed class CreateGameGroupRequest : ValueParameters<short>
 	{
 	}
 }

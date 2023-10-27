@@ -1,18 +1,17 @@
 ﻿
-namespace UnusualSuspect.Entities.GameModels
-{
-	public enum RoleCardEnum
-	{
+namespace UnusualSuspect.Entities.GameModels;
 
-	}
-	public class RoleCard : BaseEntity
+public enum RoleCardEnum
+{
+
+}
+public class RoleCard : BaseEntity
+{
+	public RoleCard()
 	{
-		public RoleCard()
-		{
-			IsActive = true;
-		}
-		public string	Title { get; set; }
-		public bool IsActive { get; set; }
-		public string ImageUrl { get; set; }
+		IsActive = true;
 	}
+	public string	Title { get; set; }
+	public bool IsActive { get; set; }
+	public string ImageUrl { get; set; }
 }

@@ -15,6 +15,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
 		InvalidUsername = 6,
 		UserAlreadyJoinedPreGameGroup = 7,
 		UserJoinedPreGameGroupNotFound = 8,
-		CanNotAddOwnToPreGameGroup = 9
+		CanNotAddOwnToPreGameGroup = 9,
+		InvalidReadyToGameStatusId = 10,
 	}
 }

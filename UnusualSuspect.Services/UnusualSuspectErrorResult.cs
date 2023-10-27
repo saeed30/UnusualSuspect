@@ -20,7 +20,7 @@ public class UnusualSuspectErrorResult : ErrorResult<LogicErrorCode>
 	}
 	public override string ToString()
 	{
-		return "LogicErrorCode: " + (int)Type;
+		return ((int)Type).ToString();
 	}
 }
 

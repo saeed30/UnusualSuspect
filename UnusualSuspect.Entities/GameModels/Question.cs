@@ -1,9 +1,8 @@
 ﻿
-namespace UnusualSuspect.Entities.GameModels
+namespace UnusualSuspect.Entities.GameModels;
+
+public class Question : BaseEntity<short>
 {
-	public class Question : BaseEntity<short>
-	{
-		public string QuestionContent { get; set; }
-		public bool IsActive { get; set; }
-	}
+	public string QuestionContent { get; set; }
+	public bool IsActive { get; set; }
 }

@@ -1,13 +1,13 @@
 ﻿
 namespace UnusualSuspect.Entities.GameModels;
 
-public enum ReadyToGameStatusEnum
+public enum PreGameGroupStatusEnum
 {
 	NotReady = 0,
-	Notified = 1,
-	Ready = 2
+	Ready = 1,
+	InGame = 2
 }
-public class ReadyToGameStatus : BaseEntity<short>
+public class PreGameGroupStatus : BaseEntity<short>
 {
 	public string Name { get; set; }
 	public string Title { get; set; }

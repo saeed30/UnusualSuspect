@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnusualSuspect.ApiViewModels.Endpoints.Account
 {
 	[Serializable]
-	public class LoginByCodeRequest
+	public sealed class LoginByCodeRequest
 	{
 		[SerializeField]
 		private string code;

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnusualSuspect.ApiViewModels.Endpoints.Account
 {
 	[Serializable]
-	public class LoginByCodeRespond
+	public sealed class LoginByCodeRespond
 	{
 		[SerializeField]
 		private int expires_in;

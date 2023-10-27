@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnusualSuspect.ApiViewModels.Endpoints.Document
 {
 	[Serializable]
-	public class DocumentGetResponse
+	public sealed class DocumentGetResponse
 	{
 		[SerializeField]
 		private string fileName;

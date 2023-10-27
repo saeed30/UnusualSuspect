@@ -45,7 +45,7 @@ namespace UnusualSuspect.Services.Services
 				await RemoveFromAllUserPreGames(oldPreGames.ToList(), userId, cancellationToken);
 			PreGameGroup group = new PreGameGroup()
 			{
-				CalulatedJoinedUsers = 1,
+				CalculatedJoinedUsers = 1,
 				CreatedTime = DateTime.Now,
 				GameType = gameType,
 				ReadyToGameTime = null
@@ -87,7 +87,7 @@ namespace UnusualSuspect.Services.Services
 			int count = await joinedPreGameRepository.UserCountJoinedPreGameGroupAsync(preGameGroupId, cancellationToken);
 			if (count > 32000)
 				throw new Exception("invalid user count. preGameGroupId: " + preGameGroupId);
-			preGame.CalulatedJoinedUsers = (short)count;
+			preGame.CalculatedJoinedUsers = (short)count;
 		}
 
 		public async Task RemovePreGameGroup(int preGameGroupId, CancellationToken cancellationToken = default)

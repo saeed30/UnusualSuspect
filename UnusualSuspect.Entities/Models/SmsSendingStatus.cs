@@ -1,8 +1,7 @@
 ﻿
-namespace UnusualSuspect.Entities.Models
+namespace UnusualSuspect.Entities.Models;
+
+public class SmsSendingStatus : BaseEntity<short>
 {
-	public class SmsSendingStatus : BaseEntity<short>
-	{
-		public string Name { get; set; }
-	}
+	public string Name { get; set; }
 }
