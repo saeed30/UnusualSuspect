@@ -13,10 +13,10 @@ public sealed class AddUserToPreGameEndpoint : MyBaseEndpointAuthenticated
 	.WithRequest<AddUserToPreGameRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IGameService _gameService;
+	private readonly IGameService gameService;
 	public AddUserToPreGameEndpoint(IGameService gameService)
 	{
-		this._gameService = gameService;
+		this.gameService = gameService;
 	}
 	[HttpPost("api/[namespace]/AddUserToPreGame")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] AddUserToPreGameRequest request,
@@ -26,10 +26,10 @@ public sealed class AddUserToPreGameEndpoint : MyBaseEndpointAuthenticated
 		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
 			return new ApiResult(false, ApiResultStatusCode.NeedToRetry
 				, "لطفا شماره همراه خود را به درستی وارد نمایید");
-		var result = await _gameService.AddUserToPreGameGroup(CurrentUser.UserId, phone, request.PreGameGroupId, cancellationToken);
+		var result = await gameService.AddUserToPreGameGroup(CurrentUser.UserId, phone, request.PreGameGroupId, cancellationToken);
 		if (!result.Success)
 			return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
-		await _gameService.SaveChangesAsync(cancellationToken);
+		await gameService.SaveChangesAsync(cancellationToken);
 		return new ApiResult(true, ApiResultStatusCode.Success);
 	}
 }

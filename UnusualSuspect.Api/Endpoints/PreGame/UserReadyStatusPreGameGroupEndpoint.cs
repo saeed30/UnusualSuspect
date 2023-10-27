@@ -13,22 +13,23 @@ public sealed class UserReadyStatusPreGameGroupEndpoint : MyBaseEndpointAuthenti
 	.WithRequest<UserReadyStatusPreGameGroupRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IGameService _gameService;
+	private readonly IGameService gameService;
 	public UserReadyStatusPreGameGroupEndpoint(IGameService gameService)
 	{
-		this._gameService = gameService;
+		this.gameService = gameService;
 	}
 
+	[HttpPost("api/[namespace]/UserReadyStatusPreGameGroup")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync(UserReadyStatusPreGameGroupRequest request,
-		CancellationToken cancellationToken = new CancellationToken())
+		CancellationToken cancellationToken = default)
 	{
-		if(!Enum.IsDefined(typeof(ReadyToGameStatusEnum), request.ReadyToGameStatusId))
+		if (!Enum.IsDefined(typeof(ReadyToGameStatusEnum), request.ReadyToGameStatusId))
 			return new ApiResult(false, ApiResultStatusCode.LogicError, ((int)LogicErrorCode.InvalidReadyToGameStatusId).ToString());
 		ReadyToGameStatusEnum statusEnum = (ReadyToGameStatusEnum)request.ReadyToGameStatusId;
-		var result = await _gameService.ChangeUserReadyStatus(CurrentUser.UserId, request.PreGameGroupId, statusEnum, cancellationToken);
-		if(!result.Success)
+		var result = await gameService.ChangeUserReadyStatus(CurrentUser.UserId, request.PreGameGroupId, statusEnum, cancellationToken);
+		if (!result.Success)
 			return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
-		await _gameService.SaveChangesAsync(cancellationToken);
+		await gameService.SaveChangesAsync(cancellationToken);
 		return new ApiResult(true, ApiResultStatusCode.Success);
 	}
 }

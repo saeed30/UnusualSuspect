@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using UnusualSuspect.Entities.Common;
 using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.Entities.GameModels;

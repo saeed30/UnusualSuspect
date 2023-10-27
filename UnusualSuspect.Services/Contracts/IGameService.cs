@@ -20,5 +20,6 @@ namespace UnusualSuspect.Services.Contracts
 		Task RecalculatePreGameGroupUsers(int preGameGroupId, CancellationToken cancellationToken = default);
 		Task<UnusualSuspectServiceResult<bool>> ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default);
 		Task CombineGroupsToStartGames(CancellationToken cancellationToken = default);
+		Task<UnusualSuspectServiceResult<bool>> PreGameReadyToPlayAsync(int requestPreGameGroupId, CancellationToken cancellationToken = default);
 	}
 }

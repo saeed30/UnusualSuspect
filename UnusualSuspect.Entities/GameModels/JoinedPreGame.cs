@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnusualSuspect.Entities.Common;
 using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.Entities.GameModels;

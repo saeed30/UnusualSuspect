@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.Contracts;
 
@@ -11,16 +12,20 @@ public sealed class MyPreGameGroupReadyToPlayEndpoint : MyBaseEndpointAuthentica
 	.WithRequest<MyPreGameGroupReadyToPlayRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IGameService _gameService;
+	private readonly IGameService gameService;
 	public MyPreGameGroupReadyToPlayEndpoint(IGameService gameService)
 	{
-		this._gameService = gameService;
+		this.gameService = gameService;
 	}
 
 	[HttpPost("api/[namespace]/MyPreGameGroupReadyToPlay")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync(MyPreGameGroupReadyToPlayRequest request,
 		CancellationToken cancellationToken = default)
 	{
-		throw new System.NotImplementedException();
+		var result = await gameService.PreGameReadyToPlayAsync(request.PreGameGroupId, cancellationToken);
+		if (!result.Success)
+			return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
+		await gameService.SaveChangesAsync(cancellationToken);
+		return new ApiResult(true, ApiResultStatusCode.Success);
 	}
 }

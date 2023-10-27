@@ -15,23 +15,23 @@ using UnusualSuspect.ViewModels.Identity;
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 
 public sealed class CreateGameGroupEndpoint : MyBaseEndpointAuthenticated
-.WithRequest<CreateGameGroupRequest>
-.WithActionResult<ApiResult<CreateGameGroupResponse>>
+	.WithRequest<CreateGameGroupRequest>
+	.WithActionResult<ApiResult<CreateGameGroupResponse>>
 {
-	private readonly IGameService _gameService;
+	private readonly IGameService gameService;
 	public CreateGameGroupEndpoint(IGameService gameService)
 	{
-		this._gameService = gameService;
+		this.gameService = gameService;
 	}
 	[HttpPost("api/[namespace]/CreateGameGroup")]
 	public override async Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync(
 		[FromBody] CreateGameGroupRequest id, CancellationToken cancellationToken = default)
 	{
-		var result = await _gameService.CreatePreGameGroup(CurrentUser.UserId, id.KeyValue, cancellationToken);
+		var result = await gameService.CreatePreGameGroup(CurrentUser.UserId, id.KeyValue, cancellationToken);
 		if(!result.Success)
 			return new ApiResult<CreateGameGroupResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
 
-		await _gameService.SaveChangesAsync(cancellationToken);
+		await gameService.SaveChangesAsync(cancellationToken);
 		return new ApiResult<CreateGameGroupResponse>(true, ApiResultStatusCode.Success, new CreateGameGroupResponse()
 		{
 			GameGroupId = result.Result.Id

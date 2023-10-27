@@ -44,15 +44,14 @@ public class IdentityDbInitializer : IIdentityDbInitializer
     }
     public async void SeedData()
     {
-        using (var serviceScope = _scopeFactory.CreateScope())
-        {
-            var identityDbSeedData = serviceScope.ServiceProvider.GetRequiredService<IIdentityDbInitializer>();
-            var result = await identityDbSeedData.SeedDatabaseWithAdminUserAsync();
-            if (result == IdentityResult.Failed())
-            {
-                throw new InvalidOperationException(result.DumpErrors());
-            }
-        }
+	    using var serviceScope = _scopeFactory.CreateScope();
+	    var identityDbSeedData = serviceScope.ServiceProvider.GetRequiredService<IIdentityDbInitializer>();
+	    var result = await identityDbSeedData.SeedDatabaseWithAdminUserAsync();
+	    if (result == IdentityResult.Failed())
+	    {
+		    throw new InvalidOperationException(result.DumpErrors());
+	    }
+	    SeedBaseData();
     }
     public async Task<IdentityResult> SeedDatabaseWithAdminUserAsync()
     {

@@ -17,6 +17,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnusualSuspect.Entities.GameModels;
 using System.ComponentModel.DataAnnotations.Schema;
+using UnusualSuspect.Common.Extensions;
+using UnusualSuspect.Entities.Common;
+using System.Reflection.Emit;
 
 namespace UnusualSuspect.DataLayer.Context;
 
@@ -49,17 +52,34 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 				TypeName = "پنل مدیریت",
 				AreaName = "AdminPanel"
 			});
+
+		HasDataForEnumEntity<ReadyToGameStatus, ReadyToGameStatusEnum>(modelBuilder);
+		HasDataForEnumEntity<PreGameGroupStatus, PreGameGroupStatusEnum>(modelBuilder);
+		HasDataForEnumEntity<SmsSendingStatus, SmsSendingStatusEnum>(modelBuilder);
+
 		//[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		modelBuilder.Entity<RoleCard>().Property(x => x.Id)
 				.ValueGeneratedNever();
-		modelBuilder.Entity<SmsSendingStatus>().Property(x => x.Id)
-				.ValueGeneratedNever();
 		modelBuilder.Entity<GameType>().Property(x => x.Id)
 				.ValueGeneratedNever();
-		modelBuilder.Entity<ReadyToGameStatus>().Property(x => x.Id)
-			.ValueGeneratedNever();
 	}
 
+	private void HasDataForEnumEntity<TEntity, TEnum>(ModelBuilder modelBuilder) where TEntity : BaseEnumEntity, new() where TEnum : Enum
+	{
+		List<TEntity> baseEnumEntity = new List<TEntity>();
+		foreach (TEnum value in Enum.GetValues(typeof(TEnum)))
+		{
+			baseEnumEntity.Add(new TEntity()
+			{
+				Id = Convert.ToInt16(value),
+				Name = value.ToString(),
+				Title = value.ToDisplay()
+			});
+		}
+		modelBuilder.Entity<TEntity>().HasData(baseEnumEntity);
+		modelBuilder.Entity<TEntity>().Property(x => x.Id)
+			.ValueGeneratedNever();
+	}
 
 	public override int SaveChanges()
 	{

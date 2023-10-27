@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace UnusualSuspect.Entities;
+namespace UnusualSuspect.Entities.Common;
 
 public interface IEntity
 {

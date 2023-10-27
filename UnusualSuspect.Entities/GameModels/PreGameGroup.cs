@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
+using UnusualSuspect.Entities.Common;
 
 namespace UnusualSuspect.Entities.GameModels;
 
@@ -14,4 +16,7 @@ public class PreGameGroup : BaseEntity
 	public short PreGameGroupStatusId { get; set; }
 	[ForeignKey("PreGameGroupStatusId")]
 	public virtual PreGameGroupStatus PreGameGroupStatus { get; set; }
+	public virtual ICollection<JoinedPreGame> JoinedPreGames { get; set; }
+
+
 }
