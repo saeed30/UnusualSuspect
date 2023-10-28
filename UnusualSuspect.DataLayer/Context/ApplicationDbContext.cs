@@ -20,6 +20,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Entities.Common;
 using System.Reflection.Emit;
+using Newtonsoft.Json.Linq;
 
 namespace UnusualSuspect.DataLayer.Context;
 
@@ -30,6 +31,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 	{
 
 	}
+	//protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	//{
+	//	//enable sensitive data logging
+	//	optionsBuilder.EnableSensitiveDataLogging();
+	//}
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
@@ -53,13 +59,23 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 				AreaName = "AdminPanel"
 			});
 
-		HasDataForEnumEntity<ReadyToGameStatus, ReadyToGameStatusEnum>(modelBuilder);
+
+
+		//HasDataForEnumEntity<ReadyToGameStatus, ReadyToGameStatusEnum>(modelBuilder);
 		HasDataForEnumEntity<PreGameGroupStatus, PreGameGroupStatusEnum>(modelBuilder);
-		HasDataForEnumEntity<SmsSendingStatus, SmsSendingStatusEnum>(modelBuilder);
+		//HasDataForEnumEntity<SmsSendingStatus, SmsSendingStatusEnum>(modelBuilder);
+		//HasDataForEnumEntity<RoleCard, RoleCardEnum>(modelBuilder);
+
+		modelBuilder.Entity<ReadyToGameStatus>().Property(x => x.Id)
+			.ValueGeneratedNever();
+		modelBuilder.Entity<PreGameGroupStatus>().Property(x => x.Id)
+			.ValueGeneratedNever();
+		modelBuilder.Entity<SmsSendingStatus>().Property(x => x.Id)
+			.ValueGeneratedNever();
+		modelBuilder.Entity<RoleCard>().Property(x => x.Id)
+			.ValueGeneratedNever();
 
 		//[DatabaseGenerated(DatabaseGeneratedOption.None)]
-		modelBuilder.Entity<RoleCard>().Property(x => x.Id)
-				.ValueGeneratedNever();
 		modelBuilder.Entity<GameType>().Property(x => x.Id)
 				.ValueGeneratedNever();
 	}
@@ -76,9 +92,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 				Title = value.ToDisplay()
 			});
 		}
-		modelBuilder.Entity<TEntity>().HasData(baseEnumEntity);
-		modelBuilder.Entity<TEntity>().Property(x => x.Id)
-			.ValueGeneratedNever();
+		modelBuilder.Entity<TEntity>().HasData(baseEnumEntity.ToArray());
+		//modelBuilder.Entity<TEntity>().Property(x => x.Id)
+		//	.ValueGeneratedNever();
 	}
 
 	public override int SaveChanges()

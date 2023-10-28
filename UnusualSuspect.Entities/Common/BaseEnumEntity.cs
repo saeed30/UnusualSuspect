@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnusualSuspect.Entities.Common
+namespace UnusualSuspect.Entities.Common;
+
+public class BaseEnumEntity : BaseEntity<short>
 {
-	public class BaseEnumEntity : BaseEntity<short>
-	{
-		public string Name { get; set; }
-		public string Title { get; set; }
-	}
+	public string Name { get; set; }
+	public string Title { get; set; }
 }

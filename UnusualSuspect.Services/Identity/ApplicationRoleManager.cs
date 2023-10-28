@@ -18,17 +18,17 @@ namespace UnusualSuspect.Services.Identity;
 
 public class ApplicationRoleManager : IApplicationRoleService
 {
-    private readonly IHttpContextAccessor _contextAccessor;
-    private readonly IUnitOfWork _uow;
-    private readonly IdentityErrorDescriber _errors;
-    private readonly ILookupNormalizer _keyNormalizer;
-    private readonly ILogger<ApplicationRoleManager> _logger;
-    private readonly IOptions<IdentityOptions> _optionsAccessor;
-    private readonly IServiceProvider _services;
-    private readonly DbSet<Role> _roles;
-    private readonly DbSet<ActionForRole> _actionForRole;
-    private readonly RoleManager<Role> _roleManager;
-    private readonly ApplicationDbContext _context;
+    private readonly IHttpContextAccessor contextAccessor;
+    private readonly IUnitOfWork uow;
+    private readonly IdentityErrorDescriber errors;
+    private readonly ILookupNormalizer keyNormalizer;
+    private readonly ILogger<ApplicationRoleManager> logger;
+    private readonly IOptions<IdentityOptions> optionsAccessor;
+    private readonly IServiceProvider services;
+    private readonly DbSet<Role> roles;
+    private readonly DbSet<ActionForRole> actionForRole;
+    private readonly RoleManager<Role> roleManager;
+    private readonly ApplicationDbContext context;
 
     public ApplicationRoleManager(
         RoleManager<Role> roleManager,
@@ -41,25 +41,25 @@ public class ApplicationRoleManager : IApplicationRoleService
         ApplicationDbContext context,
         IUnitOfWork uow)
     {
-        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-        _optionsAccessor = optionsAccessor ?? throw new ArgumentNullException(nameof(_optionsAccessor));
-        _keyNormalizer = keyNormalizer ?? throw new ArgumentNullException(nameof(_keyNormalizer));
-        _errors = errors ?? throw new ArgumentNullException(nameof(_errors));
-        _services = services ?? throw new ArgumentNullException(nameof(_services));
-        _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
-        _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(_contextAccessor));
-        _uow = uow ?? throw new ArgumentNullException(nameof(_uow));
-        _context = context ?? throw new ArgumentNullException(nameof(_context));
-        _roles = uow.Set<Role>();
-        _actionForRole = uow.Set<ActionForRole>();
+        this.roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        this.optionsAccessor = optionsAccessor ?? throw new ArgumentNullException(nameof(optionsAccessor));
+        this.keyNormalizer = keyNormalizer ?? throw new ArgumentNullException(nameof(keyNormalizer));
+        this.errors = errors ?? throw new ArgumentNullException(nameof(errors));
+        this.services = services ?? throw new ArgumentNullException(nameof(services));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
+        this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
+        this.context = context ?? throw new ArgumentNullException(nameof(context));
+        roles = uow.Set<Role>();
+        actionForRole = uow.Set<ActionForRole>();
 
     }
 
     public async Task<int> AddActionForRole(CustomRole customRole)
     {
-        var list = await _actionForRole.Where(x => x.RoleId == customRole.Id).ToListAsync();
+        var list = await actionForRole.Where(x => x.RoleId == customRole.Id).ToListAsync();
         foreach (var item in list)
-            _actionForRole.Remove(item);
+            actionForRole.Remove(item);
 
         if (!string.IsNullOrEmpty(customRole.ActionList))
             foreach (var item in customRole.ActionList.Split(','))
@@ -71,51 +71,51 @@ public class ApplicationRoleManager : IApplicationRoleService
                         RoleId = customRole.Id,
                         AmActionId = int.Parse(item)
                     };
-                    _actionForRole.Add(action);
+                    actionForRole.Add(action);
                 }
             }
-        return await _uow.SaveChangesAsync();
+        return await uow.SaveChangesAsync();
     }
 
     public async Task<Role> CreateAsyncAndReturnRole(Role role)
     {
         await CreateAsync(role);
-        return await _roleManager.FindByNameAsync(role.Name);
+        return await roleManager.FindByNameAsync(role.Name);
     }
     public Task<IdentityResult> CreateAsync(Role role)
     {
-        return _roleManager.CreateAsync(role);
+        return roleManager.CreateAsync(role);
     }
     public Task<Role> FindByNameAsync(string roleName)
     {
-        return _roleManager.FindByNameAsync(roleName);
+        return roleManager.FindByNameAsync(roleName);
     }
 
     public IQueryable<Role> GetRoles()
     {
-        return _roles.AsQueryable();
+        return roles.AsQueryable();
     }
 
     public async Task<List<int>> GetUserRolse(int userid)
     {
-        return await _context.UserRoles.Where(x => x.UserId == userid).Select(x => x.RoleId).ToListAsync();
+        return await context.UserRoles.Where(x => x.UserId == userid).Select(x => x.RoleId).ToListAsync();
     }
 
     public Task<bool> RoleExistsAsync(string rolename)
     {
-        return _roles.AnyAsync(c => c.Name == rolename);
+        return roles.AnyAsync(c => c.Name == rolename);
     }
 
     public List<int> GetUserRoles(int userid)
     {
-        return _context.UserRoles.Where(x => x.UserId == userid).Select(x => x.RoleId).ToList();
+        return context.UserRoles.Where(x => x.UserId == userid).Select(x => x.RoleId).ToList();
     }
 
     public List<string> GetUserRoleNames(string username)
     {
-        var roles = from ur in _context.UserRoles
-                    join r in _context.Roles on ur.RoleId equals r.Id
-                    join u in _context.Users on ur.UserId equals u.Id
+        var roles = from ur in context.UserRoles
+                    join r in context.Roles on ur.RoleId equals r.Id
+                    join u in context.Users on ur.UserId equals u.Id
                     where u.UserName == username
                     select r.Name;
         return roles.ToList();
@@ -123,9 +123,9 @@ public class ApplicationRoleManager : IApplicationRoleService
 
     public IQueryable<string> GetUsersInRole(string rolename)
     {
-        var usernames = from ur in _context.UserRoles
-                        join r in _context.Roles on ur.RoleId equals r.Id
-                        join u in _context.Users on ur.UserId equals u.Id
+        var usernames = from ur in context.UserRoles
+                        join r in context.Roles on ur.RoleId equals r.Id
+                        join u in context.Users on ur.UserId equals u.Id
                         where r.Name == rolename
                         select u.UserName;
         return usernames;
@@ -133,9 +133,9 @@ public class ApplicationRoleManager : IApplicationRoleService
 
     public IQueryable<ApplicationUser> GetApplicationUsersInRole(string rolename)
     {
-        var users = from ur in _context.UserRoles
-                        join r in _context.Roles on ur.RoleId equals r.Id
-                        join u in _context.Users on ur.UserId equals u.Id
+        var users = from ur in context.UserRoles
+                        join r in context.Roles on ur.RoleId equals r.Id
+                        join u in context.Users on ur.UserId equals u.Id
                         where r.Name == rolename
                         select u;
         return users;

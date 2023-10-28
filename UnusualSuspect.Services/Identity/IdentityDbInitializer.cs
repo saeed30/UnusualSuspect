@@ -51,7 +51,6 @@ public class IdentityDbInitializer : IIdentityDbInitializer
 	    {
 		    throw new InvalidOperationException(result.DumpErrors());
 	    }
-	    SeedBaseData();
     }
     public async Task<IdentityResult> SeedDatabaseWithAdminUserAsync()
     {

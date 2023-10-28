@@ -6,11 +6,11 @@ namespace UnusualSuspect.Entities.GameModels;
 public enum ReadyToGameStatusEnum
 {
 	[Display(Name = "عدم آمادگی")]
-	NotReady = 0,
+	NotReady = 1,
 	[Display(Name = "اطلاع رسانی شده جهت تایید آمادگی")]
-	Notified = 1,
+	Notified = 2,
 	[Display(Name = "آماده جهت بازی")]
-	Ready = 2
+	Ready = 3
 }
 public class ReadyToGameStatus : BaseEnumEntity
 {

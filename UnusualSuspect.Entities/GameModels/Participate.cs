@@ -14,10 +14,7 @@ public class Participate : BaseEntity
 	public int GameId { get; set; }
 	[ForeignKey("GameId")]
 	public virtual Game Game { get; set; }
-	public int RoleCardId { get; set; }
+	public short RoleCardId { get; set; }
 	[ForeignKey("RoleCardId")]
 	public virtual RoleCard RoleCard { get; set; }
-	public int CharacterCardId { get; set; }
-	[ForeignKey("CharacterCardId")]
-	public virtual CharacterCard CharacterCard { get; set; }
 }

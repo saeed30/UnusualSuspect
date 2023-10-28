@@ -3,13 +3,13 @@ using UnusualSuspect.Entities.Common;
 
 namespace UnusualSuspect.Entities.GameModels;
 
-public class RoleCardGame : BaseEntity
+public class CharacterCardGame : BaseEntity
 {
 	public bool IsMurderer { get; set; }
 	public short? RemovedTurn { get; set; }
-	public int RoleCardId { get; set; }
-	[ForeignKey("RoleCardId")]
-	public virtual RoleCard RoleCard { get; set; }
+	public short CharacterCardId { get; set; }
+	[ForeignKey("CharacterCardId")]
+	public virtual CharacterCard CharacterCard { get; set; }
 	public int GameId { get; set; }
 	[ForeignKey("GameId")]
 	public virtual Game Game { get; set; }
