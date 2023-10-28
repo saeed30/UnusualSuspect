@@ -12,8 +12,8 @@ using UnusualSuspect.DataLayer.Context;
 namespace UnusualSuspect.DataLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231027193211_init1")]
-    partial class init1
+    [Migration("20231028115127_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -136,32 +136,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("UnusualSuspect.Entities.Common.BaseEnumEntity", b =>
-                {
-                    b.Property<short>("Id")
-                        .HasColumnType("smallint");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BaseEnumEntity");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEnumEntity");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CharacterCard", b =>
@@ -369,6 +343,44 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.ToTable("PreGameGroup");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PreGameGroupStatus", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PreGameGroupStatus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (short)1,
+                            Name = "NotReady",
+                            Title = "قبل از آمادگی جهت بازی"
+                        },
+                        new
+                        {
+                            Id = (short)2,
+                            Name = "Ready",
+                            Title = "آماده جهت بازی"
+                        },
+                        new
+                        {
+                            Id = (short)3,
+                            Name = "InGame",
+                            Title = "در حال بازی"
+                        });
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Question", b =>
                 {
                     b.Property<short>("Id")
@@ -413,6 +425,103 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasIndex("QuestionId");
 
                     b.ToTable("QuestionGame");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.ReadyToGameStatus", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReadyToGameStatus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (short)1,
+                            Name = "NotReady",
+                            Title = "عدم آمادگی"
+                        },
+                        new
+                        {
+                            Id = (short)2,
+                            Name = "Notified",
+                            Title = "اطلاع رسانی شده جهت تایید آمادگی"
+                        },
+                        new
+                        {
+                            Id = (short)3,
+                            Name = "Ready",
+                            Title = "آماده جهت بازی"
+                        });
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.RoleCard", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoleCard");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (short)1,
+                            ImageUrl = "",
+                            IsActive = true,
+                            Name = "Detective",
+                            Title = "کارآگاه"
+                        },
+                        new
+                        {
+                            Id = (short)2,
+                            ImageUrl = "",
+                            IsActive = true,
+                            Name = "MainDetective",
+                            Title = "کارآگاه ستاره دار"
+                        },
+                        new
+                        {
+                            Id = (short)3,
+                            ImageUrl = "",
+                            IsActive = true,
+                            Name = "Witness",
+                            Title = "شاهد"
+                        },
+                        new
+                        {
+                            Id = (short)4,
+                            ImageUrl = "",
+                            IsActive = true,
+                            Name = "Accomplice",
+                            Title = "شریک جرم"
+                        });
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Identity.ApplicationUser", b =>
@@ -1081,6 +1190,38 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.ToTable("SmsLog");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.Models.SmsSendingStatus", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SmsSendingStatus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (short)1,
+                            Name = "Success",
+                            Title = "ارسال موفق"
+                        },
+                        new
+                        {
+                            Id = (short)2,
+                            Name = "Failed",
+                            Title = "ارسال نا موفق"
+                        });
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.Models.SoftSetting", b =>
                 {
                     b.Property<int>("Id")
@@ -1136,61 +1277,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SoftSetting");
-                });
-
-            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PreGameGroupStatus", b =>
-                {
-                    b.HasBaseType("UnusualSuspect.Entities.Common.BaseEnumEntity");
-
-                    b.HasDiscriminator().HasValue("PreGameGroupStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = (short)1,
-                            Name = "NotReady",
-                            Title = "قبل از آمادگی جهت بازی"
-                        },
-                        new
-                        {
-                            Id = (short)2,
-                            Name = "Ready",
-                            Title = "آماده جهت بازی"
-                        },
-                        new
-                        {
-                            Id = (short)3,
-                            Name = "InGame",
-                            Title = "در حال بازی"
-                        });
-                });
-
-            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.ReadyToGameStatus", b =>
-                {
-                    b.HasBaseType("UnusualSuspect.Entities.Common.BaseEnumEntity");
-
-                    b.HasDiscriminator().HasValue("ReadyToGameStatus");
-                });
-
-            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.RoleCard", b =>
-                {
-                    b.HasBaseType("UnusualSuspect.Entities.Common.BaseEnumEntity");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.HasDiscriminator().HasValue("RoleCard");
-                });
-
-            modelBuilder.Entity("UnusualSuspect.Entities.Models.SmsSendingStatus", b =>
-                {
-                    b.HasBaseType("UnusualSuspect.Entities.Common.BaseEnumEntity");
-
-                    b.HasDiscriminator().HasValue("SmsSendingStatus");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

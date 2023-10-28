@@ -12,6 +12,6 @@ public enum ReadyToGameStatusEnum
 	[Display(Name = "آماده جهت بازی")]
 	Ready = 3
 }
-public class ReadyToGameStatus : BaseEnumEntity
+public class ReadyToGameStatus : BaseEnumEntity, IEntity<short>
 {
 }

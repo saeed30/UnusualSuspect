@@ -15,7 +15,7 @@ public enum RoleCardEnum
 	[Display(Name = "شریک جرم")]
 	Accomplice = 4
 }
-public class RoleCard : BaseEnumEntity
+public class RoleCard : BaseEnumEntity, IEntity<short>
 {
 	public RoleCard()
 	{

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace UnusualSuspect.DataLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class init1 : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,22 +38,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AMAreaName", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "BaseEnumEntity",
-                columns: table => new
-                {
-                    Id = table.Column<short>(type: "smallint", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BaseEnumEntity", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -149,6 +133,19 @@ namespace UnusualSuspect.DataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PreGameGroupStatus",
+                columns: table => new
+                {
+                    Id = table.Column<short>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PreGameGroupStatus", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Question",
                 columns: table => new
                 {
@@ -160,6 +157,47 @@ namespace UnusualSuspect.DataLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Question", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReadyToGameStatus",
+                columns: table => new
+                {
+                    Id = table.Column<short>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReadyToGameStatus", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoleCard",
+                columns: table => new
+                {
+                    Id = table.Column<short>(type: "smallint", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoleCard", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SmsSendingStatus",
+                columns: table => new
+                {
+                    Id = table.Column<short>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SmsSendingStatus", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -197,35 +235,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SoftSetting", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SmsLog",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    MessageContent = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
-                    DateTimeAddedToQueue = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateTimeSent = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    SmsSendingStatusId = table.Column<short>(type: "smallint", nullable: true),
-                    StatusMessage = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
-                    Identifier = table.Column<long>(type: "bigint", nullable: true),
-                    SendingError = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsSend = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    IsReadForSending = table.Column<bool>(type: "bit", nullable: false),
-                    SendAttemptCount = table.Column<short>(type: "smallint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SmsLog", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SmsLog_BaseEnumEntity_SmsSendingStatusId",
-                        column: x => x.SmsSendingStatusId,
-                        principalTable: "BaseEnumEntity",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -313,17 +322,46 @@ namespace UnusualSuspect.DataLayer.Migrations
                 {
                     table.PrimaryKey("PK_PreGameGroup", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PreGameGroup_BaseEnumEntity_PreGameGroupStatusId",
-                        column: x => x.PreGameGroupStatusId,
-                        principalTable: "BaseEnumEntity",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_PreGameGroup_GameType_GameTypeId",
                         column: x => x.GameTypeId,
                         principalTable: "GameType",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PreGameGroup_PreGameGroupStatus_PreGameGroupStatusId",
+                        column: x => x.PreGameGroupStatusId,
+                        principalTable: "PreGameGroupStatus",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SmsLog",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    MessageContent = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
+                    DateTimeAddedToQueue = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateTimeSent = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SmsSendingStatusId = table.Column<short>(type: "smallint", nullable: true),
+                    StatusMessage = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
+                    Identifier = table.Column<long>(type: "bigint", nullable: true),
+                    SendingError = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsSend = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsReadForSending = table.Column<bool>(type: "bit", nullable: false),
+                    SendAttemptCount = table.Column<short>(type: "smallint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SmsLog", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SmsLog_SmsSendingStatus_SmsSendingStatusId",
+                        column: x => x.SmsSendingStatusId,
+                        principalTable: "SmsSendingStatus",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -547,15 +585,15 @@ namespace UnusualSuspect.DataLayer.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Participate_BaseEnumEntity_RoleCardId",
-                        column: x => x.RoleCardId,
-                        principalTable: "BaseEnumEntity",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Participate_Game_GameId",
                         column: x => x.GameId,
                         principalTable: "Game",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Participate_RoleCard_RoleCardId",
+                        column: x => x.RoleCardId,
+                        principalTable: "RoleCard",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -610,12 +648,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_JoinedPreGame_BaseEnumEntity_ReadyToGameStatusId",
-                        column: x => x.ReadyToGameStatusId,
-                        principalTable: "BaseEnumEntity",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_JoinedPreGame_Game_GameId",
                         column: x => x.GameId,
                         principalTable: "Game",
@@ -624,6 +656,12 @@ namespace UnusualSuspect.DataLayer.Migrations
                         name: "FK_JoinedPreGame_PreGameGroup_PreGameGroupId",
                         column: x => x.PreGameGroupId,
                         principalTable: "PreGameGroup",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_JoinedPreGame_ReadyToGameStatus_ReadyToGameStatusId",
+                        column: x => x.ReadyToGameStatusId,
+                        principalTable: "ReadyToGameStatus",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -850,13 +888,43 @@ namespace UnusualSuspect.DataLayer.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "BaseEnumEntity",
-                columns: new[] { "Id", "Discriminator", "Name", "Title" },
+                table: "PreGameGroupStatus",
+                columns: new[] { "Id", "Name", "Title" },
                 values: new object[,]
                 {
-                    { (short)1, "PreGameGroupStatus", "NotReady", "قبل از آمادگی جهت بازی" },
-                    { (short)2, "PreGameGroupStatus", "Ready", "آماده جهت بازی" },
-                    { (short)3, "PreGameGroupStatus", "InGame", "در حال بازی" }
+                    { (short)1, "NotReady", "قبل از آمادگی جهت بازی" },
+                    { (short)2, "Ready", "آماده جهت بازی" },
+                    { (short)3, "InGame", "در حال بازی" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ReadyToGameStatus",
+                columns: new[] { "Id", "Name", "Title" },
+                values: new object[,]
+                {
+                    { (short)1, "NotReady", "عدم آمادگی" },
+                    { (short)2, "Notified", "اطلاع رسانی شده جهت تایید آمادگی" },
+                    { (short)3, "Ready", "آماده جهت بازی" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "RoleCard",
+                columns: new[] { "Id", "ImageUrl", "IsActive", "Name", "Title" },
+                values: new object[,]
+                {
+                    { (short)1, "", true, "Detective", "کارآگاه" },
+                    { (short)2, "", true, "MainDetective", "کارآگاه ستاره دار" },
+                    { (short)3, "", true, "Witness", "شاهد" },
+                    { (short)4, "", true, "Accomplice", "شریک جرم" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SmsSendingStatus",
+                columns: new[] { "Id", "Name", "Title" },
+                values: new object[,]
+                {
+                    { (short)1, "Success", "ارسال موفق" },
+                    { (short)2, "Failed", "ارسال نا موفق" }
                 });
 
             migrationBuilder.InsertData(
@@ -1170,13 +1238,22 @@ namespace UnusualSuspect.DataLayer.Migrations
                 name: "PreGameGroup");
 
             migrationBuilder.DropTable(
+                name: "ReadyToGameStatus");
+
+            migrationBuilder.DropTable(
                 name: "ObjectType");
+
+            migrationBuilder.DropTable(
+                name: "RoleCard");
 
             migrationBuilder.DropTable(
                 name: "Game");
 
             migrationBuilder.DropTable(
                 name: "Question");
+
+            migrationBuilder.DropTable(
+                name: "SmsSendingStatus");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -1188,7 +1265,7 @@ namespace UnusualSuspect.DataLayer.Migrations
                 name: "AMController");
 
             migrationBuilder.DropTable(
-                name: "BaseEnumEntity");
+                name: "PreGameGroupStatus");
 
             migrationBuilder.DropTable(
                 name: "GameType");

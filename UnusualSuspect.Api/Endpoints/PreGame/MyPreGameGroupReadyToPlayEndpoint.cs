@@ -19,7 +19,7 @@ public sealed class MyPreGameGroupReadyToPlayEndpoint : MyBaseEndpointAuthentica
 	}
 
 	[HttpPost("api/[namespace]/MyPreGameGroupReadyToPlay")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync(MyPreGameGroupReadyToPlayRequest request,
+	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] MyPreGameGroupReadyToPlayRequest request,
 		CancellationToken cancellationToken = default)
 	{
 		var result = await gameService.PreGameReadyToPlayAsync(request.PreGameGroupId, cancellationToken);

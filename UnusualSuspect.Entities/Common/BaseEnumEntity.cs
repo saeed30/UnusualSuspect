@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UnusualSuspect.Entities.Common;
 
-public class BaseEnumEntity : BaseEntity<short>
+[NotMapped]
+public class BaseEnumEntity
 {
+	public short Id { get; set; }
 	public string Name { get; set; }
 	public string Title { get; set; }
 }

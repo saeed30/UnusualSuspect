@@ -42,7 +42,17 @@ namespace UnusualSuspect.Services.Services
 				return new UnusualSuspectServiceResult<PreGameGroup>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameTypeId));
 			var oldPreGames = await joinedPreGameRepository.PreGameGroupOfUserAsync(userId, cancellationToken);
 			if (oldPreGames.Any())
+			{
+				JoinedPreGame? firstOwnGame = oldPreGames.FirstOrDefault(x => x.IsOwnerOfPreGroup && x.PreGameGroup.GameTypeId == gameTypeId);
+				if (firstOwnGame != null)
+				{
+					var preGame = await preGameGroupRepository.GetByIdAsync(firstOwnGame.PreGameGroupId, cancellationToken);
+					if (preGame == null)
+						throw new Exception("wrong refrence to preGameGroup: " + firstOwnGame.PreGameGroupId);
+					return new UnusualSuspectServiceResult<PreGameGroup>(preGame);
+				}
 				await RemoveFromAllUserPreGames(oldPreGames.ToList(), userId, cancellationToken);
+			}
 			PreGameGroup group = new PreGameGroup()
 			{
 				CalculatedJoinedUsers = 1,
@@ -144,6 +154,7 @@ namespace UnusualSuspect.Services.Services
 				ReadyToGameStatusId = (int)ReadyToGameStatusEnum.Notified
 			};
 			joinedPreGameRepository.Add(joinedPreGame);
+			//notify
 			return new UnusualSuspectServiceResult<JoinedPreGame>(joinedPreGame);
 		}
 

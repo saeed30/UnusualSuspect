@@ -10,6 +10,6 @@ public enum SmsSendingStatusEnum
 	[Display(Name = "ارسال نا موفق")]
 	Failed = 2,
 }
-public class SmsSendingStatus : BaseEnumEntity
+public class SmsSendingStatus : BaseEnumEntity, IEntity<short>
 {
 }

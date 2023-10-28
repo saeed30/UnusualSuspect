@@ -12,6 +12,6 @@ public enum PreGameGroupStatusEnum
 	[Display(Name = "در حال بازی")]
 	InGame = 3
 }
-public class PreGameGroupStatus : BaseEnumEntity
+public class PreGameGroupStatus : BaseEnumEntity, IEntity<short>
 {
 }

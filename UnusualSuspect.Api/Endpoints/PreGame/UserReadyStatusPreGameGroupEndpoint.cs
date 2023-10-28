@@ -20,10 +20,10 @@ public sealed class UserReadyStatusPreGameGroupEndpoint : MyBaseEndpointAuthenti
 	}
 
 	[HttpPost("api/[namespace]/UserReadyStatusPreGameGroup")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync(UserReadyStatusPreGameGroupRequest request,
+	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] UserReadyStatusPreGameGroupRequest request,
 		CancellationToken cancellationToken = default)
 	{
-		if (!Enum.IsDefined(typeof(ReadyToGameStatusEnum), request.ReadyToGameStatusId))
+		if (!Enum.IsDefined(typeof(ReadyToGameStatusEnum), (int)request.ReadyToGameStatusId))
 			return new ApiResult(false, ApiResultStatusCode.LogicError, ((int)LogicErrorCode.InvalidReadyToGameStatusId).ToString());
 		ReadyToGameStatusEnum statusEnum = (ReadyToGameStatusEnum)request.ReadyToGameStatusId;
 		var result = await gameService.ChangeUserReadyStatus(CurrentUser.UserId, request.PreGameGroupId, statusEnum, cancellationToken);

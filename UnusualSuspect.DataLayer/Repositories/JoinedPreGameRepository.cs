@@ -56,7 +56,7 @@ namespace UnusualSuspect.DataLayer.Repositories
 
 		public async Task<List<JoinedPreGame>> PreGameGroupOfUserAsync(int userId, CancellationToken cancellationToken = default)
 		{
-			return await joinedPreGame.Where(x => x.UserId == userId).ToListAsync(cancellationToken);
+			return await joinedPreGame.Include(c => c.PreGameGroup).Where(x => x.UserId == userId).ToListAsync(cancellationToken);
 		}
 
 		public async Task<int> UserCountJoinedPreGameGroupAsync(int preGameGroupId, CancellationToken cancellationToken = default)
