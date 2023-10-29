@@ -22,8 +22,5 @@ public class JoinedPreGame : BaseEntity
 	public short ReadyToGameStatusId { get; set; }
 	[ForeignKey("ReadyToGameStatusId")]
 	public virtual ReadyToGameStatus ReadyToGameStatus { get; set; }
-	public int? GameId { get; set; }
-	[ForeignKey("GameId")]
-	public virtual Game? Game { get; set; }
 
 }

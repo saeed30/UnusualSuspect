@@ -10,11 +10,11 @@ namespace UnusualSuspect.Api.Background;
 
 public class AlwaysRunningBackgroundService : BackgroundService
 {
-	private readonly IServiceScopeFactory _scopeFactory;
+	private readonly IServiceScopeFactory scopeFactory;
 
 	public AlwaysRunningBackgroundService(IServiceScopeFactory scopeFactory)
 	{
-		_scopeFactory = scopeFactory;
+		this.scopeFactory = scopeFactory;
 	}
 	// Override the ExecuteAsync method
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,7 +25,7 @@ public class AlwaysRunningBackgroundService : BackgroundService
 			try
 			{
 
-				using (var scope = _scopeFactory.CreateScope())
+				using (var scope = scopeFactory.CreateScope())
 				{
 
 					// Do your work here

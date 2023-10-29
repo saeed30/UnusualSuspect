@@ -16,6 +16,9 @@ public class PreGameGroup : BaseEntity
 	public short PreGameGroupStatusId { get; set; }
 	[ForeignKey("PreGameGroupStatusId")]
 	public virtual PreGameGroupStatus PreGameGroupStatus { get; set; }
+	public int? GameId { get; set; }
+	[ForeignKey("GameId")]
+	public virtual Game? Game { get; set; }
 	public virtual ICollection<JoinedPreGame> JoinedPreGames { get; set; }
 
 
