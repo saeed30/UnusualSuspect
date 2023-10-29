@@ -174,27 +174,43 @@ namespace UnusualSuspect.Services.Services
 			}
 		}
 
-		public async Task<UnusualSuspectServiceResult<bool>> PreGameReadyToPlayAsync(int preGameGroupId, CancellationToken cancellationToken = default)
+		public async Task<UnusualSuspectServiceResult<bool>> PreGameGroupChangeReadyToPlayAsync(int preGameGroupId, PreGameGroupStatusEnum preGameGroupStatusEnum, CancellationToken cancellationToken = default)
 		{
 			PreGameGroup? preGameGroup =
 				await preGameGroupRepository.GetByIdWithJoinedPreGameAsync(preGameGroupId, cancellationToken);
 			if (preGameGroup == null)
 				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));
-			if (preGameGroup.PreGameGroupStatusId != (int)PreGameGroupStatusEnum.NotReady)
-				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.PreGameGroupHasNoJoinedPreGame));
-			if (!preGameGroup.JoinedPreGames.Any())
-				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.PreGameGroupHasNoJoinedPreGame));
-			if (preGameGroup.JoinedPreGames.Any(x => x.ReadyToGameStatusId != (int)ReadyToGameStatusEnum.Ready))
-				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.ThereIsUnreadyUserInGroup));
-			List<int> inGameUserIds = CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(preGameGroupId);
-			if (inGameUserIds.Any())
-				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CurrentGroupUsersAreInGame));
-			preGameGroup.PreGameGroupStatusId = (int)PreGameGroupStatusEnum.Ready;
-			preGameGroup.ReadyToGameTime = DateTime.Now;
+			if (preGameGroup.PreGameGroupStatusId == (short)preGameGroupStatusEnum)
+				return new UnusualSuspectServiceResult<bool>(false);
+			if (preGameGroup.PreGameGroupStatusId == (short)PreGameGroupStatusEnum.InGame)
+				return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.PreGameGroupIsInGame));
+			if (preGameGroupStatusEnum == PreGameGroupStatusEnum.Ready)
+			{
+				if (preGameGroup.PreGameGroupStatusId != (int)PreGameGroupStatusEnum.NotReady)
+					return new UnusualSuspectServiceResult<bool>(
+						new UnusualSuspectErrorResult(LogicErrorCode.PreGameGroupHasNoJoinedPreGame));
+				if (!preGameGroup.JoinedPreGames.Any())
+					return new UnusualSuspectServiceResult<bool>(
+						new UnusualSuspectErrorResult(LogicErrorCode.PreGameGroupHasNoJoinedPreGame));
+				if (preGameGroup.JoinedPreGames.Any(x => x.ReadyToGameStatusId != (int)ReadyToGameStatusEnum.Ready))
+					return new UnusualSuspectServiceResult<bool>(
+						new UnusualSuspectErrorResult(LogicErrorCode.ThereIsUnreadyUserInGroup));
+				List<int> inGameUserIds = CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(preGameGroup);
+				if (inGameUserIds.Any())
+					return new UnusualSuspectServiceResult<bool>(
+						new UnusualSuspectErrorResult(LogicErrorCode.CurrentGroupUsersAreInGame));
+				preGameGroup.PreGameGroupStatusId = (int)PreGameGroupStatusEnum.Ready;
+				preGameGroup.ReadyToGameTime = DateTime.Now;
+			}
+			else if (preGameGroupStatusEnum == PreGameGroupStatusEnum.NotReady)
+			{
+				preGameGroup.PreGameGroupStatusId = (int)PreGameGroupStatusEnum.NotReady;
+				preGameGroup.ReadyToGameTime = null;
+			}
 			return new UnusualSuspectServiceResult<bool>(true);
 		}
 
-		private List<int> CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(int preGameGroupId)
+		private List<int> CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(PreGameGroup preGameGroup)
 		{
 			//throw new NotImplementedException();
 			return new List<int>();
