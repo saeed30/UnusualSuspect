@@ -1,8 +1,10 @@
 ﻿using Ardalis.ApiEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnusualSuspect.ApiViewModels.Endpoints.User;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
@@ -18,16 +20,16 @@ public sealed class SaveProfileInfoEndpoint : MyBaseEndpointAuthenticated
 {
 	private readonly IApplicationUserManager applicationUserManager;
 	private readonly IApplicationUserService applicationUserService;
-	private readonly IUnitOfWork _uow;
+	private readonly IUnitOfWork uow;
 
 	public SaveProfileInfoEndpoint(IApplicationUserManager iApplicationUserManager, IApplicationUserService applicationUserService, IUnitOfWork uow)
 	{
 		this.applicationUserManager = iApplicationUserManager;
 		this.applicationUserService = applicationUserService;
-		_uow = uow;
+		this.uow = uow;
 	}
 	[HttpPost("api/[namespace]/SaveProfileInfoEndpoint")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] SaveProfileInfoRequest<IFormFile> request, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResult>> HandleAsync(SaveProfileInfoRequest<IFormFile> request, CancellationToken cancellationToken = default)
 	{
 		var user = await applicationUserManager.FindByNameAsync(CurrentUser.Username);
 		if (user == null)
@@ -37,7 +39,7 @@ public sealed class SaveProfileInfoEndpoint : MyBaseEndpointAuthenticated
 		var result = await applicationUserService.EditApplicationUser(user, true);
 		if (!result.Success)
 			return new ApiResult(false, ApiResultStatusCode.ServerError, result.MessageList);
-		await _uow.SaveChangesAsync(cancellationToken);
+		await uow.SaveChangesAsync(cancellationToken);
 		return new ApiResult(true, ApiResultStatusCode.Success);
 	}
 }

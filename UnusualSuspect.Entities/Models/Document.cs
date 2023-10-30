@@ -14,10 +14,6 @@ namespace UnusualSuspect.Entities.Models;
 /// </summary>
 public class Document : BaseEntity
 {
-	public Document()
-	{
-		ModifyDate = DateTime.Now;
-	}
 	public string DocumentName { set; get; }
 	public byte[] File { set; get; }
 
@@ -25,5 +21,6 @@ public class Document : BaseEntity
 	public string DocumentType { set; get; }
 	public string? TableName { set; get; }
 	public string? KeyName { set; get; }
+	public Guid GuidKey { set; get; }
 
 }

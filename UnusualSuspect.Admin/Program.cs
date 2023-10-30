@@ -10,6 +10,7 @@ using UnusualSuspect.Services.Services;
 using Serilog;
 using UnusualSuspect.Common.Middlewares;
 using System.Diagnostics;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -45,6 +46,7 @@ builder.Services.AddKendo();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 ///////////////////////////////////////////////////////
+
 var app = builder.Build();
 
 
@@ -58,7 +60,15 @@ app.Use(async (context, next) =>
 
     await next();
 });
-app.UseSerilogRequestLogging();
+app.UseSerilogRequestLogging(opts =>
+	{
+		opts.GetLevel = (httpContext, elapsed, ex) => elapsed > 1000 ? LogEventLevel.Warning : LogEventLevel.Information;
+		opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+			diagnosticContext.Set("UserName", httpContext.User.Identity == null || !httpContext.User.Identity.IsAuthenticated
+				? null : httpContext.User.Identity.Name);
+		opts.MessageTemplate = "{RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms by {UserName}";
+	}
+);
 app.UseHttpsRedirection();
 app.UseElmahCore(projectSetting);
 app.UseStaticFiles();

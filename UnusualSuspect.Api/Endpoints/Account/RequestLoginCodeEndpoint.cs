@@ -7,10 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Serilog;
 using UnusualSuspect.ApiViewModels.Endpoints.Account;
 using UnusualSuspect.ApiViewModels.Enums;
-using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts;
@@ -23,16 +21,14 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 	.WithRequest<RequestLoginCodeRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IJwtService iJwtService;
 	private readonly IApplicationUserManager iApplicationUserManager;
 	private readonly ISmsService smsService;
 	private readonly IOptionsSnapshot<ProjectSetting> setting;
 	private readonly ILogger<RequestLoginCodeEndpoint> logger;
 
-	public RequestLoginCodeEndpoint(IJwtService iJwtService, IApplicationUserManager iApplicationUserManager,
+	public RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserManager,
 		IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService, ILogger<RequestLoginCodeEndpoint> logger)
 	{
-		this.iJwtService = iJwtService;
 		this.iApplicationUserManager = iApplicationUserManager;
 		this.setting = setting ?? throw new ArgumentNullException(nameof(setting));
 		this.smsService = smsService;
@@ -40,8 +36,11 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 	}
 	[AllowAnonymous]
 	[HttpPost("api/[namespace]/RequestLoginCode")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] RequestLoginCodeRequest phoneNumber, CancellationToken cancellationToken)
+	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] RequestLoginCodeRequest phoneNumber, CancellationToken cancellationToken = default)
 	{
+		//random delay
+		await Task.Delay(new Random().Next(1, 500), cancellationToken);
+
 		//logger.LogEvent(1, "نمونه لاگ information", 65, "this is for extra info");
 		string phone = phoneNumber.KeyValue;
 		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))

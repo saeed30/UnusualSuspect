@@ -90,6 +90,7 @@ builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 builder.Services.AddHostedService<AlwaysRunningBackgroundService>();
 
 /////////////////////////////////////
+
 var app = builder.Build();
 //avoid error for favicon request
 app.Use(async (context, next) =>
@@ -107,6 +108,14 @@ if (app.Environment.IsDevelopment())
 {
 	app.UseDeveloperExceptionPage();
 }
+app.Use(async (context, next) =>
+{
+	context.Response.Headers.Add(
+		"Content-Security-Policy",
+		"font-src 'self' data:;");
+
+	await next();
+});
 
 app.UseSerilogRequestLogging(opts =>
 	{

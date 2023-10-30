@@ -9,9 +9,9 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 		[SerializeField]
 		private string? nickName;
 		[SerializeField]
-		private int? userImageDocumentId;
+		private Guid? userImageDocumentId;
 
 		public string? NickName { get => nickName; set => nickName = value; }
-		public int? UserImageDocumentId { get => userImageDocumentId; set => userImageDocumentId = value; }
+		public Guid? UserImageDocumentGuidKey { get => userImageDocumentId; set => userImageDocumentId = value; }
 	}
 }

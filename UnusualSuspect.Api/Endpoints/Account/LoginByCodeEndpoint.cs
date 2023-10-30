@@ -26,8 +26,11 @@ public class LoginByCodeEndpoint : EndpointBaseAsync
 	}
 	[AllowAnonymous]
 	[HttpPost("api/[namespace]/LoginByCode")]
-	public override async Task<ActionResult<ApiResult<LoginByCodeRespond>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken)
+	public override async Task<ActionResult<ApiResult<LoginByCodeRespond>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken = default)
 	{
+		//random delay
+		await Task.Delay(new Random().Next(1, 500), cancellationToken);
+
 		string msg = ValidateLoginByCodeRequest(loginByCodeRequest);
 		if (msg != null)
 			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, msg);

@@ -20,30 +20,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Xml.Linq;
+using UnusualSuspect.Common.Utilities;
 
 namespace UnusualSuspect.Services.Services;
 
 public class DocumentService : IDocumentService
 {
-	private readonly IUnitOfWork _uow;
-	private readonly DbSet<Document> _Document;
+	private readonly IUnitOfWork uow;
+	private readonly DbSet<Document> document;
 
-	private readonly ILogService _ILogService;
-	public readonly IUploadServise _IuploadServise;
+	private readonly ILogService iLogService;
+	public readonly IUploadServise IuploadServise;
 
-	public DocumentService(ILogger<DocumentService> logger, IUnitOfWork uow, ILogService iLogService, IUploadServise IUploadServise)
+	public DocumentService(ILogger<DocumentService> logger, IUnitOfWork uow, ILogService iLogService, IUploadServise uploadServise)
 	{
-		_uow = uow ?? throw new ArgumentNullException(nameof(_uow));
-		_Document = uow.Set<Document>();
-		_ILogService = iLogService;
-		_IuploadServise = IUploadServise;
+		this.uow = uow ?? throw new ArgumentNullException(nameof(this.uow));
+		document = uow.Set<Document>();
+		this.iLogService = iLogService;
+		IuploadServise = uploadServise;
 		//_sharedLocalizer = sharedLocalizer;
 	}
-	public List<Document> DocumentSearch(DocumentSearchViewModel model, bool? IsActive = null)
+	public List<Document> DocumentSearch(DocumentSearchViewModel model, bool? isActive = null)
 	{
 		model.StartDate ??= DateTime.MinValue;
 		model.EndDate ??= DateTime.MaxValue;
-		var DocumentList = _Document.Where(x => (IsActive == null) && (model.DocumentGroupId == null)
+		var documentList = document.Where(x => (isActive == null) && (model.DocumentGroupId == null)
 																								&& (model.Active == null)
 																								&& (model.Lang == null)
 																								&& ((model.StartDate <= x.ModifyDate && model.EndDate >= x.ModifyDate)));
@@ -51,55 +52,59 @@ public class DocumentService : IDocumentService
 		{
 			var searchTerms = model.KeyWord.Split(' ');
 			var term = searchTerms[0];
-			var DocumentList2 = DocumentList.Where(x =>
+			var documentList2 = documentList.Where(x =>
 								//(x.Title ?? "").Contains(term)
 								//|| (x.Tags ?? "").Contains(term)
 								//|| 
 								(x.Id.ToString() == term));
 			foreach (var tempTerm in searchTerms.Where(x => !string.IsNullOrEmpty(x) && x != term))
 			{
-				DocumentList2 = DocumentList2.Union(DocumentList.Where(x =>
+				documentList2 = documentList2.Union(documentList.Where(x =>
 							//(x.Title ?? "").Contains(tempTerm)
 							//|| (x.Tags ?? "").Contains(tempTerm)
 							//|| 
 							(x.Id.ToString() == tempTerm)));
 			}
-			DocumentList = DocumentList2;
+			documentList = documentList2;
 		}
 
 		switch (model.SortTypeId)
 		{
 			case 1:
 				{
-					DocumentList = DocumentList.OrderByDescending(x => x.ModifyDate);
+					documentList = documentList.OrderByDescending(x => x.ModifyDate);
 					break;
 				}
 			case 2:
 				{
-					DocumentList = DocumentList.OrderBy(x => x.ModifyDate);
+					documentList = documentList.OrderBy(x => x.ModifyDate);
 					break;
 				}
 			default:
 				{
-					DocumentList = DocumentList.OrderByDescending(x => x.ModifyDate);
+					documentList = documentList.OrderByDescending(x => x.ModifyDate);
 					break;
 				}
 		}
-		model.ResultCount = DocumentList.Count();
-		return DocumentList.Skip((model.Step - 1) * model.PageSize).Take(model.PageSize).ToList();
+		model.ResultCount = documentList.Count();
+		return documentList.Skip((model.Step - 1) * model.PageSize).Take(model.PageSize).ToList();
 
 	}
 
-	public async Task<Document?> GetDocumentAsync(int Id)
+	public async Task<Document?> GetDocumentAsync(int id)
 	{
-		return await _Document.FirstOrDefaultAsync(m => m.Id == Id);
+		return await document.FirstOrDefaultAsync(m => m.Id == id);
+	}
+	public async Task<Document?> GetDocumentByGuidKeyAsync(Guid guidKey)
+	{
+		return await document.FirstOrDefaultAsync(m => m.GuidKey == guidKey);
 	}
 
-	public Document? GetDocument(int Id)
+	public Document? GetDocument(int id)
 	{
-		return _Document.FirstOrDefault(m => m.Id == Id);
+		return document.FirstOrDefault(m => m.Id == id);
 	}
-	public ResultAction DeleteDocumentComment(int DocumentCommentId, string UserName)
+	public ResultAction DeleteDocumentComment(int documentCommentId, string userName)
 	{
 		//var Item = DetailsDocumentComment(DocumentCommentId);
 		try
@@ -130,7 +135,7 @@ public class DocumentService : IDocumentService
 			};
 		}
 	}
-	public bool ConfirmDocumentComment(int DocumentCommentId, bool check)
+	public bool ConfirmDocumentComment(int documentCommentId, bool check)
 	{
 		try
 		{
@@ -195,17 +200,17 @@ public class DocumentService : IDocumentService
 	//    return _DocumentComment.Where(x => x.DocumentId == DocumentId && x.Confirm).OrderByDescending(x => x.Id).Skip(Step * 25).Take(25).ToList();
 	//}
 
-	public void AddViewCount(Document Item)
+	public void AddViewCount(Document item)
 	{
 		//Item.ViewCount = (Item.ViewCount + 1);
-		_uow.SaveChanges();
+		uow.SaveChanges();
 	}
 
-	public Document DetailsDocument(long DocumentId)
+	public Document DetailsDocument(long documentId)
 	{
-		return _Document.FirstOrDefault(x => x.Id == DocumentId);
+		return document.FirstOrDefault(x => x.Id == documentId);
 	}
-	public List<int> DocumentCategoryList(int DocumentId)
+	public List<int> DocumentCategoryList(int documentId)
 	{
 		return null; // _DocumentCategory.Where(x => x.DocumentId == DocumentId).Select(p => p.CategoryId).ToList();
 	}
@@ -214,34 +219,34 @@ public class DocumentService : IDocumentService
 	{
 		model.StartDate = model.StartDate ?? DateTime.MinValue;
 		model.EndDate = model.EndDate ?? DateTime.MaxValue;
-		var DocumentList = _Document.Where(x => (model.DocumentGroupId == null /*|| x.DocumentGroupId == model.DocumentGroupId*/));
+		var documentList = document.Where(x => (model.DocumentGroupId == null /*|| x.DocumentGroupId == model.DocumentGroupId*/));
 		if (!string.IsNullOrEmpty(model.KeyWord))
 		{
 			var searchTerms = model.KeyWord.Split(' ');
 			var term = searchTerms[0];
-			var DocumentList2 = DocumentList.Where(x =>
+			var documentList2 = documentList.Where(x =>
 								//(x.Title ?? "").Contains(term)
 								//||
 								(x.Id.ToString() == term));
 			foreach (var tempTerm in searchTerms.Where(x => !string.IsNullOrEmpty(x) && x != term))
 			{
-				DocumentList2 = DocumentList2.Union(DocumentList.Where(x =>
+				documentList2 = documentList2.Union(documentList.Where(x =>
 							//(x.Title ?? "").Contains(tempTerm)
 							//|| 
 							(x.Id.ToString() == tempTerm)));
 			}
-			DocumentList = DocumentList2;
+			documentList = documentList2;
 		}
 
-		return DocumentList;
+		return documentList;
 
 	}
-	public int LikeDisLikeDocumentComment(IHttpContextAccessor httpContextAccessor, int DocumentId, int CommentId, bool Like)
+	public int LikeDisLikeDocumentComment(IHttpContextAccessor httpContextAccessor, int documentId, int commentId, bool like)
 	{
-		if (httpContextAccessor.HttpContext.Session.GetString($"DocumentComment{DocumentId}{CommentId}") == null)
+		if (httpContextAccessor.HttpContext.Session.GetString($"DocumentComment{documentId}{commentId}") == null)
 		{
-			httpContextAccessor.HttpContext.Session.SetString($"DocumentComment{DocumentId}{CommentId}", $"{DocumentId}{CommentId}");
-			return LikeDisLikeComment(CommentId, Like);
+			httpContextAccessor.HttpContext.Session.SetString($"DocumentComment{documentId}{commentId}", $"{documentId}{commentId}");
+			return LikeDisLikeComment(commentId, like);
 		}
 		else
 		{
@@ -255,7 +260,7 @@ public class DocumentService : IDocumentService
 	//    return _DocumentComment.FirstOrDefault(x => x.DocumentId == DocumentId && x.Id == DocumentCommentId);
 	//}
 
-	public int LikeDisLikeComment(int CommentId, bool Like)
+	public int LikeDisLikeComment(int commentId, bool like)
 	{
 		//var Item = _DocumentComment.FirstOrDefault(x => x.Id == CommentId);
 		//if (Item != null)
@@ -377,57 +382,62 @@ public class DocumentService : IDocumentService
 	{
 		if (file == null || file.Length < 1)
 			return null;
-		var Extension = Path.GetExtension(file.FileName);
-		if (Extension != null && Extension.Contains("."))
-			Extension = Extension.Replace(".", "");
-		if (tableName != null)
-			tableName = tableName.ToLower();
-		if (keyName != null)
-			keyName = keyName.ToLower();
-		var UploadeFile = _IuploadServise.GetFileDataAsync(file);
+		var extension = Path.GetExtension(file.FileName);
+		if (extension.IsNull())
+			extension = "txt";
+		if (extension.Contains("."))
+			extension = extension.Replace(".", "");
+		if (tableName.IsNull())
+			throw new Exception("tableName is null in SaveFormFile");
+		tableName = tableName.ToLower();
+		if (keyName.IsNull())
+			throw new Exception("keyName is null in SaveFormFile");
+		keyName = keyName.ToLower();
+		var uploadeFile = IuploadServise.GetFileDataAsync(file);
 		Document? document = null;
 		if (documentId.HasValue)
-			document = await _Document.FirstOrDefaultAsync(x => x.Id == documentId.Value);
+			document = await this.document.FirstOrDefaultAsync(x => x.Id == documentId.Value);
 		if (document == null)
 		{
 			document = new Document
 			{
-				DocumentName = _IuploadServise.GetUniqueFileName(file),
-				File = UploadeFile.Result,
-				DocumentType = Extension,
+				DocumentName = IuploadServise.GetUniqueFileName(file),
+				File = uploadeFile.Result,
+				DocumentType = extension,
 				ModifyDate = DateTime.Now,
 				TableName = tableName,
-				KeyName = keyName
+				KeyName = keyName,
+				GuidKey = Guid.NewGuid()
 			};
-			_Document.Add(document);
+			this.document.Add(document);
 		}
 		else
 		{
-			document.DocumentName = _IuploadServise.GetUniqueFileName(file);
-			document.File = UploadeFile.Result;
-			document.DocumentType = Extension;
+			document.DocumentName = IuploadServise.GetUniqueFileName(file);
+			document.File = uploadeFile.Result;
+			document.DocumentType = extension;
 			document.ModifyDate = DateTime.Now;
 			document.TableName = tableName;
 			document.KeyName = keyName;
 		}
 		return document;
 	}
-	public ResultAction CreateDocumentFile(IFormFile file, string TableName, ExtensionFileEnum extensionFile = ExtensionFileEnum.Image)
+	public ResultAction CreateDocumentFile(IFormFile file, string tableName, ExtensionFileEnum extensionFile = ExtensionFileEnum.Image)
 	{
 		if (file != null)
 		{
-			var Extension = Path.GetExtension(file.FileName);
-			var CheckUploade = _IuploadServise.IsUpload(file, false, extensionFile);
+			var extension = Path.GetExtension(file.FileName);
+			var checkUploade = IuploadServise.IsUpload(file, false, extensionFile);
 
-			if (!CheckUploade.Success)
+			if (!checkUploade.Success)
 			{
 				return new ResultAction()
 				{
 					Success = false,
-					MessageList = CheckUploade.MessageList
+					MessageList = checkUploade.MessageList
 				};
 			}
-			string documentName = _IuploadServise.GetUniqueFileName(file);
+			string documentName = IuploadServise.GetUniqueFileName(file);
 
 			//if (Extension == ".ogg" || Extension == ".mp4")
 			//{
@@ -436,19 +446,20 @@ public class DocumentService : IDocumentService
 
 			//}
 
-			var UploadeFile = _IuploadServise.GetFileDataAsync(file);
+			var uploadeFile = IuploadServise.GetFileDataAsync(file);
 
 			var document = new Document
 			{
 				ModifyDate = DateTime.Now,
-				File = UploadeFile.Result,
-				DocumentType = Extension,
-				TableName = TableName,
-				DocumentName = documentName
+				File = uploadeFile.Result,
+				DocumentType = extension,
+				TableName = tableName,
+				DocumentName = documentName,
+				GuidKey = Guid.NewGuid()
 			};
 
-			_Document.Add(document);
-			_uow.SaveChanges();
+			this.document.Add(document);
+			uow.SaveChanges();
 
 
 
@@ -468,7 +479,7 @@ public class DocumentService : IDocumentService
 
 	public ResultAction EditDocument(Document model)
 	{
-		var Item = DetailsDocument(model.Id);
+		var item = DetailsDocument(model.Id);
 		try
 		{
 			//var CheckUploade = _IuploadServise.IsUpload(model.ImageFile, false);
@@ -538,29 +549,29 @@ public class DocumentService : IDocumentService
 
 	public string? DeleteDocument(int documentId)
 	{
-		var item = _Document.SingleOrDefault(x => x.Id == documentId);
+		var item = document.SingleOrDefault(x => x.Id == documentId);
 		if (item == null)
 			return "فایل مورد نظر جهت حذف یافت نشد.";
-		_Document.Remove(item);
+		document.Remove(item);
 		return null;
 	}
-	public ResultAction DeleteDocument(int DocumentId, string UserName)
+	public ResultAction DeleteDocument(int documentId, string userName)
 	{
-		var Item = DetailsDocument(DocumentId);
+		var item = DetailsDocument(documentId);
 		try
 		{
-			_Document.Remove(Item);
-			_ILogService.AddLog(new LogObject()
+			document.Remove(item);
+			iLogService.AddLog(new LogObject()
 			{
 				NextValue = null,
-				PerValue = HelperCommon.ShallowCopyEntityToString<Document>(Item),
+				PerValue = HelperCommon.ShallowCopyEntityToString<Document>(item),
 				ObjectTypeId = "Document",
 				ObjectTypeName = "Document",
 				Title = "Delete Document",
 				DateCreate = DateTime.Now,
-				UserName = UserName
+				UserName = userName
 			});
-			_uow.SaveChanges();
+			uow.SaveChanges();
 			return new ResultAction()
 			{
 				Success = true,
@@ -580,13 +591,13 @@ public class DocumentService : IDocumentService
 	}
 
 
-	public bool ActiveDeactiveDocument(int DocumentId, bool check)
+	public bool ActiveDeactiveDocument(int documentId, bool check)
 	{
 		try
 		{
-			var item = DetailsDocument(DocumentId);
+			var item = DetailsDocument(documentId);
 			// item.IsActive = check;
-			_uow.SaveChanges();
+			uow.SaveChanges();
 			return true;
 		}
 		catch
@@ -595,13 +606,13 @@ public class DocumentService : IDocumentService
 		}
 	}
 
-	public bool ActiveDeactiveSelectedDocument(int DocumentId, bool check)
+	public bool ActiveDeactiveSelectedDocument(int documentId, bool check)
 	{
 		try
 		{
-			var item = DetailsDocument(DocumentId);
+			var item = DetailsDocument(documentId);
 			// item.Selected = check;
-			_uow.SaveChanges();
+			uow.SaveChanges();
 			return true;
 		}
 		catch
@@ -610,36 +621,36 @@ public class DocumentService : IDocumentService
 		}
 	}
 
-	public List<SelectListItem> DocumentTypeList(string PreName, string Language)
+	public List<SelectListItem> DocumentTypeList(string preName, string language)
 	{
-		List<SelectListItem> DocumentTypes = new List<SelectListItem>
+		List<SelectListItem> documentTypes = new List<SelectListItem>
 				{
-						new SelectListItem() { Text = PreName, Value = "" }
+						new SelectListItem() { Text = preName, Value = "" }
 				};
 		//DocumentTypes.AddRange(_DocumentGroup.Where(x => x.Documents.Any(c => c.Language.Abbreviation == Language)).Select(u => new SelectListItem
 		//{
 		//    Text = u.Name,
 		//    Value = u.Id.ToString()
 		//}).ToList());
-		return DocumentTypes;
+		return documentTypes;
 	}
 
-	public Document? DocumentDetails(int DocumentId)
+	public Document? DocumentDetails(int documentId)
 	{
-		return _Document.FirstOrDefault(x => x.Id == DocumentId);
+		return document.FirstOrDefault(x => x.Id == documentId);
 	}
-	public async Task<List<Document>> CurrentNews(int takeCount, string Language, CancellationToken CancellationToken)
+	public async Task<List<Document>> CurrentNews(int takeCount, string language, CancellationToken cancellationToken)
 	{
-		return await _Document.Where(x => /*x.IsActive &&*/ (string.IsNullOrEmpty(Language))).OrderByDescending(x => x.Id).Take(takeCount).ToListAsync(CancellationToken);
+		return await document.Where(x => /*x.IsActive &&*/ (string.IsNullOrEmpty(language))).OrderByDescending(x => x.Id).Take(takeCount).ToListAsync(cancellationToken);
 	}
-	public async Task<List<Document>> SelectedDocuments(int takeCount, string Language, CancellationToken CancellationToken)
+	public async Task<List<Document>> SelectedDocuments(int takeCount, string language, CancellationToken cancellationToken)
 	{
-		return await _Document.Where(x =>/* x.IsActive && x.Selected &&*/ (string.IsNullOrEmpty(Language))).OrderByDescending(x => x.Id).Take(takeCount).ToListAsync(CancellationToken);
+		return await document.Where(x =>/* x.IsActive && x.Selected &&*/ (string.IsNullOrEmpty(language))).OrderByDescending(x => x.Id).Take(takeCount).ToListAsync(cancellationToken);
 	}
-	public List<Document> DocumentListOfGroup(int DocumentGroupId, int CategoryId, string Language)
+	public List<Document> DocumentListOfGroup(int documentGroupId, int categoryId, string language)
 	{
-		var list = _Document.Where(x => /*x.IsActive && x.DocumentGroupId == DocumentGroupId && x.Selected &&*/ (string.IsNullOrEmpty(Language)));
-		if (CategoryId > 0)
+		var list = document.Where(x => /*x.IsActive && x.DocumentGroupId == DocumentGroupId && x.Selected &&*/ (string.IsNullOrEmpty(language)));
+		if (categoryId > 0)
 		{
 			//var categoryIdList = _DocumentCategory.Where(p => p.CategoryId == CategoryId).Select(p => p.DocumentId).ToList();
 			//list = list.Where(p => categoryIdList.Contains(p.Id));
