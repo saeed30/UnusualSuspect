@@ -1,10 +1,7 @@
-﻿using Ardalis.ApiEndpoints;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 using UnusualSuspect.ApiViewModels.Endpoints.User;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;

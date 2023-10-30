@@ -25,7 +25,7 @@ namespace UnusualSuspect.IocConfig
 			if (httpContext.User.Identity?.IsAuthenticated == true)
 			{
 				return RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity.Name!,
-						partition => new FixedWindowRateLimiterOptions
+						_ => new FixedWindowRateLimiterOptions
 						{
 							AutoReplenishment = true,
 							PermitLimit = rateSetting.AuthenticatedUserAllowedRequestCount,
@@ -34,7 +34,7 @@ namespace UnusualSuspect.IocConfig
 			}
 
 			return RateLimitPartition.GetFixedWindowLimiter(httpContext.Request.Headers.Host.ToString(),
-					partition => new FixedWindowRateLimiterOptions
+					_ => new FixedWindowRateLimiterOptions
 					{
 						AutoReplenishment = true,
 						PermitLimit = rateSetting.AnonymousUserAllowedRequestCount,

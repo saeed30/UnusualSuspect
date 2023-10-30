@@ -1,6 +1,5 @@
 ﻿using Ardalis.ApiEndpoints;
 using UnusualSuspect.ViewModels.Identity;
-using UnusualSuspect.Common.Extensions;
 using System.Security.Claims;
 using UnusualSuspect.Common.Utilities;
 
