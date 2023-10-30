@@ -7,13 +7,24 @@ using UnusualSuspect.IocConfig;
 using UnusualSuspect.ViewModels.Settings;
 using System.Globalization;
 using UnusualSuspect.Services.Services;
+using Serilog;
+using UnusualSuspect.Common.Middlewares;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
-ConfigurationManager Configuration = builder.Configuration;
-builder.Services.Configure<ProjectSetting>(options => Configuration.Bind(options));
-ProjectSetting _ProjectSetting = builder.Services.GetSiteSettings();
+ConfigurationManager configuration = builder.Configuration;
+builder.Services.Configure<ProjectSetting>(options => configuration.Bind(options));
+ProjectSetting projectSetting = builder.Services.GetSiteSettings();
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+	loggerConfiguration.ReadFrom.Configuration(context.Configuration));
+Serilog.Debugging.SelfLog.Enable(msg =>
+{
+	Debug.Print(msg);
+	//Debugger.Break();
+});
+
 builder.Services.AddCustomIdentityServices();
-builder.Services.AddSiteCustomServices(Configuration);
+builder.Services.AddSiteCustomServices(configuration);
 builder.Services.AddScoped<UserFilters>();
 
 builder.Services.AddMvc(a => a.UseStringModelBinder());
@@ -47,8 +58,9 @@ app.Use(async (context, next) =>
 
     await next();
 });
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
-app.UseElmahCore(_ProjectSetting);
+app.UseElmahCore(projectSetting);
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -59,6 +71,8 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<LogExtraInfoMiddleware>();
+
 //app.UseSession();
 var supportedCultures = new[]
 {

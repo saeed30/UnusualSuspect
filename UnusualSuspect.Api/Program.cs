@@ -16,6 +16,12 @@ using Hangfire;
 using HangfireBasicAuthenticationFilter;
 using UnusualSuspect.Api.Background;
 using UnusualSuspect.DataLayer.Contracts;
+using Serilog;
+using UnusualSuspect.Common.Middlewares;
+using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
+using Serilog.Events;
+using System.Net.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +38,14 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 ConfigurationManager configuration = builder.Configuration;
 builder.Services.Configure<ProjectSetting>(options => configuration.Bind(options));
 ProjectSetting projectSetting = builder.Services.GetSiteSettings();
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+	loggerConfiguration.ReadFrom.Configuration(context.Configuration));
+Serilog.Debugging.SelfLog.Enable(msg =>
+{
+	Debug.Print(msg);
+	//Debugger.Break();
+});
+
 builder.Services.AddCustomServices(configuration);
 
 builder.Services.AddSwaggerGen(c =>
@@ -77,17 +91,40 @@ builder.Services.AddHostedService<AlwaysRunningBackgroundService>();
 
 /////////////////////////////////////
 var app = builder.Build();
+//avoid error for favicon request
+app.Use(async (context, next) =>
+{
+	if (context.Request.Path.Value == "/favicon.ico")
+	{
+		// Favicon request, return 404
+		context.Response.StatusCode = StatusCodes.Status404NotFound;
+		return;
+	}
+	// No favicon, call next middleware
+	await next.Invoke();
+});
 if (app.Environment.IsDevelopment())
 {
 	app.UseDeveloperExceptionPage();
 }
 
+app.UseSerilogRequestLogging(opts =>
+	{
+		opts.GetLevel = (httpContext, elapsed, ex) => elapsed > 1000 ? LogEventLevel.Warning : LogEventLevel.Information;
+		opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+			diagnosticContext.Set("UserName", httpContext.User.Identity == null || !httpContext.User.Identity.IsAuthenticated 
+				? null : httpContext.User.Identity.Name);
+		opts.MessageTemplate = "{RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms by {UserName}";
+	}
+);
 app.UseHttpsRedirection();
 app.UseElmahCore(projectSetting);
 
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<LogExtraInfoMiddleware>();
+
 app.UseRateLimiter();
 // Enable middleware to serve generated Swagger as a JSON endpoint.
 app.UseSwagger();

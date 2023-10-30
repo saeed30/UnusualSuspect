@@ -1,13 +1,16 @@
 ﻿using Ardalis.ApiEndpoints;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 using UnusualSuspect.ApiViewModels.Endpoints.Account;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts;
@@ -24,19 +27,22 @@ public class RequestLoginCodeEndpoint : EndpointBaseAsync
 	private readonly IApplicationUserManager iApplicationUserManager;
 	private readonly ISmsService smsService;
 	private readonly IOptionsSnapshot<ProjectSetting> setting;
+	private readonly ILogger<RequestLoginCodeEndpoint> logger;
 
 	public RequestLoginCodeEndpoint(IJwtService iJwtService, IApplicationUserManager iApplicationUserManager,
-		IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService)
+		IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService, ILogger<RequestLoginCodeEndpoint> logger)
 	{
 		this.iJwtService = iJwtService;
 		this.iApplicationUserManager = iApplicationUserManager;
 		this.setting = setting ?? throw new ArgumentNullException(nameof(setting));
 		this.smsService = smsService;
+		this.logger = logger;
 	}
 	[AllowAnonymous]
 	[HttpPost("api/[namespace]/RequestLoginCode")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] RequestLoginCodeRequest phoneNumber, CancellationToken cancellationToken)
 	{
+		//logger.LogEvent(1, "نمونه لاگ information", 65, "this is for extra info");
 		string phone = phoneNumber.KeyValue;
 		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
 			return new ApiResult(false, ApiResultStatusCode.NeedToRetry
