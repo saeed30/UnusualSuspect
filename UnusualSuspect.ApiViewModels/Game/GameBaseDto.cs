@@ -1,18 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnityEngine;
 
 namespace UnusualSuspect.ApiViewModels.Game
 {
+	[Serializable]
 	public class GameBaseDto
 	{
-		public int Id { get; set; }
-		public GameTypeDto GameTypeDto { get; set; }
-		public IEnumerable<GameParticipantDto> GameParticipantDto { get; set; }
-		public IEnumerable<GameCharacterDto> GameCharacterDtos {
-			get;
-			set;
+		[SerializeField]
+		private int id;
+		[SerializeField]
+		private GameTypeDto gameTypeDto;
+		[SerializeField]
+		private IEnumerable<GameParticipantDto> gameParticipantDto;
+		[SerializeField]
+		private IEnumerable<GameCharacterDto> gameCharacterDtos;
+
+		public int Id
+		{
+			get => id;
+			set => id = value;
+		}
+
+		public GameTypeDto GameTypeDto
+		{
+			get => gameTypeDto;
+			set => gameTypeDto = value;
+		}
+
+		public IEnumerable<GameParticipantDto> GameParticipantDto
+		{
+			get => gameParticipantDto;
+			set => gameParticipantDto = value;
+		}
+
+		public IEnumerable<GameCharacterDto> GameCharacterDtos
+		{
+			get => gameCharacterDtos;
+			set => gameCharacterDtos = value;
 		}
 	}
 }

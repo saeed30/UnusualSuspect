@@ -1,12 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using UnityEngine;
 
 namespace UnusualSuspect.ApiViewModels.Game
 {
+	[Serializable]
 	public class GameFlowDto
 	{
-		public int Id { get; set; }
-		public List<int> ActiveCharacterIds { get; set; }
+		[SerializeField]
+		private int id;
+		[SerializeField]
+		private List<int> activeCharacterIds;
+
+		public int Id
+		{
+			get => id;
+			set => id = value;
+		}
+
+		public List<int> ActiveCharacterIds
+		{
+			get => activeCharacterIds;
+			set => activeCharacterIds = value;
+		}
 	}
 }

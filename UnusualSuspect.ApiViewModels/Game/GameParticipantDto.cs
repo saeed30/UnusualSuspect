@@ -1,20 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnityEngine;
 using UnusualSuspect.ApiViewModels.Enums;
 
 namespace UnusualSuspect.ApiViewModels.Game
 {
+	[Serializable]
 	public class GameParticipantDto
 	{
-		public int Id { get; set; }
-		public short OrderOfParticipation { get; set; }
-		public GameUserDto GameUserDto { get; set; }
-		public GameRole GameRole {
-			get;
-			set;
+		[SerializeField]
+		private int id;
+		[SerializeField]
+		private short orderOfParticipation;
+		[SerializeField]
+		private GameUserDto gameUserDto;
+		[SerializeField]
+		private GameRole gameRole;
+
+		public int Id
+		{
+			get => id;
+			set => id = value;
 		}
 
+		public short OrderOfParticipation
+		{
+			get => orderOfParticipation;
+			set => orderOfParticipation = value;
+		}
+
+		public GameUserDto GameUserDto
+		{
+			get => gameUserDto;
+			set => gameUserDto = value;
+		}
+
+		public GameRole GameRole
+		{
+			get => gameRole;
+			set => gameRole = value;
+		}
 	}
 }

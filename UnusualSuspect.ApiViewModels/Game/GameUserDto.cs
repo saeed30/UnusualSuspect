@@ -1,13 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using UnityEngine;
 
 namespace UnusualSuspect.ApiViewModels.Game
 {
+	[Serializable]
 	public class GameUserDto
 	{
-		public int Id { get; set; }
-		public string? Username { get; set; }
-		public string? NickName { get; set; }
+		[SerializeField]
+		private int id;
+		[SerializeField]
+		private string? username;
+		[SerializeField]
+		private string? nickName;
+
+		public int Id
+		{
+			get => id;
+			set => id = value;
+		}
+
+		public string? Username
+		{
+			get => username;
+			set => username = value;
+		}
+
+		public string? NickName
+		{
+			get => nickName;
+			set => nickName = value;
+		}
 	}
 }
