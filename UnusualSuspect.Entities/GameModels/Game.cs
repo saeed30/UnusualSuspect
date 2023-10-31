@@ -11,4 +11,8 @@ public class Game : BaseEntity
 	[ForeignKey("GameTypeId")]
 	public virtual GameType GameType { get; set; }
 
+	public virtual ICollection<CharacterCardGame> CharacterCardGames { get; set; }
+	public virtual ICollection<Participate> Participates { get; set; }
+
+
 }

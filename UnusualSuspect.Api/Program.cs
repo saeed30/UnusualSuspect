@@ -154,8 +154,8 @@ app.MapHangfireDashboard("/hangfire", new DashboardOptions()
 	{
 		new HangfireCustomBasicAuthenticationFilter()
 		{
-			User = "saeed",
-			Pass = "S@ed1111"
+			User = projectSetting.HangfireSetting.AdminUsername,
+			Pass = projectSetting.HangfireSetting.AdminPassword
 		}
 	}
 });

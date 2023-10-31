@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>D:\projects\UnusualSuspect\UnusualSuspect.Api\bin\Release\net7.0\publish\</_PublishTargetUrl>
-    <History>True|2023-10-26T05:49:34.4140629Z;True|2023-10-21T12:54:56.8600490+03:30;False|2023-10-21T12:54:25.1212600+03:30;True|2023-10-21T11:21:22.7874120+03:30;True|2023-10-19T12:35:36.2258069+03:30;</History>
+    <History>True|2023-10-30T11:31:25.9404435Z;True|2023-10-26T09:19:34.4140629+03:30;True|2023-10-21T12:54:56.8600490+03:30;False|2023-10-21T12:54:25.1212600+03:30;True|2023-10-21T11:21:22.7874120+03:30;True|2023-10-19T12:35:36.2258069+03:30;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>

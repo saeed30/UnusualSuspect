@@ -69,6 +69,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IPreGameGroupRepository, PreGameGroupRepository>();
 		services.AddScoped<IGameTypeRepository, GameTypeRepository>();
 		services.AddScoped<ISmsLogRepository, SmsLogRepository>();
+		services.AddScoped<IPreGameService, PreGameService>();
 		services.AddScoped<IGameService, GameService>();
 
 

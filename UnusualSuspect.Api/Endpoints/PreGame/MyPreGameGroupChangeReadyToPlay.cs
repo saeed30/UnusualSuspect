@@ -13,10 +13,10 @@ public sealed class MyPreGameGroupChangeReadyToPlay : MyBaseEndpointAuthenticate
 	.WithRequest<MyPreGameGroupChangeReadyToPlayRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IGameService gameService;
-	public MyPreGameGroupChangeReadyToPlay(IGameService gameService)
+	private readonly IPreGameService preGameService;
+	public MyPreGameGroupChangeReadyToPlay(IPreGameService preGameService)
 	{
-		this.gameService = gameService;
+		this.preGameService = preGameService;
 	}
 
 	[HttpPost("api/[namespace]/MyPreGameGroupChangeReadyToPlay")]
@@ -24,10 +24,10 @@ public sealed class MyPreGameGroupChangeReadyToPlay : MyBaseEndpointAuthenticate
 		CancellationToken cancellationToken = default)
 	{
 		PreGameGroupStatusEnum preGameGroupStatusEnum = request.IsReady ? PreGameGroupStatusEnum.Ready : PreGameGroupStatusEnum.NotReady;
-		var result = await gameService.PreGameGroupChangeReadyToPlayAsync(request.PreGameGroupId, preGameGroupStatusEnum, cancellationToken);
+		var result = await preGameService.PreGameGroupChangeReadyToPlayAsync(request.PreGameGroupId, preGameGroupStatusEnum, cancellationToken);
 		if (!result.Success)
 			return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
-		await gameService.SaveChangesAsync(cancellationToken);
+		await preGameService.SaveChangesAsync(cancellationToken);
 		return new ApiResult(true, ApiResultStatusCode.Success);
 	}
 }

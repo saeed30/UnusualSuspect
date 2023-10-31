@@ -45,7 +45,7 @@ public class AlwaysRunningBackgroundService : BackgroundService
 	// Define your work method
 	private async Task DoWorkAsync(IServiceScope scope, CancellationToken stoppingToken)
 	{
-		IGameService gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
-		await gameService.CombineGroupsToStartGames(stoppingToken);
+		IPreGameService preGameService = scope.ServiceProvider.GetRequiredService<IPreGameService>();
+		await preGameService.CombineGroupsToStartGames(stoppingToken);
 	}
 }

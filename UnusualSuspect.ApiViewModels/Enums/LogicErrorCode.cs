@@ -21,7 +21,8 @@ namespace UnusualSuspect.ApiViewModels.Enums
 		CurrentGroupUsersAreInGame = 12,
 		InvalidPreGameGroupStatusId = 13,
 		PreGameGroupIsInGame = 14,
-		DocumentNotFound = 15
+		DocumentNotFound = 15,
+		InvalidGameId = 16,
 
 	}
 }
