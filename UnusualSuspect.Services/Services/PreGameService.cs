@@ -1,7 +1,6 @@
-﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
-using UnusualSuspect.ApiViewModels.Enums;
+﻿using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
-using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
@@ -16,6 +15,8 @@ namespace UnusualSuspect.Services.Services
 		private readonly IJoinedPreGameRepository joinedPreGameRepository;
 		private readonly IGameTypeRepository gameTypeRepository;
 		private readonly IGameRepository gameRepository;
+		private readonly ICharacterCardRepository characterCardRepository;
+		private readonly ICharacterCardGameRepository characterCardGameRepository;
 		private readonly IParticipateRepository participateRepository;
 		private readonly IApplicationUserManager applicationUserManager;
 
@@ -25,7 +26,9 @@ namespace UnusualSuspect.Services.Services
 			IApplicationUserManager applicationUserManager,
 			IGameTypeRepository gameTypeRepository,
 			IGameRepository gameRepository,
-			IParticipateRepository participateRepository)
+			IParticipateRepository participateRepository,
+			ICharacterCardRepository characterCardRepository,
+			ICharacterCardGameRepository characterCardGameRepository)
 		{
 			this.uow = uow;
 			this.preGameGroupRepository = preGameGroupRepository;
@@ -34,6 +37,8 @@ namespace UnusualSuspect.Services.Services
 			this.gameTypeRepository = gameTypeRepository;
 			this.gameRepository = gameRepository;
 			this.participateRepository = participateRepository;
+			this.characterCardRepository = characterCardRepository;
+			this.characterCardGameRepository = characterCardGameRepository;
 		}
 		public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 		{
@@ -110,7 +115,8 @@ namespace UnusualSuspect.Services.Services
 			await joinedPreGameRepository.ExecuteDeleteAllJoinedPreGameGroupAsync(preGameGroupId, cancellationToken);
 			await preGameGroupRepository.ExecuteDeleteByIdAsync(preGameGroupId, cancellationToken);
 		}
-		public async Task<UnusualSuspectServiceResult<bool>> ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default)
+		public async Task<UnusualSuspectServiceResult<bool>> ChangeUserReadyStatus(int userId, int preGameGroupId,
+			ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default)
 		{
 			var preGameGroup = await preGameGroupRepository.GetByIdAsync(preGameGroupId, cancellationToken);
 			if (preGameGroup == null)
@@ -327,25 +333,65 @@ namespace UnusualSuspect.Services.Services
 				FinishedTime = null,
 				GameType = gameType
 			});
+			await AddGameParticipants(preGameGroups, game, cancellationToken);
+
+			await Add12RandomCharactersToGame(game, cancellationToken);
+		}
+
+		private async Task AddGameParticipants(List<PreGameGroup> preGameGroups, Game game, CancellationToken cancellationToken = default)
+		{
 			short counter = 1;
 			for (int i = 0; i < preGameGroups.Count; i++)
 			{
 				List<JoinedPreGame> joined =
 					await joinedPreGameRepository.JoinedPreGameOfPreGameGroupAsync(preGameGroups[i].Id, cancellationToken);
+				List<int> selectedNumbers = RandomHelper.GetUniqueRandomNumbers(0, joined.Count - 1, 3);
 				for (int j = 0; j < joined.Count; j++)
 				{
+					//random role selection
+					RoleCardEnum role;
+					if (selectedNumbers[0] == j)
+						role = RoleCardEnum.Accomplice;
+					else if (selectedNumbers[1] == j)
+						role = RoleCardEnum.MainDetective;
+					else if (selectedNumbers[2] == j)
+						role = RoleCardEnum.Witness;
+					else
+						role = RoleCardEnum.Detective;
+
 					participateRepository.Add(new Participate()
 					{
 						UserId = joined[j].UserId,
 						Game = game,
 						IsActive = true,
 						OrderOfParticipation = counter++,
-						RoleCardId = (short)RoleCardEnum.Detective
+						RoleCardId = (short)role
 					});
 				}
+
 				preGameGroups[i].PreGameGroupStatusId = (short)PreGameGroupStatusEnum.InGame;
 				preGameGroups[i].Game = game;
 			}
+		}
+
+		private async Task Add12RandomCharactersToGame(Game game, CancellationToken cancellationToken = default)
+		{
+			var activeCards = await characterCardRepository.GetAllActiveCharacterCardsAsync(cancellationToken);
+			List<int> selectedNumbers = RandomHelper.GetUniqueRandomNumbers(0, activeCards.Count - 1, 12);
+			Random rnd = new Random();
+			int murdererIndex = rnd.Next(0, 11);
+			for (int i = 0; i < selectedNumbers.Count; i++)
+			{
+				bool isMurderer = i == murdererIndex;
+				characterCardGameRepository.Add(new CharacterCardGame()
+				{
+					CharacterCard = activeCards[selectedNumbers[i]],
+					Game = game,
+					IsActive = true,
+					IsMurderer = isMurderer
+				});
+			}
+
 		}
 
 		private async Task<bool> CheckUserOwnsThePreGameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default)

@@ -36,7 +36,8 @@ namespace UnusualSuspect.Services.Mapping
 			return new GameFlowDto()
 			{
 				Id = value.Id,
-				ActiveCharacterIds = value.CharacterCardGames.Where(x=>x.RemovedTurn == null).Select(x=>x.Id).ToList()
+				ActiveCharacterIds = value.CharacterCardGames.Where(x => x.IsActive).Select(x => x.Id).ToList(),
+				UsedQuestionIds = value.QuestionGames.Select(x => x.Id).ToList()
 			};
 		}
 	}

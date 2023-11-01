@@ -11,6 +11,8 @@ namespace UnusualSuspect.ApiViewModels.Game
 		private int id;
 		[SerializeField]
 		private List<int> activeCharacterIds;
+		[SerializeField]
+		private List<int> usedQuestionIds;
 
 		public int Id
 		{
@@ -22,6 +24,12 @@ namespace UnusualSuspect.ApiViewModels.Game
 		{
 			get => activeCharacterIds;
 			set => activeCharacterIds = value;
+		}
+
+		public List<int> UsedQuestionIds
+		{
+			get => usedQuestionIds;
+			set => usedQuestionIds = value;
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.OutputCaching;
 using UnusualSuspect.ApiViewModels.Endpoints.Document;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
@@ -18,6 +19,7 @@ public sealed class DocumentGet : MyBaseEndpointAuthenticated
 	{
 		this.documentService = documentService;
 	}
+	[OutputCache(Duration = 60)]
 	[HttpGet("api/[namespace]/{id}", Name = "[namespace]_[controller]")]
 	public override async Task<ActionResult<ApiResult<DocumentGetResponse>>> HandleAsync(Guid id, CancellationToken cancellationToken = default)
 	{

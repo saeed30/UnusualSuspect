@@ -85,6 +85,7 @@ builder.Services.AddHangfire(config => config
 	.UseSqlServerStorage(projectSetting.ConnectionStrings.HangfireConnectionString));
 // Hangfire Server
 builder.Services.AddHangfireServer();
+builder.Services.AddOutputCache();
 
 builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 builder.Services.AddHostedService<AlwaysRunningBackgroundService>();
@@ -130,11 +131,11 @@ app.UseHttpsRedirection();
 app.UseElmahCore(projectSetting);
 
 app.UseRouting();
+app.UseRateLimiter();
+app.UseOutputCache();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<LogExtraInfoMiddleware>();
-
-app.UseRateLimiter();
 // Enable middleware to serve generated Swagger as a JSON endpoint.
 app.UseSwagger();
 

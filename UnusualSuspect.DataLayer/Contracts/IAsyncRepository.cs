@@ -1,5 +1,4 @@
-﻿using UnusualSuspect.Entities;
-using UnusualSuspect.Entities.Common;
+﻿using UnusualSuspect.Entities.Common;
 
 namespace UnusualSuspect.DataLayer.Contracts;
 

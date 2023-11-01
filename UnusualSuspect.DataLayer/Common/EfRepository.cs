@@ -1,15 +1,7 @@
-﻿using Castle.Core.Logging;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using UnusualSuspect.DataLayer.Context;
 using UnusualSuspect.DataLayer.Contracts;
-using UnusualSuspect.Entities;
 using UnusualSuspect.Entities.Common;
-using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Common;
 

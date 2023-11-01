@@ -3,7 +3,6 @@ using UnusualSuspect.DataLayer.Context;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace UnusualSuspect.DataLayer.Common;
 

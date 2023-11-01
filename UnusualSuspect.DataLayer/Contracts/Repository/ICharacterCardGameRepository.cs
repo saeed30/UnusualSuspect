@@ -2,6 +2,6 @@
 
 namespace UnusualSuspect.DataLayer.Contracts.Repository;
 
-public interface IParticipateRepository : IAsyncRepository<Participate>
+public interface ICharacterCardGameRepository : IAsyncRepository<CharacterCardGame>
 {
 }

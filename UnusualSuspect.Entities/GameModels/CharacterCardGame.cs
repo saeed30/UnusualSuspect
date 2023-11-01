@@ -6,7 +6,7 @@ namespace UnusualSuspect.Entities.GameModels;
 public class CharacterCardGame : BaseEntity
 {
 	public bool IsMurderer { get; set; }
-	public short? RemovedTurn { get; set; }
+	public bool IsActive { get; set; }
 	public short CharacterCardId { get; set; }
 	[ForeignKey("CharacterCardId")]
 	public virtual CharacterCard CharacterCard { get; set; }

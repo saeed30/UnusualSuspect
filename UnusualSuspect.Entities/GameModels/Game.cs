@@ -13,6 +13,7 @@ public class Game : BaseEntity
 
 	public virtual ICollection<CharacterCardGame> CharacterCardGames { get; set; }
 	public virtual ICollection<Participate> Participates { get; set; }
+	public virtual ICollection<QuestionGame> QuestionGames { get; set; }
 
 
 }
