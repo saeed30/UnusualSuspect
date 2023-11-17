@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 using Serilog.Events;
 using System.Net.Http;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,7 +76,9 @@ builder.Services.AddSwaggerGen(c =>
 	});
 });
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies()
+	.Where(a => !string.Equals(a.FullName, "Microsoft.Data.SqlClient, Version=5.0.0.0, Culture=neutral, PublicKeyToken=23ec7fc2d6eaa4a5",
+		StringComparison.OrdinalIgnoreCase)));
 
 // Hangfire Client
 builder.Services.AddHangfire(config => config

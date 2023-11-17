@@ -2,6 +2,7 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
+/.vs/*
 /UnusualSuspect.Admin/bin
 /UnusualSuspect.Admin/obj
 /UnusualSuspect.Common/bin
@@ -18,12 +19,9 @@
 /UnusualSuspect.ViewComponents/obj
 /UnusualSuspect.ViewModels/bin
 /UnusualSuspect.ViewModels/obj
-/.vs/*
-/UnusualSuspect.Api/bin/Debug/net6.0
+/UnusualSuspect.Api/bin
 /UnusualSuspect.Api/obj
-/UnusualSuspect.Api/bin/Debug/net7.0
 /UnusualSuspect.Admin/wwwroot
-/UnusualSuspect.Api/bin/Release/net7.0
 /UnusualSuspect.ApiViewModels/obj
 /UnusualSuspect.ApiViewModels/bin
 /UnusualSuspect.Api/App_Data
