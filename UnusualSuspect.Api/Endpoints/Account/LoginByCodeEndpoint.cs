@@ -12,19 +12,12 @@ using UnusualSuspect.Services.Contracts.Identity;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
-public class LoginByCodeEndpoint : EndpointBaseAsync
+public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManager iApplicationUserManager)
+  : EndpointBaseAsync
 	.WithRequest<LoginByCodeRequest>
 	.WithActionResult<ApiResult<LoginByCodeRespond>>
 {
-	private readonly IJwtService iJwtService;
-	private readonly IApplicationUserManager iApplicationUserManager;
-
-	public LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManager iApplicationUserManager)
-	{
-		this.iJwtService = iJwtService;
-		this.iApplicationUserManager = iApplicationUserManager;
-	}
-	[AllowAnonymous]
+  [AllowAnonymous]
 	[HttpPost("api/[namespace]/LoginByCode")]
 	public override async Task<ActionResult<ApiResult<LoginByCodeRespond>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken = default)
 	{

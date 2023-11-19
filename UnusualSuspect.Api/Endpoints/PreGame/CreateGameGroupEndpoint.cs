@@ -14,16 +14,11 @@ using UnusualSuspect.ViewModels.Identity;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 
-public sealed class CreateGameGroupEndpoint : MyBaseEndpointAuthenticated
+public sealed class CreateGameGroupEndpoint(IPreGameService preGameService) : MyBaseEndpointAuthenticated
 	.WithRequest<CreateGameGroupRequest>
 	.WithActionResult<ApiResult<CreateGameGroupResponse>>
 {
-	private readonly IPreGameService preGameService;
-	public CreateGameGroupEndpoint(IPreGameService preGameService)
-	{
-		this.preGameService = preGameService;
-	}
-	[HttpPost("api/[namespace]/CreateGameGroup")]
+  [HttpPost("api/[namespace]/CreateGameGroup")]
 	public override async Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync(
 		[FromBody] CreateGameGroupRequest id, CancellationToken cancellationToken = default)
 	{

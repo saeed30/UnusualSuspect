@@ -8,39 +8,18 @@ using UnusualSuspect.Services.Contracts.Identity;
 
 namespace UnusualSuspect.Services.Services
 {
-	public class PreGameService : IPreGameService
+	public class PreGameService(IUnitOfWork uow,
+      IPreGameGroupRepository preGameGroupRepository,
+      IJoinedPreGameRepository joinedPreGameRepository,
+      IApplicationUserManager applicationUserManager,
+      IGameTypeRepository gameTypeRepository,
+      IGameRepository gameRepository,
+      IParticipateRepository participateRepository,
+      ICharacterCardRepository characterCardRepository,
+      ICharacterCardGameRepository characterCardGameRepository)
+    : IPreGameService
 	{
-		private readonly IUnitOfWork uow;
-		private readonly IPreGameGroupRepository preGameGroupRepository;
-		private readonly IJoinedPreGameRepository joinedPreGameRepository;
-		private readonly IGameTypeRepository gameTypeRepository;
-		private readonly IGameRepository gameRepository;
-		private readonly ICharacterCardRepository characterCardRepository;
-		private readonly ICharacterCardGameRepository characterCardGameRepository;
-		private readonly IParticipateRepository participateRepository;
-		private readonly IApplicationUserManager applicationUserManager;
-
-		public PreGameService(IUnitOfWork uow,
-			IPreGameGroupRepository preGameGroupRepository,
-			IJoinedPreGameRepository joinedPreGameRepository,
-			IApplicationUserManager applicationUserManager,
-			IGameTypeRepository gameTypeRepository,
-			IGameRepository gameRepository,
-			IParticipateRepository participateRepository,
-			ICharacterCardRepository characterCardRepository,
-			ICharacterCardGameRepository characterCardGameRepository)
-		{
-			this.uow = uow;
-			this.preGameGroupRepository = preGameGroupRepository;
-			this.joinedPreGameRepository = joinedPreGameRepository;
-			this.applicationUserManager = applicationUserManager;
-			this.gameTypeRepository = gameTypeRepository;
-			this.gameRepository = gameRepository;
-			this.participateRepository = participateRepository;
-			this.characterCardRepository = characterCardRepository;
-			this.characterCardGameRepository = characterCardGameRepository;
-		}
-		public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 		{
 			return await uow.SaveChangesAsync(cancellationToken);
 		}

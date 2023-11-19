@@ -6,20 +6,13 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public class JoinedPreGameRepository : EfRepository<JoinedPreGame>, IJoinedPreGameRepository
+public class JoinedPreGameRepository
+  (IUnitOfWork uow, ILogger<JoinedPreGameRepository> logger) : EfRepository<JoinedPreGame>(uow, logger),
+    IJoinedPreGameRepository
 {
-	private readonly IUnitOfWork uow;
-	private readonly ILogger<EfRepository<JoinedPreGame>> logger;
-	private readonly DbSet<JoinedPreGame> joinedPreGame;
+	private readonly DbSet<JoinedPreGame> joinedPreGame = uow.Set<JoinedPreGame>();
 
-	public JoinedPreGameRepository(IUnitOfWork uow, ILogger<EfRepository<JoinedPreGame>> logger) : base(uow, logger)
-	{
-		this.uow = uow;
-		joinedPreGame = this.uow.Set<JoinedPreGame>();
-		this.logger = logger;
-	}
-
-	public async Task<bool> AllJoinedPreGameGroupUsersAreReadyAsync(int preGameGroupId, CancellationToken cancellationToken = default)
+  public async Task<bool> AllJoinedPreGameGroupUsersAreReadyAsync(int preGameGroupId, CancellationToken cancellationToken = default)
 	{
 		return !await joinedPreGame.AnyAsync(x => x.PreGameGroupId == preGameGroupId && x.ReadyToGameStatusId != (short)ReadyToGameStatusEnum.Ready, cancellationToken: cancellationToken);
 	}

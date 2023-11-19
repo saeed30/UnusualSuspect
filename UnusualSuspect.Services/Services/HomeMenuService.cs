@@ -13,30 +13,17 @@ using System.Threading.Tasks;
 
 namespace UnusualSuspect.Services.Services;
 
-public class HomeMenuService : IHomeMenuService
+public class HomeMenuService(ILogger<HomeMenuService> logger, IUnitOfWork uow, ILogService iLogService,
+    IUploadServise uploadServise)
+  : IHomeMenuService
 {
 
-
-    private readonly ILogger<IHomeMenuService> _logger;
-    private readonly IUnitOfWork _uow;
-    private readonly DbSet<HomeMenu> _HomeMenu;
-    private readonly ILogService _ILogService;
-    protected readonly IUploadServise _uploadServise;
-
-    public HomeMenuService(ILogger<HomeMenuService> logger, IUnitOfWork uow, ILogService iLogService, IUploadServise uploadServise)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
-        _uow = uow ?? throw new ArgumentNullException(nameof(_uow));
-        _HomeMenu = uow.Set<HomeMenu>();
-        _ILogService = iLogService;
-        _uploadServise = uploadServise;
-    }
-
+    private readonly DbSet<HomeMenu> homeMenu = uow.Set<HomeMenu>();
 
     public IQueryable<HomeMenu> ShowAll()
     {
-        var HomeMenuList = _HomeMenu.AsQueryable();
-        return HomeMenuList;
+        var homeMenuList = homeMenu.AsQueryable();
+        return homeMenuList;
     }
 
 
@@ -45,22 +32,22 @@ public class HomeMenuService : IHomeMenuService
     {
         try
         {
-            var CheckUploade = _uploadServise.IsUpload(model.ImageFile, false);
-            if (!CheckUploade.Success)
+            var checkUploade = uploadServise.IsUpload(model.ImageFile, false);
+            if (!checkUploade.Success)
             {
                 return new ResultAction()
                 {
                     Success = false,
-                    MessageList = CheckUploade.MessageList
+                    MessageList = checkUploade.MessageList
                 };
             }
-            var UploadeFile = _uploadServise.SaveFileAsync(model.ImageFile, $"wwwroot\\media\\IconMenu", true);
-            model.Icon = UploadeFile.Result.MessageList;
+            var uploadFile = uploadServise.SaveFileAsync(model.ImageFile, $"wwwroot\\media\\IconMenu", true);
+            model.Icon = uploadFile.Result.MessageList;
 
             model.IsActive = true;
 
-            _HomeMenu.Add(model);
-            _ILogService.AddLog(new LogObject()
+            homeMenu.Add(model);
+            iLogService.AddLog(new LogObject()
             {
                 NextValue = HelperCommon.ShallowCopyEntityToString<HomeMenu>(model),
                 PerValue = null,
@@ -71,7 +58,7 @@ public class HomeMenuService : IHomeMenuService
                 UserName = model.UserName
             });
 
-            _uow.SaveChanges();
+            uow.SaveChanges();
 
             return new ResultAction()
             {
@@ -92,23 +79,23 @@ public class HomeMenuService : IHomeMenuService
 
 
 
-    public ResultAction DeleteItem(int homeMenuId, string UserName)
+    public ResultAction DeleteItem(int homeMenuId, string userName)
     {
-        var Item = DetailsMenuItem(homeMenuId);
+        var item = DetailsMenuItem(homeMenuId);
         try
         {
-            _HomeMenu.Remove(Item);
-            _ILogService.AddLog(new LogObject()
+            homeMenu.Remove(item);
+            iLogService.AddLog(new LogObject()
             {
                 NextValue = null,
-                PerValue = HelperCommon.ShallowCopyEntityToString<HomeMenu>(Item),
+                PerValue = HelperCommon.ShallowCopyEntityToString<HomeMenu>(item),
                 ObjectTypeId = "HomeMenu",
                 ObjectTypeName = "HomeMenu",
                 Title = "Delete HomeMenu",
                 DateCreate = DateTime.Now,
-                UserName = UserName
+                UserName = userName
             });
-            _uow.SaveChanges();
+            uow.SaveChanges();
             return new ResultAction()
             {
                 Success = true,
@@ -129,9 +116,9 @@ public class HomeMenuService : IHomeMenuService
 
 
 
-    public HomeMenu DetailsMenuItem(long? homeMenuId)
+    public HomeMenu? DetailsMenuItem(long? homeMenuId)
     {
-        return _HomeMenu.FirstOrDefault(x => x.Id == homeMenuId);
+        return homeMenu.FirstOrDefault(x => x.Id == homeMenuId);
     }
 
 
@@ -139,32 +126,32 @@ public class HomeMenuService : IHomeMenuService
     public ResultAction EditItem(HomeMenu model)
     {
 
-        var CheckUploade = _uploadServise.IsUpload(model.ImageFile, false);
-        if (!CheckUploade.Success)
+        var checkUpload = uploadServise.IsUpload(model.ImageFile, false);
+        if (!checkUpload.Success)
         {
             return new ResultAction()
             {
                 Success = false,
-                MessageList = CheckUploade.MessageList
+                MessageList = checkUpload.MessageList
             };
         }
-        var UploadeFile = _uploadServise.SaveFileAsync(model.ImageFile, $"wwwroot\\media\\IconMenu", true);
-        model.Icon = UploadeFile.Result.MessageList;
+        var uploadFile = uploadServise.SaveFileAsync(model.ImageFile, $"wwwroot\\media\\IconMenu", true);
+        model.Icon = uploadFile.Result.MessageList;
 
 
-        var Item = DetailsMenuItem(model.Id);
+        var item = DetailsMenuItem(model.Id);
         try
         {
-            Item.Title = model.Title;
-            Item.Link = model.Link;
-            Item.Text = model.Text;
-            Item.Priority = model.Priority;
+            item.Title = model.Title;
+            item.Link = model.Link;
+            item.Text = model.Text;
+            item.Priority = model.Priority;
             if (!string.IsNullOrEmpty(model.Icon))
-                Item.Icon = model.Icon;
+                item.Icon = model.Icon;
 
-            _ILogService.AddLog(new LogObject()
+            iLogService.AddLog(new LogObject()
             {
-                NextValue = HelperCommon.ShallowCopyEntityToString<HomeMenu>(Item),
+                NextValue = HelperCommon.ShallowCopyEntityToString<HomeMenu>(item),
                 PerValue = HelperCommon.ShallowCopyEntityToString<HomeMenu>(DetailsMenuItem(model.Id)),
                 ObjectTypeId = "HomeMenu",
                 ObjectTypeName = "HomeMenu",
@@ -172,7 +159,7 @@ public class HomeMenuService : IHomeMenuService
                 DateCreate = DateTime.Now,
                 UserName = model.UserName
             });
-            _uow.SaveChanges();
+            uow.SaveChanges();
             return new ResultAction()
             {
                 Success = true,
@@ -201,7 +188,7 @@ public class HomeMenuService : IHomeMenuService
                 item.IsActive = false;
             else
                 item.IsActive = true;
-            _uow.SaveChanges();
+            uow.SaveChanges();
 
             return new ResultAction()
             {
@@ -222,14 +209,14 @@ public class HomeMenuService : IHomeMenuService
 
     public List<HomeMenu> GetHomeMenu()
     {
-        return _HomeMenu.Where(a => a.IsActive).OrderBy(a => a.Priority).ToList();
+        return homeMenu.Where(a => a.IsActive).OrderBy(a => a.Priority).ToList();
     }
 
 
 
-    public HomeMenu GetText(int Id)
+    public HomeMenu? GetText(int id)
     {
-        return _HomeMenu.FirstOrDefault(a => a.IsActive && a.Id == Id);
+        return homeMenu.FirstOrDefault(a => a.IsActive && a.Id == id);
     }
 
 

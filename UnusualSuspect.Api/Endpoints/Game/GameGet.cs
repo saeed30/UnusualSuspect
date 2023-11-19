@@ -9,17 +9,11 @@ using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.Game
 {
-	public sealed class GameGet : MyBaseEndpointAuthenticated
+	public sealed class GameGet(IGameService gameService) : MyBaseEndpointAuthenticated
 		.WithRequest<int>
 		.WithActionResult<ApiResult<GameGetResponse>>
 	{
-		private readonly IGameService gameService;
-		public GameGet(IGameService gameService)
-		{
-			this.gameService = gameService;
-		}
-
-		[HttpGet("api/[namespace]/{id}", Name = "[namespace]_[controller]")]
+    [HttpGet("api/[namespace]/{id}", Name = "[namespace]_[controller]")]
 		public async override Task<ActionResult<ApiResult<GameGetResponse>>> HandleAsync(int id, CancellationToken cancellationToken = default)
 		{
 			UnusualSuspectServiceResult<GameGetResponse> game = await gameService.GetGameAsync(id);

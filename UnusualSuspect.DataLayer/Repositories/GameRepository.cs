@@ -6,15 +6,12 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public class GameRepository : EfRepository<Game>, IGameRepository
+public class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger) : EfRepository<Game>(uow, logger),
+  IGameRepository
 {
-	private readonly DbSet<Game> game;
-	public GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger) : base(uow, logger)
-	{
-		game = uow.Set<Game>();
-	}
+	private readonly DbSet<Game> game = uow.Set<Game>();
 
-	public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default)
+  public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default)
 	{
 		return await game.AsSplitQuery()
 			.Include(x => x.CharacterCardGames)

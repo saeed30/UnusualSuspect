@@ -5,9 +5,9 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public class ParticipateRepository : EfRepository<Participate>, IParticipateRepository
+public class ParticipateRepository
+  (IUnitOfWork uow, ILogger<ParticipateRepository> logger) : EfRepository<Participate>(uow, logger),
+    IParticipateRepository
 {
-	public ParticipateRepository(IUnitOfWork uow, ILogger<ParticipateRepository> logger) : base(uow, logger)
-	{
-	}
+
 }

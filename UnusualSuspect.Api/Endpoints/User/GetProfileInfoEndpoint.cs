@@ -11,18 +11,13 @@ using ElmahCore;
 
 namespace UnusualSuspect.Api.Endpoints.User;
 
-public sealed class GetProfileInfoEndpoint : MyBaseEndpointAuthenticated
+public sealed class GetProfileInfoEndpoint(IApplicationUserManager iApplicationUserManager,
+    IDocumentService documentService)
+  : MyBaseEndpointAuthenticated
 .WithoutRequest
 .WithActionResult<ApiResult<GetProfileInfoResponse>>
 {
-	private readonly IApplicationUserManager iApplicationUserManager;
-	private readonly IDocumentService documentService;
-	public GetProfileInfoEndpoint(IApplicationUserManager iApplicationUserManager, IDocumentService documentService)
-	{
-		this.iApplicationUserManager = iApplicationUserManager;
-		this.documentService = documentService;
-	}
-	[HttpGet("api/[namespace]/GetProfileInfo")]
+  [HttpGet("api/[namespace]/GetProfileInfo")]
 	public override async Task<ActionResult<ApiResult<GetProfileInfoResponse>>> HandleAsync(CancellationToken cancellationToken = default)
 	{
 		var user = await iApplicationUserManager.FindByNameAsync(CurrentUser.Username);

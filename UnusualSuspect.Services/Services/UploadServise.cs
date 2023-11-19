@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnusualSuspect.Common.Enums;
+﻿using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Entities.Identity;
-using UnusualSuspect.Entities.Models;
-using UnusualSuspect.Services.IServices;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Http;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -19,11 +9,11 @@ public interface IUploadServise
 {
 	Task<byte[]> GetFileDataAsync(IFormFile formFile);
 	ResultAction IsUpload(IFormFile file, bool isRequired = true, ExtensionFileEnum extensionFile = ExtensionFileEnum.Image, int contentLength = 550000);
-	Task<string> SaveFile(IFormFile file, string Folder);
+	Task<string> SaveFile(IFormFile file, string folder);
 	Task<ResultAction> SaveFileAsync(IFormFile formFile, string filePath, bool isOverwrite = true);
-	string SaveImageSharp(IFormFile file, string Folder, int Width, int Height);
-	string SaveImageSharpWithCrop(IFormFile file, string Folder, int Width, int Height);
-	string SaveImageWithRatio(IFormFile file, string Folder, double Ratio);
+	string SaveImageSharp(IFormFile file, string folder, int width, int height);
+	string SaveImageSharpWithCrop(IFormFile file, string folder, int width, int height);
+	string SaveImageWithRatio(IFormFile file, string folder, double ratio);
 	ResultAction DeletePictureUser(ApplicationUser model);
 	string GetUniqueFileName(IFormFile formFile);
 }
@@ -51,18 +41,15 @@ public class UploadServise : IUploadServise
 			}
 			return new ResultAction { Success = true, MessageList = fileName };
 		}
-		else
-			return new ResultAction { Success = false };
+		return new ResultAction { Success = false };
 	}
 
 	public async Task<byte[]> GetFileDataAsync(IFormFile formFile)
-	{
-		using (var memoryStream = new MemoryStream())
-		{
-			await formFile.CopyToAsync(memoryStream);
-			return memoryStream.ToArray();
-		}
-	}
+  {
+    using var memoryStream = new MemoryStream();
+    await formFile.CopyToAsync(memoryStream);
+    return memoryStream.ToArray();
+  }
 
 	public ResultAction IsUpload(IFormFile file, bool isRequired = true, ExtensionFileEnum extensionFile = ExtensionFileEnum.Image, int contentLength = 950000)
 	{
@@ -123,89 +110,89 @@ public class UploadServise : IUploadServise
 	{
 		return Path.Combine(uploadsRootFolder, fileName);
 	}
-	public string SaveImageSharp(IFormFile file, string Folder, int Width, int Height)
+	public string SaveImageSharp(IFormFile file, string folder, int width, int height)
 	{
 		if (file == null || file.Length == 0)
 			return null;
-		Random Rand = new Random();
-		string FileName = Folder + Rand.Next(10000000, 100000000).ToString() + file.FileName;
-		string FilePatch = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\" + Folder, FileName);
-		var Patch = "/Files/" + Folder + "/" + FileName;
+		Random rand = new Random();
+		string fileName = folder + rand.Next(10000000, 100000000).ToString() + file.FileName;
+		string filePatch = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\" + folder, fileName);
+		var patch = "/Files/" + folder + "/" + fileName;
 		ResizeOptions options = new ResizeOptions
 		{
 			Mode = ResizeMode.BoxPad,
 			Position = AnchorPositionMode.Center,
-			Size = new SixLabors.ImageSharp.Size(Width, Height)
+			Size = new SixLabors.ImageSharp.Size(width, height)
 		};
 		using (Image image = Image.Load(file.OpenReadStream()))
 		{
 			image.Mutate(x => x
 					 .Resize(options).BackgroundColor(Color.White));
-			image.Save(FilePatch);
+			image.Save(filePatch);
 		}
-		return Patch;
+		return patch;
 	}
 
-	public async Task<string> SaveFile(IFormFile file, string Folder)
+	public async Task<string> SaveFile(IFormFile file, string folder)
 	{
 		if (file == null || file.Length == 0)
 			return null;
-		Random Rand = new Random();
-		string FileName = Folder + Rand.Next(10000000, 100000000).ToString() + file.FileName;
-		string FilePatch = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\" + Folder, FileName);
-		var Patch = "/Files/" + Folder + "/" + FileName;
-		using (var fileStream = new FileStream(FilePatch, FileMode.Create))
+		Random rand = new Random();
+		string fileName = folder + rand.Next(10000000, 100000000).ToString() + file.FileName;
+		string filePatch = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\" + folder, fileName);
+		var patch = "/Files/" + folder + "/" + fileName;
+		using (var fileStream = new FileStream(filePatch, FileMode.Create))
 		{
 			await file.CopyToAsync(fileStream);
 		}
-		return Patch;
+		return patch;
 	}
 
-	public string SaveImageSharpWithCrop(IFormFile file, string Folder, int Width, int Height)
+	public string SaveImageSharpWithCrop(IFormFile file, string folder, int width, int height)
 	{
 		if (file == null || file.Length == 0)
 			return null;
-		Random Rand = new Random();
-		string FileName = Folder + Rand.Next(10000000, 100000000).ToString() + file.FileName;
-		string FilePatch = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\" + Folder, FileName);
-		var Patch = "/Files/" + Folder + "/" + FileName;
+		Random rand = new Random();
+		string fileName = folder + rand.Next(10000000, 100000000).ToString() + file.FileName;
+		string filePatch = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\" + folder, fileName);
+		var patch = "/Files/" + folder + "/" + fileName;
 		using (Image image = Image.Load(file.OpenReadStream()))
 		{
 			ResizeOptions options = new ResizeOptions
 			{
 				Mode = ResizeMode.Crop,
 				Position = AnchorPositionMode.Center,
-				Size = new SixLabors.ImageSharp.Size(Width, Height)
+				Size = new SixLabors.ImageSharp.Size(width, height)
 			};
 			image.Mutate(x => x.Resize(options).BackgroundColor(Color.White));
-			image.Save(FilePatch);
+			image.Save(filePatch);
 		}
-		return Patch;
+		return patch;
 	}
 
-	public string SaveImageWithRatio(IFormFile file, string Folder, double Ratio)
+	public string SaveImageWithRatio(IFormFile file, string folder, double ratio)
 	{
 		if (file == null || file.Length == 0)
 			return null;
-		Random Rand = new Random();
-		string FileName = Folder + Rand.Next(10000000, 100000000).ToString() + file.FileName;
-		string FilePatch = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\" + Folder, FileName);
-		var Patch = "/Files/" + Folder + "/" + FileName;
+		Random rand = new Random();
+		string fileName = folder + rand.Next(10000000, 100000000).ToString() + file.FileName;
+		string filePatch = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files\\" + folder, fileName);
+		var patch = "/Files/" + folder + "/" + fileName;
 		using (Image image = Image.Load(file.OpenReadStream()))
 		{
-			int Width = 0; int Height = 0;
-			Width = image.Width;
-			Height = (int)(Width / Ratio);
+			int width = 0; int height = 0;
+			width = image.Width;
+			height = (int)(width / ratio);
 			ResizeOptions options = new ResizeOptions
 			{
 				Mode = ResizeMode.BoxPad,
 				Position = AnchorPositionMode.Center,
-				Size = new SixLabors.ImageSharp.Size(Width, Height)
+				Size = new SixLabors.ImageSharp.Size(width, height)
 			};
 			image.Mutate(x => x.Resize(options).BackgroundColor(Color.White));
-			image.Save(FilePatch);
+			image.Save(filePatch);
 		}
-		return Patch;
+		return patch;
 	}
 
 
@@ -217,10 +204,9 @@ public class UploadServise : IUploadServise
 		{
 			if (model.PatchImage != null && model.ImageFile != null)
 			{
-				string imagePath = "";
 				if (model.PatchImage != "blank.png")
 				{
-					imagePath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\media\\UserImage", model.PatchImage);
+					string imagePath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\media\\UserImage", model.PatchImage);
 					if (File.Exists(imagePath))
 					{
 						File.Delete(imagePath);

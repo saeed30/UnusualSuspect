@@ -9,17 +9,11 @@ using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
-public sealed class UserReadyStatusPreGameGroupEndpoint : MyBaseEndpointAuthenticated
+public sealed class UserReadyStatusPreGameGroupEndpoint(IPreGameService preGameService) : MyBaseEndpointAuthenticated
 	.WithRequest<UserReadyStatusPreGameGroupRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IPreGameService preGameService;
-	public UserReadyStatusPreGameGroupEndpoint(IPreGameService preGameService)
-	{
-		this.preGameService = preGameService;
-	}
-
-	[HttpPost("api/[namespace]/UserReadyStatusPreGameGroup")]
+  [HttpPost("api/[namespace]/UserReadyStatusPreGameGroup")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] UserReadyStatusPreGameGroupRequest request,
 		CancellationToken cancellationToken = default)
 	{

@@ -11,24 +11,16 @@ using UnusualSuspect.Services.Services;
 
 namespace UnusualSuspect.Api.Endpoints.User;
 
-public sealed class SaveProfileInfoEndpoint : MyBaseEndpointAuthenticated
+public sealed class SaveProfileInfoEndpoint(IApplicationUserManager iApplicationUserManager,
+    IApplicationUserService applicationUserService, IUnitOfWork uow)
+  : MyBaseEndpointAuthenticated
 .WithRequest<SaveProfileInfoRequest<IFormFile>>
 .WithActionResult<ApiResult>
 {
-	private readonly IApplicationUserManager applicationUserManager;
-	private readonly IApplicationUserService applicationUserService;
-	private readonly IUnitOfWork uow;
-
-	public SaveProfileInfoEndpoint(IApplicationUserManager iApplicationUserManager, IApplicationUserService applicationUserService, IUnitOfWork uow)
-	{
-		this.applicationUserManager = iApplicationUserManager;
-		this.applicationUserService = applicationUserService;
-		this.uow = uow;
-	}
-	[HttpPost("api/[namespace]/SaveProfileInfoEndpoint")]
+  [HttpPost("api/[namespace]/SaveProfileInfoEndpoint")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync(SaveProfileInfoRequest<IFormFile> request, CancellationToken cancellationToken = default)
 	{
-		var user = await applicationUserManager.FindByNameAsync(CurrentUser.Username);
+		var user = await iApplicationUserManager.FindByNameAsync(CurrentUser.Username);
 		if (user == null)
 			return new ApiResult(false, ApiResultStatusCode.NotFound, "اطلاعات کاربری یافت نشد!");
 		user.NickName = request.NickName;

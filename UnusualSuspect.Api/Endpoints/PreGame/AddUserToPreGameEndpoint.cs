@@ -9,16 +9,11 @@ using UnusualSuspect.Common.Utilities;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 
-public sealed class AddUserToPreGameEndpoint : MyBaseEndpointAuthenticated
+public sealed class AddUserToPreGameEndpoint(IPreGameService preGameService) : MyBaseEndpointAuthenticated
 	.WithRequest<AddUserToPreGameRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IPreGameService preGameService;
-	public AddUserToPreGameEndpoint(IPreGameService preGameService)
-	{
-		this.preGameService = preGameService;
-	}
-	[HttpPost("api/[namespace]/AddUserToPreGame")]
+  [HttpPost("api/[namespace]/AddUserToPreGame")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] AddUserToPreGameRequest request,
 		CancellationToken cancellationToken = default)
 	{

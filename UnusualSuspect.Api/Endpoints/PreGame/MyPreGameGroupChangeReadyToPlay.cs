@@ -9,17 +9,11 @@ using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 
-public sealed class MyPreGameGroupChangeReadyToPlay : MyBaseEndpointAuthenticated
+public sealed class MyPreGameGroupChangeReadyToPlay(IPreGameService preGameService) : MyBaseEndpointAuthenticated
 	.WithRequest<MyPreGameGroupChangeReadyToPlayRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IPreGameService preGameService;
-	public MyPreGameGroupChangeReadyToPlay(IPreGameService preGameService)
-	{
-		this.preGameService = preGameService;
-	}
-
-	[HttpPost("api/[namespace]/MyPreGameGroupChangeReadyToPlay")]
+  [HttpPost("api/[namespace]/MyPreGameGroupChangeReadyToPlay")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] MyPreGameGroupChangeReadyToPlayRequest request,
 		CancellationToken cancellationToken = default)
 	{

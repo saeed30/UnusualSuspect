@@ -10,16 +10,11 @@ using UnusualSuspect.Services.IServices;
 
 namespace UnusualSuspect.Api.Endpoints.Document;
 
-public sealed class DocumentGet : MyBaseEndpointAuthenticated
+public sealed class DocumentGet(IDocumentService documentService) : MyBaseEndpointAuthenticated
 	.WithRequest<Guid>
 	.WithActionResult<ApiResult<DocumentGetResponse>>
 {
-	private readonly IDocumentService documentService;
-	public DocumentGet(IDocumentService documentService)
-	{
-		this.documentService = documentService;
-	}
-	[OutputCache(Duration = 60)]
+  [OutputCache(Duration = 60)]
 	[HttpGet("api/[namespace]/{id}", Name = "[namespace]_[controller]")]
 	public override async Task<ActionResult<ApiResult<DocumentGetResponse>>> HandleAsync(Guid id, CancellationToken cancellationToken = default)
 	{

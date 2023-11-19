@@ -17,24 +17,14 @@ using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
-public class RequestLoginCodeEndpoint : EndpointBaseAsync
+public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserManager,
+    IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService, ILogger<RequestLoginCodeEndpoint> logger)
+  : EndpointBaseAsync
 	.WithRequest<RequestLoginCodeRequest>
 	.WithActionResult<ApiResult>
 {
-	private readonly IApplicationUserManager iApplicationUserManager;
-	private readonly ISmsService smsService;
-	private readonly IOptionsSnapshot<ProjectSetting> setting;
-	private readonly ILogger<RequestLoginCodeEndpoint> logger;
 
-	public RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserManager,
-		IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService, ILogger<RequestLoginCodeEndpoint> logger)
-	{
-		this.iApplicationUserManager = iApplicationUserManager;
-		this.setting = setting ?? throw new ArgumentNullException(nameof(setting));
-		this.smsService = smsService;
-		this.logger = logger;
-	}
-	[AllowAnonymous]
+  [AllowAnonymous]
 	[HttpPost("api/[namespace]/RequestLoginCode")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] RequestLoginCodeRequest phoneNumber, CancellationToken cancellationToken = default)
 	{

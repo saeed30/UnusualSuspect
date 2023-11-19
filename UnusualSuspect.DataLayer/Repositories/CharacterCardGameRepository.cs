@@ -5,10 +5,8 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public class CharacterCardGameRepository: EfRepository<CharacterCardGame>, ICharacterCardGameRepository
+public class CharacterCardGameRepository(IUnitOfWork uow, ILogger<CharacterCardGameRepository> logger)
+  : EfRepository<CharacterCardGame>(uow, logger), ICharacterCardGameRepository
 {
-	public CharacterCardGameRepository(IUnitOfWork uow, ILogger<CharacterCardGameRepository> logger) : base(uow, logger)
-	{
-	}
 
 }

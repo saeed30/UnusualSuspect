@@ -11,19 +11,10 @@ using UnusualSuspect.DataLayer.Contracts.Repository;
 
 namespace UnusualSuspect.Services.Services;
 
-public class SmsService : ISmsService
+public class SmsService(IOptionsSnapshot<ProjectSetting> setting, ISmsLogRepository smsLogRepository)
+  : ISmsService
 {
-	private readonly IOptionsSnapshot<ProjectSetting> _setting;
-	private readonly ISmsLogRepository smsLogRepository;
-
-	public SmsService(
-			IOptionsSnapshot<ProjectSetting> setting, ISmsLogRepository smsLogRepository)
-	{
-		_setting = setting ?? throw new ArgumentNullException(nameof(setting));
-		this.smsLogRepository = smsLogRepository;
-	}
-
-	public SmsLog SaveSmsSentLog(SmsLog smsLog)
+  public SmsLog SaveSmsSentLog(SmsLog smsLog)
 	{
 		return smsLogRepository.Add(smsLog);
 	}

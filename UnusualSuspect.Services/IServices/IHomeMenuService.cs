@@ -15,9 +15,9 @@ public interface IHomeMenuService
 
     ResultAction CreateItem(HomeMenu model);
 
-    ResultAction DeleteItem(int homeMenuId, string UserName);
+    ResultAction DeleteItem(int homeMenuId, string userName);
 
-    HomeMenu DetailsMenuItem(long? homeMenuId);
+    HomeMenu? DetailsMenuItem(long? homeMenuId);
 
     ResultAction EditItem(HomeMenu model);
 
@@ -25,6 +25,6 @@ public interface IHomeMenuService
 
     List<HomeMenu> GetHomeMenu();
 
-    HomeMenu GetText(int Id);
+    HomeMenu? GetText(int id);
 
 }

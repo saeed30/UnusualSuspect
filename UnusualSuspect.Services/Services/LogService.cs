@@ -11,22 +11,12 @@ using System.Linq;
 
 namespace UnusualSuspect.Services.Services;
 
-public class LogService : ILogService
+public class LogService(IUnitOfWork uow) : ILogService
 {
-    private readonly IUnitOfWork _uow;
-    private readonly DbSet<LogObject> _LogObject;
-    private readonly DbSet<ObjectType> _ObjectTypes;
-    private readonly DbSet<ApplicationUser> _User;
-    private readonly DbSet<AdminPanleUser> _AdminPanleUser;
-    public LogService(IUnitOfWork uow)
-    {
-        _uow = uow ?? throw new ArgumentNullException(nameof(_uow));
-        _LogObject = uow.Set<LogObject>();
-        _User = uow.Set<ApplicationUser>();
-        _AdminPanleUser = uow.Set<AdminPanleUser>();
-        _ObjectTypes = uow.Set<ObjectType>();
-    }
-
+    private readonly DbSet<LogObject> logObject = uow.Set<LogObject>();
+    private readonly DbSet<ObjectType> objectTypes = uow.Set<ObjectType>();
+    private readonly DbSet<ApplicationUser> user = uow.Set<ApplicationUser>();
+    private readonly DbSet<AdminPanleUser> adminPanleUser = uow.Set<AdminPanleUser>();
 
 
     /// <summary>
@@ -40,15 +30,15 @@ public class LogService : ILogService
         {
             if (!string.IsNullOrEmpty(model.UserName))
             {
-                var UserOB = _User.FirstOrDefault(x => x.UserName == model.UserName);
+                var UserOB = user.FirstOrDefault(x => x.UserName == model.UserName);
                 model.UserId = UserOB.Id;
-                if (!_ObjectTypes.Any(x => x.ObjectKey == model.ObjectTypeId))
-                    _ObjectTypes.Add(new ObjectType()
+                if (!objectTypes.Any(x => x.ObjectKey == model.ObjectTypeId))
+                    objectTypes.Add(new ObjectType()
                     {
                         ObjectKey = model.ObjectTypeId,
                         Name = model.ObjectTypeName
                     });
-                _LogObject.Add(model);
+                logObject.Add(model);
                 return true;
             }
             else
@@ -68,7 +58,7 @@ public class LogService : ILogService
         model.StartDate = model.StartDate ?? DateTime.MinValue;
         model.EndDate = model.EndDate ?? DateTime.MaxValue;
 
-        var LogObjectList = _LogObject.Where(x => (model.ObjectType == null || x.ObjectTypeId == model.ObjectType)
+        var logObjectList = logObject.Where(x => (model.ObjectType == null || x.ObjectTypeId == model.ObjectType)
         && (model.AdminUser == null || x.UserId.ToString() == model.AdminUser)
         && ((model.StartDate <= x.DateCreate && model.EndDate >= x.DateCreate)));
 
@@ -76,22 +66,22 @@ public class LogService : ILogService
         {
             var searchTerms = model.KeyWord.Split(' ');
             var term = searchTerms[0];
-            var LogObjectList2 = LogObjectList.Where(x =>
+            var LogObjectList2 = logObjectList.Where(x =>
                          (x.ApplicationUser.LastName ?? "").Contains(term)
                       || (x.ApplicationUser.FirstName ?? "").Contains(term)
                       || (x.Title).Contains(term)
                       || (x.Id.ToString() == term));
             foreach (var tempTerm in searchTerms.Where(x => !string.IsNullOrEmpty(x) && x != term))
             {
-                LogObjectList2 = LogObjectList2.Union(LogObjectList.Where(x =>
+                LogObjectList2 = LogObjectList2.Union(logObjectList.Where(x =>
                          (x.ApplicationUser.LastName ?? "").Contains(term)
                       || (x.ApplicationUser.FirstName ?? "").Contains(term)
                       || (x.Title).Contains(term)
                       || (x.Id.ToString() == term)));
             }
-            LogObjectList = LogObjectList2;
+            logObjectList = LogObjectList2;
         }
-        return LogObjectList.Select(x => new LogObject()
+        return logObjectList.Select(x => new LogObject()
         {
             Id = x.Id,
             Title = x.Title,
@@ -116,7 +106,7 @@ public class LogService : ILogService
     {
         List<SelectListItem> AdminUserList = new List<SelectListItem>();
         AdminUserList.Add(new SelectListItem() { Text = "جستجو براساس نام کاربر", Value = "" });
-        AdminUserList.AddRange(_AdminPanleUser.Select(u => new SelectListItem
+        AdminUserList.AddRange(adminPanleUser.Select(u => new SelectListItem
         {
             Text = u.ApplicationUser.FirstName + "  " + u.ApplicationUser.LastName,
             Value = u.ApplicationUser.Id.ToString()
@@ -131,7 +121,7 @@ public class LogService : ILogService
     {
         List<SelectListItem> ObjectTypeList = new List<SelectListItem>();
         ObjectTypeList.Add(new SelectListItem() { Text = "جستجو براساس عنوان فعالیت", Value = "" });
-        ObjectTypeList.AddRange(_ObjectTypes.Select(u => new SelectListItem
+        ObjectTypeList.AddRange(objectTypes.Select(u => new SelectListItem
         {
             Text = u.ObjectKey,
         }).ToList());
@@ -143,7 +133,7 @@ public class LogService : ILogService
 
     public LogObject DetailsLogObject(int? LogObjectId)
     {
-        return _LogObject.FirstOrDefault(x => x.Id == LogObjectId);
+        return logObject.FirstOrDefault(x => x.Id == LogObjectId);
     }
 
 
