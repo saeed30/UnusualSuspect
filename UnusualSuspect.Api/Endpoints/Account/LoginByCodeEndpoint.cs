@@ -22,18 +22,32 @@ public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManage
 	public override async Task<ActionResult<ApiResult<LoginByCodeRespond>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken = default)
 	{
 		//random delay
-		await Task.Delay(new Random().Next(1, 500), cancellationToken);
+		var minWait = Task.Delay(new Random().Next(1, 2000), cancellationToken);
 
 		string msg = ValidateLoginByCodeRequest(loginByCodeRequest);
-		if (msg != null)
+    if (msg != null)
+    {
+      await minWait.ConfigureAwait(false);
 			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, msg);
+    }
 		var user = await iApplicationUserManager.FindByNameAsync(loginByCodeRequest.Username);
-		if (user == null)
+    if (user == null)
+    {
+      await minWait.ConfigureAwait(false);
 			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.NotFound, null, "کاربر مورد نظر یافت نشد!");
-		if (user.SendCodeDate.HasValue && user.SendCodeDate.Value.AddMinutes(5) < DateTime.Now)
+    }
+
+    if (user.SendCodeDate.HasValue && user.SendCodeDate.Value.AddMinutes(5) < DateTime.Now)
+    {
+      await minWait.ConfigureAwait(false);
 			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, "اعتبار کد تایید شما به پایان رسیده است. لطفا مجدد تلاش نمایید.");
-		if (user.PhoneNumberValidationCode != loginByCodeRequest.Code)
+    }
+
+    if (user.PhoneNumberValidationCode != loginByCodeRequest.Code)
+    {
+      await minWait.ConfigureAwait(false);
 			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.NeedToRetry, null, "کد وارد شده صحیح نیست");
+    }
 		var token = await iJwtService.GenerateAsync(user);
 		user.PhoneNumberValidationCode = null;
 		user.SendCodeDate = null;
@@ -43,6 +57,7 @@ public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManage
 			user.IsActive = true;
 		}
 		await iApplicationUserManager.UpdateLastLoginDateAsync(user);
+    await minWait.ConfigureAwait(false);
 		return new ApiResult<LoginByCodeRespond>(true, ApiResultStatusCode.Success, new LoginByCodeRespond()
 		{
 			Access_token = token.access_token,

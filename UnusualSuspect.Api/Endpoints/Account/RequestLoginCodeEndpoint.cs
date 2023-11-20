@@ -28,14 +28,17 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
 	[HttpPost("api/[namespace]/RequestLoginCode")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] RequestLoginCodeRequest phoneNumber, CancellationToken cancellationToken = default)
 	{
-		//random delay
-		await Task.Delay(new Random().Next(1, 500), cancellationToken);
+    //random delay
+    var minWait = Task.Delay(new Random().Next(1, 2000), cancellationToken);
 
 		//logger.LogEvent(1, "نمونه لاگ information", 65, "this is for extra info");
 		string phone = phoneNumber.KeyValue;
-		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
-			return new ApiResult(false, ApiResultStatusCode.NeedToRetry
+    if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
+    {
+      await minWait.ConfigureAwait(false);
+      return new ApiResult(false, ApiResultStatusCode.NeedToRetry
 				, "لطفا شماره همراه خود را به درستی وارد نمایید");
+    }
 		Random generator = new Random();
 		string code = generator.Next(100000, 999999).ToString("D6");
 		var user = await iApplicationUserManager.FindByNameAsync(phone);
@@ -59,7 +62,8 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
 			};
 			await iApplicationUserManager.CreateAsync(user, Guid.NewGuid().ToString());
 		}
-		if (setting.Value.IsTesting)
+    await minWait.ConfigureAwait(false);
+    if (setting.Value.IsTesting)
 			return new ApiResult(true, ApiResultStatusCode.Success, "کد تایید: " + code);
 		if (await smsService.SendSmsAsync(phone,
 			Common.Enums.SmsMessageTextEnum.LoginCodeSms, new List<string> { code }))

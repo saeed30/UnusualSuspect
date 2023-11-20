@@ -33,11 +33,11 @@ public static class ElmahConfigurationExtensions
 				var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
 				var exception = errorFeature.Error;
 				context.Response.ContentType = "application/problem+json";
+				context.Response.StatusCode = 500;
+				var stream = context.Response.Body;
 				var traceId = Activity.Current?.Id ?? context?.TraceIdentifier;
 				var problemDetails = new ApiResult(false,
 					ApiResultStatusCode.ServerError, $"appName:error: {traceId}");
-				context.Response.StatusCode = 500;
-				var stream = context.Response.Body;
 				await JsonSerializer.SerializeAsync(stream, problemDetails);
 
 				//log exception using ElmahCore
