@@ -10,7 +10,7 @@ using UnusualSuspect.Services.IServices;
 
 namespace UnusualSuspect.Api.Endpoints.Document;
 
-public sealed class DocumentGet(IDocumentService documentService) : MyBaseEndpointAuthenticated
+public sealed class DocumentGetEndpoint(IDocumentService documentService) : MyBaseEndpointAuthenticated
 	.WithRequest<Guid>
 	.WithActionResult<ApiResult<DocumentGetResponse>>
 {
@@ -21,12 +21,6 @@ public sealed class DocumentGet(IDocumentService documentService) : MyBaseEndpoi
 		if(id == Guid.Empty)
 			return new ApiResult<DocumentGetResponse>(false, ApiResultStatusCode.BadRequest, null, "کد فایل به درستی ارسال نشد");
 		var doc = await documentService.GetDocumentByGuidKeyAsync(id);
-		if (doc == null)
-			return new ApiResult<DocumentGetResponse>(false, ApiResultStatusCode.NotFound, null, "فایل یافت نشد");
-		return new ApiResult<DocumentGetResponse>(true, ApiResultStatusCode.Success, new DocumentGetResponse()
-		{
-			File = doc.File,
-			FileName = doc.DocumentName
-		});
+    return ReturnResult(doc);
 	}
 }

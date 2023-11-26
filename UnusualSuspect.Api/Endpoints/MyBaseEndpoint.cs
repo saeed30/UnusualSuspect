@@ -2,6 +2,11 @@
 using UnusualSuspect.ViewModels.Identity;
 using System.Security.Claims;
 using UnusualSuspect.Common.Utilities;
+using UnusualSuspect.Services;
+using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Models;
+using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.Api.Endpoints;
 
@@ -15,8 +20,14 @@ public static class MyBaseEndpointAuthenticated
 			.WithResult<TResponse>
 		{
 			public CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
+      protected ApiResult<T> ReturnResult<T>(UnusualSuspectServiceResult<T> result) where T : class
+      {
+        if (!result.Success)
+          return new ApiResult<T>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
+        return new ApiResult<T>(true, ApiResultStatusCode.Success, result.Result);
+      }
 		}
-		public abstract class WithoutResult : EndpointBaseAsync
+    public abstract class WithoutResult : EndpointBaseAsync
 			.WithRequest<TRequest>
 			.WithoutResult
 		{
@@ -27,8 +38,15 @@ public static class MyBaseEndpointAuthenticated
 			.WithRequest<TRequest>
 			.WithActionResult<TResponse>
 		{
-			public CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
-		}
+      protected CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
+
+      protected ApiResult<T> ReturnResult<T>(UnusualSuspectServiceResult<T> result) where T : class
+      {
+        if (!result.Success)
+          return new ApiResult<T>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
+        return new ApiResult<T>(true, ApiResultStatusCode.Success, result.Result);
+      }
+    }
 
 		public abstract class WithActionResult : EndpointBaseAsync
 			.WithRequest<TRequest>
@@ -52,9 +70,15 @@ public static class MyBaseEndpointAuthenticated
 			.WithResult<TResponse>
 		{
 			public CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
+      protected ApiResult<T> ReturnResult<T>(UnusualSuspectServiceResult<T> result) where T : class
+      {
+        if (!result.Success)
+          return new ApiResult<T>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
+        return new ApiResult<T>(true, ApiResultStatusCode.Success, result.Result);
+      }
 		}
 
-		public abstract class WithoutResult : EndpointBaseAsync
+    public abstract class WithoutResult : EndpointBaseAsync
 			.WithoutRequest
 			.WithoutResult
 		{
@@ -66,9 +90,15 @@ public static class MyBaseEndpointAuthenticated
 			.WithActionResult<TResponse>
 		{
 			public CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
+      protected ApiResult<T> ReturnResult<T>(UnusualSuspectServiceResult<T> result) where T : class
+      {
+        if (!result.Success)
+          return new ApiResult<T>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
+        return new ApiResult<T>(true, ApiResultStatusCode.Success, result.Result);
+      }
 		}
 
-		public abstract class WithActionResult : EndpointBaseAsync
+    public abstract class WithActionResult : EndpointBaseAsync
 			.WithoutRequest
 			.WithActionResult
 		{

@@ -9,7 +9,7 @@ using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 
-public sealed class MyPreGameGroupChangeReadyToPlay(IPreGameService preGameService) : MyBaseEndpointAuthenticated
+public sealed class MyPreGameGroupChangeReadyToPlayEndpoint(IPreGameService preGameService) : MyBaseEndpointAuthenticated
 	.WithRequest<MyPreGameGroupChangeReadyToPlayRequest>
 	.WithActionResult<ApiResult>
 {

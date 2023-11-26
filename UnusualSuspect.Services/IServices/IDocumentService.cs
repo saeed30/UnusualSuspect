@@ -4,6 +4,7 @@ using UnusualSuspect.ViewModels.Models;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using UnusualSuspect.ApiViewModels.Endpoints.Document;
 
 namespace UnusualSuspect.Services.IServices;
 
@@ -40,6 +41,6 @@ public interface IDocumentService
 	List<Document> DocumentListOfGroup(int documentGroupId, int categoryId, string language);
 	List<int> DocumentCategoryList(int documentId);
 	Task<Document?> GetDocumentAsync(int id);
-	Task<Document?> GetDocumentByGuidKeyAsync(Guid guidKey);
+	Task<UnusualSuspectServiceResult<DocumentGetResponse>> GetDocumentByGuidKeyAsync(Guid guidKey);
 	Document? GetDocument(int id);
 }

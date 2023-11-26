@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Xml.Linq;
 using UnusualSuspect.Common.Utilities;
+using UnusualSuspect.ApiViewModels.Endpoints.Document;
+using UnusualSuspect.ApiViewModels.Enums;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -95,10 +97,18 @@ public class DocumentService : IDocumentService
 	{
 		return await document.FirstOrDefaultAsync(m => m.Id == id);
 	}
-	public async Task<Document?> GetDocumentByGuidKeyAsync(Guid guidKey)
+	public async Task<UnusualSuspectServiceResult<DocumentGetResponse>> GetDocumentByGuidKeyAsync(Guid guidKey)
 	{
-		return await document.FirstOrDefaultAsync(m => m.GuidKey == guidKey);
-	}
+		var doc = await document.FirstOrDefaultAsync(m => m.GuidKey == guidKey);
+    if (doc == null)
+      return new UnusualSuspectServiceResult<DocumentGetResponse>(new UnusualSuspectErrorResult(LogicErrorCode.FileNotFound));
+    return new UnusualSuspectServiceResult<DocumentGetResponse>(new DocumentGetResponse()
+
+    {
+      File = doc.File,
+      FileName = doc.DocumentName
+    });
+  }
 
 	public Document? GetDocument(int id)
 	{

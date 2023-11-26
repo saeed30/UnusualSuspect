@@ -23,6 +23,6 @@ namespace UnusualSuspect.ApiViewModels.Enums
 		PreGameGroupIsInGame = 14,
 		DocumentNotFound = 15,
 		InvalidGameId = 16,
-
+		FileNotFound = 17,
 	}
 }
