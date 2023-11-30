@@ -7,8 +7,9 @@ public class Game : BaseEntity
 {
 	public DateTime CreateTime { get; set; }
 	public DateTime? FinishedTime { get; set; }
+	public bool? WonTheGame { get; set; }
 	public short GameTypeId { get; set; }
-	[ForeignKey("GameTypeId")]
+  [ForeignKey("GameTypeId")]
 	public virtual GameType GameType { get; set; }
 
 	public virtual ICollection<CharacterCardGame> CharacterCardGames { get; set; }

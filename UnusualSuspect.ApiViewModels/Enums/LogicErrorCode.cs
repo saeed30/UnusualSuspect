@@ -24,5 +24,8 @@ namespace UnusualSuspect.ApiViewModels.Enums
 		DocumentNotFound = 15,
 		InvalidGameId = 16,
 		FileNotFound = 17,
+		CharacterCardIdNotFoundInTheGame = 18,
+		CharacterCardIsNotActiveInTheGame = 19,
+		NoActiveMurdererFoundInGame = 20,
 	}
 }
