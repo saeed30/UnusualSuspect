@@ -15,7 +15,7 @@ namespace UnusualSuspect.Api.Endpoints.Game
     [HttpGet("api/[namespace]/{id}", Name = "[namespace]_[controller]")]
     public override async Task<ActionResult<ApiResult<GameGetResponse>>> HandleAsync(int id, CancellationToken cancellationToken = default)
     {
-      UnusualSuspectServiceResult<GameGetResponse> game = await gameService.GetGameAsync(id);
+      UnusualSuspectServiceResult<GameGetResponse> game = await gameService.GetGameAsync(id, CurrentUser.UserId, cancellationToken);
       return ReturnResult(game);
     }
   }

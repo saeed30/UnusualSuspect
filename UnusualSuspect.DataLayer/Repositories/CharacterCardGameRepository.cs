@@ -10,7 +10,7 @@ public class CharacterCardGameRepository(IUnitOfWork uow, ILogger<CharacterCardG
   : EfRepository<CharacterCardGame>(uow, logger), ICharacterCardGameRepository
 {
   private readonly DbSet<CharacterCardGame> characterCardGame = uow.Set<CharacterCardGame>();
-  public async Task<List<CharacterCardGame>> GetAllGameCharacterCards(int gameId, CancellationToken cancellationToken = default)
+  public async Task<List<CharacterCardGame>> GetAllGameCharacterCardsAsync(int gameId, CancellationToken cancellationToken = default)
   {
     return await characterCardGame.Where(x =>x.GameId == gameId).ToListAsync(cancellationToken);
   }

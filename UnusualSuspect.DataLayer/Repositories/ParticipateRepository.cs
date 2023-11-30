@@ -17,7 +17,7 @@ public class ParticipateRepository
     return await participates.AnyAsync(x => x.GameId == gameId && x.UserId == userId, cancellationToken);
   }
 
-  public async Task<RoleCardEnum?> GetParticipantRole(int gameId, int userId, CancellationToken cancellationToken = default)
+  public async Task<RoleCardEnum?> GetParticipantRoleAsync(int gameId, int userId, CancellationToken cancellationToken = default)
   {
     Participate? participant =
       await participates.FirstOrDefaultAsync(x => x.GameId == gameId && x.UserId == userId, cancellationToken);

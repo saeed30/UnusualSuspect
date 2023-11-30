@@ -19,7 +19,7 @@ namespace UnusualSuspect.Services.Services
       bool hasAccess = await IsGameMember(gameId, userId, cancellationToken);
       if (!hasAccess)
         return new UnusualSuspectServiceResult<GameGetResponse>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
-      Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
+      Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
       if (game == null)
         return new UnusualSuspectServiceResult<GameGetResponse>(
           new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
@@ -31,7 +31,7 @@ namespace UnusualSuspect.Services.Services
       bool hasAccess = await IsMainDetective(gameId, userId, cancellationToken);
       if (!hasAccess)
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
-      bool done = await gameRepository.SetGameFinishTime(gameId, DateTime.Now, cancellationToken);
+      bool done = await gameRepository.SetGameFinishTimeAsync(gameId, DateTime.Now, cancellationToken);
       if (done)
       {
         //notify members
@@ -44,7 +44,7 @@ namespace UnusualSuspect.Services.Services
       bool hasAccess = await IsMainDetective(gameId, userId, cancellationToken);
       if (!hasAccess)
         return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
-      var cards = await characterCardGameRepository.GetAllGameCharacterCards(gameId, cancellationToken);
+      var cards = await characterCardGameRepository.GetAllGameCharacterCardsAsync(gameId, cancellationToken);
       if(cards.Any(x=>x.CharacterCardId == characterCardId))
         return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.CharacterCardIdNotFoundInTheGame));
       var card = cards.FirstOrDefault(x => x.CharacterCardId == characterCardId && x.IsActive);
@@ -52,7 +52,7 @@ namespace UnusualSuspect.Services.Services
         return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.CharacterCardIsNotActiveInTheGame));
       if (card.IsMurderer)
       {
-        //loose
+        await gameRepository.SetGameWinStateAsync(gameId, false, cancellationToken);
         return new UnusualSuspectServiceResult<bool?>(false);
       }
       card.IsActive = false;
@@ -65,7 +65,7 @@ namespace UnusualSuspect.Services.Services
 
       if (!cards.Any(x => x.IsActive && !x.IsMurderer))
       {
-        //won
+        await gameRepository.SetGameWinStateAsync(gameId, true, cancellationToken);
         return new UnusualSuspectServiceResult<bool?>(true);
       }
       return new UnusualSuspectServiceResult<bool?>((bool?)null);
@@ -77,7 +77,7 @@ namespace UnusualSuspect.Services.Services
     }
     private async Task<bool> IsMainDetective(int gameId, int userId, CancellationToken cancellationToken = default)
     {
-      var role = await participateRepository.GetParticipantRole(gameId, userId, cancellationToken);
+      var role = await participateRepository.GetParticipantRoleAsync(gameId, userId, cancellationToken);
       if(role == null)
         return false;
       return role.Value == RoleCardEnum.MainDetective;
