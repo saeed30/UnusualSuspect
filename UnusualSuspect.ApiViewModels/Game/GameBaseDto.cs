@@ -15,8 +15,16 @@ namespace UnusualSuspect.ApiViewModels.Game
 		private IEnumerable<GameParticipantDto> gameParticipantDto;
 		[SerializeField]
 		private IEnumerable<GameCharacterDto> gameCharacterDtos;
+		[SerializeField]
+    private IEnumerable<QuestionGameDto> questionGameDtos;
 
-		public int Id
+    public IEnumerable<QuestionGameDto> QuestionGameDtos
+    {
+      get => questionGameDtos;
+      set => questionGameDtos = value;
+    }
+
+    public int Id
 		{
 			get => id;
 			set => id = value;

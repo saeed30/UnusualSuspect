@@ -28,7 +28,8 @@ namespace UnusualSuspect.Services.Mapping
 				Id = value.Id,
 				GameCharacterDtos = value.CharacterCardGames.ToList().ToGameCharacterDto(),
 				GameParticipantDto = value.Participates.ToList().ToGameParticipantDto(),
-				GameTypeDto = value.GameType.ToGameTypeDto()
+				GameTypeDto = value.GameType.ToGameTypeDto(),
+				QuestionGameDtos = value.QuestionGames.ToQuestionGameDto()
 			};
 		}
 		public static GameFlowDto ToGameFlowDto(this Game value)

@@ -1,8 +1,7 @@
 ﻿using UnusualSuspect.Entities.GameModels;
 
-namespace UnusualSuspect.DataLayer.Contracts.Repository
+namespace UnusualSuspect.DataLayer.Contracts.Repository;
+
+public interface IQuestionGameRepository : IAsyncRepository<QuestionGame>
 {
-  public interface IQuestionGameRepository : IAsyncRepository<QuestionGame>
-  {
-  }
 }

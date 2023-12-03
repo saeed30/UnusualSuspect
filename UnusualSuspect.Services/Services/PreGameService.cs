@@ -4,6 +4,7 @@ using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.DataLayer.Contracts.Repository;
+using UnusualSuspect.DataLayer.Repositories;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
@@ -20,7 +21,9 @@ namespace UnusualSuspect.Services.Services
       IParticipateRepository participateRepository,
       ICharacterCardRepository characterCardRepository,
       ICharacterCardGameRepository characterCardGameRepository,
-      INotificationService notificationService)
+      INotificationService notificationService,
+      IQuestionRepository questionRepository,
+      IQuestionGameRepository questionGameRepository)
     : IPreGameService
 	{
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -332,8 +335,16 @@ namespace UnusualSuspect.Services.Services
 
     private async Task Add11RandomQuestionsToGame(Game game, CancellationToken cancellationToken = default)
     {
-
-      throw new NotImplementedException();
+      List<Question> activeQuestions = await questionRepository.GetRandomActiveQuestionsAsync(11, cancellationToken);
+      for (short i = 0; i < activeQuestions.Count; i++)
+      {
+        questionGameRepository.Add(new QuestionGame()
+        {
+					Game = game,
+					Question = activeQuestions[i],
+					Turn = (short)(i + 1)
+        });
+      }
     }
 
     private async Task AddGameParticipants(List<PreGameGroup> preGameGroups, Game game, CancellationToken cancellationToken = default)
@@ -374,16 +385,15 @@ namespace UnusualSuspect.Services.Services
 
 		private async Task Add12RandomCharactersToGame(Game game, CancellationToken cancellationToken = default)
 		{
-			var activeCards = await characterCardRepository.GetAllActiveCharacterCardsAsync(cancellationToken);
-			List<int> selectedNumbers = RandomHelper.GetUniqueRandomNumbers(0, activeCards.Count - 1, 12);
+			var activeCards = await characterCardRepository.GetRandomActiveCharacterCardsAsync(12, cancellationToken);
 			Random rnd = new Random();
 			int murdererIndex = rnd.Next(0, 11);
-			for (int i = 0; i < selectedNumbers.Count; i++)
+			for (int i = 0; i < activeCards.Count; i++)
 			{
 				bool isMurderer = i == murdererIndex;
 				characterCardGameRepository.Add(new CharacterCardGame()
 				{
-					CharacterCard = activeCards[selectedNumbers[i]],
+					CharacterCard = activeCards[i],
 					Game = game,
 					IsActive = true,
 					IsMurderer = isMurderer

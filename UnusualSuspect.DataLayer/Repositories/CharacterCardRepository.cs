@@ -16,4 +16,11 @@ public class CharacterCardRepository
 	{
 		return await characterCard.Where(x=>x.IsActive).ToListAsync(cancellationToken);
 	}
+
+  public async Task<List<CharacterCard>> GetRandomActiveCharacterCardsAsync(int count, CancellationToken cancellationToken = default)
+  {
+    if (count < 1)
+      throw new Exception("count should be more than 0");
+    return await characterCard.Where(x => x.IsActive).OrderBy(r => Guid.NewGuid()).Take(count).ToListAsync(cancellationToken);
+  }
 }
