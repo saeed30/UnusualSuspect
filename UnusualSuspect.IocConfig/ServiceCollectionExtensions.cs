@@ -35,7 +35,21 @@ namespace UnusualSuspect.IocConfig;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
+  private static IServiceCollection AddGameServices(this IServiceCollection services, IConfiguration configuration)
+  {
+    services.AddScoped<IPreGameService, PreGameService>();
+    services.AddScoped<IGameService, GameService>();
+    services.AddScoped<IJoinedPreGameRepository, JoinedPreGameRepository>();
+    services.AddScoped<IGameRepository, GameRepository>();
+    services.AddScoped<IParticipateRepository, ParticipateRepository>();
+    services.AddScoped<IPreGameGroupRepository, PreGameGroupRepository>();
+    services.AddScoped<IGameTypeRepository, GameTypeRepository>();
+    services.AddScoped<ICharacterCardGameRepository, CharacterCardGameRepository>();
+    services.AddScoped<ICharacterCardRepository, CharacterCardRepository>();
+
+    return services;
+  }
+  public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
 	{
 		var Settings = GetSiteSettings(services);
 		services.AddConfiguredDbContext(Settings);
@@ -63,34 +77,26 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ISmsService, SmsService>();
 		services.AddScoped<IFileService, FileService>();
 		services.AddScoped<IFireBaseService, FireBaseService>();
-		services.AddScoped<IJoinedPreGameRepository, JoinedPreGameRepository>();
-		services.AddScoped<IGameRepository, GameRepository>();
-		services.AddScoped<IParticipateRepository, ParticipateRepository>();
-		services.AddScoped<IPreGameGroupRepository, PreGameGroupRepository>();
-		services.AddScoped<IGameTypeRepository, GameTypeRepository>();
-		services.AddScoped<ICharacterCardGameRepository, CharacterCardGameRepository>();
-		services.AddScoped<ICharacterCardRepository, CharacterCardRepository>();
 		services.AddScoped<ISmsLogRepository, SmsLogRepository>();
-		services.AddScoped<IPreGameService, PreGameService>();
-		services.AddScoped<IGameService, GameService>();
+		services.AddScoped<INotificationService, NotificationService>();
+    services.AddGameServices(configuration);
 
-
-		//services.AddRateLimiter(options =>
-		//{
-		//	options.RejectionStatusCode = 429;
-		//	options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-		//			RateLimitPartition.GetSlidingWindowLimiter(
-		//					partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
-		//					factory: partition => new SlidingWindowRateLimiterOptions
-		//					{
-		//						AutoReplenishment = true,
-		//						PermitLimit = 100,
-		//						QueueLimit = 0,
-		//						Window = TimeSpan.FromMinutes(1),
-		//						SegmentsPerWindow = 6
-		//					}));
-		//});
-		services.AddRateLimiter(options =>
+    //services.AddRateLimiter(options =>
+    //{
+    //	options.RejectionStatusCode = 429;
+    //	options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    //			RateLimitPartition.GetSlidingWindowLimiter(
+    //					partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+    //					factory: partition => new SlidingWindowRateLimiterOptions
+    //					{
+    //						AutoReplenishment = true,
+    //						PermitLimit = 100,
+    //						QueueLimit = 0,
+    //						Window = TimeSpan.FromMinutes(1),
+    //						SegmentsPerWindow = 6
+    //					}));
+    //});
+    services.AddRateLimiter(options =>
 		{
 			options.RejectionStatusCode = 429;
 			options.AddPolicy<string, CustomRateLimiterPolicy>(nameof(CustomRateLimiterPolicy));
@@ -138,8 +144,8 @@ public static class ServiceCollectionExtensions
 			options.SupportedCultures = supportedCultures;
 			options.SupportedUICultures = supportedCultures;
 		});
-		var Settings = GetSiteSettings(services);
-		services.AddElmahCore(configuration, Settings);
+		var settings = GetSiteSettings(services);
+		services.AddElmahCore(configuration, settings);
 		services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 		services.AddScoped<IPrincipal>(provider => provider.GetRequiredService<IHttpContextAccessor>()?.HttpContext?.User ?? ClaimsPrincipal.Current);
 		services.AddScoped<IIdentityDbInitializer, IdentityDbInitializer>();
@@ -158,6 +164,8 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IAccessManagmentService, AccessManagmentService>();
 		services.AddScoped<ICustomeMenuService, CustomeMenuService>();
 		services.AddScoped<IFileService, FileService>();
+		services.AddScoped<ISmsLogRepository, SmsLogRepository>();
+    services.AddGameServices(configuration);
 		return services;
 	}
 

@@ -12,13 +12,17 @@ namespace UnusualSuspect.Services.Services
   public sealed class GameService(IUnitOfWork uow,
     IGameRepository gameRepository,
     IParticipateRepository participateRepository,
-    ICharacterCardGameRepository characterCardGameRepository) : IGameService
+    ICharacterCardGameRepository characterCardGameRepository,
+    INotificationService notificationService) : IGameService
   {
-    public async Task<UnusualSuspectServiceResult<GameGetResponse>> GetGameAsync(int gameId, int userId, CancellationToken cancellationToken = default)
+    public async Task<UnusualSuspectServiceResult<GameGetResponse>> GetGameAsync(int gameId, int? userId = null, CancellationToken cancellationToken = default)
     {
-      bool hasAccess = await IsGameMember(gameId, userId, cancellationToken);
-      if (!hasAccess)
-        return new UnusualSuspectServiceResult<GameGetResponse>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
+      if (userId.HasValue)
+      {
+        bool hasAccess = await IsGameMember(gameId, userId.Value, cancellationToken);
+        if (!hasAccess)
+          return new UnusualSuspectServiceResult<GameGetResponse>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
+      }
       Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
       if (game == null)
         return new UnusualSuspectServiceResult<GameGetResponse>(
@@ -34,7 +38,11 @@ namespace UnusualSuspect.Services.Services
       bool done = await gameRepository.SetGameFinishTimeAsync(gameId, DateTime.Now, cancellationToken);
       if (done)
       {
-        //notify members
+        Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
+        if (game == null)
+          return new UnusualSuspectServiceResult<bool>(
+            new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+        await notificationService.SendGameFlowToAllMembers(game.ToGameFlowDto());
       }
       return new UnusualSuspectServiceResult<bool>(done);
     }
@@ -45,40 +53,58 @@ namespace UnusualSuspect.Services.Services
       if (!hasAccess)
         return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
       var cards = await characterCardGameRepository.GetAllGameCharacterCardsAsync(gameId, cancellationToken);
-      if(cards.Any(x=>x.CharacterCardId == characterCardId))
+      if (cards.Any(x => x.CharacterCardId == characterCardId))
         return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.CharacterCardIdNotFoundInTheGame));
       var card = cards.FirstOrDefault(x => x.CharacterCardId == characterCardId && x.IsActive);
-      if(card == null)
+      if (card == null)
         return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.CharacterCardIsNotActiveInTheGame));
+      UnusualSuspectServiceResult<bool?> result;
       if (card.IsMurderer)
       {
         await gameRepository.SetGameWinStateAsync(gameId, false, cancellationToken);
-        return new UnusualSuspectServiceResult<bool?>(false);
+        result = new UnusualSuspectServiceResult<bool?>(false);
       }
-      card.IsActive = false;
-      characterCardGameRepository.Update(card);
-      if (!cards.Any(x => x.IsActive && x.IsMurderer))
+      else
       {
-        ElmahExtensions.RaiseError(new Exception("Game not have Active murderer. gameId: " + gameId));
-        return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.NoActiveMurdererFoundInGame));
+        card.IsActive = false;
+        characterCardGameRepository.Update(card);
+        if (!cards.Any(x => x.IsActive && x.IsMurderer))
+        {
+          ElmahExtensions.RaiseError(new Exception("Game not have Active murderer. gameId: " + gameId));
+          return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.NoActiveMurdererFoundInGame));
+        }
+        if (!cards.Any(x => x.IsActive && !x.IsMurderer))
+        {
+          await gameRepository.SetGameWinStateAsync(gameId, true, cancellationToken);
+          result = new UnusualSuspectServiceResult<bool?>(true);
+        }
+        else
+          result = new UnusualSuspectServiceResult<bool?>((bool?)null);
       }
+      Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
+      if (game == null)
+      {
+        ElmahExtensions.RaiseError(new Exception("Game not available! id: " + gameId));
+        return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      }
+      await notificationService.SendGameFlowToAllMembers(game.ToGameFlowDto());
+      return result;
+    }
 
-      if (!cards.Any(x => x.IsActive && !x.IsMurderer))
-      {
-        await gameRepository.SetGameWinStateAsync(gameId, true, cancellationToken);
-        return new UnusualSuspectServiceResult<bool?>(true);
-      }
-      return new UnusualSuspectServiceResult<bool?>((bool?)null);
+    public async Task<UnusualSuspectServiceResult<Participate?>> GetActiveParticipateByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+    {
+      Participate? par = await participateRepository.GetActiveParticipation(userId, cancellationToken);
+      return new UnusualSuspectServiceResult<Participate?>(par);
     }
 
     private async Task<bool> IsGameMember(int gameId, int userId, CancellationToken cancellationToken = default)
     {
-      return await participateRepository.IsGameParticipant(gameId, userId, cancellationToken);
+      return await participateRepository.IsGameParticipantAsync(gameId, userId, cancellationToken);
     }
     private async Task<bool> IsMainDetective(int gameId, int userId, CancellationToken cancellationToken = default)
     {
       var role = await participateRepository.GetParticipantRoleAsync(gameId, userId, cancellationToken);
-      if(role == null)
+      if (role == null)
         return false;
       return role.Value == RoleCardEnum.MainDetective;
     }

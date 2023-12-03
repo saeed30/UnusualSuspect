@@ -16,7 +16,7 @@ namespace UnusualSuspect.Api.Endpoints.Game
   {
     public override async Task<ActionResult<ApiResult<FinishGameResponse>>> HandleAsync(FinishGameRequest request, CancellationToken cancellationToken = default)
     {
-      UnusualSuspectServiceResult<bool?> result = await gameService.ChooseCardAndGetWinCondition(request.GameId, request.CardId, CurrentUser.UserId);
+      UnusualSuspectServiceResult<bool?> result = await gameService.ChooseCardAndGetWinCondition(request.GameId, request.CardId, CurrentUser.UserId, cancellationToken);
       if (!result.Success)
         return new ApiResult<FinishGameResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
       await gameService.SaveChangesAsync(cancellationToken);

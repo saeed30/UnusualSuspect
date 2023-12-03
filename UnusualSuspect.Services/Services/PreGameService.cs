@@ -1,10 +1,13 @@
-﻿using UnusualSuspect.ApiViewModels.Enums;
+﻿using ElmahCore;
+using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.Services.Mapping;
 
 namespace UnusualSuspect.Services.Services
 {
@@ -16,7 +19,8 @@ namespace UnusualSuspect.Services.Services
       IGameRepository gameRepository,
       IParticipateRepository participateRepository,
       ICharacterCardRepository characterCardRepository,
-      ICharacterCardGameRepository characterCardGameRepository)
+      ICharacterCardGameRepository characterCardGameRepository,
+      INotificationService notificationService)
     : IPreGameService
 	{
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -232,9 +236,17 @@ namespace UnusualSuspect.Services.Services
 
 				if (currentGameUserCount == gameType.NumberOfPlayers)
 				{
-					await CreateGameWithSelectedPreGameGroupAsync(currentGamePreGameGroups, gameType, cancellationToken);
+					Game game = await CreateGameWithSelectedPreGameGroupAsync(currentGamePreGameGroups, gameType, cancellationToken);
 					await SaveChangesAsync(cancellationToken);
-					needToRefill = true;
+					Game? gameWithDetails = await gameRepository.GetGameWithDetailsAsync(game.Id, cancellationToken);
+          if (gameWithDetails == null)
+          {
+            ElmahExtensions.RaiseError(new Exception("Game not available after creation! id: " + game.Id));
+            return;
+          }
+          await notificationService.SendGameModelToAllMembers(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
+            gameWithDetails.ToGameFlowDto()));
+          needToRefill = true;
 				}
 				else
 					topGroups.RemoveAt(0);//گروه اول که به اجبار در لیست قرار داده شده بود حذف شد تا از گروه دوم شروع شود
@@ -303,7 +315,7 @@ namespace UnusualSuspect.Services.Services
 			 */
 		}
 
-		private async Task CreateGameWithSelectedPreGameGroupAsync(List<PreGameGroup> preGameGroups, GameType gameType,
+		private async Task<Game> CreateGameWithSelectedPreGameGroupAsync(List<PreGameGroup> preGameGroups, GameType gameType,
 			CancellationToken cancellationToken = default)
 		{
 			Game game = gameRepository.Add(new Game()
@@ -313,11 +325,18 @@ namespace UnusualSuspect.Services.Services
 				GameType = gameType
 			});
 			await AddGameParticipants(preGameGroups, game, cancellationToken);
-
 			await Add12RandomCharactersToGame(game, cancellationToken);
-		}
+			await Add11RandomQuestionsToGame(game, cancellationToken);
+      return game;
+    }
 
-		private async Task AddGameParticipants(List<PreGameGroup> preGameGroups, Game game, CancellationToken cancellationToken = default)
+    private async Task Add11RandomQuestionsToGame(Game game, CancellationToken cancellationToken = default)
+    {
+
+      throw new NotImplementedException();
+    }
+
+    private async Task AddGameParticipants(List<PreGameGroup> preGameGroups, Game game, CancellationToken cancellationToken = default)
 		{
 			short counter = 1;
 			for (int i = 0; i < preGameGroups.Count; i++)

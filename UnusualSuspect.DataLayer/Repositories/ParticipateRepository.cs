@@ -12,7 +12,7 @@ public class ParticipateRepository
 {
   private readonly DbSet<Participate> participates = uow.Set<Participate>();
 
-  public async Task<bool> IsGameParticipant(int gameId, int userId, CancellationToken cancellationToken = default)
+  public async Task<bool> IsGameParticipantAsync(int gameId, int userId, CancellationToken cancellationToken = default)
   {
     return await participates.AnyAsync(x => x.GameId == gameId && x.UserId == userId, cancellationToken);
   }
@@ -24,5 +24,10 @@ public class ParticipateRepository
     if (participant == null)
       return null;
     return (RoleCardEnum)participant.RoleCardId;
+  }
+
+  public async Task<Participate?> GetActiveParticipation(int userId, CancellationToken cancellationToken = default)
+  {
+    return await participates.FirstOrDefaultAsync(x => x.UserId == userId && x.Game.FinishedTime == null, cancellationToken);
   }
 }

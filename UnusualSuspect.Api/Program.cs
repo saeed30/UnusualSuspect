@@ -23,6 +23,7 @@ using System.Diagnostics;
 using Serilog.Events;
 using System.Net.Http;
 using System.Linq;
+using UnusualSuspect.Services.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,8 @@ builder.Services.AddHangfire(config => config
 // Hangfire Server
 builder.Services.AddHangfireServer();
 builder.Services.AddOutputCache();
+builder.Services.AddSignalR();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 builder.Services.AddHostedService<AlwaysRunningBackgroundService>();
@@ -153,7 +156,7 @@ app.UseEndpoints(endpoints =>
 {
 	endpoints.MapControllers().RequireRateLimiting(nameof(CustomRateLimiterPolicy)).RequireAuthorization();
 });
-
+app.MapHub<GameHub>("GameHub");
 app.UseHangfireDashboard();
 app.MapHangfireDashboard("/hangfire", new DashboardOptions()
 {
