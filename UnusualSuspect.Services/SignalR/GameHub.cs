@@ -37,7 +37,7 @@ public sealed class GameHub(IGameService gameService, INotificationService notif
   }
 
 
-  public override async Task OnDisconnectedAsync(Exception exception)
+  public override async Task OnDisconnectedAsync(Exception? exception)
   {
     int? userId = UserId;
     if (userId.HasValue)
@@ -48,7 +48,7 @@ public sealed class GameHub(IGameService gameService, INotificationService notif
   }
   private async Task OnUserConnectionStatusChanged(int userId, bool isConnected)
   {
-    var connections = memoryCacheService.GetUserSignalRConnections(userId);
+    var connections = await memoryCacheService.GetUserSignalRConnections(userId);
     if (isConnected)
     {
       if(!connections.Contains(Context.ConnectionId))

@@ -32,7 +32,7 @@ namespace UnusualSuspect.Services.Services
         List<Task> tasks = new List<Task>();
         foreach (var gameParticipantDto in game.GameBaseDto.GameParticipantDto)
         {
-          var connections = memoryCacheService.GetUserSignalRConnections(gameParticipantDto.GameUserDto.Id);
+          var connections = await memoryCacheService.GetUserSignalRConnections(gameParticipantDto.GameUserDto.Id);
           foreach (var connection in connections)
             tasks.Add(AddToGroupAsync(gameParticipantDto.GameUserDto.Id, connection, game.GameBaseDto.Id.ToString()));
         }
@@ -44,7 +44,7 @@ namespace UnusualSuspect.Services.Services
     public async Task AddToGroupAsync(int userId, string connectionId, string groupName)
     {
       var task = context.Groups.AddToGroupAsync(connectionId, groupName);
-      var groups = memoryCacheService.GetUserSignalRGroups(userId);
+      var groups = await memoryCacheService.GetUserSignalRGroups(userId);
       if (!groups.Contains(groupName))
         groups.Add(groupName);
       memoryCacheService.SetUserSignalRGroups(userId, groups);
