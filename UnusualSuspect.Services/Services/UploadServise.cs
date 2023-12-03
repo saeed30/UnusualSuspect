@@ -2,6 +2,8 @@
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace UnusualSuspect.Services.Services;
 
