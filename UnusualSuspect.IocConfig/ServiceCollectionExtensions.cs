@@ -46,6 +46,8 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IGameTypeRepository, GameTypeRepository>();
     services.AddScoped<ICharacterCardGameRepository, CharacterCardGameRepository>();
     services.AddScoped<ICharacterCardRepository, CharacterCardRepository>();
+    services.AddScoped<IQuestionGameRepository, QuestionGameRepository>();
+    services.AddScoped<IQuestionRepository, QuestionRepository>();
 
     return services;
   }
@@ -79,6 +81,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IFireBaseService, FireBaseService>();
 		services.AddScoped<ISmsLogRepository, SmsLogRepository>();
 		services.AddScoped<INotificationService, NotificationService>();
+		services.AddScoped<IMemoryCacheService, MemoryCacheService>();
     services.AddGameServices(configuration);
 
     //services.AddRateLimiter(options =>

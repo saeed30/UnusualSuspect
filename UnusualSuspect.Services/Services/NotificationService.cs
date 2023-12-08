@@ -12,8 +12,7 @@ using UnusualSuspect.Services.SignalR;
 namespace UnusualSuspect.Services.Services
 {
   public class NotificationService(IHubContext<GameHub, IGameClient> context,
-    IMemoryCacheService memoryCacheService,
-    IGameService gameService) : INotificationService
+    IMemoryCacheService memoryCacheService) : INotificationService
   {
     public async Task SendGameFlowToAllMembers(GameFlowDto gameFlowDto)
     {

@@ -11,12 +11,13 @@ namespace UnusualSuspect.Services.Services
 {
   public sealed class MemoryCacheService(IMemoryCache cache) : IMemoryCacheService
   {
+    private const int CacheTimeInMinutes = 30;
     public async Task<List<string>> GetUserSignalRConnections(int userId)
     {
       var connectionIds = await cache.GetOrCreateAsync(GetUserSignalRConnectionsKey(userId), entry =>
       {
         // Set the cache options for the entry
-        entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+        entry.SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes);
         entry.Priority = CacheItemPriority.High;
         entry.Size = 1;
 
@@ -30,7 +31,7 @@ namespace UnusualSuspect.Services.Services
       cache.Set(GetUserSignalRConnectionsKey(userId), connections, new MemoryCacheEntryOptions()
       {
         Priority = CacheItemPriority.High,
-        SlidingExpiration = TimeSpan.FromMinutes(30),
+        SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes),
         Size = 1
       });
     }
@@ -41,7 +42,7 @@ namespace UnusualSuspect.Services.Services
       var groups = await cache.GetOrCreateAsync(GetUserSignalRGroupsKey(userId), entry =>
       {
         // Set the cache options for the entry
-        entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+        entry.SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes);
         entry.Priority = CacheItemPriority.High;
         entry.Size = 1;
 
@@ -55,7 +56,7 @@ namespace UnusualSuspect.Services.Services
       cache.Set(GetUserSignalRGroupsKey(userId), groups, new MemoryCacheEntryOptions()
       {
         Priority = CacheItemPriority.High,
-        SlidingExpiration = TimeSpan.FromMinutes(30),
+        SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes),
         Size = 1
       });
     }

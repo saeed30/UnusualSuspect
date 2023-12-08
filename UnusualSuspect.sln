@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnusualSuspect.Api", "Unusu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnusualSuspect.ApiViewModels", "UnusualSuspect.ApiViewModels\UnusualSuspect.ApiViewModels.csproj", "{45543C80-7A26-4CD5-B94F-8AEE829A73C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnusualSuspect.SignalrClient", "UnusualSuspect.SignalrClient\UnusualSuspect.SignalrClient.csproj", "{FE45001F-F982-4E4C-BC0A-AA02DEA39011}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{45543C80-7A26-4CD5-B94F-8AEE829A73C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45543C80-7A26-4CD5-B94F-8AEE829A73C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45543C80-7A26-4CD5-B94F-8AEE829A73C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE45001F-F982-4E4C-BC0A-AA02DEA39011}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE45001F-F982-4E4C-BC0A-AA02DEA39011}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE45001F-F982-4E4C-BC0A-AA02DEA39011}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE45001F-F982-4E4C-BC0A-AA02DEA39011}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

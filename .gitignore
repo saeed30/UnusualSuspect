@@ -21,6 +21,8 @@
 /UnusualSuspect.ViewModels/obj
 /UnusualSuspect.Api/bin
 /UnusualSuspect.Api/obj
+/UnusualSuspect.SignalrClient/bin
+/UnusualSuspect.SignalrClient/obj
 /UnusualSuspect.Admin/wwwroot
 /UnusualSuspect.ApiViewModels/obj
 /UnusualSuspect.ApiViewModels/bin

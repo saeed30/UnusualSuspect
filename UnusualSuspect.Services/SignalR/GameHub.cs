@@ -1,18 +1,13 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
 using UnusualSuspect.Common.Utilities;
-using UnusualSuspect.Entities.GameModels;
-using UnusualSuspect.Services;
 using UnusualSuspect.Services.Contracts;
-using UnusualSuspect.Services.Services;
 
 namespace UnusualSuspect.Services.SignalR;
 
-[Authorize]
+//[Authorize]
+//[EnableCors("AllowAll")]
 public sealed class GameHub(IGameService gameService, INotificationService notificationService,
   IMemoryCacheService memoryCacheService) : Hub<IGameClient>
 {
@@ -25,6 +20,11 @@ public sealed class GameHub(IGameService gameService, INotificationService notif
         return null;
       return Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt();
     }
+  }
+
+  public async Task SendMessageToAll(string user, string message)
+  {
+    await Clients.All.ReceiveMessage(user + message);
   }
   public override async Task OnConnectedAsync()
   {
