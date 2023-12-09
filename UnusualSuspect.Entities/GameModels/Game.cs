@@ -16,5 +16,8 @@ public class Game : BaseEntity
 	public virtual ICollection<Participate> Participates { get; set; }
 	public virtual ICollection<QuestionGame> QuestionGames { get; set; }
 
-
+	[NotMapped]
+  public string CreateTimePersian => CreateTime.ToString();
+	[NotMapped]
+  public string FinishedTimePersian => FinishedTime == null ? "" : FinishedTime.ToString();
 }

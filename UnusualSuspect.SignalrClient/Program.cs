@@ -8,7 +8,7 @@ var connection = new HubConnectionBuilder()
   .Build();
 
 // Register a handler for receiving messages from the hub
-connection.On<string>("SendMessageToAll", (string message) =>
+connection.On<string>("ReceiveMessage", (string message) =>
 {
   Console.WriteLine($"Received: {message}");
 });
@@ -30,7 +30,7 @@ while (true)
   }
 
   // Send the message to the hub
-  await connection.SendAsync("ReceiveMessage", input);
+  await connection.SendAsync("SendMessageToAll", input);
   Console.WriteLine($"Sent: {input}");
 }
 

@@ -24,4 +24,12 @@ public class PreGameGroupRepository
 			.Where(x => x.ReadyToGameTime != null && x.PreGameGroupStatusId == (short)PreGameGroupStatusEnum.Ready && x.GameTypeId == gameType.Id)
 			.OrderBy(x => x.ReadyToGameTime).Take(count).ToListAsync(cancellationToken);
 	}
+
+  public IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame()
+  {
+    return preGameGroup
+      .Include(x=>x.PreGameGroupStatus)
+      .Include(x=>x.GameType)
+      .Where(x => x.GameId == null);
+  }
 }

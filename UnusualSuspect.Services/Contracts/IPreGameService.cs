@@ -7,20 +7,21 @@ using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.Entities.GameModels;
 
-namespace UnusualSuspect.Services.Contracts
+namespace UnusualSuspect.Services.Contracts;
+
+public interface IPreGameService
 {
-	public interface IPreGameService
-	{
-		Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-		Task<UnusualSuspectServiceResult<PreGameGroup>> CreatePreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default);
-		Task<UnusualSuspectServiceResult<JoinedPreGame>> AddUserToPreGameGroup(int addingUserId, string username, int preGameGroupId, CancellationToken cancellationToken = default);
-		Task<UnusualSuspectServiceResult<JoinedPreGame>> AddUserToPreGameGroup(int addingUserId, int userId, int preGameGroupId, CancellationToken cancellationToken = default);
-		Task RemoveFromAllUserPreGames(List<JoinedPreGame> joinedPreGame, int userId, CancellationToken cancellationToken = default);
-		Task RemoveUserFromPreGameGroup(JoinedPreGame joinedPreGame, int userId, CancellationToken cancellationToken = default);
-		Task RemovePreGameGroup(int preGameGroupId, CancellationToken cancellationToken = default);
-		Task RecalculatePreGameGroupUsers(int preGameGroupId, CancellationToken cancellationToken = default);
-		Task<UnusualSuspectServiceResult<bool>> ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default);
-		Task CombineGroupsToStartGames(CancellationToken cancellationToken = default);
-		Task<UnusualSuspectServiceResult<bool>> PreGameGroupChangeReadyToPlayAsync(int requestPreGameGroupId, PreGameGroupStatusEnum preGameGroupStatusEnum, CancellationToken cancellationToken = default);
-	}
+  Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<PreGameGroup>> CreatePreGameGroup(int userId, short gameTypeId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<JoinedPreGame>> AddUserToPreGameGroup(int addingUserId, string username, int preGameGroupId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<JoinedPreGame>> AddUserToPreGameGroup(int addingUserId, int userId, int preGameGroupId, CancellationToken cancellationToken = default);
+  Task RemoveFromAllUserPreGames(List<JoinedPreGame> joinedPreGame, int userId, CancellationToken cancellationToken = default);
+  Task RemoveUserFromPreGameGroup(JoinedPreGame joinedPreGame, int userId, CancellationToken cancellationToken = default);
+  Task RemovePreGameGroup(int preGameGroupId, CancellationToken cancellationToken = default);
+  Task RecalculatePreGameGroupUsers(int preGameGroupId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<bool>> ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default);
+  Task CombineGroupsToStartGames(CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<bool>> PreGameGroupChangeReadyToPlayAsync(int requestPreGameGroupId, PreGameGroupStatusEnum preGameGroupStatusEnum, CancellationToken cancellationToken = default);
+  IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame();
+
 }

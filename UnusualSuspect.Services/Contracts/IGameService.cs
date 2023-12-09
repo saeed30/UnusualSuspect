@@ -1,14 +1,14 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.Entities.GameModels;
 
-namespace UnusualSuspect.Services.Contracts
+namespace UnusualSuspect.Services.Contracts;
+
+public interface IGameService
 {
-	public interface IGameService
-	{
-		Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-		Task<UnusualSuspectServiceResult<GameGetResponse>> GetGameAsync(int gameId, int? userId = null, CancellationToken cancellationToken = default);
-    Task<UnusualSuspectServiceResult<bool>> FinishGameAsync(int gameId, int userId, CancellationToken cancellationToken = default);
-    Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default);
-    Task<UnusualSuspectServiceResult<Participate?>> GetActiveParticipateByUserIdAsync(int userId, CancellationToken cancellationToken = default);
-  }
+  Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<GameGetResponse>> GetGameAsync(int gameId, int? userId = null, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<bool>> FinishGameAsync(int gameId, int userId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<Participate?>> GetActiveParticipateByUserIdAsync(int userId, CancellationToken cancellationToken = default);
+  IQueryable<Game> GetAllActiveGamesWithGameType();
 }

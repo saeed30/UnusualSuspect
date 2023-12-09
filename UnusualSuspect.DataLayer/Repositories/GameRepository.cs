@@ -6,8 +6,8 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger) : EfRepository<Game>(uow, logger),
-  IGameRepository
+public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger)
+  : EfRepository<Game>(uow, logger), IGameRepository
 {
   private readonly DbSet<Game> games = uow.Set<Game>();
 
@@ -38,5 +38,12 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
     if (game == null) return false;
     game.WonTheGame = won;
     return true;
+  }
+
+  public IQueryable<Game> GetAllActiveGamesWithGameType()
+  {
+    return games
+      .Include(x=>x.GameType)
+      .Where(x => x.FinishedTime == null);
   }
 }

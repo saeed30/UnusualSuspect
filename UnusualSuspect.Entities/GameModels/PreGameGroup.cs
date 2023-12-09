@@ -21,5 +21,19 @@ public class PreGameGroup : BaseEntity
 	public virtual Game? Game { get; set; }
 	public virtual ICollection<JoinedPreGame> JoinedPreGames { get; set; }
 
+  public string CreatedTimeTitle
+  {
+    get
+    {
+      return CreatedTime.ToString();
+    }
+  } 
+  public string ReadyToGameTimeTitle
+  {
+    get
+    {
+      return ReadyToGameTime == null ? "" : ReadyToGameTime.ToString();
+    }
+  }
 
 }

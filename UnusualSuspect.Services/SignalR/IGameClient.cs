@@ -9,4 +9,5 @@ public interface IGameClient
   Task SendGame(GameGetResponse gameBaseDto);
   Task ChangeConnectionStatus(int userId, bool isConnected);
   Task ReceiveMessage(string message);
+
 }

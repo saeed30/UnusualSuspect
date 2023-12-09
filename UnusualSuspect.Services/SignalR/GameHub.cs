@@ -7,7 +7,6 @@ using UnusualSuspect.Services.Contracts;
 namespace UnusualSuspect.Services.SignalR;
 
 //[Authorize]
-//[EnableCors("AllowAll")]
 public sealed class GameHub(IGameService gameService, INotificationService notificationService,
   IMemoryCacheService memoryCacheService) : Hub<IGameClient>
 {
@@ -22,9 +21,9 @@ public sealed class GameHub(IGameService gameService, INotificationService notif
     }
   }
 
-  public async Task SendMessageToAll(string user, string message)
+  public async Task Echo(string user, string message)
   {
-    await Clients.All.ReceiveMessage(user + message);
+    await Clients.Caller.ReceiveMessage(user + message);
   }
   public override async Task OnConnectedAsync()
   {

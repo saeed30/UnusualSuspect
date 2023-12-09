@@ -5,6 +5,8 @@
 /.vs/*
 /UnusualSuspect.Admin/bin
 /UnusualSuspect.Admin/obj
+/UnusualSuspect.Admin/App_Data
+/UnusualSuspect.Admin/wwwroot
 /UnusualSuspect.Common/bin
 /UnusualSuspect.Common/obj
 /UnusualSuspect.DataLayer/bin
@@ -23,7 +25,6 @@
 /UnusualSuspect.Api/obj
 /UnusualSuspect.SignalrClient/bin
 /UnusualSuspect.SignalrClient/obj
-/UnusualSuspect.Admin/wwwroot
 /UnusualSuspect.ApiViewModels/obj
 /UnusualSuspect.ApiViewModels/bin
 /UnusualSuspect.Api/App_Data

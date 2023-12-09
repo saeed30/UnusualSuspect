@@ -11,12 +11,21 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 		private GameBaseDto gameBaseDto;
 		[SerializeField]
 		private GameFlowDto gameFlowDto;
+		[SerializeField]
+    private string roomName;
 
-		public GameGetResponse(GameBaseDto gameBaseDto, GameFlowDto gameFlowDto)
+    public string RoomName
+    {
+      get => roomName;
+      set => roomName = value;
+    }
+
+    public GameGetResponse(GameBaseDto gameBaseDto, GameFlowDto gameFlowDto)
 		{
 			GameBaseDto = gameBaseDto;
 			GameFlowDto = gameFlowDto;
-		}
+      RoomName = gameBaseDto.Id.ToString();
+    }
 
 		public GameBaseDto GameBaseDto
 		{
