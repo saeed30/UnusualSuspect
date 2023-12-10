@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Reflection;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Entities.Common;

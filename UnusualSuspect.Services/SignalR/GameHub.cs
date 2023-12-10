@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts;
@@ -10,6 +9,7 @@ namespace UnusualSuspect.Services.SignalR;
 public sealed class GameHub(IGameService gameService, INotificationService notificationService,
   IMemoryCacheService memoryCacheService) : Hub<IGameClient>
 {
+  #region Properties
   private int? UserId
   {
     get
@@ -20,11 +20,16 @@ public sealed class GameHub(IGameService gameService, INotificationService notif
       return Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt();
     }
   }
+  #endregion Properties
 
-  public async Task Echo(string user, string message)
+  #region PublicMethods
+  public async Task SendMessageToAll(string user, string message)
   {
     await Clients.Caller.ReceiveMessage(user + message);
   }
+  #endregion PublicMethods
+
+  #region Events
   public override async Task OnConnectedAsync()
   {
     int? userId = UserId;
@@ -67,5 +72,6 @@ public sealed class GameHub(IGameService gameService, INotificationService notif
       await Clients.OthersInGroup(participate.Result.GameId.ToString()).ChangeConnectionStatus(userId, isConnected);
     }
   }
+  #endregion Events
 
 }

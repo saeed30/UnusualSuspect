@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;

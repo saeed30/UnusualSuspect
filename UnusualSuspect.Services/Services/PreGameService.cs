@@ -1,10 +1,10 @@
 ﻿using ElmahCore;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.DataLayer.Contracts.Repository;
-using UnusualSuspect.DataLayer.Repositories;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;

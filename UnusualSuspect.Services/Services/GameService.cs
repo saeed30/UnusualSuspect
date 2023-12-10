@@ -6,6 +6,7 @@ using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Mapping;
 using ElmahCore;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 
 namespace UnusualSuspect.Services.Services;
 
