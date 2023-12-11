@@ -21,8 +21,8 @@
           columns.Bound(c => c.Id).Title("شناسه").Filterable(false);
           columns.Bound(c => c.GameType.Title).Title("نوع بازی");
           columns.Bound(c => c.PreGameGroupStatus.Title).Title("وضعیت بازی");
-          columns.Bound(c => c.CreatedTimeTitle).Title("زمان ایجاد");
-          columns.Bound(c => c.ReadyToGameTimeTitle).Title("زمان اعلام آمادگی برای شروع بازی");
+          columns.Bound(c => c.CreatedTimePersian).Title("زمان ایجاد");
+          columns.Bound(c => c.ReadyToGameTimePersian).Title("زمان اعلام آمادگی برای شروع بازی");
           columns.Bound(c => c.CalculatedJoinedUsers).Title("تعداد فراد");
 @*           columns.Bound(p => p.Id).ClientTemplate("<button data-modaltype='modal-lg'  type='button' class='k-button k-button-icontext EditItem' data-id='#=id#' data-type='0' data-remote='/HomeMenu/CreateEditMenuItem?homeMenuId=#=Id#'><i class='fas fa-edit text-primary'></i></button>").Title(" ").Filterable(false).Width(50);
           columns.Bound(p => p.Id).ClientTemplate("<button  data-id='#=Id#' type='button' class='k-button k-button-icontext DeleteItem' data-action='/HomeMenu/DeleteMenuItem' data-titlesweet='آیا مطمئن هستید' data-textsweet='در صورت اطمینان از حذف آیتم منو بر روی تائید کلیک کنید.' , SharedLocalizer['آیتم]' data-cancelbtn='انصراف' data-confirmbtn='تائید'><i class='fas fa-trash-alt text-danger'></i></button>").Title(" ").Filterable(false).Width(50);

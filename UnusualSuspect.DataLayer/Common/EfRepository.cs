@@ -23,7 +23,12 @@ public class EfRepository<T, TY>(IUnitOfWork uow, ILogger<EfRepository<T, TY>> l
 		return await baseEntity.FirstOrDefaultAsync(a => a.Id.Equals(id), cancellationToken);
 	}
 
-	public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default)
+  public IQueryable<T> GetAll()
+  {
+    return baseEntity;
+  }
+
+  public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default)
 	{
 		return await baseEntity.ToListAsync(cancellationToken);
 	}

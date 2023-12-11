@@ -15,6 +15,7 @@ public interface IAsyncRepository<T, TY> where T : BaseEntity<TY>
 {
 	Task<T?> GetByIdAsync(TY id, CancellationToken cancellationToken = default);
 
+	IQueryable<T> GetAll();
 	Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default);
 
 	Task<IReadOnlyList<T>> ListAllAsync(int perPage, int page, CancellationToken cancellationToken = default);

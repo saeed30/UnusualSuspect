@@ -1,4 +1,5 @@
-﻿using UnusualSuspect.ApiViewModels.Enums.BaseData;
+﻿using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.Services.Contracts;
@@ -15,7 +16,7 @@ public interface IPreGameService
   Task RecalculatePreGameGroupUsers(int preGameGroupId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default);
   Task CombineGroupsToStartGames(CancellationToken cancellationToken = default);
-  Task<UnusualSuspectServiceResult<bool>> PreGameGroupChangeReadyToPlayAsync(int requestPreGameGroupId, PreGameGroupStatusEnum preGameGroupStatusEnum, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<bool>> PreGameGroupChangeReadyToPlayAsync(int preGameGroupId, PreGameGroupStatusEnum preGameGroupStatusEnum, CancellationToken cancellationToken = default);
   IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame();
-
+  Task<UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>> GetPreGameGroupDetail(int preGameGroupId, int userId, CancellationToken cancellationToken = default);
 }

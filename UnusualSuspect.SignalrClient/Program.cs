@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
+using UnusualSuspect.Services.SignalR;
 
 // Create a connection to the hub
 var connection = new HubConnectionBuilder()
-  .WithUrl("http://185.252.28.45/GameHub")
+  .WithUrl("http://localhost/GameHub")
   .Build();
 
 // Register a handler for receiving messages from the hub
-connection.On<string>("ReceiveMessage", (string message) =>
+connection.On<string, string>("ReceiveMessage", (user, message) =>
 {
-  Console.WriteLine($"Received: {message}");
+  Console.WriteLine($"Received: {user +" - "+ message}");
 });
-
 // Start the connection
 await connection.StartAsync();
 Console.WriteLine("Connected to the hub");
@@ -30,7 +30,7 @@ while (true)
   }
 
   // Send the message to the hub
-  await connection.SendAsync("SendMessageToAll", input);
+  await connection.SendAsync("SendMessage", "username", input);
   Console.WriteLine($"Sent: {input}");
 }
 

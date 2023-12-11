@@ -32,7 +32,7 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
     var minWait = Task.Delay(new Random().Next(1, 2000), cancellationToken);
 
 		//logger.LogEvent(1, "نمونه لاگ information", 65, "this is for extra info");
-		string phone = phoneNumber.KeyValue;
+		string phone = phoneNumber.PhoneNumber;
     if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
     {
       await minWait.ConfigureAwait(false);

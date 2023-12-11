@@ -3,9 +3,9 @@ using UnusualSuspect.Entities.Common;
 
 namespace UnusualSuspect.Entities.GameModels;
 
-public enum GameTypeEnum
-{
-}
+//public enum GameTypeEnum
+//{
+//}
 public class GameType : BaseEntity<short>
 {
 	public string Name { get; set; }

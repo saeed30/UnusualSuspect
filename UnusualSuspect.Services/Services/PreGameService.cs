@@ -1,5 +1,6 @@
 ﻿using ElmahCore;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Common.Utilities;
@@ -203,6 +204,18 @@ public class PreGameService(IUnitOfWork uow,
   public IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame()
   {
     return preGameGroupRepository.GetAllPreGameGroupsWithDetailsWaitingForGame();
+  }
+
+  public async Task<UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>> GetPreGameGroupDetail(int preGameGroupId, int userId, CancellationToken cancellationToken = default)
+  {
+    if(!await joinedPreGameRepository.UserExistsInPreGameGroupAsync(userId, preGameGroupId, cancellationToken))
+      return new UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>(
+        new UnusualSuspectErrorResult(LogicErrorCode.UserNotMmeberOfPreGameGroup));
+    var result = await preGameGroupRepository.GetByIdWithJoinedPreGameAsync(preGameGroupId, cancellationToken);
+    if(result == null)
+      return new UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>(
+        new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));
+    return new UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>(result.ToGetPreGameGroupDetailResponse());
   }
 
 

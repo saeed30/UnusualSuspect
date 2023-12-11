@@ -20,9 +20,9 @@ public sealed class CreateGameGroupEndpoint(IPreGameService preGameService) : My
 {
   [HttpPost("api/[namespace]/CreateGameGroup")]
 	public override async Task<ActionResult<ApiResult<CreateGameGroupResponse>>> HandleAsync(
-		[FromBody] CreateGameGroupRequest id, CancellationToken cancellationToken = default)
+		[FromBody] CreateGameGroupRequest request, CancellationToken cancellationToken = default)
 	{
-		var result = await preGameService.CreatePreGameGroup(CurrentUser.UserId, id.KeyValue, cancellationToken);
+		var result = await preGameService.CreatePreGameGroup(CurrentUser.UserId, request.GameTypeId, cancellationToken);
 		if(!result.Success)
 			return new ApiResult<CreateGameGroupResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
 

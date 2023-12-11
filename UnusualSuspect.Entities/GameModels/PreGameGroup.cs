@@ -21,14 +21,16 @@ public class PreGameGroup : BaseEntity
 	public virtual Game? Game { get; set; }
 	public virtual ICollection<JoinedPreGame> JoinedPreGames { get; set; }
 
-  public string CreatedTimeTitle
+  [NotMapped]
+  public string CreatedTimePersian
   {
     get
     {
       return CreatedTime.ToString();
     }
-  } 
-  public string ReadyToGameTimeTitle
+  }
+  [NotMapped]
+  public string ReadyToGameTimePersian
   {
     get
     {
