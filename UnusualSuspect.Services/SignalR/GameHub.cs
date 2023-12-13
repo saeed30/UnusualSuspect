@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Castle.Core.Logging;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
@@ -8,7 +8,7 @@ using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Services.SignalR;
 
-//[Authorize]
+[Authorize]
 public sealed class GameHub(IGameService gameService, INotificationService notificationService,
   IMemoryCacheService memoryCacheService, ILogger<GameHub> logger) : Hub<IGameClient> , IGameHub
 {
