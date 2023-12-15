@@ -16,7 +16,12 @@ namespace UnusualSuspect.Services.Mapping
     {
       return new PreGameGroupGetResponse()
       {
-        PreGameGroupId = value.Id
+        PreGameGroupId = value.Id,
+        PreGameGroupStatusId = value.PreGameGroupStatusId,
+        CalculatedJoinedUsers = value.CalculatedJoinedUsers,
+        GameTypeId = value.GameTypeId,
+        GameId = value.GameId,
+        CreatedTime = value.CreatedTime
       };
     }
     public static IEnumerable<PreGameGroupGetResponse> ToGetPreGameGroupDetailResponse(this IEnumerable<PreGameGroup> value)

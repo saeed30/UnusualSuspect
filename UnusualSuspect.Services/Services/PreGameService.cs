@@ -219,6 +219,11 @@ public class PreGameService(IUnitOfWork uow,
     return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(result.ToGetPreGameGroupDetailResponse());
   }
 
+  public Task<UnusualSuspectServiceResult<MyPreGameGroupsResponse>> GetPreGameGroupByUserId(int userId)
+  {
+    throw new NotImplementedException();
+  }
+
 
   private List<int> CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(PreGameGroup preGameGroup)
   {
