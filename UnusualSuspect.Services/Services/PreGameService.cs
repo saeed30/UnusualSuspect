@@ -272,7 +272,7 @@ public class PreGameService(IUnitOfWork uow,
           ElmahExtensions.RaiseError(new Exception("Game not available after creation! id: " + game.Id));
           return;
         }
-        await notificationService.SendGameModelToAllMembers(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
+        await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
           gameWithDetails.ToGameFlowDto()));
         needToRefill = true;
       }

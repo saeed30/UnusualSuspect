@@ -43,7 +43,17 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
   public IQueryable<Game> GetAllActiveGamesWithGameType()
   {
     return games
-      .Include(x=>x.GameType)
+      .Include(x => x.GameType)
       .Where(x => x.FinishedTime == null);
+  }
+
+  public async Task<Game?> GetUserCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default)
+  {
+    Game? game = await games.FirstOrDefaultAsync(
+      x => x.FinishedTime == null &&
+           x.Participates.Any(p => p.UserId == userId), cancellationToken);
+    if (game == null)
+      return null;
+    return await GetGameWithDetailsAsync(game.Id, cancellationToken);
   }
 }

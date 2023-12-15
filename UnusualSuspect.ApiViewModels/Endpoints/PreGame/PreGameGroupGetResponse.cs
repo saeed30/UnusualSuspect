@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using UnusualSuspect.ApiViewModels.InnerModels.PreGame;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
 {
@@ -12,6 +13,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
     public short GameTypeId { get; set; }
     public short PreGameGroupStatusId { get; set; }
     public int? GameId { get; set; }
+    public List<JoinedPreGameDto> JoinedPreGame { get; set; } = new List<JoinedPreGameDto>();
 
   }
 }

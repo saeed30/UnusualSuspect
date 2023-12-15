@@ -6,39 +6,38 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.InnerModels.Game;
+using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.SignalR;
 
 namespace UnusualSuspect.Services.Services;
 
-public class NotificationService(IHubContext<GameHub, IGameClient> context,
+public sealed class NotificationService(IHubContext<GameHub, IGameClient> context,
   IMemoryCacheService memoryCacheService) : INotificationService
 {
-  public async Task SendGameFlowToAllMembers(GameFlowDto gameFlowDto)
+  public async Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null)
   {
-    await context.Clients.Group(gameFlowDto.Id.ToString()).SendGameFlow(gameFlowDto);
+    await context.Clients.Group(gameId.ToString()).GameCommand(command, data);
   }
 
-  public async Task SendGameBaseToAllMembers(GameBaseDto gameBaseDto)
+  public async Task SendSignalToUser(int userId, SignalCommands command, object? data = null)
   {
-    await context.Clients.Group(gameBaseDto.Id.ToString()).SendGameBase(gameBaseDto);
+    await context.Clients.User(userId.ToString()).GameCommand(command, data);
   }
 
-  public async Task SendGameModelToAllMembers(GameGetResponse game, bool addMembersToGroup = true)
+  public async Task NotifyOnGameStart(GameGetResponse game)
   {
-    if (addMembersToGroup)
+    List<Task> tasks = new List<Task>();
+    foreach (var gameParticipantDto in game.GameBaseDto.GameParticipantDto)
     {
-      List<Task> tasks = new List<Task>();
-      foreach (var gameParticipantDto in game.GameBaseDto.GameParticipantDto)
-      {
-        var connections = await memoryCacheService.GetUserSignalRConnections(gameParticipantDto.GameUserDto.Id);
-        foreach (var connection in connections)
-          tasks.Add(AddToGroupAsync(gameParticipantDto.GameUserDto.Id, connection, game.GameBaseDto.Id.ToString()));
-      }
-      await Task.WhenAll(tasks.ToArray());
+      var connections = await memoryCacheService.GetUserSignalRConnections(gameParticipantDto.GameUserDto.Id);
+      foreach (var connection in connections)
+        tasks.Add(AddToGroupAsync(gameParticipantDto.GameUserDto.Id, connection, game.GameBaseDto.Id.ToString()));
     }
-    await context.Clients.Group(game.GameBaseDto.Id.ToString()).SendGame(game);
+    await Task.WhenAll(tasks.ToArray());
+    await SendSignalToGameGroup(game.GameBaseDto.Id,SignalCommands.NewGameStarted, game.GameBaseDto.Id);
   }
 
   public async Task AddToGroupAsync(int userId, string connectionId, string groupName)

@@ -10,6 +10,7 @@ namespace UnusualSuspect.Services.Mapping
     {
       return new PreGameGroupDto()
       {
+        PreGameGroupId = value.Id,
         PreGameGroupStatusId = value.PreGameGroupStatusId,
         CalculatedJoinedUsers = value.CalculatedJoinedUsers,
         ReadyToGameTime = value.ReadyToGameTime,
@@ -39,7 +40,8 @@ namespace UnusualSuspect.Services.Mapping
         CalculatedJoinedUsers = value.CalculatedJoinedUsers,
         GameTypeId = value.GameTypeId,
         GameId = value.GameId,
-        CreatedTime = value.CreatedTime
+        CreatedTime = value.CreatedTime,
+        JoinedPreGame = value.JoinedPreGames.ToJoinedPreGameDto().ToList()
       };
     }
     public static IEnumerable<PreGameGroupGetResponse> ToGetPreGameGroupDetailResponse(this IEnumerable<PreGameGroup> value)

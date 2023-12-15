@@ -8,4 +8,5 @@ public interface IGameRepository : IAsyncRepository<Game>
 	Task<bool> SetGameFinishTimeAsync(int id, DateTime finishTime, CancellationToken cancellationToken = default);
 	Task<bool> SetGameWinStateAsync(int id, bool won, CancellationToken cancellationToken = default);
   IQueryable<Game> GetAllActiveGamesWithGameType();
+  Task<Game?> GetUserCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default);
 }

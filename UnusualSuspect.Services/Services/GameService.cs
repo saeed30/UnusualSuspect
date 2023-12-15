@@ -16,19 +16,12 @@ public sealed class GameService(IUnitOfWork uow,
   ICharacterCardGameRepository characterCardGameRepository,
   INotificationService notificationService) : IGameService
 {
-  public async Task<UnusualSuspectServiceResult<GameGetResponse>> GetGameAsync(int gameId, int? userId = null, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<GameGetResponse?>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
-    if (userId.HasValue)
-    {
-      bool hasAccess = await IsGameMember(gameId, userId.Value, cancellationToken);
-      if (!hasAccess)
-        return new UnusualSuspectServiceResult<GameGetResponse>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
-    }
-    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
+    Game? game = await gameRepository.GetUserCurrentGameWithDetailsAsync(userId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<GameGetResponse>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
-    return new UnusualSuspectServiceResult<GameGetResponse>(new GameGetResponse(game.ToGameBaseDto(), game.ToGameFlowDto()));
+      return new UnusualSuspectServiceResult<GameGetResponse?>((GameGetResponse?)null);
+    return new UnusualSuspectServiceResult<GameGetResponse?>(new GameGetResponse(game.ToGameBaseDto(), game.ToGameFlowDto()));
   }
 
   public async Task<UnusualSuspectServiceResult<bool>> FinishGameAsync(int gameId, int userId, CancellationToken cancellationToken = default)
@@ -43,7 +36,7 @@ public sealed class GameService(IUnitOfWork uow,
       if (game == null)
         return new UnusualSuspectServiceResult<bool>(
           new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
-      await notificationService.SendGameFlowToAllMembers(game.ToGameFlowDto());
+      await notificationService.SendSignalToGameGroup(gameId, SignalCommands.GameFinished, gameId);
     }
     return new UnusualSuspectServiceResult<bool>(done);
   }
@@ -88,7 +81,7 @@ public sealed class GameService(IUnitOfWork uow,
       ElmahExtensions.RaiseError(new Exception("Game not available! id: " + gameId));
       return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     }
-    await notificationService.SendGameFlowToAllMembers(game.ToGameFlowDto());
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.NewCardWasChosen);
     return result;
   }
 

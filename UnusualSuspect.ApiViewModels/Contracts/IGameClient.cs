@@ -1,15 +1,11 @@
 ﻿using System.Threading.Tasks;
-using UnusualSuspect.ApiViewModels.Endpoints.Game;
-using UnusualSuspect.ApiViewModels.InnerModels.Game;
+using UnusualSuspect.ApiViewModels.Enums;
 
 namespace UnusualSuspect.ApiViewModels.Contracts
 {
     public interface IGameClient
   {
-    Task SendGameFlow(GameFlowDto gameFlowDto);
-    Task SendGameBase(GameBaseDto gameBaseDto);
-    Task SendGame(GameGetResponse gameBaseDto);
-    Task ChangeConnectionStatus(int userId, bool isConnected);
+    Task GameCommand(SignalCommands command, object? data = null);
     Task ReceiveMessage(string user, string message);
   }
 }
