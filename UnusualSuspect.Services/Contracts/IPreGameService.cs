@@ -18,5 +18,5 @@ public interface IPreGameService
   Task CombineGroupsToStartGames(CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> PreGameGroupChangeReadyToPlayAsync(int preGameGroupId, PreGameGroupStatusEnum preGameGroupStatusEnum, CancellationToken cancellationToken = default);
   IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame();
-  Task<UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>> GetPreGameGroupDetail(int preGameGroupId, int userId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupDetail(int preGameGroupId, int userId, CancellationToken cancellationToken = default);
 }

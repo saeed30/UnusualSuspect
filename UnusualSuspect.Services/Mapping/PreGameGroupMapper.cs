@@ -12,14 +12,14 @@ namespace UnusualSuspect.Services.Mapping
 {
   public static class PreGameGroupMapper
   {
-    public static GetPreGameGroupDetailResponse ToGetPreGameGroupDetailResponse(this PreGameGroup value)
+    public static PreGameGroupGetResponse ToGetPreGameGroupDetailResponse(this PreGameGroup value)
     {
-      return new GetPreGameGroupDetailResponse()
+      return new PreGameGroupGetResponse()
       {
         PreGameGroupId = value.Id
       };
     }
-    public static IEnumerable<GetPreGameGroupDetailResponse> ToGetPreGameGroupDetailResponse(this IEnumerable<PreGameGroup> value)
+    public static IEnumerable<PreGameGroupGetResponse> ToGetPreGameGroupDetailResponse(this IEnumerable<PreGameGroup> value)
     {
       return value.Select(x => x.ToGetPreGameGroupDetailResponse());
     }

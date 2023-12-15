@@ -206,16 +206,17 @@ public class PreGameService(IUnitOfWork uow,
     return preGameGroupRepository.GetAllPreGameGroupsWithDetailsWaitingForGame();
   }
 
-  public async Task<UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>> GetPreGameGroupDetail(int preGameGroupId, int userId, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupDetail(
+    int preGameGroupId, int userId, CancellationToken cancellationToken = default)
   {
     if(!await joinedPreGameRepository.UserExistsInPreGameGroupAsync(userId, preGameGroupId, cancellationToken))
-      return new UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>(
+      return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(
         new UnusualSuspectErrorResult(LogicErrorCode.UserNotMmeberOfPreGameGroup));
     var result = await preGameGroupRepository.GetByIdWithJoinedPreGameAsync(preGameGroupId, cancellationToken);
     if(result == null)
-      return new UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>(
+      return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(
         new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));
-    return new UnusualSuspectServiceResult<GetPreGameGroupDetailResponse>(result.ToGetPreGameGroupDetailResponse());
+    return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(result.ToGetPreGameGroupDetailResponse());
   }
 
 
