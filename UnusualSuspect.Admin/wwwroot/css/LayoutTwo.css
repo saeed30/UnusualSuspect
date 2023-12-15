@@ -1,0 +1,124 @@
+﻿
+@font-face {
+    font-family: iransans;
+    src: url('../fonts/iransans/IRANSansFaNum.eot'), url('../fonts/iransans/IRANSansFaNum.otf'), url('../fonts/iransans/IRANSansFaNum.svg'), url('../fonts/iransans/IRANSansFaNum.ttf'), url('../fonts/iransans/IRANSansFaNum.woff'), url('../fonts/iransans/IRANSansFaNum.woff2');
+}
+
+body {
+    font-size: 14px;
+    text-align: right;
+    direction:rtl;
+}
+    body * {
+        font-family: iransans;
+    }
+footer {
+    border-top: 1px solid #eee;
+    padding: 15px;
+    background-color: #e9e7e7;
+}
+
+main {
+    margin: 50px 0;
+}
+
+.login-form {
+    text-align: right;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    /*padding:15px;*/
+    background-color:#f9f9f9;
+}
+
+    .login-form .form-horizontal {
+        padding:15px;
+    }
+
+    .login-form #forgot-password {
+        float: left;
+    }
+
+    .login-form .btn-login {
+        width: 100%;
+    }
+
+    .login-form .register-div {
+        padding: 15px;
+        border-top: 1px solid #eee;
+        background-color:#d8e4ed;
+    }
+
+        .login-form .register-div span {
+            font-size: 15px;
+            color: #808080;
+            margin-left: 10px;
+        }
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 10px;
+    border: 1px solid #c8cbce;
+    border-radius: 5px;
+    background-color: #e5ecf1;
+    padding: 10px;
+}
+
+#forget-password-form {
+    border: 1px solid #d7e4f7;
+    border-radius:5px;
+}
+.radio label, .checkbox label{
+    margin-bottom:0;
+}
+.login-logo img {
+    width: 50%;
+}
+
+.login-logo a {
+ display:block;
+}
+
+
+.DisableItems {
+    pointer-events: none;
+    position: relative;
+    background-color: initial;
+    border-radius: 5px;
+    min-height: 100px;
+}
+
+    .DisableItems::after {
+        content: url('../images/loading.gif');
+        color: #2b71e0;
+        width: 100%;
+        top: calc(50% - 23px);
+        left: 0;
+        text-align: center;
+        position: absolute;
+    }
+
+    .DisableItems * {
+        pointer-events: none;
+        opacity: 0;
+    }
+
+.DisableItemsSelect {
+    pointer-events: none;
+    opacity: 0.3;
+}
+#create-customer {
+    border:1px solid #c8cbce;
+    border-radius:5px;
+}
+.hide{
+    display:none !important;
+}
+a:hover {
+    color: #48b7f7;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #60b8ea;
+}

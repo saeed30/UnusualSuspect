@@ -1,0 +1,328 @@
+
+
+@font-face {
+    font-family: iransans;
+    src: url('../fonts/iransans/IRANSansFaNum.eot'),
+        url('../fonts/iransans/IRANSansFaNum.otf'),
+        url('../fonts/iransans/IRANSansFaNum.svg'),
+        url('../fonts/iransans/IRANSansFaNum.ttf'),
+        url('../fonts/iransans/IRANSansFaNum.woff'),
+        url('../fonts/iransans/IRANSansFaNum.woff2');
+}
+
+body{
+    direction: rtl !important;
+    text-align: right !important;
+    background-color:#fff;
+}
+    body * {
+        font-family:iransans;
+    }
+
+
+@media screen and (min-width:992px) {
+    .aside-fixed .aside {
+        left: auto;
+        right: 0;
+    }
+    .aside-enabled.aside-fixed .wrapper {
+        transition: padding-right .3s ease;
+        padding-left: 0;
+        padding-right: 265px;
+    }
+    .aside-enabled.aside-fixed.header-fixed .header {
+        left: 0;
+        right: 265px;
+        transition: right .3s ease;
+    }
+    .aside-enabled.aside-fixed.toolbar-fixed .toolbar {
+        right: 265px;
+        left: 0;
+        transition: right .3s ease;
+    }
+    .aside-enabled.aside-fixed[data-kt-aside-minimize=on] .wrapper {
+        transition: padding-left .3s ease;
+        padding-right: 75px;
+        padding-left: 0px;
+    }
+    .aside-enabled.aside-fixed.header-fixed[data-kt-aside-minimize=on] .header {
+        left: 0px;
+        right: 75px;
+        transition: left .3s ease;
+    }
+    .aside-enabled.aside-fixed.toolbar-fixed[data-kt-aside-minimize=on] .toolbar {
+        right: 75px;
+        left: 0;
+        transition: left .3s ease;
+    }
+}
+.drawer.drawer-end {
+    right: auto;
+    left: 0;
+    transform: translate(-100%);
+}
+.drawer.drawer-on {
+    transform: none;
+}
+.timeline-label:before{
+    right: 51px;
+    left: auto;
+}
+.card .card-header .card-title{
+    margin-left: 0.5rem;
+    margin-right: 0%;
+}
+.form-check.form-check-custom .form-check-label {
+    margin-left: 0;
+    margin-right: 0.55rem;
+}
+.stepper.stepper-pills .stepper-item .stepper-icon{
+    margin-left: 1.5rem;
+    margin-right: 0;
+}
+
+.required:after{
+    padding-left: 0;
+    padding-right: 0.25rem;
+}
+
+.stepper.stepper-pills.stepper-column .stepper-line{
+    left: auto;
+    right: 0;
+}
+.timeline .timeline-line{
+    left: auto;
+    right: 0;
+    transform: translate(20%);
+}
+.menu-item.menu-lg-down-accordion{
+    position: relative;
+}
+.menu-sub.menu-sub-lg-down-accordion > .menu-item.menu-lg-down-accordion > .menu-sub.menu-sub-lg-down-accordion {
+    position: absolute !important;
+    right: 100% !important;
+    top: 0 !important;
+    transform: none !important;
+}
+
+.menu-column > div > .menu-sub.menu-sub-lg-down-accordion{
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    transform: none !important;
+}
+
+.SearchForm, .paymentCon {
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 20px 15px;
+    margin: 2px;
+    margin-bottom: 20px;
+    position: relative;
+    margin-top: 15px;
+    align-items: center;
+}
+.title-p, .title-search {
+    font-size: 16px;
+    position: absolute;
+    top: -15px;
+    right: 22px;
+    background-color: #fff;
+    padding: 0 10px;
+}
+.SearchForm{
+    margin-top:30px
+}
+.SearchForm .row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+.form-control {
+    border-radius: 0.25rem;
+    box-shadow: none;
+    border-color: #d2d6de;
+    display: block;
+    width: 100%;
+    height:35px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
+    padding: calc(.75rem - 2px) calc(1.5rem + 1px);
+}
+.btn {
+    /*padding:0.4rem 1.2rem !important;*/
+    height: 35px;
+}
+.w-content{
+    width:max-content !important;
+}
+
+.input-group{
+    position:relative;
+}
+.input-group input {
+    width:100%;
+}
+    .input-group .input-group-addon {
+        position: absolute;
+        top:12px;
+        left:10px;
+        z-index:1;
+        pointer-events:none
+    }
+
+.k-grid-header {
+    text-align: right;
+}
+.k-grid tbody, .k-grid tfoot, .k-grid thead {
+    text-align: right!important;
+}
+
+
+.addTextBtn{
+    display:flex;
+    place-items:center;
+    gap:5px;
+    font-size:13px
+}
+    .addTextBtn i {
+        color: #0366d6;
+    }
+.text-holder{
+    display:none;
+}
+
+
+
+
+
+/* Dropdown Button */
+.dropbtn {
+    background-color: #04AA6D;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+    /* Dropdown button on hover & focus */
+    .dropbtn:hover, .dropbtn:focus {
+        background-color: #3e8e41;
+    }
+
+/* The search field */
+#myInput {
+    box-sizing: border-box;
+    background-image: url('searchicon.png');
+    background-position: 14px 12px;
+    background-repeat: no-repeat;
+    font-size: 16px;
+    padding: 14px 20px 12px 45px;
+    border: none;
+    border-bottom: 1px solid #ddd;
+}
+
+    /* The search field when it gets focus/clicked on */
+    #myInput:focus {
+        outline: 3px solid #ddd;
+    }
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    margin: auto auto;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f6f6f6;
+    min-width: 230px;
+    border: 1px solid #ddd;
+    z-index: 1;
+}
+
+    /* Links inside the dropdown */
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #f1f1f1
+        }
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {
+    display: block;
+}
+
+
+.bigImage {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    top: -70px;
+    right: 50px;
+    z-index: 99;
+    background: #fff;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+    .bigImage img {
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        max-height: 100%;
+    }
+
+.card-flush tbody tr{
+    position:relative;
+}
+
+.SearchForm {
+    margin: 10px 0;
+    background-color: #d3d4d8;
+    border-bottom: 1px solid #d3d4d8;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+    .SearchForm .form-control {
+        font-size: 13px;
+        height: 34px;
+        border-radius: 0;
+    }
+    .SearchForm .btn {
+        width: 100%;
+        margin: 0px;
+        height: 34px;
+        font-size: 13px;
+    }
+
+.z-1080{
+    z-index:1080 !important;
+}
+.file-error-message ul{
+    text-align:right!important;
+}
+.file-error-message .kv-error-close {
+    float:left!important;
+}
