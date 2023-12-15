@@ -219,9 +219,10 @@ public class PreGameService(IUnitOfWork uow,
     return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(result.ToGetPreGameGroupDetailResponse());
   }
 
-  public Task<UnusualSuspectServiceResult<MyPreGameGroupsResponse>> GetPreGameGroupByUserId(int userId)
+  public async Task<UnusualSuspectServiceResult<MyPreGameGroupsResponse>> GetPreGameGroupByUserId(int userId)
   {
-    throw new NotImplementedException();
+    var result = await preGameGroupRepository.GetByUserIdWithJoinedPreGameAsync(userId);
+    return new UnusualSuspectServiceResult<MyPreGameGroupsResponse>(result.ToMyPreGameGroupsResponse());
   }
 
 

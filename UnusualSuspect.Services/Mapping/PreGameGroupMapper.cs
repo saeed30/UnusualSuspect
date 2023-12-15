@@ -1,17 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
-using UnusualSuspect.ApiViewModels.Enums;
-using UnusualSuspect.ApiViewModels.Game;
+﻿using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
+using UnusualSuspect.ApiViewModels.InnerModels.PreGame;
 using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.Services.Mapping
 {
   public static class PreGameGroupMapper
   {
+    public static PreGameGroupDto ToPreGameGroupDto(this PreGameGroup value)
+    {
+      return new PreGameGroupDto()
+      {
+        PreGameGroupStatusId = value.PreGameGroupStatusId,
+        CalculatedJoinedUsers = value.CalculatedJoinedUsers,
+        ReadyToGameTime = value.ReadyToGameTime,
+        GameTypeId = value.GameTypeId,
+        GameId = value.GameId,
+        CreatedTime = value.CreatedTime
+      };
+    }
+    public static IEnumerable<PreGameGroupDto> ToPreGameGroupDto(this IEnumerable<PreGameGroup> value)
+    {
+      return value.Select(x => x.ToPreGameGroupDto());
+
+    }
+    public static MyPreGameGroupsResponse ToMyPreGameGroupsResponse(this IEnumerable<PreGameGroup> value)
+    {
+      return new MyPreGameGroupsResponse()
+      {
+        PreGameGroups = value.ToPreGameGroupDto().ToList()
+      };
+    }
     public static PreGameGroupGetResponse ToGetPreGameGroupDetailResponse(this PreGameGroup value)
     {
       return new PreGameGroupGetResponse()
@@ -28,6 +46,5 @@ namespace UnusualSuspect.Services.Mapping
     {
       return value.Select(x => x.ToGetPreGameGroupDetailResponse());
     }
-
   }
 }

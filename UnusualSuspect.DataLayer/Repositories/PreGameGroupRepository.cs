@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Security.AccessControl;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
@@ -13,13 +14,20 @@ public class PreGameGroupRepository
 {
 	private readonly DbSet<PreGameGroup> preGameGroup = uow.Set<PreGameGroup>();
 
+  public async Task<IReadOnlyList<PreGameGroup>> GetByUserIdWithJoinedPreGameAsync(int userId, int maxNumberOfGameRequests = 50, CancellationToken cancellationToken = default)
+  {
+    return await preGameGroup
+      .Where(x => x.JoinedPreGames.Any(j=>j.UserId == userId))
+      .OrderByDescending(x => x.ReadyToGameTime).Take(maxNumberOfGameRequests).ToListAsync(cancellationToken);
+  }
+
   public async Task<PreGameGroup?> GetByIdWithJoinedPreGameAsync(int preGameGroupId, CancellationToken cancellationToken = default)
 	{
 		return await preGameGroup.Include(x=>x.JoinedPreGames)
 			.FirstOrDefaultAsync(x=>x.Id == preGameGroupId, cancellationToken);
 	}
 
-	public async Task<List<PreGameGroup>> GetTopPreGameGroupByReadyTimeAsync(GameType gameType, int count, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<PreGameGroup>> GetTopPreGameGroupByReadyTimeAsync(GameType gameType, int count, CancellationToken cancellationToken = default)
 	{
 		return await preGameGroup
 			.Where(x => x.ReadyToGameTime != null && x.PreGameGroupStatusId == (short)PreGameGroupStatusEnum.Ready && x.GameTypeId == gameType.Id)

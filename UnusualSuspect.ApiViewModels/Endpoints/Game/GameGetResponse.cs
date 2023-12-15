@@ -1,10 +1,10 @@
 ﻿using System;
 using UnityEngine;
-using UnusualSuspect.ApiViewModels.Game;
+using UnusualSuspect.ApiViewModels.InnerModels.Game;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 {
-	[Serializable]
+    [Serializable]
 	public class GameGetResponse
 	{
 		[SerializeField]

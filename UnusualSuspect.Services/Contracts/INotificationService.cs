@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
-using UnusualSuspect.ApiViewModels.Game;
+using UnusualSuspect.ApiViewModels.InnerModels.Game;
 
 namespace UnusualSuspect.Services.Contracts;
 
