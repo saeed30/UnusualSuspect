@@ -1,20 +1,18 @@
 ﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Mvc;
+using UnusualSuspect.Admin.Models;
+using UnusualSuspect.Common.Attribute;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Services;
 
 namespace UnusualSuspect.Admin.Controllers
 {
-  public class GameController :   BaseController<GameController>
+  public class GameController(ILogger<GameController> logger, IGameService gameService) : BaseController<GameController>(logger)
   {
-    private readonly IGameService gameService;
-    public GameController(ILogger<GameController> logger, IGameService gameService) : base(logger)
-    {
-      this.gameService = gameService;
-    }
-
+    [PersianTitle("لیست بازی ها")]
+    [ServiceFilter(typeof(UserFilters))]
     public IActionResult Index()
     {
       return View();

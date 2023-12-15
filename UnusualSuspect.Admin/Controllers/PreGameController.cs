@@ -1,18 +1,18 @@
 ﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Mvc;
+using UnusualSuspect.Admin.Models;
+using UnusualSuspect.Common.Attribute;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Admin.Controllers
 {
-  public class PreGameController : BaseController<PreGameController>
+  public class PreGameController(ILogger<PreGameController> logger, IPreGameService preGameService)
+    : BaseController<PreGameController>(logger)
   {
-    private readonly IPreGameService preGameService;
-    public PreGameController(ILogger<PreGameController> logger, IPreGameService preGameService) : base(logger)
-    {
-      this.preGameService = preGameService;
-    }
+    [PersianTitle("لیست گروه های قبل از بازی")]
+    [ServiceFilter(typeof(UserFilters))]
     public IActionResult Index()
     {
       return View();

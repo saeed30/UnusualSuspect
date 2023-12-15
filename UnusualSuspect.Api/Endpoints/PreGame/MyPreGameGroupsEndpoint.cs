@@ -12,6 +12,7 @@ namespace UnusualSuspect.Api.Endpoints.PreGame
     .WithoutRequest
     .WithActionResult<ApiResult<MyPreGameGroupsResponse>>
   {
+	  [HttpGet("api/[namespace]/MyPreGameGroups", Name = "[namespace]_[controller]_MyPreGameGroups")]
     public override async Task<ActionResult<ApiResult<MyPreGameGroupsResponse>>> HandleAsync(CancellationToken cancellationToken = default)
     {
       UnusualSuspectServiceResult<MyPreGameGroupsResponse> result = await preGameService.GetPreGameGroupByUserId(CurrentUser.UserId);

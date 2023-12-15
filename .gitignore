@@ -6,6 +6,9 @@
 /UnusualSuspect.Admin/bin
 /UnusualSuspect.Admin/obj
 /UnusualSuspect.Admin/App_Data
+/UnusualSuspect.Api/bin
+/UnusualSuspect.Api/obj
+/UnusualSuspect.Api/App_Data
 /UnusualSuspect.Common/bin
 /UnusualSuspect.Common/obj
 /UnusualSuspect.DataLayer/bin
@@ -20,10 +23,7 @@
 /UnusualSuspect.ViewComponents/obj
 /UnusualSuspect.ViewModels/bin
 /UnusualSuspect.ViewModels/obj
-/UnusualSuspect.Api/bin
-/UnusualSuspect.Api/obj
 /UnusualSuspect.SignalrClient/bin
 /UnusualSuspect.SignalrClient/obj
 /UnusualSuspect.ApiViewModels/obj
 /UnusualSuspect.ApiViewModels/bin
-/UnusualSuspect.Api/App_Data

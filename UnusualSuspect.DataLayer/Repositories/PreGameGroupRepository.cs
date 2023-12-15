@@ -27,7 +27,7 @@ public class PreGameGroupRepository
 			.FirstOrDefaultAsync(x=>x.Id == preGameGroupId, cancellationToken);
 	}
 
-	public async Task<IReadOnlyList<PreGameGroup>> GetTopPreGameGroupByReadyTimeAsync(GameType gameType, int count, CancellationToken cancellationToken = default)
+	public async Task<List<PreGameGroup>> GetTopPreGameGroupByReadyTimeAsync(GameType gameType, int count, CancellationToken cancellationToken = default)
 	{
 		return await preGameGroup
 			.Where(x => x.ReadyToGameTime != null && x.PreGameGroupStatusId == (short)PreGameGroupStatusEnum.Ready && x.GameTypeId == gameType.Id)
