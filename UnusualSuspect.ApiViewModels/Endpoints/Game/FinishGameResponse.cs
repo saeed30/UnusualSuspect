@@ -1,11 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using UnityEngine;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 {
+  [Serializable]
   public class FinishGameResponse
   {
-    public bool? WonTheGame { get; set; }
+    [SerializeField]
+    private bool? wonTheGame;
+
+    public bool? WonTheGame
+    {
+      get => wonTheGame;
+      set => wonTheGame = value;
+    }
   }
 }

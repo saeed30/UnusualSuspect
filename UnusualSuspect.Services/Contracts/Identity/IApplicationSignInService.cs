@@ -2,8 +2,6 @@
 using UnusualSuspect.ViewModels.JcoSecurity;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Contracts.Identity;
 

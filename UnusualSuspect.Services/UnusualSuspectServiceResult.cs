@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnusualSuspect.ApiViewModels.Enums;
+﻿using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common;
-using UnusualSuspect.Common.Enums;
 
 namespace UnusualSuspect.Services;
 

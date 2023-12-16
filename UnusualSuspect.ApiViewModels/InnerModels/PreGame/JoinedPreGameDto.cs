@@ -1,16 +1,59 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+using UnityEngine;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 
 namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
 {
+  [Serializable]
   public class JoinedPreGameDto
   {
-    public DateTime JoinTime { get; set; }
-    public bool IsOwnerOfPreGroup { get; set; }
-    public int UserId { get; set; }
-    public ReadyToGameStatusEnum ReadyToGameStatus { get; set; }
+    [SerializeField]
+    private DateTime joinTime;
+    [SerializeField]
+    private bool isOwnerOfPreGroup;
+    [SerializeField]
+    private int userId;
+    [SerializeField]
+    private ReadyToGameStatusEnum readyToGameStatus;
+    [SerializeField]
+    private string? nickName;
+    [SerializeField]
+    private Guid? documentGuidKey;
+
+    public string? NickName
+    {
+      get => nickName;
+      set => nickName = value;
+    }
+
+    public Guid? DocumentGuidKey
+    {
+      get => documentGuidKey;
+      set => documentGuidKey = value;
+    }
+
+    public DateTime JoinTime
+    {
+      get => joinTime;
+      set => joinTime = value;
+    }
+
+    public bool IsOwnerOfPreGroup
+    {
+      get => isOwnerOfPreGroup;
+      set => isOwnerOfPreGroup = value;
+    }
+
+    public int UserId
+    {
+      get => userId;
+      set => userId = value;
+    }
+
+    public ReadyToGameStatusEnum ReadyToGameStatus
+    {
+      get => readyToGameStatus;
+      set => readyToGameStatus = value;
+    }
   }
 }

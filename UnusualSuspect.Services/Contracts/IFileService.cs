@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Data;
-using System.IO;
 
 namespace UnusualSuspect.Services.Contracts;
 

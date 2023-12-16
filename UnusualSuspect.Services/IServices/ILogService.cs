@@ -1,8 +1,6 @@
 ﻿using UnusualSuspect.Entities.Models;
 using UnusualSuspect.ViewModels.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace UnusualSuspect.Services.IServices;
 

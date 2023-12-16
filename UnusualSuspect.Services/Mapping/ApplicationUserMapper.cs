@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnusualSuspect.ApiViewModels.InnerModels.Game;
-using UnusualSuspect.Entities.GameModels;
+﻿using UnusualSuspect.ApiViewModels.InnerModels.Game;
 using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.Services.Mapping;
@@ -17,7 +11,8 @@ public static class ApplicationUserMapper
     {
       Id = value.Id,
       NickName = value.NickName,
-      Username = value.UserName
+      Username = value.UserName,
+      DocumentGuidKey = value.Document?.GuidKey
     };
   }
   public static IEnumerable<GameUserDto> ToGameUserDto(this IEnumerable<ApplicationUser> value)

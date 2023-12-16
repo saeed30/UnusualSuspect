@@ -8,7 +8,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
 	{
 		[SerializeField]
 		private int preGameGroupId;
-
+		[SerializeField]
 		private bool isReady;
 
 		public bool IsReady

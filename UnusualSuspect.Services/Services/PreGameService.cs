@@ -84,9 +84,9 @@ public class PreGameService(IUnitOfWork uow,
     if (joinedPreGame.IsOwnerOfPreGroup || !await joinedPreGameRepository.ExistsInPreGameGroupExceptUserAsync(userId, joinedPreGame.PreGameGroupId, cancellationToken))
       await RemovePreGameGroup(joinedPreGame.PreGameGroupId, cancellationToken);
     else
-      await RecalculatePreGameGroupUsers(joinedPreGame.PreGameGroupId, cancellationToken);
+      await RecalculatePreGameGroupUsers(joinedPreGame.PreGameGroupId, -1, cancellationToken);
   }
-  public async Task RecalculatePreGameGroupUsers(int preGameGroupId, CancellationToken cancellationToken = default)
+  public async Task RecalculatePreGameGroupUsers(int preGameGroupId, short changeOnThisTransaction = 0, CancellationToken cancellationToken = default)
   {
     var preGame = await preGameGroupRepository.GetByIdAsync(preGameGroupId, cancellationToken);
     if (preGame == null)
@@ -94,7 +94,7 @@ public class PreGameService(IUnitOfWork uow,
     int count = await joinedPreGameRepository.UserCountJoinedPreGameGroupAsync(preGameGroupId, cancellationToken);
     if (count > 32000)
       throw new Exception("invalid user count. preGameGroupId: " + preGameGroupId);
-    preGame.CalculatedJoinedUsers = (short)count;
+    preGame.CalculatedJoinedUsers = (short)(count + (int)changeOnThisTransaction);
   }
 
   public async Task RemovePreGameGroup(int preGameGroupId, CancellationToken cancellationToken = default)
@@ -145,13 +145,14 @@ public class PreGameService(IUnitOfWork uow,
     JoinedPreGame joinedPreGame = new JoinedPreGame()
     {
       UserId = userId,
-      IsOwnerOfPreGroup = true,
+      IsOwnerOfPreGroup = false,
       JoinTime = DateTime.Now,
       PreGameGroup = preGameGroup,
       ReadyToGameStatusId = (int)ReadyToGameStatusEnum.Notified
     };
     joinedPreGameRepository.Add(joinedPreGame);
-    //notify
+    await RecalculatePreGameGroupUsers(preGameGroupId, 1, cancellationToken);
+    await notificationService.SendSignalToUser(userId,SignalCommands.NewUserAdded, userId);
     return new UnusualSuspectServiceResult<JoinedPreGame>(joinedPreGame);
   }
 

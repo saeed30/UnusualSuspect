@@ -1,9 +1,6 @@
 ﻿using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.ViewModels.Api.User;
 using Microsoft.AspNetCore.Identity;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Contracts.Identity;

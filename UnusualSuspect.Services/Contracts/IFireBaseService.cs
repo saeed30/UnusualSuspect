@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-
-namespace UnusualSuspect.Services.Contracts;
+﻿namespace UnusualSuspect.Services.Contracts;
 
 public interface IFireBaseService
 {

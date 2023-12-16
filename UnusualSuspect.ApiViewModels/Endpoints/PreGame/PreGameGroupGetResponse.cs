@@ -1,19 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using UnityEngine;
 using UnusualSuspect.ApiViewModels.InnerModels.PreGame;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
 {
+  [Serializable]
   public class PreGameGroupGetResponse
   {
-    public int PreGameGroupId { get; set; }
-    public DateTime CreatedTime { get; set; }
-    public short CalculatedJoinedUsers { get; set; }
-    public short GameTypeId { get; set; }
-    public short PreGameGroupStatusId { get; set; }
-    public int? GameId { get; set; }
-    public List<JoinedPreGameDto> JoinedPreGame { get; set; } = new List<JoinedPreGameDto>();
+    [SerializeField]
+    private int preGameGroupId;
+    [SerializeField]
+    private DateTime createdTime;
+    [SerializeField]
+    private short calculatedJoinedUsers;
+    [SerializeField]
+    private short gameTypeId;
+    [SerializeField]
+    private short preGameGroupStatusId;
+    [SerializeField]
+    private int? gameId;
+    [SerializeField]
+    private List<JoinedPreGameDto> joinedPreGame = new List<JoinedPreGameDto>();
 
+    public int PreGameGroupId
+    {
+      get => preGameGroupId;
+      set => preGameGroupId = value;
+    }
+
+    public DateTime CreatedTime
+    {
+      get => createdTime;
+      set => createdTime = value;
+    }
+
+    public short CalculatedJoinedUsers
+    {
+      get => calculatedJoinedUsers;
+      set => calculatedJoinedUsers = value;
+    }
+
+    public short GameTypeId
+    {
+      get => gameTypeId;
+      set => gameTypeId = value;
+    }
+
+    public short PreGameGroupStatusId
+    {
+      get => preGameGroupStatusId;
+      set => preGameGroupStatusId = value;
+    }
+
+    public int? GameId
+    {
+      get => gameId;
+      set => gameId = value;
+    }
+
+    public List<JoinedPreGameDto> JoinedPreGame
+    {
+      get => joinedPreGame;
+      set => joinedPreGame = value;
+    }
   }
 }

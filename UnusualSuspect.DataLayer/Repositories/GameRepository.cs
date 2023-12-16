@@ -18,6 +18,8 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
       .ThenInclude(x => x.CharacterCard)
       .Include(x => x.GameType)
       .Include(c => c.Participates)
+      .ThenInclude(c => c.ApplicationUser)
+      .ThenInclude(c => c.Document)
       .Include(x => x.QuestionGames)
       .ThenInclude(x => x.Question)
       .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);

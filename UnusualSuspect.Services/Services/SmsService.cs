@@ -1,12 +1,9 @@
 ﻿using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
-using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 
 namespace UnusualSuspect.Services.Services;

@@ -6,11 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using UnusualSuspect.ViewModels.Settings;
-using UnusualSuspect.Common.Utilities;
 
 namespace UnusualSuspect.Services.Identity;
 

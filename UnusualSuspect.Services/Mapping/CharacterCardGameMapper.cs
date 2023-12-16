@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnusualSuspect.ApiViewModels.Endpoints.Game;
-using UnusualSuspect.ApiViewModels.InnerModels.Game;
+﻿using UnusualSuspect.ApiViewModels.InnerModels.Game;
 using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.Services.Mapping;

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnusualSuspect.ApiViewModels.Endpoints.Game;
+﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
-using UnusualSuspect.ApiViewModels.InnerModels.Game;
 
 namespace UnusualSuspect.Services.Contracts;
 

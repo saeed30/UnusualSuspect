@@ -1,12 +1,7 @@
 ﻿using UnusualSuspect.Services.Contracts;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Data;
-using System.Text;
-using System.IO;
-using System.Linq;
 using UnusualSuspect.Common.Utilities;
 using Aspose.Cells;
 using UnusualSuspect.Common.Attribute;

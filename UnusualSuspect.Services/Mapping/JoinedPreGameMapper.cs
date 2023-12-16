@@ -13,7 +13,9 @@ namespace UnusualSuspect.Services.Mapping
         UserId = value.UserId,
         IsOwnerOfPreGroup = value.IsOwnerOfPreGroup,
         JoinTime = value.JoinTime,
-        ReadyToGameStatus = (ReadyToGameStatusEnum)value.ReadyToGameStatusId
+        ReadyToGameStatus = (ReadyToGameStatusEnum)value.ReadyToGameStatusId,
+        DocumentGuidKey = value.User.Document?.GuidKey,
+        NickName = value.User.NickName
       };
     }
     public static IEnumerable<JoinedPreGameDto> ToJoinedPreGameDto(this IEnumerable<JoinedPreGame> value)

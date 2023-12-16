@@ -7,19 +7,10 @@ using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.IServices;
 using UnusualSuspect.ViewModels.Models;
 using UnusualSuspect.ViewModels.Settings;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using DNTPersianUtils.Core;
 
 namespace UnusualSuspect.Services.Services;
 

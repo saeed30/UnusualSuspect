@@ -1,21 +1,7 @@
-﻿using UnusualSuspect.Common;
-using UnusualSuspect.DataLayer;
-using UnusualSuspect.Entities.Identity;
-using UnusualSuspect.Entities.Models;
+﻿using UnusualSuspect.DataLayer;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.IServices;
-using UnusualSuspect.ViewModels.Models;
-using UnusualSuspect.ViewModels.Settings;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using Dapper;
-using System.Threading.Tasks;
 
 namespace UnusualSuspect.Services.Services;
 

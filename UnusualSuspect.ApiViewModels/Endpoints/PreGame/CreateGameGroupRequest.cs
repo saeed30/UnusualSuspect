@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using UnityEngine;
-using UnusualSuspect.ApiViewModels.InputParameters;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
 {

@@ -1,5 +1,4 @@
 ﻿using UnusualSuspect.Entities.JcoSecurity;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using UnusualSuspect.Entities.Common;
