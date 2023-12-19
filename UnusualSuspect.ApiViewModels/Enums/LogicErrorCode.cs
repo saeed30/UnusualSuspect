@@ -32,5 +32,6 @@ namespace UnusualSuspect.ApiViewModels.Enums
 		UserIsNotInActiveGame = 23,
 		GameHasNoParticipants = 24,
 		UserDoNotParticipateInThisGame = 25,
+		NoDetectiveInGameToReplaceUser = 26,
   }
 }

@@ -38,15 +38,42 @@ public sealed class GameService(IUnitOfWork uow,
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameHasNoParticipants));
     if (participantCount <= 4)
       return await FinishGameAsync(gameId, cancellationToken);
-    List<Participate> participates = await participateRepository.GetActiveParticipations(userId, cancellationToken);
-    Participate? participate = participates.FirstOrDefault(x => x.GameId == gameId);
+    Participate? participate = (await participateRepository.GetActiveParticipations(userId, cancellationToken))
+      .FirstOrDefault(x => x.GameId == gameId);
     if(participate == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
     participate.IsActive = false;
 
-    //change remaining user roles
+    RoleCardEnum userRole = (RoleCardEnum)participate.RoleCardId;
+    switch (userRole)
+    {
+      case RoleCardEnum.Detective:
+        //do nothing
+        break;
+      case RoleCardEnum.MainDetective:
+      case RoleCardEnum.Witness:
+      case RoleCardEnum.Accomplice:
+        UnusualSuspectServiceResult<bool> result = await ReplaceRoleByDetective(gameId, userRole, userId);
+        if (!result.Success)
+          return result;
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+    }
 
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.UserLeftTheGame, userId);
+    return new UnusualSuspectServiceResult<bool>(true);
+  }
+
+  private async Task<UnusualSuspectServiceResult<bool>> ReplaceRoleByDetective(int gameId, RoleCardEnum leftUserRole, int leftUserId)
+  {
+    List<Participate> participants = (await participateRepository
+      .GetGameActiveParticipantsAsync(gameId, RoleCardEnum.Detective))
+      .Where(x=>x.UserId != leftUserId).ToList();
+    if(!participants.Any())
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.NoDetectiveInGameToReplaceUser));
+    int random = new Random().Next(0, participants.Count - 1);
+    participants[random].RoleCardId = (short)leftUserRole;
     return new UnusualSuspectServiceResult<bool>(true);
   }
 

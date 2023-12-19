@@ -9,4 +9,5 @@ public interface IParticipateRepository : IAsyncRepository<Participate>
   Task<RoleCardEnum?> GetParticipantRoleAsync(int gameId, int userId, CancellationToken cancellationToken = default);
   Task<List<Participate>> GetActiveParticipations(int userId, CancellationToken cancellationToken = default);
   Task<int> GetParticipantCountAsync(int gameId, CancellationToken cancellationToken);
+  Task<List<Participate>> GetGameActiveParticipantsAsync(int gameId, RoleCardEnum? userRole = null);
 }
