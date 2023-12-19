@@ -9,14 +9,14 @@ using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.Game;
 
-public sealed class FinishGameEndpoint(IGameService gameService) : MyBaseEndpointAuthenticated
-  .WithRequest<int>
+public sealed class LeaveGameEndpoint(IGameService gameService) : MyBaseEndpointAuthenticated
+  .WithoutRequest
   .WithActionResult<ApiResult>
 {
-  [HttpPost("api/[namespace]/FinishGame")]
-  public override async Task<ActionResult<ApiResult>> HandleAsync(int id, CancellationToken cancellationToken = default)
+  [HttpPost("api/[namespace]/LeaveGame")]
+  public override async Task<ActionResult<ApiResult>> HandleAsync(CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<bool> game = await gameService.FinishGameAsync(id, CurrentUser.UserId, cancellationToken);
+    UnusualSuspectServiceResult<bool> game = await gameService.LeaveCurrentGameAsync(CurrentUser.UserId, cancellationToken);
     if (!game.Success)
       return new ApiResult(false, ApiResultStatusCode.LogicError, game.MainError.ToString());
     await gameService.SaveChangesAsync(cancellationToken);

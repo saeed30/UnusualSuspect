@@ -11,17 +11,17 @@ using UnusualSuspect.Services.Contracts;
 namespace UnusualSuspect.Api.Endpoints.Game
 {
   public class ChooseCardEndPoint(IGameService gameService) : MyBaseEndpointAuthenticated
-    .WithRequest<FinishGameRequest>
-    .WithActionResult<ApiResult<FinishGameResponse>>
+    .WithRequest<ChooseCardRequest>
+    .WithActionResult<ApiResult<ChooseCardResponse>>
   {
   [HttpPost("api/[namespace]/ChooseCard")]
-    public override async Task<ActionResult<ApiResult<FinishGameResponse>>> HandleAsync(FinishGameRequest request, CancellationToken cancellationToken = default)
+    public override async Task<ActionResult<ApiResult<ChooseCardResponse>>> HandleAsync(ChooseCardRequest request, CancellationToken cancellationToken = default)
     {
       UnusualSuspectServiceResult<bool?> result = await gameService.ChooseCardAndGetWinCondition(request.GameId, request.CardId, CurrentUser.UserId, cancellationToken);
       if (!result.Success)
-        return new ApiResult<FinishGameResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
+        return new ApiResult<ChooseCardResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
       await gameService.SaveChangesAsync(cancellationToken);
-      return new ApiResult<FinishGameResponse>(true, ApiResultStatusCode.Success, new FinishGameResponse()
+      return new ApiResult<ChooseCardResponse>(true, ApiResultStatusCode.Success, new ChooseCardResponse()
       {
         WonTheGame = result.Result
       });

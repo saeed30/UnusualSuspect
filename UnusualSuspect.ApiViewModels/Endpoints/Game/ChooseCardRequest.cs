@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 {
   [Serializable]
-  public class FinishGameRequest
+  public class ChooseCardRequest
   {
     [SerializeField]
     private int gameId;

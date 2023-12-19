@@ -7,5 +7,6 @@ namespace UnusualSuspect.ApiViewModels.Enums
     GameFinished,
     NewCardWasChosen,
     NewUserAdded,
+    UserLeftTheGame,
   }
 }

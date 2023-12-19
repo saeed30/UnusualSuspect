@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 {
   [Serializable]
-  public class FinishGameResponse
+  public class ChooseCardResponse
   {
     [SerializeField]
     private bool? wonTheGame;

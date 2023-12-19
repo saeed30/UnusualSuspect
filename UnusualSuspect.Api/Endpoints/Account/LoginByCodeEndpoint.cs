@@ -63,7 +63,8 @@ public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManage
 			Access_token = token.access_token,
 			Expires_in = token.expires_in,
 			Refresh_token = token.refresh_token,
-			Token_type = token.token_type
+			Token_type = token.token_type,
+			UserId = user.Id
 		}, "ورود با موفقیت انجام شد");
 	}
 

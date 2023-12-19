@@ -27,8 +27,18 @@ public class ParticipateRepository
     return (RoleCardEnum)participant.RoleCardId;
   }
 
-  public async Task<Participate?> GetActiveParticipation(int userId, CancellationToken cancellationToken = default)
+  public async Task<List<Participate>> GetActiveParticipations(int userId, CancellationToken cancellationToken = default)
   {
-    return await participates.FirstOrDefaultAsync(x => x.UserId == userId && x.Game.FinishedTime == null, cancellationToken);
+    var result = await participates.Where(x => 
+        x.UserId == userId && x.IsActive && x.Game.FinishedTime == null)
+      .ToListAsync(cancellationToken);
+    if(result.Count > 1) 
+      logger.LogCritical("User has more than one active game, userId: {userId}, gameIds: {gameIds}",
+        userId, string.Join("-", result.Select(x=>x.Id)));
+    return result;
+  }
+  public async Task<int> GetParticipantCountAsync(int gameId, CancellationToken cancellationToken)
+  {
+    return await participates.CountAsync(x => x.GameId == gameId, cancellationToken);
   }
 }

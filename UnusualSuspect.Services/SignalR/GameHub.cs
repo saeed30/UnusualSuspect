@@ -4,13 +4,17 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.Common.Utilities;
+using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Services.SignalR;
 
 [Authorize]
-public sealed class GameHub(IGameService gameService, INotificationService notificationService,
-  IMemoryCacheService memoryCacheService, ILogger<GameHub> logger) : Hub<IGameClient> , IGameHub
+public sealed class GameHub(IGameService gameService,
+  IParticipateRepository participateRepository,
+  INotificationService notificationService,
+  IMemoryCacheService memoryCacheService,
+  ILogger<GameHub> logger) : Hub<IGameClient> , IGameHub
 {
   #region Properties
   private int? UserId
@@ -69,11 +73,11 @@ public sealed class GameHub(IGameService gameService, INotificationService notif
         connections.Remove(Context.ConnectionId);
     }
     memoryCacheService.SetUserSignalRConnections(userId, connections);
-    var participate = await gameService.GetActiveParticipateByUserIdAsync(userId);
-    if (participate.Success && participate.Result != null)
+    var participate = await participateRepository.GetActiveParticipations(userId);
+    if (participate.Any())
     {
       if (isConnected)
-        await notificationService.AddToGroupAsync(userId, Context.ConnectionId, participate.Result.GameId.ToString());
+        await notificationService.AddToGroupAsync(userId, Context.ConnectionId, participate.First().GameId.ToString());
       //await Clients.OthersInGroup(participate.Result.GameId.ToString()).ChangeConnectionStatus(userId, isConnected);
     }
   }

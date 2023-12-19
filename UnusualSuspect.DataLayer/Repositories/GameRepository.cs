@@ -25,15 +25,6 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
       .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
   }
 
-  public async Task<bool> SetGameFinishTimeAsync(int id, DateTime finishTime, CancellationToken cancellationToken = default)
-  {
-    Game? g = await GetByIdAsync(id, cancellationToken);
-    if (g == null)
-      return false;
-    g.FinishedTime = finishTime;
-    return true;
-  }
-
   public async Task<bool> SetGameWinStateAsync(int id, bool won, CancellationToken cancellationToken = default)
   {
     var game = await GetByIdAsync(id, cancellationToken);
@@ -49,13 +40,26 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
       .Where(x => x.FinishedTime == null);
   }
 
-  public async Task<Game?> GetUserCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default)
+  public async Task<Game?> GetUserCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
     Game? game = await games.FirstOrDefaultAsync(
       x => x.FinishedTime == null &&
            x.Participates.Any(p => p.UserId == userId), cancellationToken);
+    return game;
+  }
+  public async Task<Game?> GetUserCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default)
+  {
+    Game? game = await games.FirstOrDefaultAsync(
+      x => x.FinishedTime == null &&
+           x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
     if (game == null)
       return null;
     return await GetGameWithDetailsAsync(game.Id, cancellationToken);
+  }
+
+  public async Task<bool> UserIsInActiveGameAsync(int userId, CancellationToken cancellationToken = default)
+  {
+    return await games.AnyAsync(x =>
+      x.FinishedTime == null && x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
   }
 }

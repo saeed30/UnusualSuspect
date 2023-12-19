@@ -24,21 +24,41 @@ public sealed class GameService(IUnitOfWork uow,
     return new UnusualSuspectServiceResult<GameGetResponse?>(new GameGetResponse(game.ToGameBaseDto(), game.ToGameFlowDto()));
   }
 
-  public async Task<UnusualSuspectServiceResult<bool>> FinishGameAsync(int gameId, int userId, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<bool>> LeaveCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
-    bool hasAccess = await IsMainDetective(gameId, userId, cancellationToken);
-    if (!hasAccess)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
-    bool done = await gameRepository.SetGameFinishTimeAsync(gameId, DateTime.Now, cancellationToken);
-    if (done)
-    {
-      Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
-      if (game == null)
-        return new UnusualSuspectServiceResult<bool>(
-          new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
-      await notificationService.SendSignalToGameGroup(gameId, SignalCommands.GameFinished, gameId);
-    }
-    return new UnusualSuspectServiceResult<bool>(done);
+    Game? game = await gameRepository.GetUserCurrentGameAsync(userId, cancellationToken);
+    if(game == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
+    return await LeaveGameAsync(game.Id, userId, cancellationToken);
+  }
+  public async Task<UnusualSuspectServiceResult<bool>> LeaveGameAsync(int gameId, int userId, CancellationToken cancellationToken = default)
+  {
+    int participantCount = await participateRepository.GetParticipantCountAsync(gameId, cancellationToken);
+    if(participantCount <= 0)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameHasNoParticipants));
+    if (participantCount <= 4)
+      return await FinishGameAsync(gameId, cancellationToken);
+    List<Participate> participates = await participateRepository.GetActiveParticipations(userId, cancellationToken);
+    Participate? participate = participates.FirstOrDefault(x => x.GameId == gameId);
+    if(participate == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+    participate.IsActive = false;
+
+    //change remaining user roles
+
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.UserLeftTheGame, userId);
+    return new UnusualSuspectServiceResult<bool>(true);
+  }
+
+  private async Task<UnusualSuspectServiceResult<bool>> FinishGameAsync(int gameId, CancellationToken cancellationToken = default)
+  {
+    Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
+    if(game == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    game.FinishedTime = DateTime.Now;
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.GameFinished, gameId);
+    return new UnusualSuspectServiceResult<bool>(true);
+
   }
 
   public async Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default)
@@ -83,12 +103,6 @@ public sealed class GameService(IUnitOfWork uow,
     }
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.NewCardWasChosen);
     return result;
-  }
-
-  public async Task<UnusualSuspectServiceResult<Participate?>> GetActiveParticipateByUserIdAsync(int userId, CancellationToken cancellationToken = default)
-  {
-    Participate? par = await participateRepository.GetActiveParticipation(userId, cancellationToken);
-    return new UnusualSuspectServiceResult<Participate?>(par);
   }
 
   public IQueryable<Game> GetAllActiveGamesWithGameType()

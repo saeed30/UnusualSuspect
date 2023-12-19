@@ -36,6 +36,8 @@ public class PreGameService(IUnitOfWork uow,
     GameType? gameType = await gameTypeRepository.GetByIdAsync(gameTypeId, cancellationToken);
     if (gameType == null)
       return new UnusualSuspectServiceResult<PreGameGroup>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameTypeId));
+    if(await gameRepository.UserIsInActiveGameAsync(userId, cancellationToken))
+      return new UnusualSuspectServiceResult<PreGameGroup>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsInActiveGame));
     var oldPreGames = await joinedPreGameRepository.JoinedPreGameOfUserAsync(userId, cancellationToken);
     if (oldPreGames.Any())
     {
@@ -133,6 +135,8 @@ public class PreGameService(IUnitOfWork uow,
   }
   public async Task<UnusualSuspectServiceResult<JoinedPreGame>> AddUserToPreGameGroup(int addingUserId, int userId, int preGameGroupId, CancellationToken cancellationToken = default)
   {
+    if (await gameRepository.UserIsInActiveGameAsync(userId, cancellationToken))
+      return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsInActiveGame));
     PreGameGroup? preGameGroup = await preGameGroupRepository.GetByIdAsync(preGameGroupId, cancellationToken);
     if (preGameGroup == null)
       return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));

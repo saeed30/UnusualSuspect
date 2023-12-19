@@ -28,5 +28,9 @@ namespace UnusualSuspect.ApiViewModels.Enums
 		CharacterCardIsNotActiveInTheGame = 19,
 		NoActiveMurdererFoundInGame = 20,
 		UserNotMmeberOfPreGameGroup = 21,
+		UserIsInActiveGame = 22,
+		UserIsNotInActiveGame = 23,
+		GameHasNoParticipants = 24,
+		UserDoNotParticipateInThisGame = 25,
   }
 }
