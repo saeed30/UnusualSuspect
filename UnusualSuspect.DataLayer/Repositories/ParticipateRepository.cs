@@ -41,4 +41,11 @@ public class ParticipateRepository
   {
     return await participates.CountAsync(x => x.GameId == gameId, cancellationToken);
   }
+
+  public async Task<List<Participate>> GetGameActiveParticipantsAsync(int gameId, RoleCardEnum? roleCardId = null)
+  {
+    if (roleCardId.HasValue)
+      return await participates.Where(x => x.IsActive && x.GameId == gameId && x.RoleCardId == (short)roleCardId.Value).ToListAsync();
+    return await participates.Where(x => x.IsActive && x.GameId == gameId).ToListAsync();
+  }
 }

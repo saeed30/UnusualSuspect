@@ -1,28 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.DataLayer.Common;
+using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger)
+public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger, IMemoryCacheService memoryCacheService)
   : EfRepository<Game>(uow, logger), IGameRepository
 {
   private readonly DbSet<Game> games = uow.Set<Game>();
 
   public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default)
   {
-    return await games.AsSplitQuery()
-      .Include(x => x.CharacterCardGames)
-      .ThenInclude(x => x.CharacterCard)
-      .Include(x => x.GameType)
-      .Include(c => c.Participates)
-      .ThenInclude(c => c.ApplicationUser)
-      .ThenInclude(c => c.Document)
-      .Include(x => x.QuestionGames)
-      .ThenInclude(x => x.Question)
-      .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    Game? game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
+    if (game == null)
+    {
+      game = await games.AsSplitQuery()
+        .Include(x => x.CharacterCardGames)
+        .ThenInclude(x => x.CharacterCard)
+        .Include(x => x.GameType)
+        .Include(c => c.Participates)
+        .ThenInclude(c => c.ApplicationUser)
+        .ThenInclude(c => c.Document)
+        .Include(x => x.QuestionGames)
+        .ThenInclude(x => x.Question)
+        .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+      if (game == null)
+        return null;
+      memoryCacheService.SetGameWithDetails(game);
+    }
+    return game;
   }
 
   public async Task<bool> SetGameWinStateAsync(int id, bool won, CancellationToken cancellationToken = default)

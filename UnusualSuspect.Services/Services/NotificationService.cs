@@ -2,6 +2,7 @@
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.SignalR;
 

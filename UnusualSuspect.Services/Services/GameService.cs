@@ -7,6 +7,7 @@ using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Mapping;
 using ElmahCore;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.DataLayer.Contracts;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -14,7 +15,8 @@ public sealed class GameService(IUnitOfWork uow,
   IGameRepository gameRepository,
   IParticipateRepository participateRepository,
   ICharacterCardGameRepository characterCardGameRepository,
-  INotificationService notificationService) : IGameService
+  INotificationService notificationService,
+  IMemoryCacheService memoryCacheService) : IGameService
 {
   public async Task<UnusualSuspectServiceResult<GameGetResponse?>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
@@ -62,9 +64,9 @@ public sealed class GameService(IUnitOfWork uow,
     }
 
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.UserLeftTheGame, userId);
+    memoryCacheService.ClearGameWithDetails(gameId);
     return new UnusualSuspectServiceResult<bool>(true);
   }
-
   private async Task<UnusualSuspectServiceResult<bool>> ReplaceRoleByDetective(int gameId, RoleCardEnum leftUserRole, int leftUserId)
   {
     List<Participate> participants = (await participateRepository
@@ -84,8 +86,8 @@ public sealed class GameService(IUnitOfWork uow,
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     game.FinishedTime = DateTime.Now;
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.GameFinished, gameId);
+    memoryCacheService.ClearGameWithDetails(gameId);
     return new UnusualSuspectServiceResult<bool>(true);
-
   }
 
   public async Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default)
@@ -129,6 +131,7 @@ public sealed class GameService(IUnitOfWork uow,
       return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     }
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.NewCardWasChosen);
+    memoryCacheService.ClearGameWithDetails(gameId);
     return result;
   }
 
@@ -137,10 +140,6 @@ public sealed class GameService(IUnitOfWork uow,
     return gameRepository.GetAllActiveGamesWithGameType();
   }
 
-  private async Task<bool> IsGameMember(int gameId, int userId, CancellationToken cancellationToken = default)
-  {
-    return await participateRepository.IsGameParticipantAsync(gameId, userId, cancellationToken);
-  }
   private async Task<bool> IsMainDetective(int gameId, int userId, CancellationToken cancellationToken = default)
   {
     var role = await participateRepository.GetParticipantRoleAsync(gameId, userId, cancellationToken);

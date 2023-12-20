@@ -216,7 +216,7 @@ public class PreGameService(IUnitOfWork uow,
   {
     if(!await joinedPreGameRepository.UserExistsInPreGameGroupAsync(userId, preGameGroupId, cancellationToken))
       return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(
-        new UnusualSuspectErrorResult(LogicErrorCode.UserNotMmeberOfPreGameGroup));
+        new UnusualSuspectErrorResult(LogicErrorCode.UserNotMemberOfPreGameGroup));
     var result = await preGameGroupRepository.GetByIdWithJoinedPreGameAsync(preGameGroupId, cancellationToken);
     if(result == null)
       return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(
