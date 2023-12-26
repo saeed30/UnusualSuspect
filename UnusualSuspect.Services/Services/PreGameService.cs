@@ -24,7 +24,8 @@ public class PreGameService(IUnitOfWork uow,
     ICharacterCardGameRepository characterCardGameRepository,
     INotificationService notificationService,
     IQuestionRepository questionRepository,
-    IQuestionGameRepository questionGameRepository)
+    IQuestionGameRepository questionGameRepository,
+    ITurnOfPlayService turnOfPlayService)
   : IPreGameService
 {
   public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -96,7 +97,7 @@ public class PreGameService(IUnitOfWork uow,
     int count = await joinedPreGameRepository.UserCountJoinedPreGameGroupAsync(preGameGroupId, cancellationToken);
     if (count > 32000)
       throw new Exception("invalid user count. preGameGroupId: " + preGameGroupId);
-    preGame.CalculatedJoinedUsers = (short)(count + (int)changeOnThisTransaction);
+    preGame.CalculatedJoinedUsers = (short)(count + changeOnThisTransaction);
   }
 
   public async Task RemovePreGameGroup(int preGameGroupId, CancellationToken cancellationToken = default)
@@ -277,6 +278,7 @@ public class PreGameService(IUnitOfWork uow,
           ElmahExtensions.RaiseError(new Exception("Game not available after creation! id: " + game.Id));
           return;
         }
+        await turnOfPlayService.StartTurnOfPlayAsync(gameWithDetails.Id, cancellationToken);
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
           gameWithDetails.ToGameFlowDto()));
         needToRefill = true;
@@ -357,9 +359,13 @@ public class PreGameService(IUnitOfWork uow,
       FinishedTime = null,
       GameType = gameType
     });
-    await AddGameParticipants(preGameGroups, game, cancellationToken);
-    await Add12RandomCharactersToGame(game, cancellationToken);
-    await Add11RandomQuestionsToGame(game, cancellationToken);
+    List<Task> tasks = new List<Task>
+    {
+      AddGameParticipants(preGameGroups, game, cancellationToken),
+      Add12RandomCharactersToGame(game, cancellationToken),
+      Add11RandomQuestionsToGame(game, cancellationToken)
+    };
+    await Task.WhenAll(tasks.ToArray());
     return game;
   }
 

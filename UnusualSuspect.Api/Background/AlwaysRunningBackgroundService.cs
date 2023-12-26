@@ -8,15 +8,9 @@ using ElmahCore;
 
 namespace UnusualSuspect.Api.Background;
 
-public class AlwaysRunningBackgroundService : BackgroundService
+public class AlwaysRunningBackgroundService(IServiceScopeFactory scopeFactory) : BackgroundService
 {
-	private readonly IServiceScopeFactory scopeFactory;
-
-	public AlwaysRunningBackgroundService(IServiceScopeFactory scopeFactory)
-	{
-		this.scopeFactory = scopeFactory;
-	}
-	// Override the ExecuteAsync method
+  // Override the ExecuteAsync method
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
 		// Use a while loop with the cancellation token

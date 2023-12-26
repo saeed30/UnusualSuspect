@@ -52,6 +52,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IQuestionRepository, QuestionRepository>();
     services.AddScoped<INotificationService, NotificationService>();
     services.AddScoped<IMemoryCacheService, MemoryCacheService>();
+    services.AddScoped<ITurnOfPlayService, TurnOfPlayService>();
 
     return services;
   }

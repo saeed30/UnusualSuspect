@@ -30,8 +30,8 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
       foreach (var connection in connections)
         tasks.Add(AddToGroupAsync(gameParticipantDto.GameUserDto.Id, connection, game.GameBaseDto.Id.ToString()));
     }
+    tasks.Add(SendSignalToGameGroup(game.GameBaseDto.Id,SignalCommands.NewGameStarted, game.GameBaseDto.Id));
     await Task.WhenAll(tasks.ToArray());
-    await SendSignalToGameGroup(game.GameBaseDto.Id,SignalCommands.NewGameStarted, game.GameBaseDto.Id);
   }
 
   public async Task AddToGroupAsync(int userId, string connectionId, string groupName)

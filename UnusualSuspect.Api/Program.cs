@@ -101,7 +101,11 @@ builder.Services.AddCors(options =>
         .SetIsOriginAllowed((host) => true);
     });
 });
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(o =>
+  {
+    o.EnableDetailedErrors = true;
+  }
+  );
 builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
@@ -178,7 +182,7 @@ app.MapHangfireDashboard("/hangfire", new DashboardOptions()
   }
 });
 app.UseCors("AllowAll");
-app.MapHub<GameHub>("GameHub" , option =>
+app.MapHub<GameHub>("GameHub", option =>
 {
   //option.CloseOnAuthenticationExpiration = true;
 });

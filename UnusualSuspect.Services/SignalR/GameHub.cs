@@ -15,7 +15,8 @@ public sealed class GameHub(IGameService gameService,
   IParticipateRepository participateRepository,
   INotificationService notificationService,
   IMemoryCacheService memoryCacheService,
-  ILogger<GameHub> logger) : Hub<IGameClient> , IGameHub
+  ILogger<GameHub> logger,
+  ITurnOfPlayService turnOfPlayService) : Hub<IGameClient>, IGameHub
 {
   #region Properties
   private int? UserId
@@ -25,7 +26,10 @@ public sealed class GameHub(IGameService gameService,
       if (Context.User == null || Context.User.Identity == null ||
          !Context.User.Identity.IsAuthenticated || Context.User.FindFirstValue(ClaimTypes.NameIdentifier) == null)
         return null;
-      return Context.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt();
+      string? user = Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+      if (user == null)
+        return null;
+      return user.ToInt();
     }
   }
   #endregion Properties
@@ -35,6 +39,25 @@ public sealed class GameHub(IGameService gameService,
   {
     await Clients.All.ReceiveMessage(user, message);
   }
+
+  public async Task StartedToTalk(int userId, short orderOfParticipation, int gameId)
+  {
+    await Clients.Caller.ReceiveMessage("admin", "you called StartedToTalk");
+    return;
+  }
+
+  public async Task FinishedTalking(int userId, short orderOfParticipation, int gameId)
+  {
+    await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
+    await turnOfPlayService.UserTurnFinishedAsync(gameId, orderOfParticipation);
+  }
+
+  public async Task CandidateCard(int userId, short? cardId, int gameId)
+  {
+    await Clients.Caller.ReceiveMessage("admin", "you called CandidateCard");
+    await turnOfPlayService.ChangedCandidateCard(userId, cardId, gameId);
+  }
+
   #endregion PublicMethods
 
   #region Events
@@ -65,7 +88,7 @@ public sealed class GameHub(IGameService gameService,
     var connections = await memoryCacheService.GetUserSignalRConnections(userId);
     if (isConnected)
     {
-      if(!connections.Contains(Context.ConnectionId))
+      if (!connections.Contains(Context.ConnectionId))
         connections.Add(Context.ConnectionId);
     }
     else

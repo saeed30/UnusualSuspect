@@ -25,5 +25,6 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
     public short OrderOfParticipationTurnToTalk { get; set; }
     public DateTime TalkingTurnStartedTime { get; set; }
     public DateTime CurrentUserTurnStartedTime { get; set; }
+    public Dictionary<int, short> CandidateCard { get; set; } = new Dictionary<int, short>();
   }
 }

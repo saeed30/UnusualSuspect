@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Aspose.Cells;
+using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
@@ -62,6 +63,36 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService, IG
     }
     return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(model);
   }
+
+  public async Task ChangedCandidateCard(int userId, short? cardId, int gameId)
+  {
+    TurnOfPlayGetResponse? model = await memoryCacheService.GetTurnOfPlay(gameId);
+    if(model == null || !model.IsTalkingTime || model.TurnOfPlayTalkingState == null)
+      return;
+    var candids = model.TurnOfPlayTalkingState.CandidateCard;
+    if (candids.TryGetValue(userId, out short oldChoice))
+    {
+      if (cardId.HasValue)
+      {
+        if (cardId.Value == oldChoice)
+          return;
+        candids[userId] = cardId.Value;
+      }
+      else
+      {
+        candids.Remove(userId);
+      }
+    }
+    else
+    {
+      if (!cardId.HasValue)
+        return;
+      candids.Add(userId, cardId.Value);
+    }
+    model.TurnOfPlayTalkingState.CandidateCard = candids;
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.CandidateCardChange);
+  }
+
   private short GetStarterOrderOfParticipation(ICollection<Participate> gameParticipates)
   {
     int random = new Random().Next(0, gameParticipates.Count - 2);
