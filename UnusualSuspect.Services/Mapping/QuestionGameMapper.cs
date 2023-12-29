@@ -15,9 +15,9 @@ public static class QuestionGameMapper
       Turn = value.Turn
     };
   }
-  public static IEnumerable<QuestionGameDto> ToQuestionGameDto(this IEnumerable<QuestionGame> value)
+  public static List<QuestionGameDto> ToQuestionGameDto(this ICollection<QuestionGame> value)
   {
-    return value.Select(x => x.ToQuestionGameDto());
+    return value.Select(x => x.ToQuestionGameDto()).ToList();
   }
 
 }

@@ -148,6 +148,7 @@ app.UseSerilogRequestLogging(opts =>
     opts.MessageTemplate = "{RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms by {UserName}";
   }
 );
+
 app.UseHttpsRedirection();
 app.UseElmahCore(projectSetting);
 

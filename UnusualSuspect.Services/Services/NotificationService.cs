@@ -30,17 +30,60 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
       foreach (var connection in connections)
         tasks.Add(AddToGroupAsync(gameParticipantDto.GameUserDto.Id, connection, game.GameBaseDto.Id.ToString()));
     }
-    tasks.Add(SendSignalToGameGroup(game.GameBaseDto.Id,SignalCommands.NewGameStarted, game.GameBaseDto.Id));
+    tasks.Add(SendSignalToGameGroup(game.GameBaseDto.Id, SignalCommands.NewGameStarted, game.GameBaseDto.Id));
     await Task.WhenAll(tasks.ToArray());
   }
+  private static readonly SemaphoreSlim SemaphoreUserSignalRGroups = new SemaphoreSlim(1, 1);
+  private static readonly SemaphoreSlim SemaphoreSignalRGroupOnlineUsers = new SemaphoreSlim(1, 1);
 
+  public async Task RemoveFromGroupAsync(int userId, string connectionId, string groupName)
+  {
+    var task = context.Groups.RemoveFromGroupAsync(connectionId, groupName);
+
+    using (SemaphoreUserSignalRGroups.WaitAsync())
+    {
+      var groups = await memoryCacheService.GetUserSignalRGroups(userId);
+      if (groups.Contains(groupName))
+      {
+        groups.Remove(groupName);
+        memoryCacheService.SetUserSignalRGroups(userId, groups);
+      }
+    }
+    using (SemaphoreSignalRGroupOnlineUsers.WaitAsync())
+    {
+      var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
+      if (userIds.Contains(userId))
+      {
+        userIds.Remove(userId);
+        memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
+      }
+    }
+
+    await task;
+  }
   public async Task AddToGroupAsync(int userId, string connectionId, string groupName)
   {
     var task = context.Groups.AddToGroupAsync(connectionId, groupName);
-    var groups = await memoryCacheService.GetUserSignalRGroups(userId);
-    if (!groups.Contains(groupName))
-      groups.Add(groupName);
-    memoryCacheService.SetUserSignalRGroups(userId, groups);
+
+    using (SemaphoreUserSignalRGroups.WaitAsync())
+    {
+      var groups = await memoryCacheService.GetUserSignalRGroups(userId);
+      if (!groups.Contains(groupName))
+      {
+        groups.Add(groupName);
+        memoryCacheService.SetUserSignalRGroups(userId, groups);
+      }
+    }
+    using (SemaphoreSignalRGroupOnlineUsers.WaitAsync())
+    {
+      var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
+      if (!userIds.Contains(userId))
+      {
+        userIds.Add(userId);
+        memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
+      }
+    }
+
     await task;
   }
 }

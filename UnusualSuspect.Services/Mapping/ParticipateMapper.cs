@@ -16,9 +16,9 @@ public static class ParticipateMapper
       GameUserDto = value.ApplicationUser.ToGameUserDto()
     };
   }
-  public static IEnumerable<GameParticipantDto> ToGameParticipantDto(this IEnumerable<Participate> value)
+  public static List<GameParticipantDto> ToGameParticipantDto(this ICollection<Participate> value)
   {
-    return value.Select(x => x.ToGameParticipantDto());
+    return value.Select(x => x.ToGameParticipantDto()).ToList();
   }
 
 }

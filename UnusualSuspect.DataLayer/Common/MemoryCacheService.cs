@@ -70,6 +70,36 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
   }
 
   #endregion UserSignalRGroups
+  #region SignalRGroupsOnlineUsers
+  public async Task<List<int>> GetSignalRGroupOnlineUsers(string groupName)
+  {
+    var userIds = await cache.GetOrCreateAsync(GetSignalRGroupOnlineUsersKey(groupName), entry =>
+    {
+      // Set the cache options for the entry
+      entry.SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes);
+      entry.Priority = CacheItemPriority.High;
+      entry.Size = 1;
+
+      return Task.FromResult(new List<int>());
+    });
+    return userIds;
+  }
+
+  public void SetSignalRGroupOnlineUsers(string groupName, List<int> userIds)
+  {
+    cache.Set(GetSignalRGroupOnlineUsersKey(groupName), userIds, new MemoryCacheEntryOptions()
+    {
+      Priority = CacheItemPriority.High,
+      SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes),
+      Size = 1
+    });
+  }
+  private string GetSignalRGroupOnlineUsersKey(string groupName)
+  {
+    return groupName + "UserSignalRGroups";
+  }
+
+  #endregion UserSignalRGroups
 
   #region TurnOfPlay
   public async Task<TurnOfPlayGetResponse?> GetTurnOfPlay(int gameId)

@@ -12,13 +12,13 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private GameTypeDto gameTypeDto;
     [SerializeField]
-    private IEnumerable<GameParticipantDto> gameParticipantDto;
+    private List<GameParticipantDto> gameParticipantDto;
     [SerializeField]
-    private IEnumerable<GameCharacterDto> gameCharacterDtos;
+    private List<GameCharacterDto> gameCharacterDtos;
     [SerializeField]
-    private IEnumerable<QuestionGameDto> questionGameDtos;
+    private List<QuestionGameDto> questionGameDtos;
 
-    public IEnumerable<QuestionGameDto> QuestionGameDtos
+    public List<QuestionGameDto> QuestionGameDtos
     {
       get => questionGameDtos;
       set => questionGameDtos = value;
@@ -36,13 +36,13 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
       set => gameTypeDto = value;
     }
 
-    public IEnumerable<GameParticipantDto> GameParticipantDto
+    public List<GameParticipantDto> GameParticipantDto
     {
       get => gameParticipantDto;
       set => gameParticipantDto = value;
     }
 
-    public IEnumerable<GameCharacterDto> GameCharacterDtos
+    public List<GameCharacterDto> GameCharacterDtos
     {
       get => gameCharacterDtos;
       set => gameCharacterDtos = value;

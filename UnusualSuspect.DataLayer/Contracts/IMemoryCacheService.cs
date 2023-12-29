@@ -14,4 +14,6 @@ public interface IMemoryCacheService
   Task<Game?> GetGameWithDetails(int gameId, CancellationToken cancellationToken = default);
   void SetGameWithDetails(Game game);
   void ClearGameWithDetails(int gameId);
+  Task<List<int>> GetSignalRGroupOnlineUsers(string groupName);
+  void SetSignalRGroupOnlineUsers(string groupName, List<int> userIds);
 }

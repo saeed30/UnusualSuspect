@@ -21,8 +21,8 @@ public static class GameMapper
     return new GameBaseDto()
     {
       Id = value.Id,
-      GameCharacterDtos = value.CharacterCardGames.ToList().ToGameCharacterDto(),
-      GameParticipantDto = value.Participates.ToList().ToGameParticipantDto(),
+      GameCharacterDtos = value.CharacterCardGames.ToGameCharacterDto(),
+      GameParticipantDto = value.Participates.ToGameParticipantDto(),
       GameTypeDto = value.GameType.ToGameTypeDto(),
       QuestionGameDtos = value.QuestionGames.ToQuestionGameDto()
     };

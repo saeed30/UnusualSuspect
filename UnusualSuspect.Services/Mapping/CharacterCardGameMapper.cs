@@ -15,8 +15,8 @@ public static class CharacterCardGameMapper
       IsMurderer = value.IsMurderer
     };
   }
-  public static IEnumerable<GameCharacterDto> ToGameCharacterDto(this IEnumerable<CharacterCardGame> value)
+  public static List<GameCharacterDto> ToGameCharacterDto(this ICollection<CharacterCardGame> value)
   {
-    return value.Select(x => x.ToGameCharacterDto());
+    return value.Select(x => x.ToGameCharacterDto()).ToList();
   }
 }
