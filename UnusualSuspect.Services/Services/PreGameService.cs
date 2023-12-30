@@ -278,7 +278,7 @@ public class PreGameService(IUnitOfWork uow,
           ElmahExtensions.RaiseError(new Exception("Game not available after creation! id: " + game.Id));
           return;
         }
-        await turnOfPlayService.StartTurnOfPlayAsync(gameWithDetails.Id, cancellationToken);
+        await turnOfPlayService.StartTurnOfPlayAsync(gameWithDetails.Id);
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
           gameWithDetails.ToGameFlowDto()));
         needToRefill = true;
@@ -357,7 +357,8 @@ public class PreGameService(IUnitOfWork uow,
     {
       CreateTime = DateTime.Now,
       FinishedTime = null,
-      GameType = gameType
+      GameType = gameType,
+      GameStatusId = (short)GameStatusEnum.WaitingForPlayers
     });
     await AddGameParticipants(preGameGroups, game, cancellationToken);
     await Add12RandomCharactersToGame(game, cancellationToken);

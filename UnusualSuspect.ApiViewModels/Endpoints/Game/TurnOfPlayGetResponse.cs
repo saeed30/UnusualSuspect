@@ -17,10 +17,18 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
       TurnOfPlayTalkingState = null;
       IsTalkingTime = false;
     }
-    public TurnOfPlayGetResponse(TurnOfPlayTalkingState turnOfPlayTalkingState)
+    public TurnOfPlayGetResponse(TurnOfPlayTalkingState? turnOfPlayTalkingState)
     {
-      TurnOfPlayTalkingState = turnOfPlayTalkingState;
-      IsTalkingTime = true;
+      if (turnOfPlayTalkingState == null)
+      {
+        TurnOfPlayTalkingState = null;
+        IsTalkingTime = false;
+      }
+      else
+      {
+        TurnOfPlayTalkingState = turnOfPlayTalkingState;
+        IsTalkingTime = true;
+      }
     }
 
     public bool IsTalkingTime

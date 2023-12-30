@@ -50,6 +50,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<ICharacterCardRepository, CharacterCardRepository>();
     services.AddScoped<IQuestionGameRepository, QuestionGameRepository>();
     services.AddScoped<IQuestionRepository, QuestionRepository>();
+    services.AddScoped<IGameCandidateRepository, GameCandidateRepository>();
     services.AddScoped<INotificationService, NotificationService>();
     services.AddScoped<IMemoryCacheService, MemoryCacheService>();
     services.AddScoped<ITurnOfPlayService, TurnOfPlayService>();

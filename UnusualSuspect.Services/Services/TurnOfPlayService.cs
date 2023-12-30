@@ -7,15 +7,19 @@ using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.Services.Mapping;
 
 namespace UnusualSuspect.Services.Services;
 
-public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService, IGameRepository gameRepository,
-  INotificationService notificationService, ILogger<TurnOfPlayService> logger) : ITurnOfPlayService
+public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
+  IGameRepository gameRepository,
+  INotificationService notificationService,
+  IGameCandidateRepository gameCandidateRepository,
+  ILogger<TurnOfPlayService> logger) : ITurnOfPlayService
 {
-  public async Task<UnusualSuspectServiceResult<bool>> StartTurnOfPlayAsync(int gameId, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<bool>> StartTurnOfPlayAsync(int gameId)
   {
-    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
+    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId);
     if (game == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     short starter = GetStarterOrderOfParticipation(game.Participates);
@@ -40,8 +44,17 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService, IG
     TurnOfPlayGetResponse? model = await memoryCacheService.GetTurnOfPlay(game.Id);
     if (model == null || !model.IsTalkingTime || model.TurnOfPlayTalkingState == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
-    model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk = GetNextUserOrderOfParticipation(game.Participates,
-      model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk);
+    var next = GetNextUserOrderOfParticipation(game.Participates,
+    model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk);
+    if (next == model.TurnOfPlayTalkingState.OrderOfParticipationTalkBeginner)
+    {
+      await notificationService.SendSignalToGameGroup(gameId, SignalCommands.EndOfTalking, gameId);
+      await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForMainDetectiveToChoose, cancellationToken);
+      await gameRepository.SaveChangesAsync(cancellationToken);
+      await gameCandidateRepository.ExecuteDeleteAllGameCandidatesAsync(gameId, cancellationToken);
+      return new UnusualSuspectServiceResult<bool>(false);
+    }
+    model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk = next;
     model.TurnOfPlayTalkingState.CurrentUserTurnStartedTime = DateTime.Now;
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
       model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk);
@@ -58,7 +71,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService, IG
     TurnOfPlayGetResponse? model = await memoryCacheService.GetTurnOfPlay(game.Id);
     if (model == null)
     {
-      model = new TurnOfPlayGetResponse();
+      model = game.ToTurnOfPlayGetResponse();
       memoryCacheService.SetTurnOfPlay(game.Id, model);
     }
     return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(model);
@@ -67,7 +80,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService, IG
   public async Task ChangedCandidateCard(int userId, short? cardId, int gameId)
   {
     TurnOfPlayGetResponse? model = await memoryCacheService.GetTurnOfPlay(gameId);
-    if(model == null || !model.IsTalkingTime || model.TurnOfPlayTalkingState == null)
+    if (model == null || !model.IsTalkingTime || model.TurnOfPlayTalkingState == null)
       return;
     var candids = model.TurnOfPlayTalkingState.CandidateCard;
     if (candids.TryGetValue(userId, out short oldChoice))

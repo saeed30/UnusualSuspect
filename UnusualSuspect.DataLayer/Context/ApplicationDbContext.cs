@@ -55,6 +55,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 		HasDataForEnumEntity<PreGameGroupStatus, PreGameGroupStatusEnum>(modelBuilder);
 		HasDataForEnumEntity<SmsSendingStatus, SmsSendingStatusEnum>(modelBuilder);
 		HasDataForEnumEntity<RoleCard, RoleCardEnum>(modelBuilder);
+		HasDataForEnumEntity<GameStatus, GameStatusEnum>(modelBuilder);
 
 		//[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		modelBuilder.Entity<GameType>().Property(x => x.Id)

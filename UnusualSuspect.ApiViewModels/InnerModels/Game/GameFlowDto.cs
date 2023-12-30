@@ -10,14 +10,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private int id;
     [SerializeField]
-    private List<int> activeCharacterIds;
+    private List<short> activeCharacterIds;
 
     public int Id
     {
       get => id;
       set => id = value;
     }
-    public List<int> ActiveCharacterIds
+    public List<short> ActiveCharacterIds
     {
       get => activeCharacterIds;
       set => activeCharacterIds = value;

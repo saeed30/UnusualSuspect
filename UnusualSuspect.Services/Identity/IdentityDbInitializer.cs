@@ -10,31 +10,16 @@ using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Identity;
-public class IdentityDbInitializer : IIdentityDbInitializer
+public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
+    IApplicationUserManager applicationUserManager,
+    IApplicationRoleService applicationRoleManager,
+    IOptionsSnapshot<ProjectSetting> adminUserSeedOptions,
+    ILogger<IdentityDbInitializer> logger)
+  : IIdentityDbInitializer
 {
-	private readonly IOptionsSnapshot<ProjectSetting> _adminUserSeedOptions;
-	private readonly ILogger<IdentityDbInitializer> _logger;
-	private readonly IServiceScopeFactory _scopeFactory;
-	private readonly IApplicationUserManager _applicationUserManager;
-	private readonly IApplicationRoleService _applicationRoleManager;
-
-	public IdentityDbInitializer(
-			IServiceScopeFactory scopeFactory,
-			IApplicationUserManager applicationUserManager,
-			IApplicationRoleService applicationRoleManager,
-			IOptionsSnapshot<ProjectSetting> adminUserSeedOptions,
-			ILogger<IdentityDbInitializer> logger
-			)
+  public void Initialize()
 	{
-		_scopeFactory = scopeFactory;
-		_applicationUserManager = applicationUserManager;
-		_applicationRoleManager = applicationRoleManager;
-		_adminUserSeedOptions = adminUserSeedOptions;
-		_logger = logger;
-	}
-	public void Initialize()
-	{
-		using (var serviceScope = _scopeFactory.CreateScope())
+		using (var serviceScope = scopeFactory.CreateScope())
 		{
 			using (var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
 			{
@@ -44,7 +29,7 @@ public class IdentityDbInitializer : IIdentityDbInitializer
 	}
 	public async void SeedData()
 	{
-		using var serviceScope = _scopeFactory.CreateScope();
+		using var serviceScope = scopeFactory.CreateScope();
 		var identityDbSeedData = serviceScope.ServiceProvider.GetRequiredService<IIdentityDbInitializer>();
 		var result = await identityDbSeedData.SeedDatabaseWithAdminUserAsync();
 		if (result == IdentityResult.Failed())
@@ -54,7 +39,7 @@ public class IdentityDbInitializer : IIdentityDbInitializer
 	}
 	public async Task<IdentityResult> SeedDatabaseWithAdminUserAsync()
 	{
-		var adminUserSeed = _adminUserSeedOptions.Value.AdminUser;
+		var adminUserSeed = adminUserSeedOptions.Value.AdminUser;
 		if (adminUserSeed == null) return IdentityResult.Success;
 		var name = adminUserSeed.Username;
 		var password = adminUserSeed.Password;
@@ -65,60 +50,60 @@ public class IdentityDbInitializer : IIdentityDbInitializer
 		ApplicationUser? adminUser;
 		try
 		{
-			adminUser = await _applicationUserManager.FindByNameAsync(name);
+			adminUser = await applicationUserManager.FindByNameAsync(name);
 		}
 		catch (Exception e)
 		{
-			_logger.LogError("users table not created");
+			logger.LogError("users table not created");
 			return IdentityResult.Success;
 		}
 		if (adminUser != null)
 		{
-			_logger.LogInformation($"{thisMethodName}: adminUser already exists.");
+			logger.LogInformation($"{thisMethodName}: adminUser already exists.");
 			//return IdentityResult.Success;
 		}
 
-		var adminRole = await _applicationRoleManager.FindByNameAsync(roleName);
+		var adminRole = await applicationRoleManager.FindByNameAsync(roleName);
 		if (adminRole == null)
 		{
 			adminRole = new Role(roleName);
-			var adminRoleResult = await _applicationRoleManager.CreateAsync(adminRole);
+			var adminRoleResult = await applicationRoleManager.CreateAsync(adminRole);
 			if (adminRoleResult == IdentityResult.Failed())
 			{
-				_logger.LogError($"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}");
+				logger.LogError($"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}");
 				//return IdentityResult.Failed();
 			}
 		}
 		else
-			_logger.LogInformation($"{thisMethodName}: adminRole already exists.");
+			logger.LogInformation($"{thisMethodName}: adminRole already exists.");
 
-		var adminRole2 = await _applicationRoleManager.FindByNameAsync("CustomerRole");
+		var adminRole2 = await applicationRoleManager.FindByNameAsync("CustomerRole");
 		if (adminRole2 == null)
 		{
 			adminRole2 = new Role("CustomerRole");
-			var adminRoleResult = await _applicationRoleManager.CreateAsync(adminRole2);
+			var adminRoleResult = await applicationRoleManager.CreateAsync(adminRole2);
 			if (adminRoleResult == IdentityResult.Failed())
 			{
-				_logger.LogError($"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}");
+				logger.LogError($"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}");
 				//return IdentityResult.Failed();
 			}
 		}
 		else
-			_logger.LogInformation($"{thisMethodName}: adminRole already exists.");
+			logger.LogInformation($"{thisMethodName}: adminRole already exists.");
 
-		var adminRole3 = await _applicationRoleManager.FindByNameAsync("AdminPanelUserRole");
+		var adminRole3 = await applicationRoleManager.FindByNameAsync("AdminPanelUserRole");
 		if (adminRole3 == null)
 		{
 			adminRole3 = new Role("AdminPanelUserRole");
-			var adminRoleResult = await _applicationRoleManager.CreateAsync(adminRole3);
+			var adminRoleResult = await applicationRoleManager.CreateAsync(adminRole3);
 			if (adminRoleResult == IdentityResult.Failed())
 			{
-				_logger.LogError($"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}");
+				logger.LogError($"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}");
 				//return IdentityResult.Failed();
 			}
 		}
 		else
-			_logger.LogInformation($"{thisMethodName}: adminRole already exists.");
+			logger.LogInformation($"{thisMethodName}: adminRole already exists.");
 
 		adminUser = new ApplicationUser
 		{
@@ -128,24 +113,24 @@ public class IdentityDbInitializer : IIdentityDbInitializer
 			LockoutEnabled = true,
 			IsActive = true
 		};
-		var adminUserResult = await _applicationUserManager.CreateAsync(adminUser, password);
+		var adminUserResult = await applicationUserManager.CreateAsync(adminUser, password);
 		if (adminUserResult == IdentityResult.Failed())
 		{
-			_logger.LogError($"{thisMethodName}: adminUser CreateAsync failed. {adminUserResult.DumpErrors()}");
+			logger.LogError($"{thisMethodName}: adminUser CreateAsync failed. {adminUserResult.DumpErrors()}");
 			return IdentityResult.Failed();
 		}
 
-		var setLockoutResult = await _applicationUserManager.SetLockoutEnabledAsync(adminUser, enabled: false);
+		var setLockoutResult = await applicationUserManager.SetLockoutEnabledAsync(adminUser, enabled: false);
 		if (setLockoutResult == IdentityResult.Failed())
 		{
-			_logger.LogError($"{thisMethodName}: adminUser SetLockoutEnabledAsync failed. {setLockoutResult.DumpErrors()}");
+			logger.LogError($"{thisMethodName}: adminUser SetLockoutEnabledAsync failed. {setLockoutResult.DumpErrors()}");
 			return IdentityResult.Failed();
 		}
 
-		var addToRoleResult = await _applicationUserManager.AddToRoleAsync(adminUser, adminRole.Name);
+		var addToRoleResult = await applicationUserManager.AddToRoleAsync(adminUser, adminRole.Name);
 		if (addToRoleResult == IdentityResult.Failed())
 		{
-			_logger.LogError($"{thisMethodName}: adminUser AddToRoleAsync failed. {addToRoleResult.DumpErrors()}");
+			logger.LogError($"{thisMethodName}: adminUser AddToRoleAsync failed. {addToRoleResult.DumpErrors()}");
 			return IdentityResult.Failed();
 		}
 

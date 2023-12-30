@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
@@ -17,28 +19,55 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
     Game? game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
     if (game == null)
     {
-      game = await games.AsSplitQuery()
+      game = await games.AsNoTrackingWithIdentityResolution().AsSplitQuery()
         .Include(x => x.CharacterCardGames)
         .ThenInclude(x => x.CharacterCard)
         .Include(x => x.GameType)
         .Include(c => c.Participates)
         .ThenInclude(c => c.ApplicationUser)
         .ThenInclude(c => c.Document)
+        .Include(x => x.GameCandidates)
         .Include(x => x.QuestionGames)
         .ThenInclude(x => x.Question)
         .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
       if (game == null)
         return null;
+      ValidateGameData(game);
       memoryCacheService.SetGameWithDetails(game);
     }
     return game;
   }
 
-  public async Task<bool> SetGameWinStateAsync(int id, bool won, CancellationToken cancellationToken = default)
+  private void ValidateGameData(Game game)
+  {
+    if (game.GameStatusId != (short)GameStatusEnum.Talking &&
+      (!game.OrderOfParticipationTurnToTalk.HasValue ||
+        !game.OrderOfParticipationTalkBeginner.HasValue ||
+        !game.TalkingTurnStartedTime.HasValue ||
+        !game.CurrentUserTurnStartedTime.HasValue))
+      logger.LogCritical("Invalid status data on Talking. gameId: {gameId}", game.Id);
+    if (game.GameCandidates.Any())
+    {
+      foreach (var gameCandidate in game.GameCandidates)
+      {
+        if (game.GameCandidates.Any(x => x.Id != gameCandidate.Id && x.UserId == gameCandidate.UserId))
+          logger.LogCritical("Game has multiple candidate for one user. gameId: {gameId} - userId: {userId}", game.Id, gameCandidate.UserId);
+      }
+    }
+  }
+
+  public async Task<bool> SetGameStatusAsync(int id, GameStatusEnum gameStatus, CancellationToken cancellationToken = default)
   {
     var game = await GetByIdAsync(id, cancellationToken);
     if (game == null) return false;
-    game.WonTheGame = won;
+    game.GameStatusId = (short)gameStatus;
+    if (game.GameStatusId != (short)GameStatusEnum.Talking)
+    {
+      game.OrderOfParticipationTurnToTalk = null;
+      game.OrderOfParticipationTalkBeginner = null;
+      game.TalkingTurnStartedTime = null;
+      game.CurrentUserTurnStartedTime = null;
+    }
     return true;
   }
 

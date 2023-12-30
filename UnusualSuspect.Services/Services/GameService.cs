@@ -96,7 +96,7 @@ public sealed class GameService(IUnitOfWork uow,
     if (!hasAccess)
       return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
     var cards = await characterCardGameRepository.GetAllGameCharacterCardsAsync(gameId, cancellationToken);
-    if (cards.Any(x => x.CharacterCardId == characterCardId))
+    if (cards.All(x => x.CharacterCardId != characterCardId))
       return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.CharacterCardIdNotFoundInTheGame));
     var card = cards.FirstOrDefault(x => x.CharacterCardId == characterCardId && x.IsActive);
     if (card == null)
@@ -104,7 +104,7 @@ public sealed class GameService(IUnitOfWork uow,
     UnusualSuspectServiceResult<bool?> result;
     if (card.IsMurderer)
     {
-      await gameRepository.SetGameWinStateAsync(gameId, false, cancellationToken);
+      await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.FinishedAndLostTheGame, cancellationToken);
       result = new UnusualSuspectServiceResult<bool?>(false);
     }
     else
@@ -118,17 +118,14 @@ public sealed class GameService(IUnitOfWork uow,
       }
       if (!cards.Any(x => x.IsActive && !x.IsMurderer))
       {
-        await gameRepository.SetGameWinStateAsync(gameId, true, cancellationToken);
+        await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.FinishedAndWonTheGame, cancellationToken);
         result = new UnusualSuspectServiceResult<bool?>(true);
       }
       else
+      {
+        await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.Talking, cancellationToken);
         result = new UnusualSuspectServiceResult<bool?>((bool?)null);
-    }
-    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
-    if (game == null)
-    {
-      ElmahExtensions.RaiseError(new Exception("Game not available! id: " + gameId));
-      return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      }
     }
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.NewCardWasChosen);
     memoryCacheService.ClearGameWithDetails(gameId);
