@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
@@ -98,11 +99,22 @@ public sealed class GameHub(IGameService gameService,
     }
     memoryCacheService.SetUserSignalRConnections(userId, connections);
     var participate = await participateRepository.GetActiveParticipations(userId);
+    
     if (participate.Any())
     {
       if (isConnected)
         await notificationService.AddToGroupAsync(userId, Context.ConnectionId, participate.First().GameId.ToString());
-      //await Clients.OthersInGroup(participate.Result.GameId.ToString()).ChangeConnectionStatus(userId, isConnected);
+      else
+        await notificationService.RemoveFromGroupAsync(userId, participate.First().GameId.ToString(), Context.ConnectionId);
+      string groupName = participate.First().GameId.ToString();
+      if(isConnected)
+        await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, await memoryCacheService.GetSignalRGroupOnlineUsers(groupName));
+      else
+        await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberDisConnected, await memoryCacheService.GetSignalRGroupOnlineUsers(groupName));
+    }
+    else if (!isConnected)
+    {
+      await notificationService.RemoveFromAllGroupsAsync(userId);
     }
   }
   #endregion Events

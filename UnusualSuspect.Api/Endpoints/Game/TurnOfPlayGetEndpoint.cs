@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.Common.Models;
-using UnusualSuspect.Services.Services;
 using UnusualSuspect.Services;
 using UnusualSuspect.Services.Contracts;
 

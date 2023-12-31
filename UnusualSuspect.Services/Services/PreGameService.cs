@@ -5,6 +5,8 @@ using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
+using UnusualSuspect.DataLayer.Common;
+using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
@@ -25,7 +27,8 @@ public class PreGameService(IUnitOfWork uow,
     INotificationService notificationService,
     IQuestionRepository questionRepository,
     IQuestionGameRepository questionGameRepository,
-    ITurnOfPlayService turnOfPlayService)
+ITurnOfPlayService turnOfPlayService,
+    IMemoryCacheService memoryCacheService)
   : IPreGameService
 {
   public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -280,7 +283,7 @@ public class PreGameService(IUnitOfWork uow,
         }
         await turnOfPlayService.StartTurnOfPlayAsync(gameWithDetails.Id);
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
-          gameWithDetails.ToGameFlowDto()));
+          gameWithDetails.ToGameFlowDto(), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString())));
         needToRefill = true;
       }
       else

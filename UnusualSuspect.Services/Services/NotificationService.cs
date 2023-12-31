@@ -2,6 +2,7 @@
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.SignalR;
@@ -36,9 +37,16 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
   private static readonly SemaphoreSlim SemaphoreUserSignalRGroups = new SemaphoreSlim(1, 1);
   private static readonly SemaphoreSlim SemaphoreSignalRGroupOnlineUsers = new SemaphoreSlim(1, 1);
 
-  public async Task RemoveFromGroupAsync(int userId, string connectionId, string groupName)
+  public async Task RemoveFromAllGroupsAsync(int userId)
   {
-    var task = context.Groups.RemoveFromGroupAsync(connectionId, groupName);
+      var groups = await memoryCacheService.GetUserSignalRGroups(userId);
+      foreach (string groupName in groups)
+        await RemoveFromGroupAsync(userId, groupName);
+  }
+  public async Task RemoveFromGroupAsync(int userId, string groupName, string? connectionId = null)
+  {
+    if(connectionId != null)
+      await context.Groups.RemoveFromGroupAsync(connectionId, groupName);
 
     using (SemaphoreUserSignalRGroups.WaitAsync())
     {
@@ -58,9 +66,9 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
         memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
       }
     }
-
-    await task;
   }
+
+
   public async Task AddToGroupAsync(int userId, string connectionId, string groupName)
   {
     var task = context.Groups.AddToGroupAsync(connectionId, groupName);

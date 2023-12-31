@@ -12,5 +12,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     PlayerTurnChange,
     EndOfTalking,
     CandidateCardChange,
+    GameMemberConnected,
+    GameMemberDisConnected,
   }
 }

@@ -59,18 +59,18 @@ public static class ServiceCollectionExtensions
   }
   public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
   {
-    var Settings = GetSiteSettings(services);
-    services.AddConfiguredDbContext(Settings);
+    var settings = GetSiteSettings(services);
+    services.AddConfiguredDbContext(settings);
 
     services.AddIdentity<ApplicationUser, Role>(identityOptions =>
     {
-      setPasswordOptions(identityOptions.Password, Settings);
+      setPasswordOptions(identityOptions.Password, settings);
     })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
-    services.AddElmahCore(configuration, Settings);
-    AddJwtAuthentication(services, Settings.JwtSettings);
-    AddQuartzHostedService(services, Settings);
+    services.AddElmahCore(configuration, settings);
+    AddJwtAuthentication(services, settings.JwtSettings);
+    AddQuartzHostedService(services, settings);
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddScoped<IPrincipal>(provider => provider.GetRequiredService<IHttpContextAccessor>()?.HttpContext?.User ?? ClaimsPrincipal.Current);
     services.AddScoped<IIdentityDbInitializer, IdentityDbInitializer>();

@@ -9,5 +9,6 @@ public interface INotificationService
   Task SendSignalToUser(int userId, SignalCommands command, object? data = null);
   Task NotifyOnGameStart(GameGetResponse game);
   Task AddToGroupAsync(int userId, string connectionId, string groupName);
-  Task RemoveFromGroupAsync(int userId, string connectionId, string groupName);
+  Task RemoveFromGroupAsync(int userId, string groupName, string? connectionId = null);
+  Task RemoveFromAllGroupsAsync(int userId);
 }

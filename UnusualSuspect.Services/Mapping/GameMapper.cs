@@ -7,14 +7,14 @@ namespace UnusualSuspect.Services.Mapping;
 
 public static class GameMapper
 {
-  public static GameGetResponse ToGameGetResponse(this Game value)
+  public static GameGetResponse ToGameGetResponse(this Game value, List<int> onlineUserIds)
   {
-    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto());
+    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(), onlineUserIds);
   }
 
-  public static IEnumerable<GameGetResponse> ToGameGetResponse(this IEnumerable<Game> value)
+  public static IEnumerable<GameGetResponse> ToGameGetResponse(this IEnumerable<Game> value, List<int> onlineUserIds)
   {
-    return value.Select(x => x.ToGameGetResponse());
+    return value.Select(x => x.ToGameGetResponse(onlineUserIds));
   }
 
   public static TurnOfPlayTalkingState? ToTurnOfPlayTalkingState(this Game value)
