@@ -16,7 +16,8 @@ public sealed class GameService(IUnitOfWork uow,
   IParticipateRepository participateRepository,
   ICharacterCardGameRepository characterCardGameRepository,
   INotificationService notificationService,
-  IMemoryCacheService memoryCacheService) : IGameService
+  IMemoryCacheService memoryCacheService,
+  ITurnOfPlayService turnOfPlayService) : IGameService
 {
   public async Task<UnusualSuspectServiceResult<GameGetResponse?>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
@@ -30,20 +31,20 @@ public sealed class GameService(IUnitOfWork uow,
   public async Task<UnusualSuspectServiceResult<bool>> LeaveCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
     Game? game = await gameRepository.GetUserCurrentGameAsync(userId, cancellationToken);
-    if(game == null)
+    if (game == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
     return await LeaveGameAsync(game.Id, userId, cancellationToken);
   }
   public async Task<UnusualSuspectServiceResult<bool>> LeaveGameAsync(int gameId, int userId, CancellationToken cancellationToken = default)
   {
     int participantCount = await participateRepository.GetParticipantCountAsync(gameId, cancellationToken);
-    if(participantCount <= 0)
+    if (participantCount <= 0)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameHasNoParticipants));
     if (participantCount <= 4)
       return await FinishGameAsync(gameId, cancellationToken);
     Participate? participate = (await participateRepository.GetActiveParticipations(userId, cancellationToken))
       .FirstOrDefault(x => x.GameId == gameId);
-    if(participate == null)
+    if (participate == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
     participate.IsActive = false;
 
@@ -72,8 +73,8 @@ public sealed class GameService(IUnitOfWork uow,
   {
     List<Participate> participants = (await participateRepository
       .GetGameActiveParticipantsAsync(gameId, RoleCardEnum.Detective))
-      .Where(x=>x.UserId != leftUserId).ToList();
-    if(!participants.Any())
+      .Where(x => x.UserId != leftUserId).ToList();
+    if (!participants.Any())
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.NoDetectiveInGameToReplaceUser));
     int random = new Random().Next(0, participants.Count - 1);
     participants[random].RoleCardId = (short)leftUserRole;
@@ -83,7 +84,7 @@ public sealed class GameService(IUnitOfWork uow,
   private async Task<UnusualSuspectServiceResult<bool>> FinishGameAsync(int gameId, CancellationToken cancellationToken = default)
   {
     Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
-    if(game == null)
+    if (game == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     game.FinishedTime = DateTime.Now;
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.GameFinished, gameId);
@@ -136,6 +137,39 @@ public sealed class GameService(IUnitOfWork uow,
   public IQueryable<Game> GetAllActiveGamesWithGameType()
   {
     return gameRepository.GetAllActiveGamesWithGameType();
+  }
+
+  public async Task<bool> StartGameIfAllUsersOnline(int gameId, List<int> userIds)
+  {
+    Game? game = await gameRepository.GetByIdAsync(gameId);
+    if (game == null || game.GameStatusId != (short)GameStatusEnum.WaitingForPlayers)
+      return false;
+    bool hasOfflineUser = await participateRepository.IsGameHasOtherActiveParticipantsAsync(gameId, userIds);
+    if (hasOfflineUser)
+      return false;
+    return await GoToTalkingStatus(game);
+  }
+
+  public async Task<bool> GoToTalkingStatus(int gameId)
+  {
+    Game? game = await gameRepository.GetByIdAsync(gameId);
+    if (game == null)
+      return false;
+    return await GoToTalkingStatus(game);
+  }
+  public async Task<bool> GoToTalkingStatus(Game game)
+  {
+    var result = await turnOfPlayService.StartTurnOfPlayAsync(game.Id);
+    if (!result.Success)
+      return false;
+    game.GameStatusId = (short)GameStatusEnum.Talking;
+    game.CurrentUserTurnStartedTime = result.Result.CurrentUserTurnStartedTime;
+    game.TalkingTurnStartedTime = result.Result.TalkingTurnStartedTime;
+    game.OrderOfParticipationTalkBeginner = result.Result.OrderOfParticipationTalkBeginner;
+    game.OrderOfParticipationTurnToTalk = result.Result.OrderOfParticipationTurnToTalk;
+
+    await uow.SaveChangesAsync();
+    return true;
   }
 
   private async Task<bool> IsMainDetective(int gameId, int userId, CancellationToken cancellationToken = default)

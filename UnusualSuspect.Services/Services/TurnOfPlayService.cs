@@ -17,11 +17,11 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
   IGameCandidateRepository gameCandidateRepository,
   ILogger<TurnOfPlayService> logger) : ITurnOfPlayService
 {
-  public async Task<UnusualSuspectServiceResult<bool>> StartTurnOfPlayAsync(int gameId)
+  public async Task<UnusualSuspectServiceResult<TurnOfPlayTalkingState>> StartTurnOfPlayAsync(int gameId)
   {
     Game? game = await gameRepository.GetGameWithDetailsAsync(gameId);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return new UnusualSuspectServiceResult<TurnOfPlayTalkingState>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     short starter = GetStarterOrderOfParticipation(game.Participates);
     TurnOfPlayGetResponse model = new TurnOfPlayGetResponse(new TurnOfPlayTalkingState()
     {
@@ -32,7 +32,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
     });
     memoryCacheService.SetTurnOfPlay(game.Id, model);
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayersStartToTalk, starter);
-    return new UnusualSuspectServiceResult<bool>(true);
+    return new UnusualSuspectServiceResult<TurnOfPlayTalkingState>(model.TurnOfPlayTalkingState!);
   }
 
   public async Task<UnusualSuspectServiceResult<bool>> UserTurnFinishedAsync(int gameId,

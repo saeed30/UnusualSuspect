@@ -19,8 +19,8 @@ public class ChooseCardEndpoint(IGameService gameService, ITurnOfPlayService tur
     UnusualSuspectServiceResult<bool?> result = await gameService.ChooseCardAndGetWinCondition(request.GameId, request.CardId, CurrentUser.UserId, cancellationToken);
     if (!result.Success)
       return new ApiResult<ChooseCardResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
+    await gameService.GoToTalkingStatus(request.GameId);
     await gameService.SaveChangesAsync(cancellationToken);
-    await turnOfPlayService.StartTurnOfPlayAsync(request.GameId);
     return new ApiResult<ChooseCardResponse>(true, ApiResultStatusCode.Success, new ChooseCardResponse()
     {
       WonTheGame = result.Result

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
@@ -102,15 +103,20 @@ public sealed class GameHub(IGameService gameService,
     
     if (participate.Any())
     {
-      if (isConnected)
-        await notificationService.AddToGroupAsync(userId, Context.ConnectionId, participate.First().GameId.ToString());
-      else
-        await notificationService.RemoveFromGroupAsync(userId, participate.First().GameId.ToString(), Context.ConnectionId);
       string groupName = participate.First().GameId.ToString();
-      if(isConnected)
-        await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, await memoryCacheService.GetSignalRGroupOnlineUsers(groupName));
+      if (isConnected)
+      {
+        await notificationService.AddToGroupAsync(userId, Context.ConnectionId, groupName);
+        List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
+        await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, userIds);
+        await gameService.StartGameIfAllUsersOnline(participate.First().GameId, userIds);
+      }
       else
+      {
+        await notificationService.RemoveFromGroupAsync(userId, groupName, Context.ConnectionId);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberDisConnected, await memoryCacheService.GetSignalRGroupOnlineUsers(groupName));
+
+      }
     }
     else if (!isConnected)
     {

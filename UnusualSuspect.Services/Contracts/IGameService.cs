@@ -11,5 +11,7 @@ public interface IGameService
   Task<UnusualSuspectServiceResult<bool>> LeaveGameAsync(int gameId, int userId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default);
   IQueryable<Game> GetAllActiveGamesWithGameType();
-
+  Task<bool> StartGameIfAllUsersOnline(int gameId, List<int> userIds);
+  Task<bool> GoToTalkingStatus(int gameId);
+  Task<bool> GoToTalkingStatus(Game game);
 }

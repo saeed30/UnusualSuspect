@@ -7,7 +7,7 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public class ParticipateRepository
+public sealed class ParticipateRepository
   (IUnitOfWork uow, ILogger<ParticipateRepository> logger) : EfRepository<Participate>(uow, logger),
     IParticipateRepository
 {
@@ -47,5 +47,10 @@ public class ParticipateRepository
     if (roleCardId.HasValue)
       return await participates.Where(x => x.IsActive && x.GameId == gameId && x.RoleCardId == (short)roleCardId.Value).ToListAsync();
     return await participates.Where(x => x.IsActive && x.GameId == gameId).ToListAsync();
+  }
+
+  public async Task<bool> IsGameHasOtherActiveParticipantsAsync(int gameId, List<int> userIds)
+  {
+    return await participates.AnyAsync(x => x.IsActive && x.GameId == gameId && !userIds.Contains(x.UserId));
   }
 }

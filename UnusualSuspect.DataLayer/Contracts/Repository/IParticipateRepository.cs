@@ -10,4 +10,5 @@ public interface IParticipateRepository : IAsyncRepository<Participate>
   Task<List<Participate>> GetActiveParticipations(int userId, CancellationToken cancellationToken = default);
   Task<int> GetParticipantCountAsync(int gameId, CancellationToken cancellationToken);
   Task<List<Participate>> GetGameActiveParticipantsAsync(int gameId, RoleCardEnum? userRole = null);
+  Task<bool> IsGameHasOtherActiveParticipantsAsync(int gameId, List<int> userIds);
 }
