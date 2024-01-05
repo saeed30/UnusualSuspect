@@ -13,7 +13,7 @@ public sealed class OnlineUsersGetEndpoint(IMemoryCacheService memoryCacheServic
   .WithRequest<int>
   .WithActionResult<ApiResult<OnlineUsersGetResponse>>
 {
-  [HttpGet("api/[namespace]/nlineUsersGet")]
+  [HttpGet("api/[namespace]/OnlineUsersGet")]
   public override async Task<ActionResult<ApiResult<OnlineUsersGetResponse>>> HandleAsync(int gameId, CancellationToken cancellationToken = default)
   {
     List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(gameId.ToString());

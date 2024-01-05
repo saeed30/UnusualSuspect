@@ -64,7 +64,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
   public async Task<UnusualSuspectServiceResult<TurnOfPlayGetResponse>> GetTurnOfPlayGetAsync(
     int userId, CancellationToken cancellationToken = default)
   {
-    Game? game = await gameRepository.GetUserCurrentGameAsync(userId, cancellationToken);
+    Game? game = await gameRepository.GetUserCurrentGameWithDetailsAsync(userId, cancellationToken);
     if (game == null)
       return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(
         new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));

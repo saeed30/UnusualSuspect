@@ -18,7 +18,7 @@ using UnusualSuspect.ViewModels.Settings;
 namespace UnusualSuspect.Api.Endpoints.Account;
 
 public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserManager,
-    IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService, ILogger<RequestLoginCodeEndpoint> logger)
+    IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService)
   : EndpointBaseAsync
 	.WithRequest<RequestLoginCodeRequest>
 	.WithActionResult<ApiResult>
@@ -31,7 +31,6 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
     //random delay
     var minWait = Task.Delay(new Random().Next(1, 2000), cancellationToken);
 
-		//logger.LogEvent(1, "نمونه لاگ information", 65, "this is for extra info");
 		string phone = phoneNumber.PhoneNumber;
     if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
     {

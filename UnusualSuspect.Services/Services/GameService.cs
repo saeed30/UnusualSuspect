@@ -25,7 +25,7 @@ public sealed class GameService(IUnitOfWork uow,
     if (game == null)
       return new UnusualSuspectServiceResult<GameGetResponse?>((GameGetResponse?)null);
     return new UnusualSuspectServiceResult<GameGetResponse?>(new GameGetResponse(
-      game.ToGameBaseDto(), game.ToGameFlowDto(), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString())));
+      game.ToGameBaseDto(), game.ToGameFlowDto(), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId));
   }
 
   public async Task<UnusualSuspectServiceResult<bool>> LeaveCurrentGameAsync(int userId, CancellationToken cancellationToken = default)

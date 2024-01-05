@@ -9,7 +9,7 @@ public static class GameMapper
 {
   public static GameGetResponse ToGameGetResponse(this Game value, List<int> onlineUserIds)
   {
-    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(), onlineUserIds);
+    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(), onlineUserIds, value.GameStatusId);
   }
 
   public static IEnumerable<GameGetResponse> ToGameGetResponse(this IEnumerable<Game> value, List<int> onlineUserIds)

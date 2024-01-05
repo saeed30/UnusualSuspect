@@ -39,33 +39,41 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
 
   public async Task RemoveFromAllGroupsAsync(int userId)
   {
-      var groups = await memoryCacheService.GetUserSignalRGroups(userId);
-      foreach (string groupName in groups)
-        await RemoveFromGroupAsync(userId, groupName);
+    var groups = await memoryCacheService.GetUserSignalRGroups(userId);
+    foreach (string groupName in groups)
+      await RemoveFromGroupAsync(userId, groupName);
   }
+
+  public async Task RemoveAllUsersFromGame(int gameId)
+  {
+    string groupName = gameId.ToString();
+    var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
+    foreach (int userId in userIds)
+      await RemoveFromGroupAsync(userId, groupName);
+  }
+
   public async Task RemoveFromGroupAsync(int userId, string groupName, string? connectionId = null)
   {
-    if(connectionId != null)
+    if (connectionId != null)
       await context.Groups.RemoveFromGroupAsync(connectionId, groupName);
 
-    using (SemaphoreUserSignalRGroups.WaitAsync())
+    await SemaphoreUserSignalRGroups.WaitAsync();
+    var groups = await memoryCacheService.GetUserSignalRGroups(userId);
+    if (groups.Contains(groupName))
     {
-      var groups = await memoryCacheService.GetUserSignalRGroups(userId);
-      if (groups.Contains(groupName))
-      {
-        groups.Remove(groupName);
-        memoryCacheService.SetUserSignalRGroups(userId, groups);
-      }
+      groups.Remove(groupName);
+      memoryCacheService.SetUserSignalRGroups(userId, groups);
     }
-    using (SemaphoreSignalRGroupOnlineUsers.WaitAsync())
+    SemaphoreUserSignalRGroups.Release();
+
+    await SemaphoreSignalRGroupOnlineUsers.WaitAsync();
+    var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
+    if (userIds.Contains(userId))
     {
-      var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
-      if (userIds.Contains(userId))
-      {
-        userIds.Remove(userId);
-        memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
-      }
+      userIds.Remove(userId);
+      memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
     }
+    SemaphoreSignalRGroupOnlineUsers.Release();
   }
 
 
@@ -73,24 +81,22 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
   {
     var task = context.Groups.AddToGroupAsync(connectionId, groupName);
 
-    using (SemaphoreUserSignalRGroups.WaitAsync())
+    await SemaphoreUserSignalRGroups.WaitAsync();
+    var groups = await memoryCacheService.GetUserSignalRGroups(userId);
+    if (!groups.Contains(groupName))
     {
-      var groups = await memoryCacheService.GetUserSignalRGroups(userId);
-      if (!groups.Contains(groupName))
-      {
-        groups.Add(groupName);
-        memoryCacheService.SetUserSignalRGroups(userId, groups);
-      }
+      groups.Add(groupName);
+      memoryCacheService.SetUserSignalRGroups(userId, groups);
     }
-    using (SemaphoreSignalRGroupOnlineUsers.WaitAsync())
+    SemaphoreUserSignalRGroups.Release();
+    await SemaphoreSignalRGroupOnlineUsers.WaitAsync();
+    var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
+    if (!userIds.Contains(userId))
     {
-      var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
-      if (!userIds.Contains(userId))
-      {
-        userIds.Add(userId);
-        memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
-      }
+      userIds.Add(userId);
+      memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
     }
+    SemaphoreSignalRGroupOnlineUsers.Release();
 
     await task;
   }

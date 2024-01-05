@@ -11,4 +11,5 @@ public interface INotificationService
   Task AddToGroupAsync(int userId, string connectionId, string groupName);
   Task RemoveFromGroupAsync(int userId, string groupName, string? connectionId = null);
   Task RemoveFromAllGroupsAsync(int userId);
+  Task RemoveAllUsersFromGame(int gameId);
 }

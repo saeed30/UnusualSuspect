@@ -1,4 +1,6 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
+using ElmahCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -39,25 +41,59 @@ public sealed class GameHub(IGameService gameService,
   #region PublicMethods
   public async Task SendMessage(string user, string message)
   {
-    await Clients.All.ReceiveMessage(user, message);
+    try
+    {
+      await Clients.All.ReceiveMessage(user, message);
+    }
+    catch (Exception exception)
+    {
+      ElmahExtensions.RaiseError(exception);
+      throw;
+    }
   }
 
   public async Task StartedToTalk(int userId, short orderOfParticipation, int gameId)
   {
-    await Clients.Caller.ReceiveMessage("admin", "you called StartedToTalk");
-    return;
+    try
+    {
+      await Clients.Caller.ReceiveMessage("admin", "you called StartedToTalk");
+    }
+    catch (Exception exception)
+    {
+      ElmahExtensions.RaiseError(exception);
+      throw;
+    }
+
   }
 
   public async Task FinishedTalking(int userId, short orderOfParticipation, int gameId)
   {
-    await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
-    await turnOfPlayService.UserTurnFinishedAsync(gameId, orderOfParticipation);
+    try
+    {
+      await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
+      await turnOfPlayService.UserTurnFinishedAsync(gameId, orderOfParticipation);
+    }
+    catch (Exception exception)
+    {
+      ElmahExtensions.RaiseError(exception);
+      throw;
+    }
+
   }
 
   public async Task CandidateCard(int userId, short? cardId, int gameId)
   {
-    await Clients.Caller.ReceiveMessage("admin", "you called CandidateCard");
-    await turnOfPlayService.ChangedCandidateCard(userId, cardId, gameId);
+    try
+    {
+      await Clients.Caller.ReceiveMessage("admin", "you called CandidateCard");
+      await turnOfPlayService.ChangedCandidateCard(userId, cardId, gameId);
+    }
+    catch (Exception exception)
+    {
+      ElmahExtensions.RaiseError(exception);
+      throw;
+    }
+
   }
 
   #endregion PublicMethods
@@ -65,25 +101,42 @@ public sealed class GameHub(IGameService gameService,
   #region Events
   public override async Task OnConnectedAsync()
   {
-    logger.LogWarning("User Connected to SignalR. connectionId: {ConnectionId}", Context.ConnectionId);
-    int? userId = UserId;
-    if (userId.HasValue)
+    try
     {
-      await OnUserConnectionStatusChanged(userId.Value, true);
+      logger.LogWarning("User Connected to SignalR. connectionId: {ConnectionId}", Context.ConnectionId);
+      int? userId = UserId;
+      if (userId.HasValue)
+      {
+        await OnUserConnectionStatusChanged(userId.Value, true);
+      }
+      await base.OnConnectedAsync();
     }
-    await base.OnConnectedAsync();
+    catch (Exception exception)
+    {
+      ElmahExtensions.RaiseError(exception);
+      throw;
+    }
+
   }
 
 
   public override async Task OnDisconnectedAsync(Exception? exception)
   {
-    logger.LogWarning("User Disconnected from SignalR. connectionId: {ConnectionId}", Context.ConnectionId);
-    int? userId = UserId;
-    if (userId.HasValue)
+    try
     {
-      await OnUserConnectionStatusChanged(userId.Value, false);
+      logger.LogWarning("User Disconnected from SignalR. connectionId: {ConnectionId}", Context.ConnectionId);
+      int? userId = UserId;
+      if (userId.HasValue)
+      {
+        await OnUserConnectionStatusChanged(userId.Value, false);
+      }
+      await base.OnDisconnectedAsync(exception);
     }
-    await base.OnDisconnectedAsync(exception);
+    catch (Exception e)
+    {
+      ElmahExtensions.RaiseError(e);
+      throw;
+    }
   }
   private async Task OnUserConnectionStatusChanged(int userId, bool isConnected)
   {
@@ -100,7 +153,7 @@ public sealed class GameHub(IGameService gameService,
     }
     memoryCacheService.SetUserSignalRConnections(userId, connections);
     var participate = await participateRepository.GetActiveParticipations(userId);
-    
+
     if (participate.Any())
     {
       string groupName = participate.First().GameId.ToString();

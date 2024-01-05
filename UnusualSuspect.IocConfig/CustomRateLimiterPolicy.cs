@@ -16,7 +16,8 @@ namespace UnusualSuspect.IocConfig
 		public Func<OnRejectedContext, CancellationToken, ValueTask>? OnRejected { get; } =
 				(context, _) =>
 				{
-					context.HttpContext.Response.StatusCode = 429;
+          if (!context.HttpContext.Response.HasStarted)
+					  context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
 					return new ValueTask();
 				};
 		public RateLimitPartition<string> GetPartition(HttpContext httpContext)

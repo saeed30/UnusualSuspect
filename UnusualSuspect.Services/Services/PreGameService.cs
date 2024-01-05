@@ -27,7 +27,7 @@ public class PreGameService(IUnitOfWork uow,
     INotificationService notificationService,
     IQuestionRepository questionRepository,
     IQuestionGameRepository questionGameRepository,
-ITurnOfPlayService turnOfPlayService,
+    ITurnOfPlayService turnOfPlayService,
     IMemoryCacheService memoryCacheService)
   : IPreGameService
 {
@@ -282,7 +282,7 @@ ITurnOfPlayService turnOfPlayService,
           return;
         }
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
-          gameWithDetails.ToGameFlowDto(), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString())));
+          gameWithDetails.ToGameFlowDto(), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId));
         needToRefill = true;
       }
       else
