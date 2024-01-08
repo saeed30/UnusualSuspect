@@ -22,6 +22,7 @@ public class Game : BaseEntity
   public short? OrderOfParticipationTurnToTalk { get; set; }
   public DateTime? TalkingTurnStartedTime { get; set; }
   public DateTime? CurrentUserTurnStartedTime { get; set; }
+  public bool? WitnessLastAnswer { get; set; }
 
   public virtual ICollection<CharacterCardGame> CharacterCardGames { get; set; }
 	public virtual ICollection<Participate> Participates { get; set; }

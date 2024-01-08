@@ -42,7 +42,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
     if (game == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     TurnOfPlayGetResponse? model = await memoryCacheService.GetTurnOfPlay(game.Id);
-    if (model == null || !model.IsTalkingTime || model.TurnOfPlayTalkingState == null)
+    if (model == null || model.TurnOfPlayTalkingState == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
     var next = GetNextUserOrderOfParticipation(game.Participates,
     model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk);
@@ -80,7 +80,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
   public async Task ChangedCandidateCard(int userId, short? cardId, int gameId)
   {
     TurnOfPlayGetResponse? model = await memoryCacheService.GetTurnOfPlay(gameId);
-    if (model == null || !model.IsTalkingTime || model.TurnOfPlayTalkingState == null)
+    if (model == null || model.TurnOfPlayTalkingState == null)
       return;
     var candids = model.TurnOfPlayTalkingState.CandidateCard;
     if (candids.TryGetValue(userId, out short oldChoice))

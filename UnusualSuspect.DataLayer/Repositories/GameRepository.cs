@@ -56,10 +56,16 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
     }
   }
 
-  public async Task<bool> SetGameStatusAsync(int id, GameStatusEnum gameStatus, CancellationToken cancellationToken = default)
+  public async Task<bool> SetGameStatusAsync(int id, GameStatusEnum gameStatus,
+    CancellationToken cancellationToken = default)
   {
     var game = await GetByIdAsync(id, cancellationToken);
-    if (game == null) return false;
+    if (game == null)
+      return false;
+    return SetGameStatus(game, gameStatus);
+  }
+  public bool SetGameStatus(Game game, GameStatusEnum gameStatus)
+  {
     game.GameStatusId = (short)gameStatus;
     if (game.GameStatusId != (short)GameStatusEnum.Talking)
     {
@@ -67,6 +73,12 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
       game.OrderOfParticipationTalkBeginner = null;
       game.TalkingTurnStartedTime = null;
       game.CurrentUserTurnStartedTime = null;
+    }
+    switch (gameStatus)
+    {
+      case GameStatusEnum.WaitingForWitnessToAnswer:
+        game.WitnessLastAnswer = null;
+        break;
     }
     return true;
   }

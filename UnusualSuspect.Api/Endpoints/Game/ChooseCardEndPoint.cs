@@ -22,8 +22,6 @@ public class ChooseCardEndpoint(IGameService gameService, INotificationService n
     await gameService.SaveChangesAsync(cancellationToken);
     if(result.Result.HasValue)
       await notificationService.RemoveAllUsersFromGame(request.GameId);
-    else
-      await gameService.GoToTalkingStatus(request.GameId);
     return new ApiResult<ChooseCardResponse>(true, ApiResultStatusCode.Success, new ChooseCardResponse()
     {
       WonTheGame = result.Result

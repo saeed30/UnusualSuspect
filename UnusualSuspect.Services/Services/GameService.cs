@@ -8,6 +8,7 @@ using UnusualSuspect.Services.Mapping;
 using ElmahCore;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Contracts;
+using System.Threading;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -94,7 +95,7 @@ public sealed class GameService(IUnitOfWork uow,
 
   public async Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default)
   {
-    bool hasAccess = await IsMainDetective(gameId, userId, cancellationToken);
+    bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.MainDetective, cancellationToken);
     if (!hasAccess)
       return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
     var cards = await characterCardGameRepository.GetAllGameCharacterCardsAsync(gameId, cancellationToken);
@@ -125,7 +126,7 @@ public sealed class GameService(IUnitOfWork uow,
       }
       else
       {
-        await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.Talking, cancellationToken);
+        await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer, cancellationToken);
         result = new UnusualSuspectServiceResult<bool?>((bool?)null);
       }
     }
@@ -147,7 +148,7 @@ public sealed class GameService(IUnitOfWork uow,
     bool hasOfflineUser = await participateRepository.IsGameHasOtherActiveParticipantsAsync(gameId, userIds);
     if (hasOfflineUser)
       return false;
-    return await GoToTalkingStatus(game);
+    return await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer); 
   }
 
   public async Task<bool> GoToTalkingStatus(int gameId)
@@ -162,22 +163,36 @@ public sealed class GameService(IUnitOfWork uow,
     var result = await turnOfPlayService.StartTurnOfPlayAsync(game.Id);
     if (!result.Success)
       return false;
-    game.GameStatusId = (short)GameStatusEnum.Talking;
+    gameRepository.SetGameStatus(game, GameStatusEnum.Talking);
     game.CurrentUserTurnStartedTime = result.Result.CurrentUserTurnStartedTime;
     game.TalkingTurnStartedTime = result.Result.TalkingTurnStartedTime;
     game.OrderOfParticipationTalkBeginner = result.Result.OrderOfParticipationTalkBeginner;
     game.OrderOfParticipationTurnToTalk = result.Result.OrderOfParticipationTurnToTalk;
-
-    await uow.SaveChangesAsync();
     return true;
   }
 
-  private async Task<bool> IsMainDetective(int gameId, int userId, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer, int userId, CancellationToken cancellationToken = default)
+  {
+    bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.Witness, cancellationToken);
+    if (!hasAccess)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
+    Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
+    if(game == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    if(game.GameStatusId != (short)GameStatusEnum.WaitingForWitnessToAnswer)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInWaitingForWitnessToAnswerStatus));
+    game.WitnessLastAnswer = witnessAnswer;
+    await GoToTalkingStatus(game);
+    memoryCacheService.ClearGameWithDetails(gameId);
+    return new UnusualSuspectServiceResult<bool>(true);
+  }
+
+  private async Task<bool> HasSpecificRoleInTheGame(int gameId, int userId, RoleCardEnum roleCard, CancellationToken cancellationToken = default)
   {
     var role = await participateRepository.GetParticipantRoleAsync(gameId, userId, cancellationToken);
     if (role == null)
       return false;
-    return role.Value == RoleCardEnum.MainDetective;
+    return role.Value == roleCard;
   }
 
   public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

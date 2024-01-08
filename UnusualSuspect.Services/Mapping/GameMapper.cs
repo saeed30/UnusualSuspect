@@ -27,7 +27,7 @@ public static class GameMapper
     Dictionary<int, short> candidates = new Dictionary<int, short>();
     foreach (var item in value.GameCandidates)
     {
-      if(!candidates.ContainsKey(item.UserId))
+      if (!candidates.ContainsKey(item.UserId))
         continue;
       candidates.Add(item.UserId, item.CharacterCardId);
     }
@@ -62,7 +62,9 @@ public static class GameMapper
     return new GameFlowDto()
     {
       Id = value.Id,
-      ActiveCharacterIds = value.CharacterCardGames.Where(x => x.IsActive).Select(x => x.CharacterCardId).ToList()
+      ActiveCharacterIds = value.CharacterCardGames.Where(x => x.IsActive).Select(x => x.CharacterCardId).ToList(),
+      TurnOfPlayTalkingState = value.GameStatusId == (short)GameStatusEnum.Talking ? value.ToTurnOfPlayTalkingState() : null,
+      WitnessLastAnswer = value.WitnessLastAnswer
     };
   }
 }

@@ -13,7 +13,9 @@ namespace UnusualSuspect.ApiViewModels.Enums.BaseData
     [Display(Name = "پایان با پیروزی")]
     FinishedAndWonTheGame = 4,
     [Display(Name = "پایان با شکست")]
-    FinishedAndLostTheGame = 5
+    FinishedAndLostTheGame = 5,
+    [Display(Name = "در انتظار شاهد جهت پاسخ به سوال")]
+    WaitingForWitnessToAnswer = 6
   }
 
 }

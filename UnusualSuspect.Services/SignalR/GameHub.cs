@@ -163,12 +163,12 @@ public sealed class GameHub(IGameService gameService,
         List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, userIds);
         await gameService.StartGameIfAllUsersOnline(participate.First().GameId, userIds);
+        await gameService.SaveChangesAsync();
       }
       else
       {
         await notificationService.RemoveFromGroupAsync(userId, groupName, Context.ConnectionId);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberDisConnected, await memoryCacheService.GetSignalRGroupOnlineUsers(groupName));
-
       }
     }
     else if (!isConnected)

@@ -8,33 +8,22 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
   public class TurnOfPlayGetResponse
   {
     [SerializeField]
-    private bool isTalkingTime;
-    [SerializeField]
     private TurnOfPlayTalkingState? turnOfPlayTalkingState;
 
     public TurnOfPlayGetResponse()
     {
       TurnOfPlayTalkingState = null;
-      IsTalkingTime = false;
     }
     public TurnOfPlayGetResponse(TurnOfPlayTalkingState? turnOfPlayTalkingState)
     {
       if (turnOfPlayTalkingState == null)
       {
         TurnOfPlayTalkingState = null;
-        IsTalkingTime = false;
       }
       else
       {
         TurnOfPlayTalkingState = turnOfPlayTalkingState;
-        IsTalkingTime = true;
       }
-    }
-
-    public bool IsTalkingTime
-    {
-      get => isTalkingTime;
-      set => isTalkingTime = value;
     }
 
     public TurnOfPlayTalkingState? TurnOfPlayTalkingState
