@@ -9,12 +9,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Quartz;
 using System.Globalization;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
+using ElmahCore;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Exceptions;
 using UnusualSuspect.Common.Extensions;
@@ -69,7 +71,7 @@ public static class ServiceCollectionExtensions
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
     services.AddElmahCore(configuration, settings);
-    AddJwtAuthentication(services, settings.JwtSettings);
+    AddJwtAuthentication(services, settings);
     AddQuartzHostedService(services, settings);
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddScoped<IPrincipal>(provider => provider.GetRequiredService<IHttpContextAccessor>()?.HttpContext?.User ?? ClaimsPrincipal.Current);
@@ -187,8 +189,9 @@ public static class ServiceCollectionExtensions
     return siteSettings;
   }
 
-  public static void AddJwtAuthentication(this IServiceCollection services, JwtSettings jwtSettings)
+  public static void AddJwtAuthentication(this IServiceCollection services, ProjectSetting projectSettings)
   {
+    var jwtSettings = projectSettings.JwtSettings;
     services.AddAuthentication(options =>
     {
       options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -218,7 +221,39 @@ public static class ServiceCollectionExtensions
       options.TokenValidationParameters = validationParameters;
       options.Events = new JwtBearerEvents
       {
-
+        OnChallenge = context =>
+        {
+          if (projectSettings.IsTesting)
+          {
+            if (context.AuthenticateFailure != null)
+              ElmahExtensions.RaiseError(new AppException(ApiResultStatusCode.UnAuthorized, "Authenticate failure.", HttpStatusCode.Unauthorized, context.AuthenticateFailure, null));
+            else
+              ElmahExtensions.RaiseError(new AppException(ApiResultStatusCode.UnAuthorized, "You are unauthorized to access this resource.", HttpStatusCode.Unauthorized));
+          }
+          if (!context.Response.HasStarted)
+          {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+            var payload = new
+            {
+              error = "Unauthorized",
+              message = "You need a valid token to access this resource"
+            };
+            context.HandleResponse();
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(payload));
+          }
+          return Task.CompletedTask;
+        },
+        //OnForbidden = context =>
+        //{
+        //  if (!context.Response.HasStarted)
+        //  {
+        //    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        //    context.Response.ContentType = "text/plain";
+        //    return context.Response.WriteAsync("Authentication forbidden.");
+        //  }
+        //  return Task.CompletedTask;
+        //},
         OnMessageReceived = context =>
         {
           if (string.IsNullOrEmpty(context.Token))
@@ -226,7 +261,7 @@ public static class ServiceCollectionExtensions
             if (context.HttpContext.Request.Path.StartsWithSegments("/GameHub"))
             {
               string? accessToken = context.Request.Headers["Authorization"];
-              if(string.IsNullOrEmpty(accessToken))
+              if (string.IsNullOrEmpty(accessToken))
                 accessToken = context.Request.Query["access_token"];
               if (!string.IsNullOrEmpty(accessToken))
                 context.Token = accessToken.Replace("Bearer ", "");
@@ -234,18 +269,22 @@ public static class ServiceCollectionExtensions
           }
           return Task.CompletedTask;
         },
-        OnAuthenticationFailed = context =>
-            {
-              //if (context.Exception != null)
-              //  throw new AppException(ApiResultStatusCode.UnAuthorized, "Authentication failed.", HttpStatusCode.Unauthorized, context.Exception, null);
-              // Set the status code to 401
-              context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-              // Set the content type to plain text
-              context.Response.ContentType = "text/plain";
-              // Write the exception message to the response body
-              //return context.Response.WriteAsync(context.Exception.Message);
-              return context.Response.WriteAsync("Authentication failed.");
-            },
+        //OnAuthenticationFailed = context =>
+        //    {
+        //      //if (context.Exception != null)
+        //      //  throw new AppException(ApiResultStatusCode.UnAuthorized, "Authentication failed.", HttpStatusCode.Unauthorized, context.Exception, null);
+        //      // Set the status code to 401
+        //      if (!context.Response.HasStarted)
+        //      {
+        //        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        //        // Set the content type to plain text
+        //        context.Response.ContentType = "text/plain";
+        //        // Write the exception message to the response body
+        //        //return context.Response.WriteAsync(context.Exception.Message);
+        //        return context.Response.WriteAsync("Authentication failed.");
+        //      }
+        //      return Task.CompletedTask;
+        //    },
         OnTokenValidated = async context =>
             {
               var signInManager = context.HttpContext.RequestServices.GetRequiredService<IApplicationSignInService>();
@@ -271,14 +310,7 @@ public static class ServiceCollectionExtensions
                 context.Fail("Token security stamp is not valid.");
 
               //await usermanager.UpdateLastLoginDateAsync(user);
-            },
-        //OnChallenge = context =>
-        //{
-        //    if (context.AuthenticateFailure != null)
-        //        throw new AppException(ApiResultStatusCode.UnAuthorized, "Authenticate failure.", HttpStatusCode.Unauthorized, context.AuthenticateFailure, null);
-        //    throw new AppException(ApiResultStatusCode.UnAuthorized, "You are unauthorized to access this resource.", HttpStatusCode.Unauthorized);
-
-        //}
+            }
       };
     });
   }
