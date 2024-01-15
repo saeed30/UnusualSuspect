@@ -14,6 +14,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     private string title;
     [SerializeField]
     private bool isMurderer;
+    [SerializeField]
+    private string imageUrl;
+
+    public string ImageUrl
+    {
+      get => imageUrl;
+      set => imageUrl = value;
+    }
 
     public int Id
     {

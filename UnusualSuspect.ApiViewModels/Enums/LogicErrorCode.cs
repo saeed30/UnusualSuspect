@@ -62,5 +62,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     GameIsNotInTalkingStatus = 27,
 		[Display(Name = "بازی در وضعیت منظر جواب شاهد نیست")]
     GameIsNotInWaitingForWitnessToAnswerStatus = 28,
+		[Display(Name = "این سوال برای این بازی ثبت نشده است")]
+    NoGameQuestionWithThisGameIdAndQuestionId = 29,
   }
 }

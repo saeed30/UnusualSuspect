@@ -58,6 +58,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
     model.TurnOfPlayTalkingState.CurrentUserTurnStartedTime = DateTime.Now;
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
       model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk);
+    //BackgroundJob.
     return new UnusualSuspectServiceResult<bool>(true);
   }
 

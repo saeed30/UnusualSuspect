@@ -16,7 +16,7 @@ namespace UnusualSuspect.Api.Endpoints.Game
   [HttpPost("api/[namespace]/WitnessAnswer")]
     public override async Task<ActionResult<ApiResult>> HandleAsync(WitnessAnswerRequest request, CancellationToken cancellationToken = default)
     {
-      UnusualSuspectServiceResult<bool> result = await gameService.SetWitnessAnswer(request.GameId, request.WitnessAnswer, CurrentUser.UserId, cancellationToken);
+      UnusualSuspectServiceResult<bool> result = await gameService.SetWitnessAnswer(request.GameId, request.WitnessAnswer, request.QuestionId, CurrentUser.UserId, cancellationToken);
       if (!result.Success)
         return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
       await gameService.SaveChangesAsync(cancellationToken);

@@ -10,6 +10,14 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
     private int gameId;
     [SerializeField]
     private bool witnessAnswer;
+    [SerializeField]
+    private short questionId;
+
+    public short QuestionId
+    {
+	    get => questionId;
+	    set => questionId = value;
+    }
 
     public int GameId
     {
