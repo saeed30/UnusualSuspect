@@ -28,5 +28,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     GameMemberDisConnected = 11,
 		[Display(Name = "شاهد پاسخ سوال را ثبت کرده است")]
     WitnessAnswered = 12,
+		[Display(Name = "کاربر از گروه قبل بازی خارج شد")]
+    UserWasRemovedFromPreGameGroup = 13,
   }
 }

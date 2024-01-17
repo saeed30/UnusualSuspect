@@ -7,7 +7,7 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public class PreGameGroupRepository
+public sealed class PreGameGroupRepository
   (IUnitOfWork uow, ILogger<PreGameGroupRepository> logger) : EfRepository<PreGameGroup>(uow, logger),
     IPreGameGroupRepository
 {
@@ -43,4 +43,17 @@ public class PreGameGroupRepository
       .Include(x => x.GameType)
       .Where(x => x.GameId == null);
   }
+
+  public async Task<List<int>> ResetGroupsStatusAfterFinishingTheGameAsync(int gameId, CancellationToken cancellationToken = default)
+  {
+	  List<PreGameGroup> pre = await preGameGroup.Where(x => x.GameId == gameId).ToListAsync(cancellationToken);
+	  foreach (PreGameGroup gameGroup in pre)
+	  {
+		  gameGroup.GameId = null;
+		  gameGroup.PreGameGroupStatusId = (short)PreGameGroupStatusEnum.NotReady;
+      gameGroup.ReadyToGameTime = null;
+	  }
+	  return pre.Select(x=>x.Id).ToList();
+  }
+
 }

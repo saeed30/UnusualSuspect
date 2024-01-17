@@ -2,7 +2,6 @@
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
-using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.SignalR;
@@ -12,7 +11,12 @@ namespace UnusualSuspect.Services.Services;
 public sealed class NotificationService(IHubContext<GameHub, IGameClient> context,
   IMemoryCacheService memoryCacheService) : INotificationService
 {
-  public async Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null)
+	public async Task SendSignalToPreGameGroup(int preGameGroupId, SignalCommands command, object? data = null)
+	{
+		await context.Clients.Group("pre" + preGameGroupId).GameCommand(command, data);
+	}
+
+	public async Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null)
   {
     await context.Clients.Group(gameId.ToString()).GameCommand(command, data);
   }

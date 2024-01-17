@@ -64,5 +64,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     GameIsNotInWaitingForWitnessToAnswerStatus = 28,
 		[Display(Name = "این سوال برای این بازی ثبت نشده است")]
     NoGameQuestionWithThisGameIdAndQuestionId = 29,
+		[Display(Name = "تنها صاحب گروه امکان حذف اعضای دیگر را دارد")]
+    OnlyGroupOwnerCanRemoveOtherUsersFromGroup = 30,
   }
 }

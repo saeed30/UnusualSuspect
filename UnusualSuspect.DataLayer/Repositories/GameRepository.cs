@@ -16,8 +16,9 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
 
   public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default)
   {
+	  bool isCacheActive = false;
     Game? game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
-    if (game == null)
+    if (game == null || !isCacheActive)
     {
       game = await games.AsNoTrackingWithIdentityResolution().AsSplitQuery()
         .Include(x => x.CharacterCardGames)
@@ -111,5 +112,17 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
   {
     return await games.AnyAsync(x =>
       x.FinishedTime == null && x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
+  }
+
+  public async Task SetNewTurnToTalk(int gameId, short orderOfParticipationTurnToTalk, DateTime currentUserTurnStartedTime, CancellationToken cancellationToken = default)
+  {
+	  Game? game = await GetByIdAsync(gameId, cancellationToken);
+	  if (game == null)
+	  {
+      logger.LogError(new Exception("Invalid gameId"), "Invalid gameId");
+		  return;
+	  }
+	  game.OrderOfParticipationTurnToTalk = orderOfParticipationTurnToTalk;
+	  game.CurrentUserTurnStartedTime = currentUserTurnStartedTime;
   }
 }

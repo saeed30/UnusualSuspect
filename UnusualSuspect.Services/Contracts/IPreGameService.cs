@@ -13,6 +13,7 @@ public interface IPreGameService
   Task RemoveFromAllUserPreGames(List<JoinedPreGame> joinedPreGame, int userId, CancellationToken cancellationToken = default);
   Task RemoveUserFromPreGameGroup(JoinedPreGame joinedPreGame, int userId, CancellationToken cancellationToken = default);
   Task RemovePreGameGroup(int preGameGroupId, CancellationToken cancellationToken = default);
+  Task RecalculatePreGameGroupUsers(PreGameGroup preGameGroup, short changeOnThisTransaction = 0, CancellationToken cancellationToken = default);
   Task RecalculatePreGameGroupUsers(int preGameGroupId, short changeOnThisTransaction = 0, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> ChangeUserReadyStatus(int userId, int preGameGroupId, ReadyToGameStatusEnum readyToGameStatusEnum, CancellationToken cancellationToken = default);
   Task CombineGroupsToStartGames(CancellationToken cancellationToken = default);
@@ -20,4 +21,5 @@ public interface IPreGameService
   IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame();
   Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupDetail(int preGameGroupId, int userId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<MyPreGameGroupsResponse>> GetPreGameGroupByUserId(int userId);
+  Task<UnusualSuspectServiceResult<bool>> ExitFromPreGameGroup(int preGameGroupId, int? userIdToExit, int currentUserId, CancellationToken cancellationToken = default);
 }

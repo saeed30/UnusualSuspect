@@ -19,7 +19,9 @@ public sealed class GameService(IUnitOfWork uow,
 	INotificationService notificationService,
 	IMemoryCacheService memoryCacheService,
 	ITurnOfPlayService turnOfPlayService,
-	IQuestionGameRepository questionGameRepository) : IGameService
+	IQuestionGameRepository questionGameRepository,
+	IPreGameGroupRepository preGameGroupRepository,
+	IJoinedPreGameRepository joinedPreGameRepository) : IGameService
 {
 	public async Task<UnusualSuspectServiceResult<GameGetResponse?>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
 	{
@@ -43,7 +45,7 @@ public sealed class GameService(IUnitOfWork uow,
 		if (participantCount <= 0)
 			return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameHasNoParticipants));
 		if (participantCount <= 4)
-			return await FinishGameAsync(gameId, cancellationToken);
+			return await FinishGameAsync(gameId, null, cancellationToken);
 		Participate? participate = (await participateRepository.GetActiveParticipations(userId, cancellationToken))
 			.FirstOrDefault(x => x.GameId == gameId);
 		if (participate == null)
@@ -83,12 +85,17 @@ public sealed class GameService(IUnitOfWork uow,
 		return new UnusualSuspectServiceResult<bool>(true);
 	}
 
-	private async Task<UnusualSuspectServiceResult<bool>> FinishGameAsync(int gameId, CancellationToken cancellationToken = default)
+	private async Task<UnusualSuspectServiceResult<bool>> FinishGameAsync(int gameId, GameStatusEnum? finalGameStatus = null,
+		CancellationToken cancellationToken = default)
 	{
 		Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
 		if (game == null)
 			return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+		if(finalGameStatus.HasValue)
+			gameRepository.SetGameStatus(game, finalGameStatus.Value);
 		game.FinishedTime = DateTime.Now;
+		List<int> preGameGroupIds = await preGameGroupRepository.ResetGroupsStatusAfterFinishingTheGameAsync(gameId, cancellationToken);
+		await joinedPreGameRepository.ResetJoinedPreGameAfterFinishingTheGameAsync(preGameGroupIds, cancellationToken);
 		await notificationService.SendSignalToGameGroup(gameId, SignalCommands.GameFinished, gameId);
 		memoryCacheService.ClearGameWithDetails(gameId);
 		return new UnusualSuspectServiceResult<bool>(true);
@@ -108,7 +115,7 @@ public sealed class GameService(IUnitOfWork uow,
 		UnusualSuspectServiceResult<bool?> result;
 		if (card.IsMurderer)
 		{
-			await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.FinishedAndLostTheGame, cancellationToken);
+			await FinishGameAsync(gameId, GameStatusEnum.FinishedAndLostTheGame, cancellationToken);
 			result = new UnusualSuspectServiceResult<bool?>(false);
 		}
 		else
@@ -122,7 +129,7 @@ public sealed class GameService(IUnitOfWork uow,
 			}
 			if (!cards.Any(x => x.IsActive && !x.IsMurderer))
 			{
-				await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.FinishedAndWonTheGame, cancellationToken);
+				await FinishGameAsync(gameId, GameStatusEnum.FinishedAndWonTheGame, cancellationToken);
 				result = new UnusualSuspectServiceResult<bool?>(true);
 			}
 			else
@@ -189,7 +196,6 @@ public sealed class GameService(IUnitOfWork uow,
 		questionGame.UserAnswer = witnessAnswer;
 		game.WitnessLastAnswer = witnessAnswer;
 		await GoToTalkingStatus(game);
-		memoryCacheService.ClearGameWithDetails(gameId);
 		return new UnusualSuspectServiceResult<bool>(true);
 	}
 

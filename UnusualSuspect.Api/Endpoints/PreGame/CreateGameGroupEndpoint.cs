@@ -1,16 +1,10 @@
-﻿using Ardalis.ApiEndpoints;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums;
-using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.Contracts;
-using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.ViewModels.Identity;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 

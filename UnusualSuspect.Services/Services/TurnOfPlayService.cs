@@ -52,11 +52,15 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
       await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForMainDetectiveToChoose, cancellationToken);
       await gameRepository.SaveChangesAsync(cancellationToken);
       await gameCandidateRepository.ExecuteDeleteAllGameCandidatesAsync(gameId, cancellationToken);
-      return new UnusualSuspectServiceResult<bool>(false);
+      memoryCacheService.ClearGameWithDetails(gameId);
+			return new UnusualSuspectServiceResult<bool>(false);
     }
     model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk = next;
     model.TurnOfPlayTalkingState.CurrentUserTurnStartedTime = DateTime.Now;
-    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
+    await gameRepository.SetNewTurnToTalk(game.Id, model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk,
+	    model.TurnOfPlayTalkingState.CurrentUserTurnStartedTime, cancellationToken);
+    await gameRepository.SaveChangesAsync(cancellationToken);
+		await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
       model.TurnOfPlayTalkingState.OrderOfParticipationTurnToTalk);
     //BackgroundJob.
     return new UnusualSuspectServiceResult<bool>(true);

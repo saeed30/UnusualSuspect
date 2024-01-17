@@ -12,4 +12,5 @@ public interface IGameRepository : IAsyncRepository<Game>
   Task<Game?> GetUserCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default);
   Task<Game?> GetUserCurrentGameAsync(int userId, CancellationToken cancellationToken = default);
   Task<bool> UserIsInActiveGameAsync(int userId, CancellationToken cancellationToken = default);
+  Task SetNewTurnToTalk(int gameId, short orderOfParticipationTurnToTalk, DateTime currentUserTurnStartedTime, CancellationToken cancellationToken = default);
 }

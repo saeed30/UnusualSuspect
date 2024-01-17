@@ -7,7 +7,7 @@ using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public class JoinedPreGameRepository
+public sealed class JoinedPreGameRepository
   (IUnitOfWork uow, ILogger<JoinedPreGameRepository> logger) : EfRepository<JoinedPreGame>(uow, logger),
     IJoinedPreGameRepository
 {
@@ -18,7 +18,14 @@ public class JoinedPreGameRepository
 		return !await joinedPreGame.AnyAsync(x => x.PreGameGroupId == preGameGroupId && x.ReadyToGameStatusId != (short)ReadyToGameStatusEnum.Ready, cancellationToken: cancellationToken);
 	}
 
-	public async Task<int> ExecuteDeleteAllJoinedPreGameGroupAsync(int preGameGroupId, CancellationToken cancellationToken = default)
+  public async Task ResetJoinedPreGameAfterFinishingTheGameAsync(List<int> preGameGroupIds, CancellationToken cancellationToken = default)
+  {
+	  var joinedPreGames = await joinedPreGame.Where(x => preGameGroupIds.Contains(x.PreGameGroupId)).ToListAsync(cancellationToken);
+	  foreach (JoinedPreGame preGame in joinedPreGames)
+		  preGame.ReadyToGameStatusId = (short)ReadyToGameStatusEnum.Notified;
+  }
+
+  public async Task<int> ExecuteDeleteAllJoinedPreGameGroupAsync(int preGameGroupId, CancellationToken cancellationToken = default)
 	{
 		return await joinedPreGame.Where(x => x.PreGameGroupId == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
 	}
@@ -69,6 +76,11 @@ public class JoinedPreGameRepository
 	public async Task<bool> UserExistsInPreGameGroupAsync(int userId, int preGameGroupId, CancellationToken cancellationToken = default)
 	{
 		return await joinedPreGame.AnyAsync(x => x.UserId == userId && x.PreGameGroupId == preGameGroupId, cancellationToken);
+	}
+	public async Task<bool> IsGroupOwner(int preGameGroupId, int userId, CancellationToken cancellationToken = default)
+	{
+		return await joinedPreGame.AnyAsync(x => x.Id == preGameGroupId && x.UserId == userId &&
+			x.IsOwnerOfPreGroup, cancellationToken);
 	}
 
 }

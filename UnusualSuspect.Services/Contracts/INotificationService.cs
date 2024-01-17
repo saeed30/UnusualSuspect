@@ -5,6 +5,7 @@ namespace UnusualSuspect.Services.Contracts;
 
 public interface INotificationService
 {
+  Task SendSignalToPreGameGroup(int preGameGroupId, SignalCommands command, object? data = null);
   Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null);
   Task SendSignalToUser(int userId, SignalCommands command, object? data = null);
   Task NotifyOnGameStart(GameGetResponse game);
