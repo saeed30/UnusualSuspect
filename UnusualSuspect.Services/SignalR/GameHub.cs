@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
@@ -52,7 +53,7 @@ public sealed class GameHub(IGameService gameService,
     }
   }
 
-  public async Task StartedToTalk(int userId, short orderOfParticipation, int gameId)
+  public async Task StartedToTalk(int gameId)
   {
     try
     {
@@ -66,14 +67,19 @@ public sealed class GameHub(IGameService gameService,
 
   }
 
-  public async Task FinishedTalking(int userId, short orderOfParticipation, int gameId)
+  public async Task FinishedTalking(int gameId)
   {
     try
     {
+			if (!UserId.HasValue)
+				return;
       await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
-      await turnOfPlayService.UserTurnFinishedAsync(gameId, orderOfParticipation);
-    }
-    catch (Exception exception)
+      var result = await turnOfPlayService.UserTurnFinishedAsync(UserId.Value, gameId);
+      if(!result.Success)
+	      await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
+
+		}
+		catch (Exception exception)
     {
       ElmahExtensions.RaiseError(exception);
       throw;
@@ -81,14 +87,18 @@ public sealed class GameHub(IGameService gameService,
 
   }
 
-  public async Task CandidateCard(int userId, short? cardId, int gameId)
+  public async Task CandidateCard(short? cardId, int gameId)
   {
     try
     {
+	    if (!UserId.HasValue)
+		    return;
       await Clients.Caller.ReceiveMessage("admin", "you called CandidateCard");
-      await turnOfPlayService.ChangedCandidateCard(userId, cardId, gameId);
+      var result = await turnOfPlayService.ChangedCandidateCard(UserId.Value, cardId, gameId);
+      if (!result.Success)
+	      await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
     }
-    catch (Exception exception)
+		catch (Exception exception)
     {
       ElmahExtensions.RaiseError(exception);
       throw;

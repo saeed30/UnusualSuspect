@@ -179,7 +179,8 @@ public sealed class GameService(IUnitOfWork uow,
 		return true;
 	}
 
-	public async Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer, short questionId, int userId, CancellationToken cancellationToken = default)
+	public async Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer,
+		short questionId, int userId, CancellationToken cancellationToken = default)
 	{
 		bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.Witness, cancellationToken);
 		if (!hasAccess)

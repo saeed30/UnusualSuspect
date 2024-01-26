@@ -66,5 +66,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     NoGameQuestionWithThisGameIdAndQuestionId = 29,
 		[Display(Name = "تنها صاحب گروه امکان حذف اعضای دیگر را دارد")]
     OnlyGroupOwnerCanRemoveOtherUsersFromGroup = 30,
+		[Display(Name = "شماره ارسال شده جهت پایان نوبت صحبت در حال صبحت نیست")]
+		UserCallingFinishTalkIsNotTalking = 31,
   }
 }

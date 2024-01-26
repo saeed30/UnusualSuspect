@@ -12,6 +12,7 @@ public sealed class ExitFromPreGameGroupEndpoint(IPreGameService preGameService)
 	.WithRequest<ExitFromPreGameGroupRequest>
 	.WithActionResult<ApiResult>
 {
+  [HttpPost("api/[namespace]/ExitFromPreGameGroup")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync(ExitFromPreGameGroupRequest request, CancellationToken cancellationToken = default)
 	{
 		UnusualSuspectServiceResult<bool> result = await preGameService.ExitFromPreGameGroup(request.PreGameGroupId, request.UserId, CurrentUser.UserId, cancellationToken);

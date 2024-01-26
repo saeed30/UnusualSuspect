@@ -3,9 +3,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
 </head>
 <body>
+<h1>SendMessage</h1>
 <div id="messages"></div>
 <input id="message" type="text" />
 <button id="send">Send</button>
+<hr/>
+<h1>FinishedTalking</h1>
+<input id="gameId" type="text" />
+<button id="FinishedTalking">FinishedTalking</button>
 <script>
 var token = "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI44567LUhTMjU2IiwidHlwIjoiSldUIiwiY3R5IjoiSldUIn0.baM2gYbTJqchdOB_EhurUFo4dAhgVCqf9Bw3kjHdxX2179pECkBlow.w6F3XTpu5GvPGqjGgCrIuQ.A8HzVGfSh9nub-N-Vacy-UBx1ijJLHiG2pBGoGCHZ1_ldRn6JmZQQ9rRMytdI0l7oI5zjbKPB58HOLIYvMCG5D1j6URTYrxdMnVb-3VCArveVPU66O1veT1Ff2VFdXCx3mfRYDD5OyV1AWOGTDpx7jey0HrM2mesCRqYzdR4DUAmta2XXjzbHD2y3FlIZ9UX_4dfNW1DVRKStBEPGokcV0iP_OD5sKUnD9VFUlQKkARNJz3fwIOnj1CDLVwxsXuaiW_4I9iFDBair13FTy0d2Mn4fcrywsE0vnidFTS7Pcjl2uJVDB0ZgIGGum97cIRLJQJ3TvCjMTKhrw_kyCm8f_IkKeeyzcpvHuBJODqPYFDcaCyx497WIm3aBCUxtHITpz-pNp2Gz4_jc0jE9aHf86z6B7UmPxjOMwOlD9kd61KwOgUoiuzRuiNDlVrmheZaZUQF0mNAKGTemDCpS5-8wygDIEppANRBs3BjvyNfM-jFPZ6JGQciSgVkuVT123LhAeSJLopf6xZu_6g1gEfnhAVLaEDpUHYVRrf6DtvKrLDDUE5otlm_zMmZdUEhM4CS4ZUhRLhbT4WTUcZG9COlYL0q7YfN8vTq4wc5aJNhajg.BApB9M3mNkERbh0JodlhQf";
 // Create a connection to the hub
@@ -33,6 +38,14 @@ document.getElementById("send").addEventListener("click", function (event) {
 var user = "User"; // You can change this to your user name
 var message = document.getElementById("message").value;
 connection.invoke("SendMessage", "username", message).catch(function (err) {
+return console.error(err.toString());
+});
+event.preventDefault();
+});
+
+document.getElementById("FinishedTalking").addEventListener("click", function (event) {
+var gameId = document.getElementById("gameId").value;
+connection.invoke("FinishedTalking", gameId).catch(function (err) {
 return console.error(err.toString());
 });
 event.preventDefault();
