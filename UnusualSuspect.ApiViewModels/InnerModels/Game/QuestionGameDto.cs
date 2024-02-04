@@ -15,6 +15,8 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private short turn;
 
+    public bool? WithnessAnswer { get; set; }
+
     public short Turn
     {
       get => turn;

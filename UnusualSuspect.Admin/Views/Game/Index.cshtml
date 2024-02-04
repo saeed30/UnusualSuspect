@@ -7,7 +7,7 @@
 <div class="toolbar" id="kt_toolbar">
   <div class="container-fluid d-flex flex-stack">
     <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
-      <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@(ViewBag.Title + "-" + DateTime.Now)</h1>
+      <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@(ViewBag.Title)</h1>
     </div>
     <div class="d-flex align-items-center py-1">
     </div>
@@ -22,6 +22,7 @@
           columns.Bound(c => c.Id).Title("شناسه").Filterable(false);
           columns.Bound(c => c.GameType.Title).Title("نوع بازی");
           columns.Bound(c => c.CreateTimePersian).Title("زمان ایجاد");
+          columns.Bound(c => c.Id).Title("جزئیات بازی").ClientTemplate("<a href='/Game/Details/#=Id#'>جزئیات</a>");
         })
         .Pageable(pager => pager
         .Input(true)

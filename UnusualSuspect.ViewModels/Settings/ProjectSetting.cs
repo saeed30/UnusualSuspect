@@ -12,5 +12,6 @@ public class ProjectSetting
 	public HangfireSetting HangfireSetting { get; set; }
 	public FireBaseSetting FireBaseSetting { get; set; }
 	public AdminUser AdminUser { get; set; }
+	public GameSetting GameSetting { get; set; }
 
 }

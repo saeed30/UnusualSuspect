@@ -5,7 +5,7 @@ namespace UnusualSuspect.DataLayer.Contracts.Repository;
 
 public interface IGameRepository : IAsyncRepository<Game>
 {
-	Task<Game?> GetGameWithDetailsAsync(int gameId, CancellationToken cancellationToken = default);
+	Task<Game?> GetGameWithDetailsAsync(int gameId, CancellationToken cancellationToken = default, bool ignoreCache = false);
 	Task<bool> SetGameStatusAsync(int gameId, GameStatusEnum gameStatus, CancellationToken cancellationToken = default);
   bool SetGameStatus(Game game, GameStatusEnum gameStatus);
   IQueryable<Game> GetAllActiveGamesWithGameType();

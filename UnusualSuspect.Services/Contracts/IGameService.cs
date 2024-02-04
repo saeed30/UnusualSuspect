@@ -1,5 +1,6 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.Game;
 
 namespace UnusualSuspect.Services.Contracts;
 
@@ -14,5 +15,6 @@ public interface IGameService
   Task<bool> StartGameIfAllUsersOnline(int gameId, List<int> userIds);
   Task<bool> GoToTalkingStatus(int gameId);
   Task<bool> GoToTalkingStatus(Game game);
+  Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer, short questionId, int userId, CancellationToken cancellationToken = default);
 }

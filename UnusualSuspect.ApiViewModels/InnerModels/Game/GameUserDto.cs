@@ -14,6 +14,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     private string? nickName;
     [SerializeField]
     private Guid? documentGuidKey;
+    [SerializeField]
+    private short? avatarId;
+
+    public short? AvatarId
+    {
+      get => avatarId;
+      set => avatarId = value;
+    }
 
     public Guid? DocumentGuidKey
     {

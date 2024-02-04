@@ -10,6 +10,14 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 		private string? nickName;
 		[SerializeField]
 		private Guid? userImageDocumentId;
+		[SerializeField]
+		private short? avatarId;
+
+		public short? AvatarId
+		{
+			get => avatarId;
+			set => avatarId = value;
+		}
 
 		public string? NickName { get => nickName; set => nickName = value; }
 		public Guid? UserImageDocumentGuidKey { get => userImageDocumentId; set => userImageDocumentId = value; }

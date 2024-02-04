@@ -1,4 +1,5 @@
 ﻿using ElmahCore;
+using Microsoft.Extensions.Options;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums;
@@ -12,6 +13,7 @@ using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Mapping;
+using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -28,7 +30,8 @@ public class PreGameService(IUnitOfWork uow,
 		IQuestionRepository questionRepository,
 		IQuestionGameRepository questionGameRepository,
 		ITurnOfPlayService turnOfPlayService,
-		IMemoryCacheService memoryCacheService)
+		IMemoryCacheService memoryCacheService,
+    IOptionsSnapshot<ProjectSetting> setting)
 	: IPreGameService
 {
 	public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -328,7 +331,7 @@ public class PreGameService(IUnitOfWork uow,
 					return;
 				}
 				await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
-					gameWithDetails.ToGameFlowDto(), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId));
+					gameWithDetails.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId));
 				needToRefill = true;
 			}
 			else

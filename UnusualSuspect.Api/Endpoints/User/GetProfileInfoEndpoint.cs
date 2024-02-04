@@ -38,7 +38,8 @@ public sealed class GetProfileInfoEndpoint(IApplicationUserManager iApplicationU
 		return new ApiResult<GetProfileInfoResponse>(true, ApiResultStatusCode.Success, new GetProfileInfoResponse()
 		{
 			NickName = user.NickName,
-			UserImageDocumentGuidKey = userImageDocumentGuidKey
+			UserImageDocumentGuidKey = userImageDocumentGuidKey,
+			AvatarId = user.AvatarId
 		});
 	}
 }

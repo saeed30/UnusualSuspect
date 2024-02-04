@@ -1,6 +1,6 @@
-﻿using Aspose.Cells;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Hangfire;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
@@ -9,6 +9,7 @@ using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Mapping;
+using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -16,7 +17,9 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 	IGameRepository gameRepository,
 	INotificationService notificationService,
 	IGameCandidateRepository gameCandidateRepository,
-	ILogger<TurnOfPlayService> logger) : ITurnOfPlayService
+	ILogger<TurnOfPlayService> logger,
+	IOptionsSnapshot<ProjectSetting> setting
+	) : ITurnOfPlayService
 {
 	public async Task<UnusualSuspectServiceResult<TurnOfPlayTalkingState>> StartTurnOfPlayAsync(int gameId)
 	{
@@ -42,7 +45,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 		Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
 		if (game == null)
 			return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
-		TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState();
+		TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState(setting.Value.GameSetting.TimeToTalkInSeconds);
 		if (model == null)
 			return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
 		var partTalking = game.Participates.FirstOrDefault(x => x.UserId == userId);
@@ -52,7 +55,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 			return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserCallingFinishTalkIsNotTalking));
 		var next = GetNextUserOrderOfParticipation(game.Participates,
 			model.OrderOfParticipationTurnToTalk);
-		if (next == model.OrderOfParticipationTalkBeginner)
+		if (next.OrderOfParticipation == model.OrderOfParticipationTalkBeginner)
 		{
 			await notificationService.SendSignalToGameGroup(gameId, SignalCommands.EndOfTalking, gameId);
 			await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForMainDetectiveToChoose, cancellationToken);
@@ -61,7 +64,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 			memoryCacheService.ClearGameWithDetails(gameId);
 			return new UnusualSuspectServiceResult<bool>(false);
 		}
-		model.OrderOfParticipationTurnToTalk = next;
+		model.OrderOfParticipationTurnToTalk = next.OrderOfParticipation;
 		model.CurrentUserTurnStartedTime = DateTime.Now;
 		await gameRepository.SetNewTurnToTalk(game.Id, model.OrderOfParticipationTurnToTalk,
 			model.CurrentUserTurnStartedTime, cancellationToken);
@@ -69,10 +72,11 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 		await memoryCacheService.ResetTurnOfPlay(gameId, model, cancellationToken);
 		await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
 			model.OrderOfParticipationTurnToTalk);
-		//BackgroundJob.
+		if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
+			BackgroundJob.Schedule<TurnOfPlayService>(x => x.UserTurnFinishedAsync(next.UserId, gameId, cancellationToken),
+				new DateTimeOffset(model.CurrentUserTurnStartedTime, TimeSpan.FromSeconds(setting.Value.GameSetting.TimeToTalkInSeconds)));
 		return new UnusualSuspectServiceResult<bool>(true);
 	}
-
 
 	public async Task<UnusualSuspectServiceResult<TurnOfPlayGetResponse>> GetTurnOfPlayGetAsync(
 		int userId, CancellationToken cancellationToken = default)
@@ -81,7 +85,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 		if (game == null)
 			return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(
 				new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
-		var model = game.ToTurnOfPlayGetResponse();
+		var model = game.ToTurnOfPlayGetResponse(setting.Value.GameSetting.TimeToTalkInSeconds);
 		return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(model);
 	}
 
@@ -93,7 +97,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 		var partTalking = game.Participates.FirstOrDefault(x => x.UserId == userId);
 		if (partTalking == null)
 			return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
-		TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState();
+		TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState(setting.Value.GameSetting.TimeToTalkInSeconds);
 		if (model == null)
 			return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
 		var candidates = model.CandidateCard;
@@ -141,20 +145,20 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 			.ToList()[random]
 			.OrderOfParticipation;
 	}
-	private short GetNextUserOrderOfParticipation(ICollection<Participate> participates,
+	private Participate GetNextUserOrderOfParticipation(ICollection<Participate> participates,
 		short currentOrderOfParticipation)
 	{
 		Participate? next = participates.Where(x => x.RoleCardId != (short)RoleCardEnum.Witness && x.OrderOfParticipation > currentOrderOfParticipation)
 			.MinBy(x => x.OrderOfParticipation);
 		if (next != null)
-			return next.OrderOfParticipation;
+			return next;
 		next = participates.Where(x => x.RoleCardId != (short)RoleCardEnum.Witness).MinBy(x => x.OrderOfParticipation);
 		if (next == null)
 		{
 			logger.LogCritical("No participants found!");
 			throw new Exception("No participants found!");
 		}
-		return next.OrderOfParticipation;
+		return next;
 	}
 
 }

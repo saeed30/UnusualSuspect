@@ -39,6 +39,7 @@ public class ApplicationUser : IdentityUser<int>, IEntity<int>
 	public string? CodeForResetPassword { get; set; }
 	public DateTime? SendCodeDate { set; get; }
 	public string? NickName { get; set; }
+	public short? AvatarId { get; set; }
 	public virtual ICollection<ActionForUser> ActionForUsers { set; get; }
 	public virtual ICollection<IdentityUserClaim<int>> Claims { get; set; }
 	public virtual ICollection<IdentityUserLogin<int>> Logins { get; set; }

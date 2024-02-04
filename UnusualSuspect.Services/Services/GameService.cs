@@ -8,7 +8,9 @@ using UnusualSuspect.Services.Mapping;
 using ElmahCore;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Contracts;
-using System.Threading;
+using Microsoft.Extensions.Options;
+using UnusualSuspect.ViewModels.Game;
+using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -21,7 +23,8 @@ public sealed class GameService(IUnitOfWork uow,
 	ITurnOfPlayService turnOfPlayService,
 	IQuestionGameRepository questionGameRepository,
 	IPreGameGroupRepository preGameGroupRepository,
-	IJoinedPreGameRepository joinedPreGameRepository) : IGameService
+	IJoinedPreGameRepository joinedPreGameRepository,
+	IOptionsSnapshot<ProjectSetting> setting) : IGameService
 {
 	public async Task<UnusualSuspectServiceResult<GameGetResponse?>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
 	{
@@ -29,7 +32,7 @@ public sealed class GameService(IUnitOfWork uow,
 		if (game == null)
 			return new UnusualSuspectServiceResult<GameGetResponse?>((GameGetResponse?)null);
 		return new UnusualSuspectServiceResult<GameGetResponse?>(new GameGetResponse(
-			game.ToGameBaseDto(), game.ToGameFlowDto(), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId));
+			game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId));
 	}
 
 	public async Task<UnusualSuspectServiceResult<bool>> LeaveCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
@@ -179,7 +182,25 @@ public sealed class GameService(IUnitOfWork uow,
 		return true;
 	}
 
-	public async Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer,
+  public async Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default)
+  {
+    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken, true);
+    if (game == null)
+      return new UnusualSuspectServiceResult<GameDetailsViewModel>(
+        new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    GameDetailsViewModel model = new GameDetailsViewModel()
+    {
+			GameGetResponse = new GameGetResponse(
+        game.ToGameBaseDto(), game.ToGameFlowDto(0/*setting.Value.GameSetting.TimeToTalkInSeconds // fix setting is null!*/),
+        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId),
+			FinishedTime = game.FinishedTime,
+			CreateTime = game.CreateTime,
+			GameStatusTitle = ((GameStatusEnum)game.GameStatusId).ToString()
+    };
+    return new UnusualSuspectServiceResult<GameDetailsViewModel>(model);
+  }
+
+  public async Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer,
 		short questionId, int userId, CancellationToken cancellationToken = default)
 	{
 		bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.Witness, cancellationToken);

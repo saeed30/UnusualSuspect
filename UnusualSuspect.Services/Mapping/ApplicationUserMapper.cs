@@ -12,7 +12,8 @@ public static class ApplicationUserMapper
       Id = value.Id,
       NickName = value.NickName,
       Username = value.UserName,
-      DocumentGuidKey = value.Document?.GuidKey
+      DocumentGuidKey = value.Document?.GuidKey,
+      AvatarId = value.AvatarId
     };
   }
   public static IEnumerable<GameUserDto> ToGameUserDto(this IEnumerable<ApplicationUser> value)

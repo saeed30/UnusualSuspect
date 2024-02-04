@@ -2,7 +2,7 @@
 
 namespace UnusualSuspect.ViewModels.Settings;
 
-public class SiteSetting
+public sealed class SiteSetting
 {
     public string ElmahPath { get; set; }
     public string SiteUrl { get; set; }

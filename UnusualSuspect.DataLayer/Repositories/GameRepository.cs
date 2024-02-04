@@ -1,24 +1,29 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger, IMemoryCacheService memoryCacheService)
+public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger, IMemoryCacheService memoryCacheService, IOptionsSnapshot<ProjectSetting> setting)
   : EfRepository<Game>(uow, logger), IGameRepository
 {
   private readonly DbSet<Game> games = uow.Set<Game>();
 
-  public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default)
+  public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default, bool ignoreCache = false)
   {
-	  bool isCacheActive = false;
-    Game? game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
-    if (game == null || !isCacheActive)
+    if(setting.Value.IsTesting)
+      ignoreCache = true;//saeed remove after test
+    Game? game = null;
+    if(!ignoreCache)
+      game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
+    if (game == null)
     {
       game = await games.AsNoTrackingWithIdentityResolution().AsSplitQuery()
         .Include(x => x.CharacterCardGames)

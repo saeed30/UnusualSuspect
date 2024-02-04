@@ -1,0 +1,172 @@
+﻿@model UnusualSuspect.ViewModels.Game.GameDetailsViewModel
+
+@{
+  ViewBag.Title = "جزئیات بازی " + Model.GameGetResponse.GameBaseDto.Id;
+  Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="toolbar" id="kt_toolbar">
+  <div class="container-fluid d-flex flex-stack">
+    <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+      <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@(ViewBag.Title)</h1>
+    </div>
+    <div class="d-flex align-items-center py-1">
+      <a href="/Game" style="color:darkred;">بازگشت</a>
+    </div>
+  </div>
+</div>
+<div class="card card-flush">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <h2>اطلاعات ثابت</h2>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> کد بازی</label>
+          <div class="col-md-9">
+            @Model.GameGetResponse.GameBaseDto.Id
+          </div>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> زمان ایجاد</label>
+          <div class="col-md-9">
+            @Model.CreateTime
+          </div>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> زمان پایان</label>
+          <div class="col-md-9">
+            @Model.FinishedTime
+          </div>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> عنوان نوع بازی</label>
+          <div class="col-md-9">
+            @Model.GameGetResponse.GameBaseDto.GameTypeDto.Title
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h2>اطلاعات جریان بازی</h2>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> عنوان وضعیت بازی</label>
+          <div class="col-md-9">
+            @Model.GameStatusTitle
+          </div>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> نوبت بازی که صحبت این دور را شروع کرد</label>
+          <div class="col-md-9">
+            @Model.GameGetResponse.GameFlowDto.TurnOfPlayTalkingState?.OrderOfParticipationTalkBeginner
+          </div>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> نوبت بازی که می تواند صحبت بکند</label>
+          <div class="col-md-9">
+            @Model.GameGetResponse.GameFlowDto.TurnOfPlayTalkingState?.OrderOfParticipationTurnToTalk
+          </div>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> صحبت های این دور در چه زمانی شروع شد</label>
+          <div class="col-md-9">
+            @Model.GameGetResponse.GameFlowDto.TurnOfPlayTalkingState?.TalkingTurnStartedTime
+          </div>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> زمان شروع صحبت کاربر جاری </label>
+          <div class="col-md-9">
+            @Model.GameGetResponse.GameFlowDto.TurnOfPlayTalkingState?.CurrentUserTurnStartedTime
+          </div>
+        </div>
+        <div class="form-group row no-gutters">
+          <label class="control-label col-md-3"> آخرین پاسخ شاهد </label>
+          <div class="col-md-9">
+            @Model.GameGetResponse.GameFlowDto.WitnessLastAnswer
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <h2>کاراکترهای بازی</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>کد کاراکتر</td>
+              <td>آیا قاتل است</td>
+              <td>آدرس تصویر</td>
+              <td>عنوان</td>
+            </tr>
+          </thead>
+          <tbody>
+            @{
+              foreach (var characterDto in Model.GameGetResponse.GameBaseDto.GameCharacterDtos)
+              {
+                <tr>
+                  <td>@characterDto.CharacterId</td>
+                  <td>@(characterDto.IsMurderer ? "بله" : "خیر")</td>
+                  <td>@characterDto.ImageUrl</td>
+                  <td>@characterDto.Title</td>
+                  <td>@(Model.GameGetResponse.GameFlowDto.ActiveCharacterIds.Contains(characterDto.CharacterId)?"فعال":"حذف شده")</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <h2>سوال ها</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>کد سوال</td>
+              <td>نوبت</td>
+              <td>متن سوال</td>
+              <td>پاسخ شاهد</td>
+            </tr>
+          </thead>
+          <tbody>
+            @{
+              foreach (var dto in Model.GameGetResponse.GameBaseDto.QuestionGameDtos)
+              {
+                <tr>
+                  <td>@dto.QuestionId</td>
+                  <td>@dto.Turn</td>
+                  <td>@dto.QuestionContent</td>
+                  <td>@(dto.WithnessAnswer.HasValue ? (dto.WithnessAnswer.Value ? "بله" : "خیر") : "پاسخی ثبت نشده")</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <h2>کاربرها</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>ترتیب</td>
+              <td>نقش</td>
+              <td>نام کاربری</td>
+              <td>نام مستعار</td>
+            </tr>
+          </thead>
+          <tbody>
+            @{
+              foreach (var dto in Model.GameGetResponse.GameBaseDto.GameParticipantDto)
+              {
+                <tr>
+                  <td>@dto.OrderOfParticipation</td>
+                  <td>@dto.GameRole</td>
+                  <td>@dto.GameUserDto.Username</td>
+                  <td>@dto.GameUserDto.NickName</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-6"></div>
+    </div>
+  </div>
+</div>

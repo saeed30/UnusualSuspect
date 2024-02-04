@@ -2,10 +2,13 @@
 using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Mvc;
 using UnusualSuspect.Admin.Models;
+using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.ApiViewModels.InnerModels.Game;
 using UnusualSuspect.Common.Attribute;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Services;
+using UnusualSuspect.ViewModels.Game;
 
 namespace UnusualSuspect.Admin.Controllers
 {
@@ -24,5 +27,14 @@ namespace UnusualSuspect.Admin.Controllers
       return Json(result);
     }
 
-  }
+    [PersianTitle("جزئیات بازی")]
+    [ServiceFilter(typeof(UserFilters))]
+    public async Task<IActionResult> Details(int id)
+    {
+      var game = await gameService.GetDetailByIdAsync(id);
+      if(!game.Success)
+        return NotFound();
+      return View(game.Result);
+		}
+	}
 }
