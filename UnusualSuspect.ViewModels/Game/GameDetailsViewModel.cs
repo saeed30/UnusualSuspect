@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnusualSuspect.ApiViewModels.Endpoints.Game;
+﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
 
-namespace UnusualSuspect.ViewModels.Game
+namespace UnusualSuspect.ViewModels.Game;
+
+public class GameDetailsViewModel
 {
-  public class GameDetailsViewModel
-  {
-    public GameGetResponse GameGetResponse { get; set; }
-    //extra info that is not in GameGetResponse
-    public DateTime CreateTime { get; set; }
-    public DateTime? FinishedTime { get; set; }
-    public string GameStatusTitle { get; set; }
+  public GameGetResponse GameGetResponse { get; set; }
+  //extra info that is not in GameGetResponse
+  public DateTime CreateTime { get; set; }
+  public DateTime? FinishedTime { get; set; }
+  public string GameStatusTitle { get; set; }
 
-  }
 }

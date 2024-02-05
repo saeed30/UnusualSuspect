@@ -31,9 +31,9 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
     List<Task> tasks = new List<Task>();
     foreach (var gameParticipantDto in game.GameBaseDto.GameParticipantDto)
     {
-      var connections = await memoryCacheService.GetUserSignalRConnections(gameParticipantDto.GameUserDto.Id);
+      var connections = await memoryCacheService.GetUserSignalRConnections(gameParticipantDto.UserDto.Id);
       foreach (var connection in connections)
-        tasks.Add(AddToGroupAsync(gameParticipantDto.GameUserDto.Id, connection, game.GameBaseDto.Id.ToString()));
+        tasks.Add(AddToGroupAsync(gameParticipantDto.UserDto.Id, connection, game.GameBaseDto.Id.ToString()));
     }
     tasks.Add(SendSignalToGameGroup(game.GameBaseDto.Id, SignalCommands.NewGameStarted, game.GameBaseDto.Id));
     await Task.WhenAll(tasks.ToArray());

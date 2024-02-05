@@ -1,9 +1,8 @@
 ﻿
-namespace UnusualSuspect.ViewModels.Settings
+namespace UnusualSuspect.ViewModels.Settings;
+
+public class HangfireSetting
 {
-	public class HangfireSetting
-	{
-		public string AdminUsername { get; set; }
-		public string AdminPassword { get; set; }
-	}
+  public string AdminUsername { get; set; }
+  public string AdminPassword { get; set; }
 }

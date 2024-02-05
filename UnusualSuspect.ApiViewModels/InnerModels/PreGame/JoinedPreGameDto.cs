@@ -12,24 +12,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
     [SerializeField]
     private bool isOwnerOfPreGroup;
     [SerializeField]
-    private int userId;
+    private UserDto userDto;
     [SerializeField]
     private ReadyToGameStatusEnum readyToGameStatus;
-    [SerializeField]
-    private string? nickName;
-    [SerializeField]
-    private Guid? documentGuidKey;
 
-    public string? NickName
+    public UserDto UserDto
     {
-      get => nickName;
-      set => nickName = value;
-    }
-
-    public Guid? DocumentGuidKey
-    {
-      get => documentGuidKey;
-      set => documentGuidKey = value;
+      get => userDto;
+      set => userDto = value;
     }
 
     public DateTime JoinTime
@@ -42,12 +32,6 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
     {
       get => isOwnerOfPreGroup;
       set => isOwnerOfPreGroup = value;
-    }
-
-    public int UserId
-    {
-      get => userId;
-      set => userId = value;
     }
 
     public ReadyToGameStatusEnum ReadyToGameStatus

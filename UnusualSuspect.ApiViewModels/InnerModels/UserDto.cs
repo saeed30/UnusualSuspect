@@ -1,10 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
-namespace UnusualSuspect.ApiViewModels.InnerModels.Game
+namespace UnusualSuspect.ApiViewModels.InnerModels
 {
   [Serializable]
-  public class GameUserDto
+  public class UserDto
   {
     [SerializeField]
     private int id;
@@ -13,20 +13,12 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private string? nickName;
     [SerializeField]
-    private Guid? documentGuidKey;
-    [SerializeField]
     private short? avatarId;
 
     public short? AvatarId
     {
       get => avatarId;
       set => avatarId = value;
-    }
-
-    public Guid? DocumentGuidKey
-    {
-      get => documentGuidKey;
-      set => documentGuidKey = value;
     }
     public int Id
     {
@@ -45,5 +37,6 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
       get => nickName;
       set => nickName = value;
     }
+
   }
 }

@@ -79,7 +79,7 @@
         <div class="form-group row no-gutters">
           <label class="control-label col-md-3"> آخرین پاسخ شاهد </label>
           <div class="col-md-9">
-            @Model.GameGetResponse.GameFlowDto.WitnessLastAnswer
+            @(Model.GameGetResponse.GameFlowDto.WitnessLastAnswer.HasValue ? (Model.GameGetResponse.GameFlowDto.WitnessLastAnswer.Value?"بله":"خیر") : "")
           </div>
         </div>
       </div>
@@ -158,8 +158,8 @@
                 <tr>
                   <td>@dto.OrderOfParticipation</td>
                   <td>@dto.GameRole</td>
-                  <td>@dto.GameUserDto.Username</td>
-                  <td>@dto.GameUserDto.NickName</td>
+                  <td>@dto.UserDto.Username</td>
+                  <td>@dto.UserDto.NickName</td>
                 </tr>
               }
             }

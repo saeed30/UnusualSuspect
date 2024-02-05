@@ -1,8 +1,7 @@
 ﻿using UnusualSuspect.Entities.Common;
 
-namespace UnusualSuspect.Entities.GameModels
+namespace UnusualSuspect.Entities.GameModels;
+
+public class GameStatus : BaseEnumEntity, IEntity<short>
 {
-  public class GameStatus : BaseEnumEntity, IEntity<short>
-  {
-  }
 }

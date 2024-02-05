@@ -1,8 +1,7 @@
 ﻿
-namespace UnusualSuspect.ViewModels.Settings
+namespace UnusualSuspect.ViewModels.Settings;
+
+public class GameSetting
 {
-	public sealed class GameSetting
-	{
-		public int TimeToTalkInSeconds { get; set; }
-	}
+  public int TimeToTalkInSeconds { get; set; }
 }

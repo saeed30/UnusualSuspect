@@ -12,7 +12,7 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private short orderOfParticipation;
     [SerializeField]
-    private GameUserDto gameUserDto;
+    private UserDto userDto;
     [SerializeField]
     private GameRole gameRole;
 
@@ -28,10 +28,10 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
       set => orderOfParticipation = value;
     }
 
-    public GameUserDto GameUserDto
+    public UserDto UserDto
     {
-      get => gameUserDto;
-      set => gameUserDto = value;
+      get => userDto;
+      set => userDto = value;
     }
 
     public GameRole GameRole

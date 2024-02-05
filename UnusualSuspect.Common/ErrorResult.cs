@@ -1,8 +1,7 @@
 ﻿
-namespace UnusualSuspect.Common
+namespace UnusualSuspect.Common;
+
+public abstract class ErrorResult<TErrorType>
 {
-	public abstract class ErrorResult<TErrorType>
-	{
-		public TErrorType Type { get; set; }
-	}
+  public TErrorType Type { get; set; }
 }

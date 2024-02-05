@@ -1,24 +1,24 @@
-﻿using UnusualSuspect.ApiViewModels.InnerModels.Game;
+﻿using UnusualSuspect.ApiViewModels.InnerModels;
+using UnusualSuspect.ApiViewModels.InnerModels.Game;
 using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.Services.Mapping;
 
 public static class ApplicationUserMapper
 {
-  public static GameUserDto ToGameUserDto(this ApplicationUser value)
+  public static UserDto ToUserDto(this ApplicationUser value)
   {
-    return new GameUserDto()
+    return new UserDto()
     {
       Id = value.Id,
       NickName = value.NickName,
       Username = value.UserName,
-      DocumentGuidKey = value.Document?.GuidKey,
       AvatarId = value.AvatarId
     };
   }
-  public static IEnumerable<GameUserDto> ToGameUserDto(this IEnumerable<ApplicationUser> value)
+  public static IEnumerable<UserDto> ToGameUserDto(this IEnumerable<ApplicationUser> value)
   {
-    return value.Select(x => x.ToGameUserDto());
+    return value.Select(x => x.ToUserDto());
   }
 
 }

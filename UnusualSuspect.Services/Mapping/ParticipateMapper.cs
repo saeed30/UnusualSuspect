@@ -13,7 +13,7 @@ public static class ParticipateMapper
       Id = value.Id,
       OrderOfParticipation = value.OrderOfParticipation,
       GameRole = (GameRole)value.RoleCardId,
-      GameUserDto = value.ApplicationUser.ToGameUserDto()
+      UserDto = value.ApplicationUser.ToUserDto()
     };
   }
   public static List<GameParticipantDto> ToGameParticipantDto(this ICollection<Participate> value)

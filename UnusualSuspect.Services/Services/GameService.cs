@@ -28,7 +28,7 @@ public sealed class GameService(IUnitOfWork uow,
 {
 	public async Task<UnusualSuspectServiceResult<GameGetResponse?>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
 	{
-		Game? game = await gameRepository.GetUserCurrentGameWithDetailsAsync(userId, cancellationToken);
+    Game? game = await gameRepository.GetUserCurrentGameWithDetailsAsync(userId, cancellationToken);
 		if (game == null)
 			return new UnusualSuspectServiceResult<GameGetResponse?>((GameGetResponse?)null);
 		return new UnusualSuspectServiceResult<GameGetResponse?>(new GameGetResponse(
@@ -191,7 +191,7 @@ public sealed class GameService(IUnitOfWork uow,
     GameDetailsViewModel model = new GameDetailsViewModel()
     {
 			GameGetResponse = new GameGetResponse(
-        game.ToGameBaseDto(), game.ToGameFlowDto(0/*setting.Value.GameSetting.TimeToTalkInSeconds // fix setting is null!*/),
+        game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
         await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId),
 			FinishedTime = game.FinishedTime,
 			CreateTime = game.CreateTime,

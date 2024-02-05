@@ -1,4 +1,5 @@
 ﻿using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.ApiViewModels.InnerModels;
 using UnusualSuspect.ApiViewModels.InnerModels.PreGame;
 using UnusualSuspect.Entities.GameModels;
 
@@ -10,12 +11,16 @@ public static class JoinedPreGameMapper
   {
     return new JoinedPreGameDto()
     {
-      UserId = value.UserId,
       IsOwnerOfPreGroup = value.IsOwnerOfPreGroup,
       JoinTime = value.JoinTime,
       ReadyToGameStatus = (ReadyToGameStatusEnum)value.ReadyToGameStatusId,
-      DocumentGuidKey = value.User.Document?.GuidKey,
-      NickName = value.User.NickName
+      UserDto = new UserDto()
+      {
+        AvatarId = value.User.AvatarId,
+        Id = value.User.Id,
+        NickName = value.User.NickName,
+        Username = value.User.UserName
+      }
     };
   }
   public static IEnumerable<JoinedPreGameDto> ToJoinedPreGameDto(this IEnumerable<JoinedPreGame> value)
