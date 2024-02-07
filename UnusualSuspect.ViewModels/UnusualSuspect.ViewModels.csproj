@@ -10,8 +10,4 @@
     <ProjectReference Include="..\UnusualSuspect.Entities\UnusualSuspect.Entities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="PreGame\" />
-  </ItemGroup>
-
 </Project>

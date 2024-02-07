@@ -1,23 +1,24 @@
 ﻿using ElmahCore;
 using Microsoft.Extensions.Options;
+using System.Threading;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
-using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Mapping;
+using UnusualSuspect.ViewModels.PreGame;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Services;
 
-public class PreGameService(IUnitOfWork uow,
+public sealed class PreGameService(IUnitOfWork uow,
 		IPreGameGroupRepository preGameGroupRepository,
 		IJoinedPreGameRepository joinedPreGameRepository,
 		IApplicationUserManager applicationUserManager,
@@ -186,7 +187,7 @@ public class PreGameService(IUnitOfWork uow,
 	public async Task<UnusualSuspectServiceResult<bool>> PreGameGroupChangeReadyToPlayAsync(int preGameGroupId, PreGameGroupStatusEnum preGameGroupStatusEnum, CancellationToken cancellationToken = default)
 	{
 		PreGameGroup? preGameGroup =
-			await preGameGroupRepository.GetByIdWithJoinedPreGameAsync(preGameGroupId, cancellationToken);
+			await preGameGroupRepository.GetByIdWithDetailAsync(preGameGroupId, cancellationToken);
 		if (preGameGroup == null)
 			return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));
 		if (preGameGroup.PreGameGroupStatusId == (short)preGameGroupStatusEnum)
@@ -224,17 +225,39 @@ public class PreGameService(IUnitOfWork uow,
 		return preGameGroupRepository.GetAllPreGameGroupsWithDetailsWaitingForGame();
 	}
 
-	public async Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupDetail(
-		int preGameGroupId, int userId, CancellationToken cancellationToken = default)
-	{
-		if (!await joinedPreGameRepository.UserExistsInPreGameGroupAsync(userId, preGameGroupId, cancellationToken))
+  public async Task<UnusualSuspectServiceResult<PreGameDetailsViewModel>> GetPreGameGroupViewModel(int preGameGroupId,
+    CancellationToken cancellationToken = default)
+  {
+		var data = await GetPreGameGroupDetail(preGameGroupId, cancellationToken);
+    if (!data.Success)
+      return new UnusualSuspectServiceResult<PreGameDetailsViewModel>(data.Errors);
+    return new UnusualSuspectServiceResult<PreGameDetailsViewModel>(data.Result.ToPreGameDetailsViewModel());
+  }
+  public async Task<UnusualSuspectServiceResult<PreGameGroup>> GetPreGameGroupDetail(int preGameGroupId, CancellationToken cancellationToken = default)
+  {
+    var result = await preGameGroupRepository.GetByIdWithDetailAsync(preGameGroupId, cancellationToken);
+    if (result == null)
+      return new UnusualSuspectServiceResult<PreGameGroup>(
+        new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));
+    return new UnusualSuspectServiceResult<PreGameGroup>(result);
+  }
+
+  public async Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupResponseDetail(
+    int preGameGroupId, int callerUserId, CancellationToken cancellationToken = default)
+  {
+		if (!await joinedPreGameRepository.UserExistsInPreGameGroupAsync(callerUserId, preGameGroupId, cancellationToken))
 			return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(
 				new UnusualSuspectErrorResult(LogicErrorCode.UserNotMemberOfPreGameGroup));
-		var result = await preGameGroupRepository.GetByIdWithJoinedPreGameAsync(preGameGroupId, cancellationToken);
+    return await GetPreGameGroupResponseDetail(preGameGroupId, cancellationToken);
+  }
+	public async Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupResponseDetail(
+		int preGameGroupId, CancellationToken cancellationToken = default)
+	{
+		var result = await preGameGroupRepository.GetByIdWithDetailAsync(preGameGroupId, cancellationToken);
 		if (result == null)
 			return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(
 				new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));
-		return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(result.ToGetPreGameGroupDetailResponse());
+		return new UnusualSuspectServiceResult<PreGameGroupGetResponse>(result.ToPreGameGroupDetailResponse());
 	}
 
 	public async Task<UnusualSuspectServiceResult<MyPreGameGroupsResponse>> GetPreGameGroupByUserId(int userId)

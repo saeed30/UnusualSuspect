@@ -17,7 +17,7 @@ public sealed class PreGameGroupGetEndpoint(IPreGameService preGameService) : My
   public override async Task<ActionResult<ApiResult<PreGameGroupGetResponse>>> HandleAsync(int id,
     CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult <PreGameGroupGetResponse> result = await preGameService.GetPreGameGroupDetail(id, CurrentUser.UserId, cancellationToken);
+    UnusualSuspectServiceResult <PreGameGroupGetResponse> result = await preGameService.GetPreGameGroupResponseDetail(id, CurrentUser.UserId, cancellationToken);
     return ReturnResult(result);
   }
 }

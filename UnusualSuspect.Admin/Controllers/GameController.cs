@@ -29,9 +29,9 @@ public class GameController(ILogger<GameController> logger, IGameService gameSer
 
   [PersianTitle("جزئیات بازی")]
   [ServiceFilter(typeof(UserFilters))]
-  public async Task<IActionResult> Details(int id)
+  public async Task<IActionResult> Details(int id, CancellationToken cancellationToken = default)
   {
-    var game = await gameService.GetDetailByIdAsync(id);
+    var game = await gameService.GetDetailByIdAsync(id, cancellationToken);
     if(!game.Success)
       return NotFound();
     return View(game.Result);

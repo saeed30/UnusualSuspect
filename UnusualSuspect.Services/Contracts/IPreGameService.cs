@@ -1,6 +1,7 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.PreGame;
 
 namespace UnusualSuspect.Services.Contracts;
 
@@ -19,7 +20,10 @@ public interface IPreGameService
   Task CombineGroupsToStartGames(CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> PreGameGroupChangeReadyToPlayAsync(int preGameGroupId, PreGameGroupStatusEnum preGameGroupStatusEnum, CancellationToken cancellationToken = default);
   IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame();
-  Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupDetail(int preGameGroupId, int userId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<PreGameDetailsViewModel>> GetPreGameGroupViewModel(int preGameGroupId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<PreGameGroup>> GetPreGameGroupDetail(int preGameGroupId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupResponseDetail(int preGameGroupId, int callerUserId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupResponseDetail(int preGameGroupId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<MyPreGameGroupsResponse>> GetPreGameGroupByUserId(int userId);
   Task<UnusualSuspectServiceResult<bool>> ExitFromPreGameGroup(int preGameGroupId, int? userIdToExit, int currentUserId, CancellationToken cancellationToken = default);
 }

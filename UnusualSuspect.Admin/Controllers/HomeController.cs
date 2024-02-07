@@ -1,49 +1,25 @@
 ﻿using UnusualSuspect.Admin.Infrastructure;
 using UnusualSuspect.Admin.Models;
 using UnusualSuspect.Common.Utilities;
-using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.Services.Identity;
-using UnusualSuspect.Services.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace UnusualSuspect.Admin.Controllers;
 
-public class HomeController : BaseController<HomeController>
+public class HomeController(ILogger<HomeController> logger, IApplicationRoleService applicationRoleManager,
+    Services.IServices.IDocumentService iDocumentService, IWebHostEnvironment webHostEnvironment)
+  : BaseController<HomeController>(logger)
 {
-    private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly IApplicationRoleService _applicationRoleManager;
-    private readonly Services.IServices.IDocumentService _iDocumentService;
-
-
-    public HomeController(ILogger<HomeController> logger, IApplicationRoleService applicationRoleManager,
-         Services.IServices.IDocumentService iDocumentService, IWebHostEnvironment webHostEnvironment) : base(logger)
-    {
-        _applicationRoleManager = applicationRoleManager ?? throw new ArgumentNullException(nameof(applicationRoleManager));
-        _iDocumentService = iDocumentService;
-        _webHostEnvironment = webHostEnvironment;
-    }
-
-    public IActionResult ImageFetch(string s, string i)
+  public IActionResult ImageFetch(string s, string i)
     {
         Stream stream;
         string size = s;
-        string webRootPath = _webHostEnvironment.WebRootPath;
-        string path = "";
-        path = Path.Combine(webRootPath, @"Images\Noimage.png");
+        string webRootPath = webHostEnvironment.WebRootPath;
+        string path = Path.Combine(webRootPath, @"Images\Noimage.png");
         string defaultImageUrl = path;
         string imageId = i;
-        var doc = _iDocumentService.GetDocument(imageId.ToInt());
+        var doc = iDocumentService.GetDocument(imageId.ToInt());
         if (doc == null)
             stream = ImageHelper.WriteThumbnailImage(null, defaultImageUrl, size);
         else
@@ -80,7 +56,7 @@ public class HomeController : BaseController<HomeController>
         switch (tblName)
         {
             case "roles":
-                var rolelist = _applicationRoleManager.GetRoles().ToList();
+                var rolelist = applicationRoleManager.GetRoles().ToList();
                 RetList = rolelist.Select(x => new Select2DTO(x.Id, x.Title)).ToList();
                 break;
        }

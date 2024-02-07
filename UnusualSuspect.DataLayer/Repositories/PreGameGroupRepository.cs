@@ -20,9 +20,11 @@ public sealed class PreGameGroupRepository
       .OrderByDescending(x => x.ReadyToGameTime).Take(maxNumberOfGameRequests).ToListAsync(cancellationToken);
   }
 
-  public async Task<PreGameGroup?> GetByIdWithJoinedPreGameAsync(int preGameGroupId, CancellationToken cancellationToken = default)
+  public async Task<PreGameGroup?> GetByIdWithDetailAsync(int preGameGroupId, CancellationToken cancellationToken = default)
   {
     return await preGameGroup
+      .Include(x => x.PreGameGroupStatus)
+      .Include(x => x.GameType)
       .Include(x => x.JoinedPreGames)
       .ThenInclude(x => x.User)
       .ThenInclude(x => x.Document)

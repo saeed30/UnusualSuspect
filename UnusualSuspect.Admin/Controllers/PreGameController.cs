@@ -23,4 +23,14 @@ public class PreGameController(ILogger<PreGameController> logger, IPreGameServic
     var result = items.OrderByDescending(x => x.Id).ToDataSourceResult(request);
     return Json(result);
   }
+
+  [PersianTitle("جزئیات گروه قبل بازی")]
+  [ServiceFilter(typeof(UserFilters))]
+  public async Task<IActionResult> Details(int id, CancellationToken cancellationToken = default)
+  {
+    var model = await preGameService.GetPreGameGroupViewModel(id, cancellationToken);
+    if (!model.Success)
+      return NotFound();
+    return View(model.Result);
+  }
 }

@@ -1,6 +1,7 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.InnerModels.PreGame;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.PreGame;
 
 namespace UnusualSuspect.Services.Mapping;
 
@@ -31,7 +32,17 @@ public static class PreGameGroupMapper
       PreGameGroups = value.ToPreGameGroupDto().ToList()
     };
   }
-  public static PreGameGroupGetResponse ToGetPreGameGroupDetailResponse(this PreGameGroup value)
+
+  public static PreGameDetailsViewModel ToPreGameDetailsViewModel(this PreGameGroup value)
+  {
+    return new PreGameDetailsViewModel()
+    {
+      GameTypeTitle = value.GameType.Title,
+      PreGameGroupStatusTitle = value.PreGameGroupStatus.Title,
+      PreGameGroupGetResponse = value.ToPreGameGroupDetailResponse()
+    };
+  }
+  public static PreGameGroupGetResponse ToPreGameGroupDetailResponse(this PreGameGroup value)
   {
     return new PreGameGroupGetResponse()
     {
@@ -44,8 +55,8 @@ public static class PreGameGroupMapper
       JoinedPreGame = value.JoinedPreGames.ToJoinedPreGameDto().ToList()
     };
   }
-  public static IEnumerable<PreGameGroupGetResponse> ToGetPreGameGroupDetailResponse(this IEnumerable<PreGameGroup> value)
+  public static IEnumerable<PreGameGroupGetResponse> ToPreGameGroupDetailResponse(this IEnumerable<PreGameGroup> value)
   {
-    return value.Select(x => x.ToGetPreGameGroupDetailResponse());
+    return value.Select(x => x.ToPreGameGroupDetailResponse());
   }
 }
