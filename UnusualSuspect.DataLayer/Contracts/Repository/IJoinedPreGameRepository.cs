@@ -17,4 +17,5 @@ public interface IJoinedPreGameRepository : IAsyncRepository<JoinedPreGame>
 	Task<bool> AllJoinedPreGameGroupUsersAreReadyAsync(int preGameGroupId, CancellationToken cancellationToken = default);
 	Task ResetJoinedPreGameAfterFinishingTheGameAsync(List<int> preGameGroupIds, CancellationToken cancellationToken = default);
 	Task<bool> IsGroupOwner(int preGameGroupId, int userId, CancellationToken cancellationToken = default);
+  Task<bool> IsGroupMember(int userId, int preGameGroupId, CancellationToken cancellationToken = default);
 }

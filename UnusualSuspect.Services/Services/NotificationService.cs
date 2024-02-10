@@ -11,9 +11,14 @@ namespace UnusualSuspect.Services.Services;
 public sealed class NotificationService(IHubContext<GameHub, IGameClient> context,
   IMemoryCacheService memoryCacheService) : INotificationService
 {
-	public async Task SendSignalToPreGameGroup(int preGameGroupId, SignalCommands command, object? data = null)
+  private string GetPreGameGroupName(int preGameGroupId)
+  {
+    return "pre" + preGameGroupId;
+  }
+
+  public async Task SendSignalToPreGameGroup(int preGameGroupId, SignalCommands command, object? data = null)
 	{
-		await context.Clients.Group("pre" + preGameGroupId).GameCommand(command, data);
+		await context.Clients.Group(GetPreGameGroupName(preGameGroupId)).GameCommand(command, data);
 	}
 
 	public async Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null)

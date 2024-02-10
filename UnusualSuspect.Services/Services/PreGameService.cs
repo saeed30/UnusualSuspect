@@ -306,8 +306,14 @@ public sealed class PreGameService(IUnitOfWork uow,
 		return new UnusualSuspectServiceResult<bool>(true);
 	}
 
+  public async Task<UnusualSuspectServiceResult<bool>> IsMemberOfPregameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default)
+  {
+    bool result = await joinedPreGameRepository.IsGroupMember(userId, preGameGroupId, cancellationToken);
+    return new UnusualSuspectServiceResult<bool>(result);
+  }
 
-	private List<int> CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(PreGameGroup preGameGroup)
+
+  private List<int> CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(PreGameGroup preGameGroup)
 	{
 		//throw new NotImplementedException();
 		return new List<int>();

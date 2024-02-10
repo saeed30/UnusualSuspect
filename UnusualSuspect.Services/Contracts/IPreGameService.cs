@@ -26,4 +26,5 @@ public interface IPreGameService
   Task<UnusualSuspectServiceResult<PreGameGroupGetResponse>> GetPreGameGroupResponseDetail(int preGameGroupId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<MyPreGameGroupsResponse>> GetPreGameGroupByUserId(int userId);
   Task<UnusualSuspectServiceResult<bool>> ExitFromPreGameGroup(int preGameGroupId, int? userIdToExit, int currentUserId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<bool>> IsMemberOfPregameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default);
 }

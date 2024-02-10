@@ -27,7 +27,7 @@ public static class GameMapper
     Dictionary<int, short> candidates = new Dictionary<int, short>();
     foreach (var item in value.GameCandidates)
     {
-      if (!candidates.ContainsKey(item.UserId))
+      if (candidates.ContainsKey(item.UserId))
         continue;
       candidates.Add(item.UserId, item.CharacterCardId);
     }

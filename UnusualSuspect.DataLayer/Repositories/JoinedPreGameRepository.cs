@@ -83,4 +83,8 @@ public sealed class JoinedPreGameRepository
 			x.IsOwnerOfPreGroup, cancellationToken);
 	}
 
+  public async Task<bool> IsGroupMember(int userId, int preGameGroupId, CancellationToken cancellationToken = default)
+  {
+    return await joinedPreGame.AnyAsync(x => x.Id == preGameGroupId && x.UserId == userId, cancellationToken);
+  }
 }

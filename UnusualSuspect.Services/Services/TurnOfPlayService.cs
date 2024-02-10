@@ -133,7 +133,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
 		await gameCandidateRepository.SaveChangesAsync();
 		var newCandidates = await gameCandidateRepository.GetAllGameCandidatesAsync(gameId);
 		await memoryCacheService.ResetGameCandidates(gameId, newCandidates);
-		await notificationService.SendSignalToGameGroup(gameId, SignalCommands.CandidateCardChange);
+		await notificationService.SendSignalToGameGroup(gameId, SignalCommands.CandidateCardChange, new KeyValuePair<int,short?>(userId, cardId));
 		return new UnusualSuspectServiceResult<bool>(true);
 	}
 

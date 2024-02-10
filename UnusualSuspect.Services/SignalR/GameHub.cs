@@ -46,6 +46,7 @@ public sealed class GameHub(IGameService gameService,
     catch (Exception exception)
     {
       ElmahExtensions.RaiseError(exception);
+      await Clients.Caller.ReceiveMessage("errorSendMessage", exception.Message);
       throw;
     }
   }
@@ -59,9 +60,9 @@ public sealed class GameHub(IGameService gameService,
     catch (Exception exception)
     {
       ElmahExtensions.RaiseError(exception);
+      await Clients.Caller.ReceiveMessage("errorReceiveMessage", exception.Message);
       throw;
     }
-
   }
 
   public async Task FinishedTalking(int gameId)
@@ -74,14 +75,13 @@ public sealed class GameHub(IGameService gameService,
       var result = await turnOfPlayService.UserTurnFinishedAsync(UserId.Value, gameId);
       if(!result.Success)
 	      await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
-
 		}
 		catch (Exception exception)
     {
       ElmahExtensions.RaiseError(exception);
+      await Clients.Caller.ReceiveMessage("errorFinishedTalking", exception.Message);
       throw;
     }
-
   }
 
   public async Task CandidateCard(short? cardId, int gameId)
@@ -98,9 +98,9 @@ public sealed class GameHub(IGameService gameService,
 		catch (Exception exception)
     {
       ElmahExtensions.RaiseError(exception);
+      await Clients.Caller.ReceiveMessage("errorCandidateCard", exception.Message);
       throw;
     }
-
   }
 
   #endregion PublicMethods
@@ -123,7 +123,6 @@ public sealed class GameHub(IGameService gameService,
       ElmahExtensions.RaiseError(exception);
       throw;
     }
-
   }
 
 
@@ -159,17 +158,17 @@ public sealed class GameHub(IGameService gameService,
         connections.Remove(Context.ConnectionId);
     }
     memoryCacheService.SetUserSignalRConnections(userId, connections);
-    var participate = await participateRepository.GetActiveParticipations(userId);
+    var participate = (await participateRepository.GetActiveParticipations(userId)).FirstOrDefault();
 
-    if (participate.Any())
+    if (participate != null)
     {
-      string groupName = participate.First().GameId.ToString();
+      string groupName = participate.GameId.ToString();
       if (isConnected)
       {
         await notificationService.AddToGroupAsync(userId, Context.ConnectionId, groupName);
         List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, userIds);
-        await gameService.StartGameIfAllUsersOnline(participate.First().GameId, userIds);
+        await gameService.StartGameIfAllUsersOnline(participate.GameId, userIds);
         await gameService.SaveChangesAsync();
       }
       else
