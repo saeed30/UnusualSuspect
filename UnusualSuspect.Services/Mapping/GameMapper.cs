@@ -24,17 +24,21 @@ public static class GameMapper
         !value.TalkingTurnStartedTime.HasValue ||
         !value.CurrentUserTurnStartedTime.HasValue)
       return null;
-    Dictionary<int, short> candidates = new Dictionary<int, short>();
+    List<CandidateCardDto> candidates = new List<CandidateCardDto>();
     foreach (var item in value.GameCandidates)
     {
-      if (candidates.ContainsKey(item.UserId))
+      if (candidates.Any(x => x.UserId == item.UserId))
         continue;
-      candidates.Add(item.UserId, item.CharacterCardId);
+      candidates.Add(new CandidateCardDto()
+      {
+        UserId = item.UserId,
+        CharacterCardId = item.CharacterCardId
+      });
     }
     return new TurnOfPlayTalkingState()
     {
-	    TimeToTalkInSeconds = timeToTalkInSeconds,
-			OrderOfParticipationTurnToTalk = value.OrderOfParticipationTurnToTalk.Value,
+      TimeToTalkInSeconds = timeToTalkInSeconds,
+      OrderOfParticipationTurnToTalk = value.OrderOfParticipationTurnToTalk.Value,
       CurrentUserTurnStartedTime = value.CurrentUserTurnStartedTime.Value,
       OrderOfParticipationTalkBeginner = value.OrderOfParticipationTalkBeginner.Value,
       TalkingTurnStartedTime = value.TalkingTurnStartedTime.Value,

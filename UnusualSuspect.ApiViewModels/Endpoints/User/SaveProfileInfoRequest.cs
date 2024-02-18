@@ -10,8 +10,16 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 		private string? nickName;
 		[SerializeField]
 		private T userImage;
+		[SerializeField]
+    private int? avatarId;
 
-		public string? NickName { get => nickName; set => nickName = value; }
+    public int? AvatarId
+    {
+      get => avatarId;
+      set => avatarId = value;
+    }
+
+    public string? NickName { get => nickName; set => nickName = value; }
 		public T UserImage { get => userImage; set => userImage = value; }
 	}
 }

@@ -158,15 +158,18 @@ app.UseOutputCache();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<LogExtraInfoMiddleware>();
-// Enable middleware to serve generated Swagger as a JSON endpoint.
-app.UseSwagger();
-
-// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment() || projectSetting.IsTesting)
 {
-  c.DisplayRequestDuration();
-  c.SwaggerEndpoint("/swagger/v1/swagger.json", "UnusualSuspect.Api V1");
-});
+  // Enable middleware to serve generated Swagger as a JSON endpoint.
+  app.UseSwagger();
+
+  // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+  app.UseSwaggerUI(c =>
+  {
+    c.DisplayRequestDuration();
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "UnusualSuspect.Api V1");
+  });
+}
 
 app.MapControllers().RequireRateLimiting(nameof(CustomRateLimiterPolicy)).RequireAuthorization();
 app.UseHangfireDashboard();

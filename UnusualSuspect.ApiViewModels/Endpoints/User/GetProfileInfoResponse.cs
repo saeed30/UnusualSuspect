@@ -11,9 +11,9 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 		[SerializeField]
 		private Guid? userImageDocumentId;
 		[SerializeField]
-		private short? avatarId;
+		private int? avatarId;
 
-		public short? AvatarId
+		public int? AvatarId
 		{
 			get => avatarId;
 			set => avatarId = value;

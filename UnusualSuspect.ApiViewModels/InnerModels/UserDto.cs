@@ -13,9 +13,9 @@ namespace UnusualSuspect.ApiViewModels.InnerModels
     [SerializeField]
     private string? nickName;
     [SerializeField]
-    private short? avatarId;
+    private int? avatarId;
 
-    public short? AvatarId
+    public int? AvatarId
     {
       get => avatarId;
       set => avatarId = value;

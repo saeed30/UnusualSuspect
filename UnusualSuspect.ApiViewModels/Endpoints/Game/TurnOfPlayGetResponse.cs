@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnusualSuspect.ApiViewModels.InnerModels.Game;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 {
@@ -47,7 +48,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 		[SerializeField]
 		private DateTime currentUserTurnStartedTime;
 		[SerializeField]
-		private Dictionary<int, short> candidateCard = new Dictionary<int, short>();
+		private List<CandidateCardDto> candidateCard;
 
 		public int TimeToTalkInSeconds
 		{
@@ -79,7 +80,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 			set => currentUserTurnStartedTime = value;
 		}
 
-		public Dictionary<int, short> CandidateCard
+		public List<CandidateCardDto> CandidateCard
 		{
 			get => candidateCard;
 			set => candidateCard = value;

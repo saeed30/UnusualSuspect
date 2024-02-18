@@ -7,6 +7,6 @@ namespace UnusualSuspect.ApiViewModels.Contracts
     Task SendMessage(string user, string message);
     Task StartedToTalk(int gameId);
     Task FinishedTalking(int gameId);
-    Task CandidateCard(short? cardId, int gameId);
+    Task CandidateCard(int? cardId, int gameId);
   }
 }

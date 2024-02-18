@@ -84,14 +84,14 @@ public sealed class GameHub(IGameService gameService,
     }
   }
 
-  public async Task CandidateCard(short? cardId, int gameId)
+  public async Task CandidateCard(int? cardId, int gameId)
   {
     try
     {
 	    if (!UserId.HasValue)
 		    return;
       await Clients.Caller.ReceiveMessage("admin", "you called CandidateCard");
-      var result = await turnOfPlayService.ChangedCandidateCard(UserId.Value, cardId, gameId);
+      var result = await turnOfPlayService.ChangedCandidateCard(UserId.Value, (short?)cardId, gameId);
       if (!result.Success)
 	      await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
     }

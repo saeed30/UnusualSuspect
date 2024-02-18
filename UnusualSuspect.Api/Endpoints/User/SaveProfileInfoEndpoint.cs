@@ -25,6 +25,7 @@ public sealed class SaveProfileInfoEndpoint(IApplicationUserManager iApplication
 			return new ApiResult(false, ApiResultStatusCode.NotFound, "اطلاعات کاربری یافت نشد!");
 		user.NickName = request.NickName;
 		user.ImageFile = request.UserImage;
+    user.AvatarId = (short?)request.AvatarId;
 		var result = await applicationUserService.EditApplicationUser(user, true);
 		if (!result.Success)
 			return new ApiResult(false, ApiResultStatusCode.ServerError, result.MessageList);

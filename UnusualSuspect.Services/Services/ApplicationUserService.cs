@@ -18,75 +18,75 @@ public interface IApplicationUserService
 {
 	bool ActiveDeactiveUser(int userId, bool check);
 	IQueryable<UsersInRoleViewModel> CombinedAllApplicationUserSearch(CustomerSearchViewModel model);
-	Task<ResultAction> CreateApplicationUser(ApplicationUser model, bool IsLoginRegister);
-	Task<ResultAction> DeleteApplicationUser(int ApplicationUserId, string UserName);
-	ApplicationUser? DetailsApplicationUser(long ApplicationUserId);
-	ApplicationUser? DetailsApplicationUserWhitUserName(string UserName);
+	Task<ResultAction> CreateApplicationUser(ApplicationUser model, bool isLoginRegister);
+	Task<ResultAction> DeleteApplicationUser(int applicationUserId, string userName);
+	ApplicationUser? DetailsApplicationUser(long applicationUserId);
+	ApplicationUser? DetailsApplicationUserWhitUserName(string userName);
 	ApplicationUser DetailsUser(string userName);
-	Task<ResultAction> EditApplicationUser(ApplicationUser model, bool IsProfileEdit);
-	List<SelectListItem> UserList(string PreName);
-	List<SelectListItem> TechnicalExpertList(string PreName);
+	Task<ResultAction> EditApplicationUser(ApplicationUser model, bool isProfileEdit);
+	List<SelectListItem> UserList(string preName);
+	List<SelectListItem> TechnicalExpertList(string preName);
 }
 
 public class ApplicationUserService : IApplicationUserService
 {
-	private readonly ILogger<DocumentService> _logger;
-	private readonly ApplicationDbContext _context;
-	private readonly IUnitOfWork _uow;
-	private readonly DbSet<ApplicationUser> _ApplicationUser;
-	private readonly IDocumentService _IDocumentService;
-	private readonly ILogService _ILogService;
-	private readonly DbSet<Role> _Role;
-	private readonly IApplicationUserManager _IApplicationUserManager;
-	protected readonly IUploadServise _uploadServise;
+	private readonly ILogger<DocumentService> logger;
+	private readonly ApplicationDbContext context;
+	private readonly IUnitOfWork uow;
+	private readonly DbSet<ApplicationUser> applicationUser;
+	private readonly IDocumentService iDocumentService;
+	private readonly ILogService iLogService;
+	private readonly DbSet<Role> role;
+	private readonly IApplicationUserManager iApplicationUserManager;
+	protected readonly IUploadServise UploadServise;
 
 	public ApplicationUserService(ILogger<DocumentService> logger, ApplicationDbContext context,
 			IUnitOfWork uow, ILogService iLogService, IApplicationUserManager iApplicationUserManager,
 			IUploadServise uploadServise, IDocumentService iDocumentService)
-	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(_logger));
-		_ILogService = iLogService;
-		_IDocumentService = iDocumentService;
-		_context = context ?? throw new ArgumentNullException(nameof(_context));
-		_uow = uow ?? throw new ArgumentNullException(nameof(_uow));
-		_ApplicationUser = uow.Set<ApplicationUser>();
-		_Role = uow.Set<Role>();
-		_ILogService = iLogService;
-		_IApplicationUserManager = iApplicationUserManager;
-		_uploadServise = uploadServise;
+  {
+    this.logger = logger;
+		this.iLogService = iLogService;
+		this.iDocumentService = iDocumentService;
+    this.context = context;
+    this.uow = uow;
+		applicationUser = uow.Set<ApplicationUser>();
+		role = uow.Set<Role>();
+		this.iLogService = iLogService;
+		this.iApplicationUserManager = iApplicationUserManager;
+		UploadServise = uploadServise;
 	}
 
 	public ApplicationUser DetailsUser(string userName)
 	{
-		return _ApplicationUser.Include(p => p.Document).FirstOrDefault(x => x.UserName == userName);
+		return applicationUser.Include(p => p.Document).FirstOrDefault(x => x.UserName == userName);
 	}
 
 
 
 
-	public List<SelectListItem> UserList(string PreName)
+	public List<SelectListItem> UserList(string preName)
 	{
-		List<SelectListItem> UserList = new List<SelectListItem>
+		List<SelectListItem> userList = new List<SelectListItem>
 				{
-						new SelectListItem() { Text = PreName, Value = "" }
+						new SelectListItem() { Text = preName, Value = "" }
 				};
-		UserList.AddRange(_ApplicationUser.Select(u => new SelectListItem
+		userList.AddRange(applicationUser.Select(u => new SelectListItem
 		{
 			Text = u.FullName,
 			Value = u.Id.ToString()
 		}).ToList());
-		return UserList;
+		return userList;
 	}
 
 
-	public List<SelectListItem> TechnicalExpertList(string PreName)
+	public List<SelectListItem> TechnicalExpertList(string preName)
 	{
-		List<SelectListItem> UserList = new List<SelectListItem>
+		List<SelectListItem> userList = new List<SelectListItem>
 				{
-						new SelectListItem() { Text = PreName, Value = "" }
+						new SelectListItem() { Text = preName, Value = "" }
 				};
 
-		var usersWithRoles = (from user in _ApplicationUser
+		var usersWithRoles = (from user in applicationUser
 													select new
 													{
 														UserId = user.Id,
@@ -96,15 +96,15 @@ public class ApplicationUserService : IApplicationUserService
 														LastName = user.LastName,
 														PhoneNumber = user.PhoneNumber,
 
-														RoleNamesFa = (from userRole in _context.UserRoles
+														RoleNamesFa = (from userRole in context.UserRoles
 																					 where userRole.UserId == user.Id
-																					 join role in _Role on userRole.RoleId
+																					 join role in role on userRole.RoleId
 																					 equals role.Id
 																					 select role.Title
 																						).ToList(),
-														RoleNames = (from userRole in _context.UserRoles
+														RoleNames = (from userRole in context.UserRoles
 																				 where userRole.UserId == user.Id
-																				 join role in _Role on userRole.RoleId
+																				 join role in role on userRole.RoleId
 																				 equals role.Id
 																				 select role.Name
 																						).ToList()
@@ -122,18 +122,18 @@ public class ApplicationUserService : IApplicationUserService
 
 		usersWithRoles = usersWithRoles.Where(a => a.Role.Contains("TechnicalExpert"));//کارشناس فنی
 
-		UserList.AddRange(usersWithRoles.Select(u => new SelectListItem
+		userList.AddRange(usersWithRoles.Select(u => new SelectListItem
 		{
 			Text = u.FirstName + u.LastName,
 			Value = u.UserId.ToString()
 		}).ToList());
-		return UserList;
+		return userList;
 	}
 
 	public IQueryable<UsersInRoleViewModel> CombinedAllApplicationUserSearch(CustomerSearchViewModel model)
 	{
 
-		var usersWithRoles = (from user in _ApplicationUser
+		var usersWithRoles = (from user in applicationUser
 													select new
 													{
 														UserId = user.Id,
@@ -143,15 +143,15 @@ public class ApplicationUserService : IApplicationUserService
 														LastName = user.LastName,
 														PhoneNumber = user.PhoneNumber,
 
-														RoleNamesFa = (from userRole in _context.UserRoles
+														RoleNamesFa = (from userRole in context.UserRoles
 																					 where userRole.UserId == user.Id
-																					 join role in _Role on userRole.RoleId
+																					 join role in role on userRole.RoleId
 																					 equals role.Id
 																					 select role.Title
 																						).ToList(),
-														RoleNames = (from userRole in _context.UserRoles
+														RoleNames = (from userRole in context.UserRoles
 																				 where userRole.UserId == user.Id
-																				 join role in _Role on userRole.RoleId
+																				 join role in role on userRole.RoleId
 																				 equals role.Id
 																				 select role.Name
 																						).ToList()
@@ -174,28 +174,28 @@ public class ApplicationUserService : IApplicationUserService
 		{
 			var searchTerms = model.KeyWord.Split(' ');
 			var term = searchTerms[0];
-			var ApplicationUserList2 = usersWithRoles.Where(x =>
+			var applicationUserList2 = usersWithRoles.Where(x =>
 								(x.FirstName ?? "").Contains(term)
 								|| (x.LastName ?? "").Contains(term)
 								|| (x.Username ?? "").Contains(term)
 								|| (x.PhoneNumber ?? "").Contains(term));
 			foreach (var tempTerm in searchTerms.Where(x => !string.IsNullOrEmpty(x) && x != term))
 			{
-				ApplicationUserList2 = ApplicationUserList2.Union(usersWithRoles.Where(x =>
+				applicationUserList2 = applicationUserList2.Union(usersWithRoles.Where(x =>
 									(x.FirstName ?? "").Contains(tempTerm)
 								 || (x.LastName ?? "").Contains(tempTerm)
 									|| (x.Username ?? "").Contains(tempTerm)
 									|| (x.PhoneNumber ?? "").Contains(tempTerm)));
 			}
-			usersWithRoles = ApplicationUserList2;
+			usersWithRoles = applicationUserList2;
 		}
 		return usersWithRoles.AsQueryable();
 	}
 
 
-	public ApplicationUser? DetailsApplicationUser(long ApplicationUserId)
+	public ApplicationUser? DetailsApplicationUser(long applicationUserId)
 	{
-		return _ApplicationUser.FirstOrDefault(x => x.Id == ApplicationUserId);
+		return applicationUser.FirstOrDefault(x => x.Id == applicationUserId);
 	}
 
 
@@ -203,21 +203,21 @@ public class ApplicationUserService : IApplicationUserService
 	/// <summary>
 	/// پیدا کردن مشتری با نام کاربری
 	/// </summary>
-	/// <param name="UserName"></param>
+	/// <param name="userName"></param>
 	/// <returns></returns>
 
-	public ApplicationUser? DetailsApplicationUserWhitUserName(string UserName)
+	public ApplicationUser? DetailsApplicationUserWhitUserName(string userName)
 	{
-		return _ApplicationUser.Include(p => p.Document).FirstOrDefault(x => x.UserName == UserName);
+		return applicationUser.Include(p => p.Document).FirstOrDefault(x => x.UserName == userName);
 	}
 
 
 
-	public async Task<ResultAction> CreateApplicationUser(ApplicationUser model, bool IsLoginRegister)
+	public async Task<ResultAction> CreateApplicationUser(ApplicationUser model, bool isLoginRegister)
 	{
 		try
 		{
-			if (_ApplicationUser.Any(x => x.PhoneNumber == model.PhoneNumber))
+			if (applicationUser.Any(x => x.PhoneNumber == model.PhoneNumber))
 				return new ResultAction()
 				{
 					Success = false,
@@ -234,10 +234,10 @@ public class ApplicationUserService : IApplicationUserService
 
 
 
-			_ApplicationUser.Add(model);
+			applicationUser.Add(model);
 			//_uow.SaveChanges();
 
-			_ILogService.AddLog(new LogObject()
+			iLogService.AddLog(new LogObject()
 			{
 				NextValue = HelperCommon.ShallowCopyEntityToString<ApplicationUser>(model),
 				PerValue = null,
@@ -251,15 +251,15 @@ public class ApplicationUserService : IApplicationUserService
 
 			//_uow.SaveChanges();
 
-			if (!IsLoginRegister && model.SoftwarerRoleList != null && model.SoftwarerRoleList.Length != 0)
+			if (!isLoginRegister && model.SoftwarerRoleList != null && model.SoftwarerRoleList.Length != 0)
 			{
-				var ApplicationUserRoleIds = model.SoftwarerRoleList.Split(',');
-				foreach (var ApplicationUserRoleId in ApplicationUserRoleIds.Where(x => !string.IsNullOrEmpty(x)))
+				var applicationUserRoleIds = model.SoftwarerRoleList.Split(',');
+				foreach (var applicationUserRoleId in applicationUserRoleIds.Where(x => !string.IsNullOrEmpty(x)))
 				{
 
-					var RoleId = int.Parse(ApplicationUserRoleId);
-					var AmApplicationUserRoleOB = _Role.FirstOrDefault(x => x.Id == RoleId);
-					_context.UserRoles.Add(new IdentityUserRole<int>() { UserId = model.Id, RoleId = RoleId });
+					var roleId = int.Parse(applicationUserRoleId);
+					var amApplicationUserRoleOb = role.FirstOrDefault(x => x.Id == roleId);
+					context.UserRoles.Add(new IdentityUserRole<int>() { UserId = model.Id, RoleId = roleId });
 
 
 				}
@@ -267,8 +267,8 @@ public class ApplicationUserService : IApplicationUserService
 			}
 			else
 			{
-				var currentUser = await _ApplicationUser.FirstOrDefaultAsync(x => x.UserName == model.UserName);
-				await _IApplicationUserManager.AddUserToRoleAsync(currentUser, "PublicUser");
+				var currentUser = await applicationUser.FirstOrDefaultAsync(x => x.UserName == model.UserName);
+				await iApplicationUserManager.AddUserToRoleAsync(currentUser, "PublicUser");
 
 			}
 
@@ -292,13 +292,14 @@ public class ApplicationUserService : IApplicationUserService
 
 
 
-	public async Task<ResultAction> EditApplicationUser(ApplicationUser model, bool IsProfileEdit)
+	public async Task<ResultAction> EditApplicationUser(ApplicationUser model, bool isProfileEdit)
 	{
-		var Item = DetailsApplicationUser(model.Id);
-
+		var item = DetailsApplicationUser(model.Id);
+    if (item == null)
+      throw new Exception("invalid userId: " + model.Id);
 		if (model.ImageFile != null)
 		{
-			var doc = await _IDocumentService.SaveFormFile(model.ImageFile, "ApplicationUser", "DocumentId", Item.DocumentId);
+			var doc = await iDocumentService.SaveFormFile(model.ImageFile, "ApplicationUser", "DocumentId", item.DocumentId);
 			if (doc == null)
 				return new ResultAction()
 				{
@@ -306,22 +307,23 @@ public class ApplicationUserService : IApplicationUserService
 					MessageList = $"اشکالی در زمان ذخیره سازی فایل رخ داد",
 					Id = model.Id.ToString()
 				};
-			Item.Document = doc;
+			item.Document = doc;
 		}
 
 		try
 		{
-			Item.FirstName = model.FirstName;
-			Item.LastName = model.LastName;
-			Item.Email = model.Email;
+			item.FirstName = model.FirstName;
+			item.LastName = model.LastName;
+			item.Email = model.Email;
+			item.AvatarId = model.AvatarId;
 			if (!string.IsNullOrEmpty(model.PatchImage))
-				Item.PatchImage = model.PatchImage;
-			var ItemTemp = DetailsApplicationUser(model.Id);
+				item.PatchImage = model.PatchImage;
+			var itemTemp = DetailsApplicationUser(model.Id);
 
-			_ILogService.AddLog(new LogObject()
+			iLogService.AddLog(new LogObject()
 			{
-				NextValue = HelperCommon.ShallowCopyEntityToString<ApplicationUser>(Item),
-				PerValue = HelperCommon.ShallowCopyEntityToString<ApplicationUser>(ItemTemp),
+				NextValue = HelperCommon.ShallowCopyEntityToString<ApplicationUser>(item),
+				PerValue = HelperCommon.ShallowCopyEntityToString<ApplicationUser>(itemTemp),
 				ObjectTypeId = "ApplicationUser",
 				ObjectTypeName = "کاربر",
 				DateCreate = DateTime.Now,
@@ -330,12 +332,11 @@ public class ApplicationUserService : IApplicationUserService
 			});
 			//await _uow.SaveChangesAsync();
 
-			if (!IsProfileEdit)
+			if (!isProfileEdit)
 			{
-				int[] RolesId = { 1, 2, 3, 5, 12 };//necessary Roles
-				List<int> authorsRange = new List<int>(RolesId);
+				List<int> authorsRange = new List<int>{ 1, 2, 3, 5, 12 };//necessary Roles
 
-				_context.UserRoles.RemoveRange(_context.UserRoles.Where(x => x.UserId == model.Id && !authorsRange.Contains(x.RoleId)));
+				context.UserRoles.RemoveRange(context.UserRoles.Where(x => x.UserId == model.Id && !authorsRange.Contains(x.RoleId)));
 				//applicationRoleService.(_ApplicationUserRoles.Where(x => x.UserId == UsrOB.Id).ToList());
 				//_context.SaveChanges();
 				if (model.SoftwarerRoleList.Length != 0)
@@ -343,13 +344,13 @@ public class ApplicationUserService : IApplicationUserService
 
 
 
-					var ApplicationUserRoleIds = model.SoftwarerRoleList.Split(',');
-					foreach (var ApplicationUserRoleId in ApplicationUserRoleIds.Where(x => !string.IsNullOrEmpty(x)))
+					var applicationUserRoleIds = model.SoftwarerRoleList.Split(',');
+					foreach (var applicationUserRoleId in applicationUserRoleIds.Where(x => !string.IsNullOrEmpty(x)))
 					{
 
-						var RoleId = int.Parse(ApplicationUserRoleId);
-						var AmApplicationUserRoleOB = _Role.FirstOrDefault(x => x.Id == RoleId);
-						_context.UserRoles.Add(new IdentityUserRole<int>() { UserId = model.Id, RoleId = RoleId });
+						var roleId = int.Parse(applicationUserRoleId);
+						//var amApplicationUserRoleOB = _Role.FirstOrDefault(x => x.Id == RoleId);
+						context.UserRoles.Add(new IdentityUserRole<int>() { UserId = model.Id, RoleId = roleId });
 
 
 					}
@@ -379,24 +380,24 @@ public class ApplicationUserService : IApplicationUserService
 
 
 
-	public async Task<ResultAction> DeleteApplicationUser(int ApplicationUserId, string UserName)
+	public async Task<ResultAction> DeleteApplicationUser(int applicationUserId, string userName)
 	{
-		var Item = DetailsApplicationUser(ApplicationUserId);
+		var item = DetailsApplicationUser(applicationUserId);
 		try
 		{
-			var currentUser = _IApplicationUserManager.FindByName(Item.UserName);
-			_ILogService.AddLog(new LogObject()
+			var currentUser = iApplicationUserManager.FindByName(item.UserName);
+			iLogService.AddLog(new LogObject()
 			{
 				NextValue = null,
-				PerValue = HelperCommon.ShallowCopyEntityToString<ApplicationUser>(Item),
+				PerValue = HelperCommon.ShallowCopyEntityToString<ApplicationUser>(item),
 				ObjectTypeId = "ApplicationUser",
 				ObjectTypeName = "کاربر عادی",
 				DateCreate = DateTime.Now,
-				UserName = UserName,
+				UserName = userName,
 				Title = "حذف کاربر عادی"
 			});
-			var Result = await _IApplicationUserManager.DeleteAsync(currentUser);
-			if (Result.Succeeded)
+			var result = await iApplicationUserManager.DeleteAsync(currentUser);
+			if (result.Succeeded)
 			{
 				return new ResultAction()
 				{
@@ -429,9 +430,9 @@ public class ApplicationUserService : IApplicationUserService
 	{
 		try
 		{
-			var item = _ApplicationUser.FirstOrDefault(x => x.Id == userId);
+			var item = applicationUser.FirstOrDefault(x => x.Id == userId);
 			item.IsActive = check;
-			_uow.SaveChanges();
+			uow.SaveChanges();
 			return true;
 		}
 		catch
