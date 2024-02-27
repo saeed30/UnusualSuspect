@@ -13,4 +13,5 @@ public class GameType : BaseEntity<short>
 	public short NumberOfPlayers { get; set; }
 	public bool IsActive { get; set; }
 	public int ViewOrder { get; set; }
+	public bool AllowUserToAddOtherUsers { get; set; }
 }

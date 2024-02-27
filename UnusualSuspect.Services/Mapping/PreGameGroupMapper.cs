@@ -15,7 +15,7 @@ public static class PreGameGroupMapper
       PreGameGroupStatusId = value.PreGameGroupStatusId,
       CalculatedJoinedUsers = value.CalculatedJoinedUsers,
       ReadyToGameTime = value.ReadyToGameTime,
-      GameTypeId = value.GameTypeId,
+      GameTypeDto = value.GameType.ToGameTypeDto(),
       GameId = value.GameId,
       CreatedTime = value.CreatedTime
     };
@@ -49,7 +49,7 @@ public static class PreGameGroupMapper
       PreGameGroupId = value.Id,
       PreGameGroupStatusId = value.PreGameGroupStatusId,
       CalculatedJoinedUsers = value.CalculatedJoinedUsers,
-      GameTypeId = value.GameTypeId,
+      GameTypeDto = value.GameType.ToGameTypeDto(),
       GameId = value.GameId,
       CreatedTime = value.CreatedTime,
       JoinedPreGame = value.JoinedPreGames.ToJoinedPreGameDto().ToList()

@@ -12,6 +12,11 @@ public class CharacterCardRepository
 {
 	private readonly DbSet<CharacterCard> characterCard = uow.Set<CharacterCard>();
 
+  public IQueryable<CharacterCard> GetAllCharacterCards()
+  {
+    return characterCard;
+  }
+
   public async Task<List<CharacterCard>> GetAllActiveCharacterCardsAsync(CancellationToken cancellationToken = default)
 	{
 		return await characterCard.Where(x=>x.IsActive).ToListAsync(cancellationToken);

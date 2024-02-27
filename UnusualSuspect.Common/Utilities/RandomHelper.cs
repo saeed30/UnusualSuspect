@@ -18,4 +18,9 @@ public static class RandomHelper
     return selectedNumbers;
   }
 
+  // Generate a unique file name
+  public static string GetUniqueFileName(string fileName)
+  {
+    return Guid.NewGuid() + Path.GetExtension(Path.GetFileName(fileName));
+  }
 }

@@ -25,11 +25,22 @@ public class FileService : IFileService
         if (System.IO.File.Exists(licFile))
             new Aspose.Cells.License().SetLicense(licFile);
     }
-    public void UploadFile(IFormFile file)
-    {
 
+    public void DeleteFile(string filePath)
+    {
+      filePath = AppDomain.CurrentDomain.BaseDirectory + filePath;
+      if (Path.Exists(filePath))
+        File.Delete(filePath);
     }
-    public DataSet ImportExcel(Stream stream, int? maxRowCount = null, int? maxColCount = null)
+
+    public string UploadFile(IFormFile file, string path)
+    {
+      string fileName = RandomHelper.GetUniqueFileName(file.FileName);
+      var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path.Replace("/","\\"), fileName);
+      file.CopyTo(new FileStream(filePath, FileMode.Create));
+      return path + fileName;
+    }
+  public DataSet ImportExcel(Stream stream, int? maxRowCount = null, int? maxColCount = null)
     {
         Workbook workbook = new Workbook(stream);
         DataSet dataSet = new DataSet();

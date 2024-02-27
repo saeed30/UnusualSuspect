@@ -14,6 +14,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
         private string name;
         [SerializeField]
         private string title;
+        [SerializeField]
+        private bool allowUserToAddOtherUsers;
+
+        public bool AllowUserToAddOtherUsers
+        {
+          get => allowUserToAddOtherUsers;
+          set => allowUserToAddOtherUsers = value;
+        }
 
         public short Id
         {

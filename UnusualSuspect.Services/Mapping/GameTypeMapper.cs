@@ -12,7 +12,8 @@ public static class GameTypeMapper
       Id = value.Id,
       Name = value.Name,
       Title = value.Title,
-      NumberOfPlayers = value.NumberOfPlayers
+      NumberOfPlayers = value.NumberOfPlayers,
+      AllowUserToAddOtherUsers = value.AllowUserToAddOtherUsers
     };
   }
   public static IEnumerable<GameTypeDto> ToGameTypeDto(this IEnumerable<GameType> value)

@@ -79,7 +79,7 @@
         <div class="form-group row no-gutters">
           <label class="control-label col-md-3"> آخرین پاسخ شاهد </label>
           <div class="col-md-9">
-            @(Model.GameGetResponse.GameFlowDto.WitnessLastAnswer.HasValue ? (Model.GameGetResponse.GameFlowDto.WitnessLastAnswer.Value?"بله":"خیر") : "")
+            @Model.GameGetResponse.GameFlowDto.WitnessAnswerTitle
           </div>
         </div>
       </div>

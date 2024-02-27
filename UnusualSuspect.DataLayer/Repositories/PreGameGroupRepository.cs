@@ -16,6 +16,7 @@ public sealed class PreGameGroupRepository
   public async Task<IReadOnlyList<PreGameGroup>> GetByUserIdWithJoinedPreGameAsync(int userId, int maxNumberOfGameRequests = 50, CancellationToken cancellationToken = default)
   {
     return await preGameGroup
+      .Include(x => x.GameType)
       .Where(x => x.JoinedPreGames.Any(j => j.UserId == userId))
       .OrderByDescending(x => x.ReadyToGameTime).Take(maxNumberOfGameRequests).ToListAsync(cancellationToken);
   }
@@ -48,14 +49,14 @@ public sealed class PreGameGroupRepository
 
   public async Task<List<int>> ResetGroupsStatusAfterFinishingTheGameAsync(int gameId, CancellationToken cancellationToken = default)
   {
-	  List<PreGameGroup> pre = await preGameGroup.Where(x => x.GameId == gameId).ToListAsync(cancellationToken);
-	  foreach (PreGameGroup gameGroup in pre)
-	  {
-		  gameGroup.GameId = null;
-		  gameGroup.PreGameGroupStatusId = (short)PreGameGroupStatusEnum.NotReady;
+    List<PreGameGroup> pre = await preGameGroup.Where(x => x.GameId == gameId).ToListAsync(cancellationToken);
+    foreach (PreGameGroup gameGroup in pre)
+    {
+      gameGroup.GameId = null;
+      gameGroup.PreGameGroupStatusId = (short)PreGameGroupStatusEnum.NotReady;
       gameGroup.ReadyToGameTime = null;
-	  }
-	  return pre.Select(x=>x.Id).ToList();
+    }
+    return pre.Select(x => x.Id).ToList();
   }
 
 }

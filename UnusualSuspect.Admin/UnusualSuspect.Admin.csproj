@@ -126,6 +126,7 @@
   <ItemGroup>
     <Folder Include="Views\BaseInfo\" />
     <Folder Include="wwwroot\Files\MiscFiles\" />
+    <Folder Include="wwwroot\Files\Characters\" />
     <Folder Include="wwwroot\Files\ProductImage\" />
     <Folder Include="wwwroot\js\Pages\BaseInfo\" />
     <Folder Include="wwwroot\js\Pages\Account\" />

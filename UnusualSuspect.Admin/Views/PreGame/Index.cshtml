@@ -18,7 +18,7 @@
         .Name("grid")
         .Columns(columns =>
         {
-          columns.Bound(c => c.Id).Title("شناسه").Filterable(false);
+          columns.Bound(c => c.Id).Title("شناسه");
           columns.Bound(c => c.GameType.Title).Title("نوع بازی");
           columns.Bound(c => c.PreGameGroupStatus.Title).Title("وضعیت بازی");
           columns.Bound(c => c.CreatedTimePersian).Title("زمان ایجاد");

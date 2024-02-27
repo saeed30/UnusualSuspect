@@ -19,12 +19,15 @@ public class WitnessAnswerEndpoint(IGameService gameService,
   [HttpPost("api/[namespace]/WitnessAnswer")]
   public override async Task<ActionResult<ApiResult>> HandleAsync(WitnessAnswerRequest request, CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<bool> result = await gameService.SetWitnessAnswer(request.GameId, request.WitnessAnswer, request.QuestionId, CurrentUser.UserId, cancellationToken);
+    var currentGame = await gameService.GetCurrentGameAsync(CurrentUser.UserId, cancellationToken);
+    if (!currentGame.Success)
+      return new ApiResult(false, ApiResultStatusCode.LogicError, currentGame.MainError.ToString());
+    UnusualSuspectServiceResult<bool> result = await gameService.SetWitnessAnswer(currentGame.Result.Id, request.WitnessAnswer, request.QuestionId, CurrentUser.UserId, cancellationToken);
     if (!result.Success)
       return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
     await gameService.SaveChangesAsync(cancellationToken);
-    memoryCacheService.ClearGameWithDetails(request.GameId);
-    await notificationService.SendSignalToGameGroup(request.GameId, SignalCommands.WitnessAnswered,
+    memoryCacheService.ClearGameWithDetails(currentGame.Result.Id);
+    await notificationService.SendSignalToGameGroup(currentGame.Result.Id, SignalCommands.WitnessAnswered,
       request.WitnessAnswer);
     return new ApiResult(true, ApiResultStatusCode.Success);
 

@@ -26,12 +26,27 @@ public sealed class GameService(IUnitOfWork uow,
 	IJoinedPreGameRepository joinedPreGameRepository,
 	IOptionsSnapshot<ProjectSetting> setting) : IGameService
 {
-	public async Task<UnusualSuspectServiceResult<GameGetResponse?>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
+	public async Task<UnusualSuspectServiceResult<Game>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
+	{
+    Game? game = await gameRepository.GetUserCurrentGameAsync(userId, cancellationToken);
+		if(game == null)
+      return new UnusualSuspectServiceResult<Game>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
+    return new UnusualSuspectServiceResult<Game>(game);
+	}
+	public async Task<UnusualSuspectServiceResult<Game>> GetCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default)
 	{
     Game? game = await gameRepository.GetUserCurrentGameWithDetailsAsync(userId, cancellationToken);
-		if (game == null)
-			return new UnusualSuspectServiceResult<GameGetResponse?>((GameGetResponse?)null);
-		return new UnusualSuspectServiceResult<GameGetResponse?>(new GameGetResponse(
+    if (game == null)
+      return new UnusualSuspectServiceResult<Game>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
+		return new UnusualSuspectServiceResult<Game>(game);
+	}
+	public async Task<UnusualSuspectServiceResult<GameGetResponse>> GetCurrentGameResponseAsync(int userId, CancellationToken cancellationToken = default)
+  {
+    var result = await GetCurrentGameWithDetailsAsync(userId, cancellationToken);
+		if(!result.Success)
+      return new UnusualSuspectServiceResult<GameGetResponse>(result.Errors);
+    Game game = result.Result;
+		return new UnusualSuspectServiceResult<GameGetResponse>(new GameGetResponse(
 			game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId));
 	}
 

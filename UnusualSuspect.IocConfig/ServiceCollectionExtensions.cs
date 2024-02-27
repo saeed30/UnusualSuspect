@@ -43,6 +43,7 @@ public static class ServiceCollectionExtensions
   {
     services.AddScoped<IPreGameService, PreGameService>();
     services.AddScoped<IGameService, GameService>();
+    services.AddScoped<ICharacterService, CharacterService>();
     services.AddScoped<IJoinedPreGameRepository, JoinedPreGameRepository>();
     services.AddScoped<IGameRepository, GameRepository>();
     services.AddScoped<IParticipateRepository, ParticipateRepository>();

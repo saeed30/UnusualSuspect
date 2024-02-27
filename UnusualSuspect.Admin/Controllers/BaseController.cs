@@ -1,21 +1,12 @@
 ﻿using UnusualSuspect.Admin.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
-using System.Linq;
 
 namespace UnusualSuspect.Admin.Controllers;
 
-public class BaseController<T> : Controller
+public class BaseController<T>(ILogger<T> logger) : Controller
 {
-    protected readonly ILogger<T> _logger;
-    public BaseController(ILogger<T> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
-    }
-    protected JsonResult ReturnJsonResult(bool isSuccess = true, string message = null, object extraData = null)
+    protected JsonResult ReturnJsonResult(bool isSuccess = true, string? message = null, object? extraData = null)
     {
         if (extraData == null)
             return Json(new { success = isSuccess, msg = message });

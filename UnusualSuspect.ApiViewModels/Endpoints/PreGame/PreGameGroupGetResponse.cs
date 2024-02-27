@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnusualSuspect.ApiViewModels.InnerModels.Game;
 using UnusualSuspect.ApiViewModels.InnerModels.PreGame;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
@@ -15,7 +16,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
     [SerializeField]
     private short calculatedJoinedUsers;
     [SerializeField]
-    private short gameTypeId;
+    private GameTypeDto gameTypeDto;
     [SerializeField]
     private short preGameGroupStatusId;
     [SerializeField]
@@ -41,10 +42,10 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
       set => calculatedJoinedUsers = value;
     }
 
-    public short GameTypeId
+    public GameTypeDto GameTypeDto
     {
-      get => gameTypeId;
-      set => gameTypeId = value;
+      get => gameTypeDto;
+      set => gameTypeDto = value;
     }
 
     public short PreGameGroupStatusId

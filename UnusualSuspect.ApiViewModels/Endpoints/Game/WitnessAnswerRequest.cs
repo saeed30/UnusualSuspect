@@ -7,8 +7,6 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
   public class WitnessAnswerRequest
   {
     [SerializeField]
-    private int gameId;
-    [SerializeField]
     private bool witnessAnswer;
     [SerializeField]
     private short questionId;
@@ -17,12 +15,6 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
     {
 	    get => questionId;
 	    set => questionId = value;
-    }
-
-    public int GameId
-    {
-      get => gameId;
-      set => gameId = value;
     }
 
     public bool WitnessAnswer

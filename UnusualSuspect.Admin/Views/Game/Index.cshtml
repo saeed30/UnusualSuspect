@@ -19,7 +19,7 @@
         .Name("grid")
         .Columns(columns =>
         {
-          columns.Bound(c => c.Id).Title("شناسه").Filterable(false);
+          columns.Bound(c => c.Id).Title("شناسه");
           columns.Bound(c => c.GameType.Title).Title("نوع بازی");
           columns.Bound(c => c.CreateTimePersian).Title("زمان ایجاد");
           columns.Bound(c => c.Id).Title("جزئیات بازی").ClientTemplate("<a href='/Game/Details/#=Id#'>جزئیات</a>");

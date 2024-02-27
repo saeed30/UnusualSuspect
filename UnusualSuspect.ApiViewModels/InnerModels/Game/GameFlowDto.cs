@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.ApiViewModels.Enums;
 
 namespace UnusualSuspect.ApiViewModels.InnerModels.Game
 {
@@ -13,11 +14,11 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private List<short> activeCharacterIds;
     [SerializeField]
-    private bool? witnessLastAnswer;
+    private WitnessAnswer witnessLastAnswer;
     [SerializeField]
     private TurnOfPlayTalkingState? turnOfPlayTalkingState;
 
-    public bool? WitnessLastAnswer
+    public WitnessAnswer WitnessLastAnswer
     {
       get => witnessLastAnswer;
       set => witnessLastAnswer = value;
@@ -39,5 +40,23 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
       set => turnOfPlayTalkingState = value;
     }
 
+    //
+    public string WitnessAnswerTitle
+    {
+      get
+      {
+        switch (WitnessLastAnswer)
+        {
+          case WitnessAnswer.NoAnswer:
+            return "بدون جواب";
+          case WitnessAnswer.Yes:
+            return "بله";
+          case WitnessAnswer.No:
+            return "خیر";
+          default:
+            throw new ArgumentOutOfRangeException();
+        }
+      }
+    }
   }
 }

@@ -15,7 +15,7 @@ public sealed class GameGetEndpoint(IGameService gameService) : MyBaseEndpointAu
   [HttpGet("api/[namespace]/GameGet")]
   public override async Task<ActionResult<ApiResult<GameGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<GameGetResponse> game = await gameService.GetCurrentGameAsync(CurrentUser.UserId, cancellationToken);
+    UnusualSuspectServiceResult<GameGetResponse> game = await gameService.GetCurrentGameResponseAsync(CurrentUser.UserId, cancellationToken);
     return ReturnResult(game);
   }
 }

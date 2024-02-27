@@ -9,7 +9,7 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private int userId;
     [SerializeField]
-    private int? characterCardId;
+    private int characterCardId;
 
     public int UserId
     {
@@ -17,7 +17,7 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
       set => userId = value;
     }
 
-    public int? CharacterCardId
+    public int CharacterCardId
     {
       get => characterCardId;
       set => characterCardId = value;

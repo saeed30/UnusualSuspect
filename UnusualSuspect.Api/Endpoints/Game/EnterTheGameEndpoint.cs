@@ -17,7 +17,7 @@ public class EnterTheGameEndpoint(IGameService gameService, INotificationService
   [HttpGet("api/[namespace]/EnterTheGame")]
   public override async Task<ActionResult<ApiResult>> HandleAsync(string connectionId, CancellationToken cancellationToken = new CancellationToken())
   {
-    UnusualSuspectServiceResult<GameGetResponse> result = await gameService.GetCurrentGameAsync(CurrentUser.UserId, cancellationToken);
+    UnusualSuspectServiceResult<GameGetResponse> result = await gameService.GetCurrentGameResponseAsync(CurrentUser.UserId, cancellationToken);
     if (!result.Success)
       return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
     if (result.Result == null)
