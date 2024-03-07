@@ -29,10 +29,8 @@ public class ApplicationUser : IdentityUser<int>, IEntity<int>
 	public string? PatchImage { get; set; }
 	public DateTime DateCreate { get; set; }
 
-
-
-
 	public bool IsActive { set; get; }
+	public bool? IsMale { set; get; }
 
 	public string? Token { get; set; }
 	public string? PhoneNumberValidationCode { get; set; }

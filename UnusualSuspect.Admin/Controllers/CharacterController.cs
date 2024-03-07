@@ -36,11 +36,6 @@ public class CharacterController(ILogger<CharacterController> logger,
   {
     if (ModelState.IsValid)
     {
-      if (character.ImageFile != null && character.ImageFile.Length > 0)
-      {
-        character.ImageUrl = fileService.UploadFile(character.ImageFile, "/Files/Characters");
-      }
-
       characterService.AddCharacter(character);
       uow.SaveChanges();
     }
@@ -51,19 +46,9 @@ public class CharacterController(ILogger<CharacterController> logger,
   {
     if (character != null && ModelState.IsValid)
     {
-      // Upload and save the image file
-      if (character.ImageFile != null)
-      {
-        characterService.DeleteCharacterImageFileAsync(character).Wait();
-        character.ImageUrl = fileService.UploadFile(character.ImageFile, "/Files/Characters"); 
-      }
-
       characterService.UpdateCharacter(character);
       uow.SaveChanges();
     }
-
-    // Return the updated character.
-    // Also return any validation errors.
     return Json(new[] { character }.ToDataSourceResult(request, ModelState));
   }
   [HttpPost]
@@ -71,9 +56,6 @@ public class CharacterController(ILogger<CharacterController> logger,
   {
     if (character != null)
     {
-      //delete old file before insert new file
-      await characterService.DeleteCharacterImageFileAsync(character);
-
       characterService.DeleteCharacter(character);
       await uow.SaveChangesAsync();
     }

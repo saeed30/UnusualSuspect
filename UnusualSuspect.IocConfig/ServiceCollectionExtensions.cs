@@ -44,6 +44,8 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IPreGameService, PreGameService>();
     services.AddScoped<IGameService, GameService>();
     services.AddScoped<ICharacterService, CharacterService>();
+    services.AddScoped<IFriendService, FriendService>();
+    services.AddScoped<IStickerService, StickerService>();
     services.AddScoped<IJoinedPreGameRepository, JoinedPreGameRepository>();
     services.AddScoped<IGameRepository, GameRepository>();
     services.AddScoped<IParticipateRepository, ParticipateRepository>();
@@ -54,6 +56,8 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IQuestionGameRepository, QuestionGameRepository>();
     services.AddScoped<IQuestionRepository, QuestionRepository>();
     services.AddScoped<IGameCandidateRepository, GameCandidateRepository>();
+    services.AddScoped<IStickerRepository, StickerRepository>();
+    services.AddScoped<IFriendRepository, FriendRepository>();
     services.AddScoped<INotificationService, NotificationService>();
     services.AddScoped<IMemoryCacheService, MemoryCacheService>();
     services.AddScoped<ITurnOfPlayService, TurnOfPlayService>();

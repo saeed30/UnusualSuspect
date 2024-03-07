@@ -17,6 +17,7 @@ public sealed class GameHub(IGameService gameService,
   IParticipateRepository participateRepository,
   INotificationService notificationService,
   IMemoryCacheService memoryCacheService,
+  IStickerService stickerService,
   ILogger<GameHub> logger,
   ITurnOfPlayService turnOfPlayService) : Hub<IGameClient>, IGameHub
 {
@@ -84,6 +85,25 @@ public sealed class GameHub(IGameService gameService,
     }
   }
 
+  public async Task UseSticker(int stickerId, int gameId)
+  {
+    try
+    {
+      if (!UserId.HasValue)
+        return;
+      await Clients.Caller.ReceiveMessage("admin", "you called UseSticker");
+      var result = await stickerService.SendStickerToGroupAsync(UserId.Value, (short)stickerId, gameId);
+      if (!result.Success)
+        await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
+    }
+    catch (Exception exception)
+    {
+      ElmahExtensions.RaiseError(exception);
+      await Clients.Caller.ReceiveMessage("errorUseSticker", exception.Message);
+      throw;
+    }
+
+  }
   public async Task CandidateCard(int? cardId, int gameId)
   {
     try

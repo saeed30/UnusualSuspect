@@ -4,6 +4,7 @@ using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.DataLayer.Contracts;
+using System.Threading;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
@@ -15,6 +16,11 @@ public sealed class GameCandidateRepository(IUnitOfWork uow, ILogger<GameCandida
   public async Task<int> ExecuteDeleteAllGameCandidatesAsync(int gameId, CancellationToken cancellationToken = default)
   {
     return await gameCandidates.Where(x => x.GameId == gameId).ExecuteDeleteAsync(cancellationToken);
+  }
+
+  public async Task DeleteAllGameCandidatesAsync(int gameId, CancellationToken cancellationToken = default)
+  {
+    gameCandidates.RemoveRange(await gameCandidates.Where(x => x.GameId == gameId).ToListAsync(cancellationToken));
   }
 
   public async Task<List<GameCandidate>> GetAllGameCandidatesAsync(int gameId, CancellationToken cancellationToken = default)

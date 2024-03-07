@@ -60,6 +60,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 		//[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		modelBuilder.Entity<GameType>().Property(x => x.Id)
 				.ValueGeneratedNever();
+		modelBuilder.Entity<Sticker>().Property(x => x.Id)
+				.ValueGeneratedNever();
 	}
 
 	private void HasDataForEnumEntity<TEntity, TEnum>(ModelBuilder modelBuilder) where TEntity : BaseEnumEntity, new() where TEnum : Enum

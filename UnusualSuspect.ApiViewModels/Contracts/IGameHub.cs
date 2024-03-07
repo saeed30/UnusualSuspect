@@ -8,5 +8,6 @@ namespace UnusualSuspect.ApiViewModels.Contracts
     Task StartedToTalk(int gameId);
     Task FinishedTalking(int gameId);
     Task CandidateCard(int? cardId, int gameId);
+    Task UseSticker(int stickerId, int gameId);
   }
 }

@@ -9,6 +9,4 @@ public class CharacterCard : BaseEntity<short>
 	public string	Title { get; set; }
 	public bool IsActive { get; set; }
 	public string ImageUrl { get; set; }
-  [NotMapped]
-  public IFormFile ImageFile { set; get; }
 }

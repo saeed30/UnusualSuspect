@@ -12,7 +12,14 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 		private T userImage;
 		[SerializeField]
     private int? avatarId;
+		[SerializeField]
+    private bool? isMale;
 
+    public bool? IsMale
+    {
+      get => isMale;
+      set => isMale = value;
+    }
     public int? AvatarId
     {
       get => avatarId;

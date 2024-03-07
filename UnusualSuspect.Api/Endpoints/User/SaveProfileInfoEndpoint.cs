@@ -17,7 +17,7 @@ public sealed class SaveProfileInfoEndpoint(IApplicationUserManager iApplication
 .WithRequest<SaveProfileInfoRequest<IFormFile>>
 .WithActionResult<ApiResult>
 {
-  [HttpPost("api/[namespace]/SaveProfileInfoEndpoint")]
+  [HttpPost("api/[namespace]/SaveProfileInfo")]
 	public override async Task<ActionResult<ApiResult>> HandleAsync(SaveProfileInfoRequest<IFormFile> request, CancellationToken cancellationToken = default)
 	{
 		var user = await iApplicationUserManager.FindByNameAsync(CurrentUser.Username);
@@ -26,6 +26,7 @@ public sealed class SaveProfileInfoEndpoint(IApplicationUserManager iApplication
 		user.NickName = request.NickName;
 		user.ImageFile = request.UserImage;
     user.AvatarId = (short?)request.AvatarId;
+    user.IsMale = request.IsMale;
 		var result = await applicationUserService.EditApplicationUser(user, true);
 		if (!result.Success)
 			return new ApiResult(false, ApiResultStatusCode.ServerError, result.MessageList);

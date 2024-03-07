@@ -19,4 +19,5 @@ public interface IGameService
   Task<bool> GoToTalkingStatus(Game game);
   Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer, short questionId, int userId, CancellationToken cancellationToken = default);
+  Task<bool> IsGameParticipantAsync(int userId, int gameId, CancellationToken cancellationToken = default);
 }

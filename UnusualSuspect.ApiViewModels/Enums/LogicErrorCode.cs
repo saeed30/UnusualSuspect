@@ -68,5 +68,19 @@ namespace UnusualSuspect.ApiViewModels.Enums
     OnlyGroupOwnerCanRemoveOtherUsersFromGroup = 30,
 		[Display(Name = "شماره ارسال شده جهت پایان نوبت صحبت در حال صبحت نیست")]
 		UserCallingFinishTalkIsNotTalking = 31,
+		[Display(Name = "کد استیکر نامعتبر است")]
+    InvalidStickerId = 32,
+		[Display(Name = "استیکر فعال نیست")]
+    StickerIsNotActive = 33,
+		[Display(Name = "کد کاربری نا معتبر است")]
+    InvalidUserId = 34,
+    [Display(Name = "کد کاربری اعلام شده برای دوست نا معتبر است")]
+    InvalidUserIdForFriend = 35,
+    [Display(Name = "کاربر مورد نظر از پیش دوست کاربر بوده است")]
+    UserIsAlreadyFriendWithTargetUser = 36,
+    [Display(Name = "امکان اضافه کردن خود به عنوان دوست وجود ندارد")]
+    CanNotAddOwnAsFriend = 37,
+    [Display(Name = "کاربر انتخابی دوست کاربر جاری نیست")]
+    SpecifiedUserIsNotFriend = 38,
   }
 }

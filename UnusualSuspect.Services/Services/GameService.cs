@@ -11,6 +11,7 @@ using UnusualSuspect.DataLayer.Contracts;
 using Microsoft.Extensions.Options;
 using UnusualSuspect.ViewModels.Game;
 using UnusualSuspect.ViewModels.Settings;
+using UnusualSuspect.DataLayer.Repositories;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -24,7 +25,8 @@ public sealed class GameService(IUnitOfWork uow,
 	IQuestionGameRepository questionGameRepository,
 	IPreGameGroupRepository preGameGroupRepository,
 	IJoinedPreGameRepository joinedPreGameRepository,
-	IOptionsSnapshot<ProjectSetting> setting) : IGameService
+  IGameCandidateRepository gameCandidateRepository,
+  IOptionsSnapshot<ProjectSetting> setting) : IGameService
 {
 	public async Task<UnusualSuspectServiceResult<Game>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
 	{
@@ -156,6 +158,7 @@ public sealed class GameService(IUnitOfWork uow,
 				result = new UnusualSuspectServiceResult<bool?>((bool?)null);
 			}
 		}
+    await gameCandidateRepository.DeleteAllGameCandidatesAsync(gameId, cancellationToken);
 		await notificationService.SendSignalToGameGroup(gameId, SignalCommands.NewCardWasChosen);
 		memoryCacheService.ClearGameWithDetails(gameId);
 		return result;
@@ -236,7 +239,12 @@ public sealed class GameService(IUnitOfWork uow,
 		return new UnusualSuspectServiceResult<bool>(true);
 	}
 
-	private async Task<bool> HasSpecificRoleInTheGame(int gameId, int userId, RoleCardEnum roleCard, CancellationToken cancellationToken = default)
+  public async Task<bool> IsGameParticipantAsync(int userId, int gameId, CancellationToken cancellationToken = default)
+  {
+    return await participateRepository.IsGameParticipantAsync(gameId, userId, cancellationToken);
+  }
+
+  private async Task<bool> HasSpecificRoleInTheGame(int gameId, int userId, RoleCardEnum roleCard, CancellationToken cancellationToken = default)
 	{
 		var role = await participateRepository.GetParticipantRoleAsync(gameId, userId, cancellationToken);
 		if (role == null)

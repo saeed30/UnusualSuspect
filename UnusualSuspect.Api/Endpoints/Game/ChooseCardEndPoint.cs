@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
+using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Services;
 using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.Game;
 
-public class ChooseCardEndpoint(IGameService gameService, INotificationService notificationService) : MyBaseEndpointAuthenticated
+public class ChooseCardEndpoint(IGameService gameService, INotificationService notificationService,
+  IMemoryCacheService memoryCacheService) : MyBaseEndpointAuthenticated
   .WithRequest<ChooseCardRequest>
   .WithActionResult<ApiResult<ChooseCardResponse>>
 {
@@ -20,7 +22,8 @@ public class ChooseCardEndpoint(IGameService gameService, INotificationService n
     if (!result.Success)
       return new ApiResult<ChooseCardResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
     await gameService.SaveChangesAsync(cancellationToken);
-    if(result.Result.HasValue)
+		memoryCacheService.ClearGameWithDetails(request.GameId);
+    if (result.Result.HasValue)
       await notificationService.RemoveAllUsersFromGame(request.GameId);
     return new ApiResult<ChooseCardResponse>(true, ApiResultStatusCode.Success, new ChooseCardResponse()
     {

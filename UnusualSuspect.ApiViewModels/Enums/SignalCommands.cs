@@ -30,5 +30,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     WitnessAnswered = 12,
 		[Display(Name = "کاربر از گروه قبل بازی خارج شد")]
     UserWasRemovedFromPreGameGroup = 13,
+		[Display(Name = "کاربر استیکر ارسال کرد")]
+    SendSticker = 14,
   }
 }

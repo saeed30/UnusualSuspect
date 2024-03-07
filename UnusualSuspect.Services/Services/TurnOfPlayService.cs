@@ -61,7 +61,6 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
       await notificationService.SendSignalToGameGroup(gameId, SignalCommands.EndOfTalking, gameId);
       await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForMainDetectiveToChoose, cancellationToken);
       await gameRepository.SaveChangesAsync(cancellationToken);
-      await gameCandidateRepository.ExecuteDeleteAllGameCandidatesAsync(gameId, cancellationToken);
       memoryCacheService.ClearGameWithDetails(gameId);
       return new UnusualSuspectServiceResult<bool>(false);
     }

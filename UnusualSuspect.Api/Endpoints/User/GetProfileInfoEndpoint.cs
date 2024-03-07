@@ -39,7 +39,8 @@ public sealed class GetProfileInfoEndpoint(IApplicationUserManager iApplicationU
 		{
 			NickName = user.NickName,
 			UserImageDocumentGuidKey = userImageDocumentGuidKey,
-			AvatarId = user.AvatarId
+			AvatarId = user.AvatarId,
+			IsMale = user.IsMale
 		});
 	}
 }
