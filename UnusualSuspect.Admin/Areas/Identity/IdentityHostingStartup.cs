@@ -1,12 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-[assembly: HostingStartup(typeof(UnusualSuspect.Admin.Areas.Identity.IdentityHostingStartup))]
+﻿[assembly: HostingStartup(typeof(UnusualSuspect.Admin.Areas.Identity.IdentityHostingStartup))]
 namespace UnusualSuspect.Admin.Areas.Identity;
 public class IdentityHostingStartup : IHostingStartup
 {

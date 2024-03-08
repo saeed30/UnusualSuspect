@@ -1,17 +1,6 @@
-﻿using UnusualSuspect.DataLayer;
-using UnusualSuspect.Entities.Identity;
-using UnusualSuspect.Entities.Models;
+﻿using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.Services.Services;
-using UnusualSuspect.ViewModels.Settings;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace UnusualSuspect.Admin.Controllers;
 

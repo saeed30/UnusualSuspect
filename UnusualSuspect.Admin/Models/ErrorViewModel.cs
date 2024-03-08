@@ -1,5 +1,3 @@
-using System;
-
 namespace UnusualSuspect.Admin.Models;
 
 public class ErrorViewModel

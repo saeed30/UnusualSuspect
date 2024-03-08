@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace UnusualSuspect.Admin.Infrastructure;
+﻿namespace UnusualSuspect.Admin.Infrastructure;
 
 [Serializable]
 public class Alert

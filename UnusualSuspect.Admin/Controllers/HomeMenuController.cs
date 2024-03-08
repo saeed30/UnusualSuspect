@@ -5,12 +5,7 @@ using UnusualSuspect.Common.Attribute;
 using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Services.IServices;
 using UnusualSuspect.Services.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace UnusualSuspect.Admin.Controllers;
 

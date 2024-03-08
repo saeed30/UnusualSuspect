@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Kendo.Mvc.Extensions;
+﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using UnusualSuspect.Admin.Models;
 using UnusualSuspect.Common;
@@ -19,25 +16,12 @@ namespace UnusualSuspect.Admin.Controllers;
 
 [Authorize(Roles = "Admin")]
 [PersianTitle("مدیریت دسترسی ها")]
-public class AccessManagementController : Controller
+public class AccessManagementController(IUploadServise uploadServise,
+    IAccessManagmentService accessManagmentService,
+    IApplicationUserService applicationUserService,
+    IApplicationRoleService applicationRoleService)
+  : Controller
 {
-    public readonly IUploadServise _IuploadServise;
-    public readonly IAccessManagmentService accessManagmentService;
-    public readonly IApplicationUserService applicationUserService;
-    public readonly IApplicationRoleService applicationRoleService;
-
-    public AccessManagementController(IUploadServise IUploadServise,
-                                      IAccessManagmentService _accessManagmentService,
-                                      IApplicationUserService _applicationUserService,
-                                      IApplicationRoleService _applicationRoleService)
-    {
-        _IuploadServise = IUploadServise;
-        accessManagmentService = _accessManagmentService;
-        applicationUserService = _applicationUserService;
-        applicationRoleService = _applicationRoleService;
-    }
-
-
 
     #region مدیریت نقش ها
 

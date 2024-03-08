@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
-using UnusualSuspect.DataLayer.Contracts;
-using System.Threading;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 

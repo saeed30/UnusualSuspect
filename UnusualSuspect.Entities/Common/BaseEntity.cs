@@ -15,7 +15,7 @@ public abstract class BaseEntity<TKey> : IEntity<TKey>
 {
     public TKey Id { get; set; }
     [NotMapped]
-    public string UserName { set; get; }
+    public string? UserName { set; get; }
 }
 
 public abstract class BaseEntity : BaseEntity<int>

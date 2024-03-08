@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using UnusualSuspect.Entities.Models;
 
 namespace UnusualSuspect.Admin.Infrastructure;
 

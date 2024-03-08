@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.ViewModels.Settings;
 using UnusualSuspect.Services.JcoSecurity;
@@ -19,26 +12,13 @@ using UnusualSuspect.Services.Services;
 namespace UnusualSuspect.Admin.Areas.Identity.Pages.Account;
 
 [AllowAnonymous]
-public class LoginModel : PageModel
+public class LoginModel(SignInManager<ApplicationUser> signInManager,
+    ILogger<LoginModel> logger,
+    IAccessManagmentService accessManagmentService,
+    ICustomeMenuService customeMenuService,
+    UserManager<ApplicationUser> userManager)
+  : PageModel
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly ILogger<LoginModel> _logger;
-    private readonly IAccessManagmentService  accessManagmentService;
-    private readonly ICustomeMenuService  customeMenuService;
-
-    public LoginModel(SignInManager<ApplicationUser> signInManager,
-        ILogger<LoginModel> logger,
-        IAccessManagmentService _accessManagmentService,
-        ICustomeMenuService _customeMenuService,
-        UserManager<ApplicationUser> userManager)
-    {
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _logger = logger;
-        accessManagmentService = _accessManagmentService;
-        customeMenuService = _customeMenuService;
-    }
 
     [BindProperty]
     public InputModel Input { get; set; }
@@ -77,7 +57,7 @@ public class LoginModel : PageModel
         // Clear the existing external cookie to ensure a clean login process
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-        ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
         ReturnUrl = returnUrl;
 
@@ -102,24 +82,24 @@ public class LoginModel : PageModel
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.PhoneNumber, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var result = await signInManager.PasswordSignInAsync(Input.PhoneNumber, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    var UserOB = await _userManager.FindByNameAsync(Input.PhoneNumber);
-                    if (UserOB.PhoneNumberConfirmed == false)
+                    var userOb = await userManager.FindByNameAsync(Input.PhoneNumber);
+                    if (userOb.PhoneNumberConfirmed == false)
                     {
-                        await _signInManager.SignOutAsync();
+                        await signInManager.SignOutAsync();
                         return new JsonResult(new ResultAction
                         {
                             Success = false,
-                            Url = Url.Action("ConfirmPhoneNumber", "Account", new { area = "Identity", returnUrl, userId = UserOB.Id }),
+                            Url = Url.Action("ConfirmPhoneNumber", "Account", new { area = "Identity", returnUrl, userId = userOb.Id }),
                             MessageList = $"شماره همراه شما اعتبار سنجی نشده است . لطفا جهت اعتبارسنجی بر روی لینک اعتبار سنجی کلیک کنید",
                             Params1 = "phonenumber-validation"
                         });
                     }
-                    if (await _signInManager.UserManager.IsInRoleAsync(UserOB, "Admin") )
+                    if (await signInManager.UserManager.IsInRoleAsync(userOb, "Admin") )
                         return new JsonResult(new ResultAction { Success = true, Url = Url.Action("Index", "Dashboard") });
-                    if (await _signInManager.UserManager.IsInRoleAsync(UserOB, "AdminPanelUserRole"))
+                    if (await signInManager.UserManager.IsInRoleAsync(userOb, "AdminPanelUserRole"))
                     {
                         var resultAction = customeMenuService.ReturnUserMenus(Input.PhoneNumber, false).Result.FirstOrDefault();// user.ActionForUsers.FirstOrDefault(x=>x.AmAction);
                         if (resultAction != null)
@@ -137,7 +117,7 @@ public class LoginModel : PageModel
                                 Message = "دسترسی  شما به سامانه تعریف نشده است ، برای پیگیری وضعیت حساب کاربری خود با مدیریت تماس بگیرید"
                             });
                     }
-                    else if (await _signInManager.UserManager.IsInRoleAsync(UserOB, "CustomerRole"))
+                    else if (await signInManager.UserManager.IsInRoleAsync(userOb, "CustomerRole"))
                         return new JsonResult(new ResultAction { Success = true, Url = string.IsNullOrEmpty(returnUrl) ? Url.Action("Index", "Profile", new { area = "CustomerPanel" }) : returnUrl });
                     else
                         return new JsonResult(new ResultAction { Success = true, Url = returnUrl });

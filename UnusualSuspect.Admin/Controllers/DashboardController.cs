@@ -1,10 +1,6 @@
 ﻿using UnusualSuspect.Admin.Models;
 using UnusualSuspect.Common.Attribute;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace UnusualSuspect.Admin.Controllers;
 

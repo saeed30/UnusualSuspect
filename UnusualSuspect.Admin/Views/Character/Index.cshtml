@@ -15,30 +15,30 @@
 <div class="card card-flush">
   <div class="card-body">
     @(Html.Kendo().Grid<CharacterCard>()
-      .Name("grid")
-      .Columns(columns =>
-      {
-        columns.Bound(c => c.Id).Title("شناسه");
-        columns.Bound(c => c.Title).Title("عنوان");
-          columns.Bound(c => c.IsActive).Title("فعال")
-            .ClientTemplate("<input type='checkbox' #= IsActive ? checked='checked' : '' # disabled='disabled' />");
-          columns.Bound(c => c.ImageUrl).Title("آدرس تصویر");
-        columns.Command(command =>
+        .Name("grid")
+        .Columns(columns =>
         {
-          command.Edit();
-          command.Destroy();
+          columns.Bound(c => c.Id).Title("شناسه");
+          columns.Bound(c => c.Title).Title("عنوان");
+          columns.Bound(c => c.IsActive).Title("فعال")
+          .ClientTemplate("<input type='checkbox' #= IsActive ? checked='checked' : '' # disabled='disabled' />");
+          columns.Bound(c => c.ImageUrl).Title("آدرس تصویر");
+          columns.Command(command =>
+          {
+            command.Edit();
+            command.Destroy();
           }).Title(" ").Width(200);
-      })
-      .ToolBar(toolbar => toolbar.Create())
-      .Editable(editable => editable.Mode(GridEditMode.InLine))
-      .Pageable(pager => pager
+        })
+        .ToolBar(toolbar => toolbar.Create())
+        .Editable(editable => editable.Mode(GridEditMode.InLine))
+        .Pageable(pager => pager
         .Input(true)
         .Info(true)
         .PreviousNext(true)
         .Refresh(true)
-      )
-      .Filterable().Sortable()
-      .DataSource(dataSource => dataSource
+        )
+        .Filterable().Sortable()
+        .DataSource(dataSource => dataSource
         .Custom()
         .PageSize(20)
         .Transport(model =>
@@ -48,10 +48,12 @@
         .Update(read => read.Action("Character_Update", "Character").Type(HttpVerbs.Post))
         .Destroy(read => read.Action("Character_Destroy", "Character").Type(HttpVerbs.Post))
         ).Schema(schema => schema
-          .Data("Data")
-          .Model(model => {
-            model.Id(p => p.Id);
-          })
+        .Data("Data")
+        .Model(model =>
+        {
+          model.Id(p => p.Id);
+          model.Field(p => p.Id).Editable(false);
+        })
         )
         ).HtmlAttributes(new { enctype = "multipart/form-data" }))
   </div>
