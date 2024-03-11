@@ -5,6 +5,7 @@ using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.ApiViewModels.InnerModels.Game;
+using UnusualSuspect.ApiViewModels.SignalCommandsData;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
@@ -143,7 +144,11 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
     await gameCandidateRepository.SaveChangesAsync();
     var newCandidates = await gameCandidateRepository.GetAllGameCandidatesAsync(gameId);
     await memoryCacheService.ResetGameCandidates(gameId, newCandidates);
-    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.CandidateCardChange, new KeyValuePair<int, short?>(userId, characterCardId));
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.CandidateCardChange, new CandidateCardChangeViewModel()
+    {
+      UserId = userId,
+      CharacterCardId = characterCardId
+    });
     return new UnusualSuspectServiceResult<bool>(true);
   }
 

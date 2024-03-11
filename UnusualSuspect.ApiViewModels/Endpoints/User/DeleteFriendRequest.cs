@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UnusualSuspect.ApiViewModels.Endpoints.User
+﻿namespace UnusualSuspect.ApiViewModels.Endpoints.User
 {
   public class DeleteFriendRequest
   {

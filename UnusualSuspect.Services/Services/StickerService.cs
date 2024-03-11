@@ -1,14 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.ApiViewModels.SignalCommandsData;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
-using UnusualSuspect.Services.SignalR;
 
 namespace UnusualSuspect.Services.Services
 {
@@ -22,13 +17,17 @@ namespace UnusualSuspect.Services.Services
       if (!await gameService.IsGameParticipantAsync(userId, gameId))
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
       Sticker? sticker = await stickerRepository.GetByIdAsync(stickerId);
-      if(sticker == null)
+      if (sticker == null)
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidStickerId));
-      if(!sticker.IsActive)
+      if (!sticker.IsActive)
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.StickerIsNotActive));
       if (!sticker.IsFree)
         ;//return error if user do not have access to it
-      await notificationService.SendSignalToGameGroup(gameId, SignalCommands.SendSticker, stickerId);
+      await notificationService.SendSignalToGameGroup(gameId, SignalCommands.SendSticker, new SendStickerViewModel()
+      {
+        StickerId = stickerId,
+        UserId = userId
+      });
       return new UnusualSuspectServiceResult<bool>(true);
     }
   }
