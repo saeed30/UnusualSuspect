@@ -47,8 +47,6 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 		private DateTime talkingTurnStartedTime;
 		[SerializeField]
 		private DateTime currentUserTurnStartedTime;
-		[SerializeField]
-		private List<CandidateCardDto> candidateCard;
 
 		public int TimeToTalkInSeconds
 		{
@@ -80,10 +78,5 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 			set => currentUserTurnStartedTime = value;
 		}
 
-		public List<CandidateCardDto> CandidateCard
-		{
-			get => candidateCard;
-			set => candidateCard = value;
-		}
 	}
 }

@@ -9,13 +9,13 @@ using UnusualSuspect.Services.Contracts;
 namespace UnusualSuspect.Api.Endpoints.Game;
 
 public sealed class GameGetEndpoint(IGameService gameService) : MyBaseEndpointAuthenticated
-  .WithoutRequest
+  .WithRequest<int>
   .WithActionResult<ApiResult<GameGetResponse>>
 {
   [HttpGet("api/[namespace]/GameGet")]
-  public override async Task<ActionResult<ApiResult<GameGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResult<GameGetResponse>>> HandleAsync(int gameId, CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<GameGetResponse> game = await gameService.GetCurrentGameResponseAsync(CurrentUser.UserId, cancellationToken);
+    UnusualSuspectServiceResult<GameGetResponse> game = await gameService.GetGameResponseAsync(CurrentUser.UserId, gameId, cancellationToken);
     return ReturnResult(game);
   }
 }

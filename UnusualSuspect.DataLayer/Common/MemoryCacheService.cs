@@ -99,58 +99,58 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
     return groupName + "UserSignalRGroups";
   }
 
-	#endregion UserSignalRGroups
+  #endregion UserSignalRGroups
 
-	//#region TurnOfPlay
-	//public async Task<TurnOfPlayGetResponse?> GetTurnOfPlay(int gameId)
-	//{
-	//  var groups = await cache.GetOrCreateAsync(GetTurnOfPlayKey(gameId), entry =>
-	//  {
-	//    // Set the cache options for the entry
-	//    entry.SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes);
-	//    entry.Priority = CacheItemPriority.High;
-	//    entry.Size = 1;
+  //#region TurnOfPlay
+  //public async Task<TurnOfPlayGetResponse?> GetTurnOfPlay(int gameId)
+  //{
+  //  var groups = await cache.GetOrCreateAsync(GetTurnOfPlayKey(gameId), entry =>
+  //  {
+  //    // Set the cache options for the entry
+  //    entry.SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes);
+  //    entry.Priority = CacheItemPriority.High;
+  //    entry.Size = 1;
 
-	//    return Task.FromResult((TurnOfPlayGetResponse?)null);
-	//  });
-	//  return groups;
-	//}
-	//public void SetTurnOfPlay(int gameId, TurnOfPlayGetResponse model)
-	//{
-	//  cache.Set(GetTurnOfPlayKey(gameId), model, new MemoryCacheEntryOptions()
-	//  {
-	//    Priority = CacheItemPriority.High,
-	//    SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes),
-	//    Size = 1
-	//  });
-	//}
-	//private string GetTurnOfPlayKey(int gameId)
-	//{
-	//  return gameId + "TurnOfPlay";
-	//}
-	//#endregion TurnOfPlay
-	public async Task ResetTurnOfPlay(int gameId, TurnOfPlayTalkingState model, CancellationToken cancellationToken = default)
+  //    return Task.FromResult((TurnOfPlayGetResponse?)null);
+  //  });
+  //  return groups;
+  //}
+  //public void SetTurnOfPlay(int gameId, TurnOfPlayGetResponse model)
+  //{
+  //  cache.Set(GetTurnOfPlayKey(gameId), model, new MemoryCacheEntryOptions()
+  //  {
+  //    Priority = CacheItemPriority.High,
+  //    SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes),
+  //    Size = 1
+  //  });
+  //}
+  //private string GetTurnOfPlayKey(int gameId)
+  //{
+  //  return gameId + "TurnOfPlay";
+  //}
+  //#endregion TurnOfPlay
+  public async Task ResetTurnOfPlay(int gameId, TurnOfPlayTalkingState model, CancellationToken cancellationToken = default)
   {
-	  Game? game = await GetGameWithDetails(gameId, cancellationToken);
-    if(game == null)
+    Game? game = await GetGameWithDetails(gameId, cancellationToken);
+    if (game == null)
       return;
     game.TalkingTurnStartedTime = model.TalkingTurnStartedTime;
     game.CurrentUserTurnStartedTime = model.CurrentUserTurnStartedTime;
     game.OrderOfParticipationTalkBeginner = model.OrderOfParticipationTalkBeginner;
     game.OrderOfParticipationTurnToTalk = model.OrderOfParticipationTurnToTalk;
 
-		SetGameWithDetails(game);
+    SetGameWithDetails(game);
   }
 
   public async Task ResetGameCandidates(int gameId, List<GameCandidate> model,
-	  CancellationToken cancellationToken = default)
+    CancellationToken cancellationToken = default)
   {
-	  Game? game = await GetGameWithDetails(gameId, cancellationToken);
-	  if (game == null)
-		  return;
-	  game.GameCandidates = model;
-	  SetGameWithDetails(game);
-	}
+    Game? game = await GetGameWithDetails(gameId, cancellationToken);
+    if (game == null)
+      return;
+    game.GameCandidates = model;
+    SetGameWithDetails(game);
+  }
 
 
   #region GameWithDetails

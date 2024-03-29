@@ -1,4 +1,5 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.ViewModels.Game;
 
@@ -9,7 +10,7 @@ public interface IGameService
   Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<Game>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<Game>> GetCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default);
-  Task<UnusualSuspectServiceResult<GameGetResponse>> GetCurrentGameResponseAsync(int userId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<GameGetResponse>> GetGameResponseAsync(int userId, int? gameId = null, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> LeaveCurrentGameAsync(int userId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> LeaveGameAsync(int gameId, int userId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default);
@@ -20,4 +21,5 @@ public interface IGameService
   Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer, short questionId, int userId, CancellationToken cancellationToken = default);
   Task<bool> IsGameParticipantAsync(int userId, int gameId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<GameStatisticsDto>> GetGameStatisticsAsync(int userId, CancellationToken cancellationToken = default);
 }

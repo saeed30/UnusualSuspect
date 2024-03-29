@@ -25,25 +25,13 @@ public static class GameMapper
         !value.TalkingTurnStartedTime.HasValue ||
         !value.CurrentUserTurnStartedTime.HasValue)
       return null;
-    List<CandidateCardDto> candidates = new List<CandidateCardDto>();
-    foreach (var item in value.GameCandidates)
-    {
-      if (candidates.Any(x => x.UserId == item.UserId))
-        continue;
-      candidates.Add(new CandidateCardDto()
-      {
-        UserId = item.UserId,
-        CharacterCardId = item.CharacterCardId
-      });
-    }
     return new TurnOfPlayTalkingState()
     {
       TimeToTalkInSeconds = timeToTalkInSeconds,
       OrderOfParticipationTurnToTalk = value.OrderOfParticipationTurnToTalk.Value,
       CurrentUserTurnStartedTime = value.CurrentUserTurnStartedTime.Value,
       OrderOfParticipationTalkBeginner = value.OrderOfParticipationTalkBeginner.Value,
-      TalkingTurnStartedTime = value.TalkingTurnStartedTime.Value,
-      CandidateCard = candidates
+      TalkingTurnStartedTime = value.TalkingTurnStartedTime.Value
     };
   }
   public static TurnOfPlayGetResponse ToTurnOfPlayGetResponse(this Game value, int timeToTalkInSeconds)
@@ -65,12 +53,24 @@ public static class GameMapper
   }
   public static GameFlowDto ToGameFlowDto(this Game value, int timeToTalkInSeconds)
   {
+    List<CandidateCardDto> candidates = new List<CandidateCardDto>();
+    foreach (var item in value.GameCandidates)
+    {
+      if (candidates.Any(x => x.UserId == item.UserId))
+        continue;
+      candidates.Add(new CandidateCardDto()
+      {
+        UserId = item.UserId,
+        CharacterCardId = item.CharacterCardId
+      });
+    }
     return new GameFlowDto()
     {
       Id = value.Id,
       ActiveCharacterIds = value.CharacterCardGames.Where(x => x.IsActive).Select(x => x.CharacterCardId).ToList(),
       TurnOfPlayTalkingState = value.GameStatusId == (short)GameStatusEnum.Talking ? value.ToTurnOfPlayTalkingState(timeToTalkInSeconds) : null,
-      WitnessLastAnswer = (value.WitnessLastAnswer.HasValue ? (value.WitnessLastAnswer.Value ? WitnessAnswer.Yes : WitnessAnswer.No) : WitnessAnswer.NoAnswer)
+      WitnessLastAnswer = (value.WitnessLastAnswer.HasValue ? (value.WitnessLastAnswer.Value ? WitnessAnswer.Yes : WitnessAnswer.No) : WitnessAnswer.NoAnswer),
+      CandidateCard = candidates
     };
   }
 }

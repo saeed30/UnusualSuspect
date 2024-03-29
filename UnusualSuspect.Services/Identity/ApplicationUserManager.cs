@@ -1,4 +1,5 @@
-﻿using UnusualSuspect.DataLayer;
+﻿using System.Reflection.Metadata;
+using UnusualSuspect.DataLayer;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.ViewModels.Api.User;
@@ -12,68 +13,39 @@ using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Identity;
 
-public class ApplicationUserManager : IApplicationUserManager
+public class ApplicationUserManager(UserManager<ApplicationUser> userManager,
+    IApplicationRoleService roleManager,
+    IOptions<IdentityOptions> optionsAccessor,
+    IPasswordHasher<ApplicationUser> passwordHasher,
+    IEnumerable<IUserValidator<ApplicationUser>> userValidators,
+    IEnumerable<IPasswordValidator<ApplicationUser>> passwordValidators,
+    ILookupNormalizer keyNormalizer,
+    IdentityErrorDescriber errors,
+    IServiceProvider services,
+    ILogger<ApplicationUserManager> logger,
+    IHttpContextAccessor contextAccessor,
+    IUnitOfWork uow)
+  : IApplicationUserManager
 {
-    private readonly IHttpContextAccessor _contextAccessor;
-    private readonly IUnitOfWork _uow;
-    private readonly IdentityErrorDescriber _errors;
-    private readonly ILookupNormalizer _keyNormalizer;
-    private readonly ILogger<ApplicationUserManager> _logger;
-    private readonly IOptions<IdentityOptions> _optionsAccessor;
-    private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
-    private readonly IEnumerable<IPasswordValidator<ApplicationUser>> _passwordValidators;
-    private readonly IServiceProvider _services;
-    private readonly DbSet<ApplicationUser> _users;
-    private readonly DbSet<Role> _roles;
-    private readonly IEnumerable<IUserValidator<ApplicationUser>> _userValidators;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IApplicationRoleService _roleManager;
-
-    public ApplicationUserManager(
-        UserManager<ApplicationUser> userManager,
-        IApplicationRoleService roleManager,
-        IOptions<IdentityOptions> optionsAccessor,
-        IPasswordHasher<ApplicationUser> passwordHasher,
-        IEnumerable<IUserValidator<ApplicationUser>> userValidators,
-        IEnumerable<IPasswordValidator<ApplicationUser>> passwordValidators,
-        ILookupNormalizer keyNormalizer,
-        IdentityErrorDescriber errors,
-        IServiceProvider services,
-        ILogger<ApplicationUserManager> logger,
-        IHttpContextAccessor contextAccessor,
-        IUnitOfWork uow)
-    {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-        _optionsAccessor = optionsAccessor ?? throw new ArgumentNullException(nameof(_optionsAccessor));
-        _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(_passwordHasher));
-        _userValidators = userValidators ?? throw new ArgumentNullException(nameof(_userValidators));
-        _passwordValidators = passwordValidators ?? throw new ArgumentNullException(nameof(_passwordValidators));
-        _keyNormalizer = keyNormalizer ?? throw new ArgumentNullException(nameof(_keyNormalizer));
-        _errors = errors ?? throw new ArgumentNullException(nameof(_errors));
-        _services = services ?? throw new ArgumentNullException(nameof(_services));
-        _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
-        _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(_contextAccessor));
-        _uow = uow ?? throw new ArgumentNullException(nameof(_uow));
-        _users = uow.Set<ApplicationUser>();
-        _roles = uow.Set<Role>();
-    }
+    private readonly DbSet<ApplicationUser> users = uow.Set<ApplicationUser>();
+    private readonly DbSet<Role> roles = uow.Set<Role>();
+    private readonly DbSet<UnusualSuspect.Entities.Models.Document> documents = uow.Set<UnusualSuspect.Entities.Models.Document>();
 
     public async Task<IdentityResult> AddToRoleAsync(ApplicationUser adminUser, string name)
     {
-        bool ExistRols = await _roleManager.RoleExistsAsync(name);
-        if (ExistRols) return IdentityResult.Success;
-        return await _userManager.AddToRoleAsync(adminUser, name);
+        bool existRols = await roleManager.RoleExistsAsync(name);
+        if (existRols) return IdentityResult.Success;
+        return await userManager.AddToRoleAsync(adminUser, name);
     }
 
     public async Task<IdentityResult> AddUserToRoleAsync(ApplicationUser user, string rolename)
     {
-        bool ExistRols = await _roleManager.RoleExistsAsync(rolename);
-        if (!ExistRols)
+        bool existRols = await roleManager.RoleExistsAsync(rolename);
+        if (!existRols)
             return IdentityResult.Failed(new IdentityError() { Description = "this role not exist!!!", Code = "-1" });
 
-        if (!await _userManager.IsInRoleAsync(user, rolename))
-            return await _userManager.AddToRoleAsync(user, rolename);
+        if (!await userManager.IsInRoleAsync(user, rolename))
+            return await userManager.AddToRoleAsync(user, rolename);
         else
             return IdentityResult.Failed(new IdentityError() { Description = "System Canot Add This user to this Role", Code = "-1" });
     }
@@ -82,7 +54,7 @@ public class ApplicationUserManager : IApplicationUserManager
     {
         try
         {
-            return await _userManager.IsInRoleAsync(user, rolename);
+            return await userManager.IsInRoleAsync(user, rolename);
         }
         catch// (Exception e)
         {
@@ -92,40 +64,40 @@ public class ApplicationUserManager : IApplicationUserManager
 
     public async Task<IdentityResult> CreateAsync(ApplicationUser user, string password)
     {
-        return await _userManager.CreateAsync(user, password);
+        return await userManager.CreateAsync(user, password);
     }
     public async Task<IdentityResult> AddPasswordAsync(ApplicationUser user, string password)
     {
-        return await _userManager.AddPasswordAsync(user, password);
+        return await userManager.AddPasswordAsync(user, password);
     }
     public async Task<IdentityResult> DeleteAsync(ApplicationUser user)
     {
-        return await _userManager.DeleteAsync(user);
+        return await userManager.DeleteAsync(user);
     }
 
     public async Task<ApplicationUser?> FindByIdAsync(string id)
     {
-        return await _userManager.FindByIdAsync(id);
+        return await userManager.FindByIdAsync(id);
     }
 
     public async Task<ApplicationUser?> FindByNameAsync(string name)
     {
-        return await _userManager.FindByNameAsync(name);
+        return await userManager.FindByNameAsync(name);
     }
     public async Task SetFireBaseToken(ApplicationUser user, string token, CancellationToken cancellationToken)
     {
         user.FireBaseToken = token;
-        await _uow.SaveChangesAsync();
+        await uow.SaveChangesAsync();
     }
 
     public Task<IdentityResult> SetLockoutEnabledAsync(ApplicationUser adminUser, bool enabled)
     {
-        return _userManager.SetLockoutEnabledAsync(adminUser, enabled);
+        return userManager.SetLockoutEnabledAsync(adminUser, enabled);
     }
 
     public Task<IdentityResult> UpdateAsync(ApplicationUser user)
     {
-        return _userManager.UpdateAsync(user);
+        return userManager.UpdateAsync(user);
     }
 
     public Task UpdateLastLoginDateAsync(ApplicationUser user)
@@ -135,26 +107,26 @@ public class ApplicationUserManager : IApplicationUserManager
     }
     public async Task UpdateAppInfoAsync(RegisterMobileViewModel model, ApplicationUser currentUser)
     {
-        await _userManager.UpdateAsync(currentUser);
+        await userManager.UpdateAsync(currentUser);
     }
 
     public async Task<UserProfileViewModel> GetProfileAsync(int userId)
     {
-        var User = await FindByIdAsync(userId.ToString());
+        var user = await FindByIdAsync(userId.ToString());
         return new UserProfileViewModel()
         {
 
-            FirstName = User.FirstName,
+            FirstName = user.FirstName,
         };
     }
-    public ApplicationUser DetailsUserWithPhoneNumber(string PhoneNumber)
+    public ApplicationUser DetailsUserWithPhoneNumber(string phoneNumber)
     {
-        return _users.FirstOrDefault(x => x.PhoneNumber == PhoneNumber || x.UserName == PhoneNumber);
+        return users.FirstOrDefault(x => x.PhoneNumber == phoneNumber || x.UserName == phoneNumber);
     }
 
     public ApplicationUser FindByName(string username)
     {
-        return _users.SingleOrDefault(x => x.UserName == username);
+        return users.SingleOrDefault(x => x.UserName == username);
     }
     public async Task<ResultAction> EditPassword(ApplicationUser model)
     {
@@ -182,14 +154,14 @@ public class ApplicationUserManager : IApplicationUserManager
                 MessageList = "کلمه عبور جدید و تکرار آن مطابقت ندارد !"
             };
 
-        var currentUser = await _userManager.FindByNameAsync(model.UserName);
+        var currentUser = await userManager.FindByNameAsync(model.UserName);
         if (currentUser == null)
             return new ResultAction()
             {
                 Success = false,
                 MessageList = "حساب کاربری یافت نشد!"
             };
-        var result = await _userManager.ChangePasswordAsync(currentUser, model.OldPassword, model.Password);
+        var result = await userManager.ChangePasswordAsync(currentUser, model.OldPassword, model.Password);
         if (result.Succeeded)
             return new ResultAction()
             {
@@ -205,5 +177,4 @@ public class ApplicationUserManager : IApplicationUserManager
             failResult.MessageList += error.Description + ". ";
         return failResult;
     }
-
 }

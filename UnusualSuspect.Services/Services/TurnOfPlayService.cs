@@ -101,7 +101,7 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
     TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState(setting.Value.GameSetting.TimeToTalkInSeconds);
     if (model == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
-    var candidates = model.CandidateCard;
+    var candidates = game.GameCandidates;
     var candid = candidates.FirstOrDefault(x => x.UserId == userId);
     if (candid != null)
     {
@@ -110,16 +110,10 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
       {
         if (characterCardId.Value == oldChoice)
           return new UnusualSuspectServiceResult<bool>(false);
-        candidates.Add(new CandidateCardDto()
-        {
-          UserId = userId,
-          CharacterCardId = characterCardId.Value
-        });
         await gameCandidateRepository.ChangeUserCandidateInGameAsync(gameId, userId, characterCardId.Value);
       }
       else
       {
-        candidates.Remove(candid);
         await gameCandidateRepository.DeleteUserCandidatesInGameAsync(gameId, userId);
       }
     }
@@ -127,11 +121,6 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
     {
       if (!characterCardId.HasValue)
         return new UnusualSuspectServiceResult<bool>(false);
-      candidates.Add(new CandidateCardDto()
-      {
-        UserId = userId,
-        CharacterCardId = characterCardId.Value
-      });
       gameCandidateRepository.Add(new GameCandidate()
       {
         CharacterCardId = characterCardId.Value,
@@ -140,7 +129,6 @@ public sealed class TurnOfPlayService(IMemoryCacheService memoryCacheService,
         DateTimeAdded = DateTime.Now
       });
     }
-    model.CandidateCard = candidates;
     await gameCandidateRepository.SaveChangesAsync();
     var newCandidates = await gameCandidateRepository.GetAllGameCandidatesAsync(gameId);
     await memoryCacheService.ResetGameCandidates(gameId, newCandidates);

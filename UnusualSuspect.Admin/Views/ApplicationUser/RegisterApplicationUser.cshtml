@@ -22,10 +22,15 @@
     .Columns(columns =>
     {
         //columns.Bound(c => c.PatchImage).ClientTemplate("# if(ApplicationUser.PatchImage==null){ #  #}else{# <img src='/media/UserImage/#=ApplicationUser.PatchImage#'  width='40'/>#}#").Title("تصویر کاربر");
+        columns.Bound(c => c.UserId).Title("کد کاربر");
         columns.Bound(c => c.FirstName).Title("نام");
         columns.Bound(c => c.LastName).Title("نام خانوادگی");
         columns.Bound(c => c.RoleNamesFa).Title("نقش ");
         columns.Bound(c => c.PhoneNumber).Title("شماره همراه");
+        columns.Bound(c => c.NickName).Title("نام مستعار");
+        columns.Bound(c => c.IsActive).Title("فعال");
+        columns.Bound(c => c.AvatarId).Title("کد آواتار");
+        columns.Bound(c => c.DocumentGuid).Title("کد تصویر");
 
         //columns.Bound(p => p.Id).ClientTemplate("<a class='k-button k-button-icontext' href='/AccessManagement/EditAccess?UserName=#=ApplicationUser.UserName#&SoftSectionId=1'><i class='fas fa-bolt text-primary'></i></a>").Title(" ").Filterable(false).Width(50);
         columns.Bound(p => p.UserId).ClientTemplate("<button type='button' class='k-button k-button-icontext EditItem' data-id='#=UserId#' data-type='0' data-remote='/ApplicationUser/CreateCustomerUser?UserId=#=UserId#'><i class='fas fa-edit text-primary'></i></button>").Title(" ").Filterable(false).Width(50);

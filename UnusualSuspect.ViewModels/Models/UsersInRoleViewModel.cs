@@ -16,8 +16,13 @@ public class UsersInRoleViewModel
     public string PhoneNumber { get; set; }
     
     public string LastName { get; set; }
-    public string Role { get; set; }
-    public string RoleNamesFa { get; set; }
-    
+    public Guid? DocumentGuid { get; set; }
+    public bool IsActive { set; get; }
+    public string? NickName { get; set; }
+    public short? AvatarId { get; set; }
+
+  public string Role { get; set; }
+  public string RoleNamesFa { get; set; }
+
 }
 

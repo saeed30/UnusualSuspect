@@ -6,24 +6,23 @@ using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services;
 using UnusualSuspect.Services.Contracts;
-using UnusualSuspect.Services.Services;
 
 namespace UnusualSuspect.Api.Endpoints.Game;
 
 public class EnterTheGameEndpoint(IGameService gameService, INotificationService notificationService) : MyBaseEndpointAuthenticated
-  .WithRequest<string>
-  .WithActionResult<ApiResult>
+  .WithRequest<EnterTheGameRequest>
+  .WithActionResult<ApiResult<GameGetResponse>>
 {
   [HttpGet("api/[namespace]/EnterTheGame")]
-  public override async Task<ActionResult<ApiResult>> HandleAsync(string connectionId, CancellationToken cancellationToken = new CancellationToken())
+  public override async Task<ActionResult<ApiResult<GameGetResponse>>> HandleAsync(
+    EnterTheGameRequest request, CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<GameGetResponse> result = await gameService.GetCurrentGameResponseAsync(CurrentUser.UserId, cancellationToken);
+    UnusualSuspectServiceResult<GameGetResponse> result = await gameService.GetGameResponseAsync(CurrentUser.UserId, request.GameId, cancellationToken);
     if (!result.Success)
-      return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
+      return new ApiResult<GameGetResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
     if (result.Result == null)
-      return new ApiResult(false, ApiResultStatusCode.NotFound, "هیچ بازی فعالی برای شما یافت نشد");
-    await notificationService.AddToGroupAsync(CurrentUser.UserId, connectionId, result.Result.RoomName);
-    return new ApiResult(true, ApiResultStatusCode.Success);
-
+      return new ApiResult<GameGetResponse>(false, ApiResultStatusCode.NotFound, null, "هیچ بازی فعالی برای شما یافت نشد");
+    await notificationService.AddToGroupAsync(CurrentUser.UserId, request.ConnectionId, result.Result.RoomName);
+    return new ApiResult<GameGetResponse>(true, ApiResultStatusCode.Success, result.Result);
   }
 }

@@ -17,6 +17,13 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     private WitnessAnswer witnessLastAnswer;
     [SerializeField]
     private TurnOfPlayTalkingState? turnOfPlayTalkingState;
+    [SerializeField]
+    private List<CandidateCardDto> candidateCard;
+    public List<CandidateCardDto> CandidateCard
+    {
+      get => candidateCard;
+      set => candidateCard = value;
+    }
 
     public WitnessAnswer WitnessLastAnswer
     {

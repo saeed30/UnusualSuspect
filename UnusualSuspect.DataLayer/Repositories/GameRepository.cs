@@ -5,12 +5,18 @@ using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
+using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logger, IMemoryCacheService memoryCacheService, IOptionsSnapshot<ProjectSetting> setting)
+public sealed class GameRepository(
+    IUnitOfWork uow,
+    ILogger<GameRepository> logger,
+    IMemoryCacheService memoryCacheService,
+    IOptionsSnapshot<ProjectSetting> setting,
+    IDapperRepository dapperRepository)
   : EfRepository<Game>(uow, logger), IGameRepository
 {
   private readonly DbSet<Game> games = uow.Set<Game>();
@@ -128,5 +134,15 @@ public sealed class GameRepository(IUnitOfWork uow, ILogger<GameRepository> logg
 	  }
 	  game.OrderOfParticipationTurnToTalk = orderOfParticipationTurnToTalk;
 	  game.CurrentUserTurnStartedTime = currentUserTurnStartedTime;
+  }
+
+  public Task<GameStatisticsDto?> GetGameStatisticsAsync(int userId, CancellationToken cancellationToken = default)
+  {
+    return dapperRepository.QuerySingleAsync<GameStatisticsDto>($@"
+select GamesPlayed = COUNT(1),
+GamesWon = isnull(SUM(case when g.GameStatusId = {(short)GameStatusEnum.FinishedAndWonTheGame} then 1 else 0 end), 0),
+GamesLost = isnull(SUM(case when g.GameStatusId = {(short)GameStatusEnum.FinishedAndLostTheGame} then 1 else 0 end), 0)
+from Participate p join Game g on p.GameId = g.Id
+where g.FinishedTime is not null and p.UserId = {userId}");
   }
 }

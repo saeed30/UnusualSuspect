@@ -6,14 +6,54 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 	[Serializable]
 	public sealed class GetProfileInfoResponse
 	{
-		[SerializeField]
+    [SerializeField]
+    private int userId;
+    [SerializeField]
 		private string? nickName;
 		[SerializeField]
-		private Guid? userImageDocumentId;
+		private string? userImageDocumentId;
 		[SerializeField]
 		private int? avatarId;
     [SerializeField]
     private bool? isMale;
+    [SerializeField]
+    private int ranking;
+    [SerializeField]
+    private int gamesPlayed;
+    [SerializeField]
+    private int gamesWon;
+    [SerializeField]
+    private int gamesLost;
+
+    public int UserId
+    {
+      get => userId;
+      set => userId = value;
+    }
+    public int GamesPlayed
+    {
+      get => gamesPlayed;
+      set => gamesPlayed = value;
+    }
+
+    public int GamesWon
+    {
+      get => gamesWon;
+      set => gamesWon = value;
+    }
+
+    public int GamesLost
+    {
+      get => gamesLost;
+      set => gamesLost = value;
+    }
+
+    public int Ranking
+    {
+      get => ranking;
+      set => ranking = value;
+    }
+
 
     public bool? IsMale
     {
@@ -27,6 +67,6 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 		}
 
 		public string? NickName { get => nickName; set => nickName = value; }
-		public Guid? UserImageDocumentGuidKey { get => userImageDocumentId; set => userImageDocumentId = value; }
+		public string? UserImageDocumentGuidKey { get => userImageDocumentId; set => userImageDocumentId = value; }
 	}
 }

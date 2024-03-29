@@ -93,6 +93,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IFileService, FileService>();
     services.AddScoped<IFireBaseService, FireBaseService>();
     services.AddScoped<ISmsLogRepository, SmsLogRepository>();
+    services.AddScoped<IDapperRepository, DapperRepository>();
     services.AddGameServices(configuration);
 
     //services.AddRateLimiter(options =>
@@ -179,6 +180,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<ICustomeMenuService, CustomeMenuService>();
     services.AddScoped<IFileService, FileService>();
     services.AddScoped<ISmsLogRepository, SmsLogRepository>();
+    services.AddScoped<IDapperRepository, DapperRepository>();
     services.AddGameServices(configuration);
     return services;
   }

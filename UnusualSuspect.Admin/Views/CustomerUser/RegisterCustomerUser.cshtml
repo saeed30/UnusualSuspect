@@ -25,6 +25,10 @@
         columns.Bound(c => c.FirstName).Title("نام");
         columns.Bound(c => c.LastName).Title("نام خانوادگی");
         columns.Bound(c => c.PhoneNumber).Title("شماره همراه");
+        columns.Bound(c => c.NickName).Title("نام مستعار");
+        columns.Bound(c => c.IsActive).Title("فعال");
+        columns.Bound(c => c.AvatarId).Title("کد آواتار");
+        columns.Bound(c => c.DocumentGuid).Title("کد تصویر");
 
         columns.Bound(p => p.UserId).ClientTemplate("<a type='button' class='k-button k-button-icontext' data-id='#=UserId#' data-type='0' href='/Member/CreateMember?username=#=Username#'><i class='fas fa-edit text-primary'></i></a>").Title(" ").Filterable(false).Width(50);
         columns.Bound(p => p.UserId).ClientTemplate("<button  data-id='#=UserId#' type='button' class='k-button k-button-icontext DeleteItem' data-action='/CustomerUser/DeleteCustomerUser' data-titlesweet='آیا مطمئن هستید' data-textsweet='در صورت اطمینان از حذف کاربر بر روی تائید کلیک کنید.' , SharedLocalizer['آیتم]' data-cancelbtn='انصراف' data-confirmbtn='تائید'><i class='fas fa-trash-alt text-danger'></i></button>").Title(" ").Filterable(false).Width(50);

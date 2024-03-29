@@ -26,5 +26,4 @@ public interface IApplicationUserManager
     ApplicationUser FindByName(string username);
     Task<ResultAction> EditPassword(ApplicationUser model);
 
-
 }
