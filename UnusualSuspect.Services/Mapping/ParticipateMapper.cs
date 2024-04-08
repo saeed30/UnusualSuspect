@@ -12,7 +12,7 @@ public static class ParticipateMapper
     {
       Id = value.Id,
       OrderOfParticipation = value.OrderOfParticipation,
-      GameRole = (GameRole)value.RoleCardId,
+      GameRole = value.RoleCardId == (short)GameRole.Accomplice ? GameRole.Detective : (GameRole)value.RoleCardId,
       UserDto = value.ApplicationUser.ToUserDto()
     };
   }

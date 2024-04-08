@@ -82,5 +82,6 @@ namespace UnusualSuspect.ApiViewModels.Enums
     CanNotAddOwnAsFriend = 37,
     [Display(Name = "کاربر انتخابی دوست کاربر جاری نیست")]
     SpecifiedUserIsNotFriend = 38,
-  }
+    [Display(Name = "بازی به اتمام نرسیده است")]
+    GameNotFinished = 39}
 }

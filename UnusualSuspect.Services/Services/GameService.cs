@@ -63,7 +63,9 @@ public sealed class GameService(IUnitOfWork uow,
       game = result.Result;
     }
     return new UnusualSuspectServiceResult<GameGetResponse>(new GameGetResponse(
-      game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds), await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId));
+      game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
+      await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId,
+      game.ToPrivateInfoDto(userId)));
   }
 
   public async Task<UnusualSuspectServiceResult<bool>> LeaveCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
@@ -224,7 +226,7 @@ public sealed class GameService(IUnitOfWork uow,
     {
       GameGetResponse = new GameGetResponse(
         game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
-        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId),
+        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId, null),
       FinishedTime = game.FinishedTime,
       CreateTime = game.CreateTime,
       GameStatusTitle = ((GameStatusEnum)game.GameStatusId).ToString()
@@ -277,5 +279,30 @@ public sealed class GameService(IUnitOfWork uow,
     if (gameStatistics == null)
       return new UnusualSuspectServiceResult<GameStatisticsDto>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidUserId));
     return new UnusualSuspectServiceResult<GameStatisticsDto>(gameStatistics);
+  }
+
+  public async Task<UnusualSuspectServiceResult<FinishedResponse>> GetFinishedResponseAsync(
+    int userId, int? gameId, CancellationToken cancellationToken = default)
+  {
+    Game? game;
+    if (gameId.HasValue)
+    {
+      if (await participateRepository.GetParticipantRoleAsync(gameId.Value, userId, cancellationToken) == null)
+        return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+      game = await gameRepository.GetGameWithDetailsAsync(gameId.Value, cancellationToken);
+      if (game == null)
+        return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    }
+    else
+    {
+      var result = await GetCurrentGameWithDetailsAsync(userId, cancellationToken);
+      if (!result.Success)
+        return new UnusualSuspectServiceResult<FinishedResponse>(result.Errors);
+      game = result.Result;
+    }
+    if(game.GameStatusId != (short)GameStatusEnum.FinishedAndLostTheGame &&
+       game.GameStatusId != (short)GameStatusEnum.FinishedAndWonTheGame)
+        return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.GameNotFinished));
+    return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse());
   }
 }

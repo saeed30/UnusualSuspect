@@ -3,6 +3,7 @@ using ElmahCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using Serilog.Core;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Utilities;
@@ -42,6 +43,7 @@ public sealed class GameHub(IGameService gameService,
   {
     try
     {
+      LogUserCall("SendMessage", user, message);
       await Clients.All.ReceiveMessage(user, message);
     }
     catch (Exception exception)
@@ -52,10 +54,17 @@ public sealed class GameHub(IGameService gameService,
     }
   }
 
+  private void LogUserCall(string methodName, string param1, string param2)
+  {
+    logger.LogInformation("UserId ({UserId}) called signalR method ({methodName}) with these parameters: ({param1} - {param2})",
+      UserId, methodName, param1, param2);
+  }
+
   public async Task StartedToTalk(int gameId)
   {
     try
     {
+      LogUserCall("StartedToTalk", gameId.ToString(), "");
       await Clients.Caller.ReceiveMessage("admin", "you called StartedToTalk");
     }
     catch (Exception exception)
@@ -70,14 +79,15 @@ public sealed class GameHub(IGameService gameService,
   {
     try
     {
-			if (!UserId.HasValue)
-				return;
+      if (!UserId.HasValue)
+        return;
+      LogUserCall("FinishedTalking", gameId.ToString(), "");
       await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
       var result = await turnOfPlayService.UserTurnFinishedAsync(UserId.Value, gameId);
-      if(!result.Success)
-	      await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
-		}
-		catch (Exception exception)
+      if (!result.Success)
+        await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
+    }
+    catch (Exception exception)
     {
       ElmahExtensions.RaiseError(exception);
       await Clients.Caller.ReceiveMessage("errorFinishedTalking", exception.Message);
@@ -91,6 +101,7 @@ public sealed class GameHub(IGameService gameService,
     {
       if (!UserId.HasValue)
         return;
+      LogUserCall("UseSticker", gameId.ToString(), stickerId.ToString());
       await Clients.Caller.ReceiveMessage("admin", "you called UseSticker");
       var result = await stickerService.SendStickerToGroupAsync(UserId.Value, (short)stickerId, gameId);
       if (!result.Success)
@@ -108,14 +119,15 @@ public sealed class GameHub(IGameService gameService,
   {
     try
     {
-	    if (!UserId.HasValue)
-		    return;
+      if (!UserId.HasValue)
+        return;
+      LogUserCall("CandidateCard", gameId.ToString(), cardId.HasValue ? cardId.Value.ToString() : "");
       await Clients.Caller.ReceiveMessage("admin", "you called CandidateCard");
       var result = await turnOfPlayService.ChangedCandidateCard(UserId.Value, (short?)cardId, gameId);
       if (!result.Success)
-	      await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
+        await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
     }
-		catch (Exception exception)
+    catch (Exception exception)
     {
       ElmahExtensions.RaiseError(exception);
       await Clients.Caller.ReceiveMessage("errorCandidateCard", exception.Message);

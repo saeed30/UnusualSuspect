@@ -13,8 +13,6 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private string title;
     [SerializeField]
-    private bool isMurderer;
-    [SerializeField]
     private string imageUrl;
 
     public string ImageUrl
@@ -41,10 +39,5 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
       set => title = value;
     }
 
-    public bool IsMurderer
-    {
-      get => isMurderer;
-      set => isMurderer = value;
-    }
   }
 }

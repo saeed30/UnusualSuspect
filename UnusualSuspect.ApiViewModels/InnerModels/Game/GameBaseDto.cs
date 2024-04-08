@@ -17,6 +17,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     private List<GameCharacterDto> gameCharacterDtos;
     [SerializeField]
     private List<QuestionGameDto> questionGameDtos;
+    [SerializeField]
+    private PrivateInfoDto privateInfoDto;
+
+    public PrivateInfoDto PrivateInfoDto
+    {
+      get => privateInfoDto;
+      set => privateInfoDto = value;
+    }
 
     public List<QuestionGameDto> QuestionGameDtos
     {

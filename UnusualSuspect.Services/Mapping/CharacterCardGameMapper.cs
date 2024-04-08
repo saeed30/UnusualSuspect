@@ -12,7 +12,6 @@ public static class CharacterCardGameMapper
       Title = value.CharacterCard.Title,
       CharacterId = value.CharacterCard.Id,
       Id = value.Id,
-      IsMurderer = value.IsMurderer,
       ImageUrl = value.CharacterCard.ImageUrl
     };
   }

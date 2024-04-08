@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Castle.Core.Logging;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
@@ -9,7 +11,8 @@ using UnusualSuspect.Services.SignalR;
 namespace UnusualSuspect.Services.Services;
 
 public sealed class NotificationService(IHubContext<GameHub, IGameClient> context,
-  IMemoryCacheService memoryCacheService) : INotificationService
+  IMemoryCacheService memoryCacheService,
+  ILogger<NotificationService> logger) : INotificationService
 {
   private string GetPreGameGroupName(int preGameGroupId)
   {
@@ -18,11 +21,15 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
 
   public async Task SendSignalToPreGameGroup(int preGameGroupId, SignalCommands command, object? data = null)
 	{
+    logger.LogInformation("SendSignalToPreGameGroup was called with preGameGroupId: {preGameGroupId} and command: {command}",
+      preGameGroupId.ToString(), command.ToString());
 		await context.Clients.Group(GetPreGameGroupName(preGameGroupId)).GameCommand(command, data);
 	}
 
 	public async Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null)
   {
+    logger.LogInformation("SendSignalToGameGroup was called with gameId: {gameId} and command: {command}",
+      gameId.ToString(), command.ToString());
     await context.Clients.Group(gameId.ToString()).GameCommand(command, data);
   }
 
