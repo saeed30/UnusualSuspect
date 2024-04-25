@@ -15,22 +15,22 @@ public sealed class SaveProfileInfoEndpoint(IApplicationUserManager iApplication
     IApplicationUserService applicationUserService, IUnitOfWork uow)
   : MyBaseEndpointAuthenticated
 .WithRequest<SaveProfileInfoRequest<IFormFile>>
-.WithActionResult<ApiResult>
+.WithActionResult<ApiResultCommon>
 {
   [HttpPost("api/[namespace]/SaveProfileInfo")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync(SaveProfileInfoRequest<IFormFile> request, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResultCommon>> HandleAsync(SaveProfileInfoRequest<IFormFile> request, CancellationToken cancellationToken = default)
 	{
 		var user = await iApplicationUserManager.FindByNameAsync(CurrentUser.Username);
 		if (user == null)
-			return new ApiResult(false, ApiResultStatusCode.NotFound, "اطلاعات کاربری یافت نشد!");
+			return new ApiResultCommon(false, ApiResultStatusCode.NotFound, "اطلاعات کاربری یافت نشد!");
 		user.NickName = request.NickName;
 		user.ImageFile = request.UserImage;
     user.AvatarId = (short?)request.AvatarId;
     user.IsMale = request.IsMale;
 		var result = await applicationUserService.EditApplicationUser(user, true);
 		if (!result.Success)
-			return new ApiResult(false, ApiResultStatusCode.ServerError, result.MessageList);
+			return new ApiResultCommon(false, ApiResultStatusCode.ServerError, result.MessageList);
 		await uow.SaveChangesAsync(cancellationToken);
-		return new ApiResult(true, ApiResultStatusCode.Success);
+		return new ApiResultCommon(true, ApiResultStatusCode.Success);
 	}
 }

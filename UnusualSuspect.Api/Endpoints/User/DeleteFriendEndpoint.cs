@@ -11,18 +11,18 @@ namespace UnusualSuspect.Api.Endpoints.User;
 
 public sealed class DeleteFriendEndpoint(IFriendService friendService, IUnitOfWork uow) : MyBaseEndpointAuthenticated
   .WithRequest<DeleteFriendRequest>
-  .WithActionResult<ApiResult>
+  .WithActionResult<ApiResultCommon>
 {
   [HttpPost("api/[namespace]/DeleteFriend")]
-  public override async Task<ActionResult<ApiResult>> HandleAsync(DeleteFriendRequest request, CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon>> HandleAsync(DeleteFriendRequest request, CancellationToken cancellationToken = default)
   {
     var result = await friendService.DeleteFriend(CurrentUser.UserId, request.FriendUserId, cancellationToken);
     if (result.Success)
     {
       if (result.Result)
         await uow.SaveChangesAsync(cancellationToken);
-      return new ApiResult(result.Result, ApiResultStatusCode.Success);
+      return new ApiResultCommon(result.Result, ApiResultStatusCode.Success);
     }
-    return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
+    return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
   }
 }

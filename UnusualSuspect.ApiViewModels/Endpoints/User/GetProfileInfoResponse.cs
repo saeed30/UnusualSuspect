@@ -13,9 +13,9 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
 		[SerializeField]
 		private string? userImageDocumentId;
 		[SerializeField]
-		private int? avatarId;
+		private int avatarId;
     [SerializeField]
-    private bool? isMale;
+    private bool isMale;
     [SerializeField]
     private int ranking;
     [SerializeField]
@@ -55,12 +55,12 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
     }
 
 
-    public bool? IsMale
+    public bool IsMale
     {
       get => isMale;
       set => isMale = value;
     }
-		public int? AvatarId
+		public int AvatarId
 		{
 			get => avatarId;
 			set => avatarId = value;

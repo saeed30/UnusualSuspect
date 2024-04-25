@@ -12,15 +12,15 @@ namespace UnusualSuspect.Api.Endpoints.User;
 
 public sealed class AddFriendEndpoint(IFriendService friendService, IUnitOfWork uow) : MyBaseEndpointAuthenticated
   .WithRequest<AddFriendRequest>
-  .WithActionResult<ApiResult>
+  .WithActionResult<ApiResultCommon>
 {
   [HttpPost("api/[namespace]/AddFriend")]
-  public override async Task<ActionResult<ApiResult>> HandleAsync(AddFriendRequest request, CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon>> HandleAsync(AddFriendRequest request, CancellationToken cancellationToken = default)
   {
     string phone = request.FriendMobileNumber;
     if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
     {
-      return new ApiResult(false, ApiResultStatusCode.NeedToRetry
+      return new ApiResultCommon(false, ApiResultStatusCode.NeedToRetry
         , "شماره همراه به درستی وارد نشده است");
     }
     var result = await friendService.AddToFriendsAsync(CurrentUser.UserId, phone, cancellationToken);
@@ -28,9 +28,9 @@ public sealed class AddFriendEndpoint(IFriendService friendService, IUnitOfWork 
     {
       if(result.Result)
         await uow.SaveChangesAsync(cancellationToken);
-      return new ApiResult(result.Result, ApiResultStatusCode.Success);
+      return new ApiResultCommon(result.Result, ApiResultStatusCode.Success);
     }
-    return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
+    return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
 
   }
 }

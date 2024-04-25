@@ -10,10 +10,10 @@ namespace UnusualSuspect.Api.Endpoints.Game;
 
 public sealed class TurnOfPlayGetEndpoint(ITurnOfPlayService turnOfPlayService) : MyBaseEndpointAuthenticated
   .WithoutRequest
-  .WithActionResult<ApiResult<TurnOfPlayGetResponse>>
+  .WithActionResult<ApiResultCommon<TurnOfPlayGetResponse>>
 {
   [HttpGet("api/[namespace]/TurnOfPlayGet")]
-  public override async Task<ActionResult<ApiResult<TurnOfPlayGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon<TurnOfPlayGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
     UnusualSuspectServiceResult<TurnOfPlayGetResponse> game = await turnOfPlayService.GetTurnOfPlayGetAsync(CurrentUser.UserId, cancellationToken);
     return ReturnResult(game);

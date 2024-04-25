@@ -10,10 +10,10 @@ namespace UnusualSuspect.Api.Endpoints.PreGame;
 
 public sealed class MyPreGameGroupsEndpoint(IPreGameService preGameService) : MyBaseEndpointAuthenticated
   .WithoutRequest
-  .WithActionResult<ApiResult<MyPreGameGroupsResponse>>
+  .WithActionResult<ApiResultCommon<MyPreGameGroupsResponse>>
 {
   [HttpGet("api/[namespace]/MyPreGameGroups", Name = "[namespace]_[controller]_MyPreGameGroups")]
-  public override async Task<ActionResult<ApiResult<MyPreGameGroupsResponse>>> HandleAsync(CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon<MyPreGameGroupsResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
     UnusualSuspectServiceResult<MyPreGameGroupsResponse> result = await preGameService.GetPreGameGroupByUserId(CurrentUser.UserId);
     return ReturnResult(result);

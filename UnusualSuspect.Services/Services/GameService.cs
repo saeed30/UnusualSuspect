@@ -12,6 +12,11 @@ using Microsoft.Extensions.Options;
 using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.ViewModels.Game;
 using UnusualSuspect.ViewModels.Settings;
+using Aspose.Cells;
+using System.Threading;
+using System;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -26,7 +31,9 @@ public sealed class GameService(IUnitOfWork uow,
   IPreGameGroupRepository preGameGroupRepository,
   IJoinedPreGameRepository joinedPreGameRepository,
   IGameCandidateRepository gameCandidateRepository,
-  IOptionsSnapshot<ProjectSetting> setting) : IGameService
+  IQuestionService questionService,
+  IOptionsSnapshot<ProjectSetting> setting,
+  ILogger<GameService> logger) : IGameService
 {
   public async Task<UnusualSuspectServiceResult<Game>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
@@ -91,12 +98,12 @@ public sealed class GameService(IUnitOfWork uow,
     RoleCardEnum userRole = (RoleCardEnum)participate.RoleCardId;
     switch (userRole)
     {
+      case RoleCardEnum.Witness:
       case RoleCardEnum.Detective:
+      case RoleCardEnum.Accomplice:
         //do nothing
         break;
       case RoleCardEnum.MainDetective:
-      case RoleCardEnum.Witness:
-      case RoleCardEnum.Accomplice:
         UnusualSuspectServiceResult<bool> result = await ReplaceRoleByDetective(gameId, userRole, userId);
         if (!result.Success)
           return result;
@@ -170,7 +177,15 @@ public sealed class GameService(IUnitOfWork uow,
       }
       else
       {
-        await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer, cancellationToken);
+        if (await SetAnswerIfNoWitnessInGame(gameId, cancellationToken))
+        {
+          Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
+          if (game == null)
+            return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+          await GoToTalkingStatus(game);
+        }
+        else
+          await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer, cancellationToken);
         result = new UnusualSuspectServiceResult<bool?>((bool?)null);
       }
     }
@@ -178,6 +193,38 @@ public sealed class GameService(IUnitOfWork uow,
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.NewCardWasChosen);
     memoryCacheService.ClearGameWithDetails(gameId);
     return result;
+  }
+
+  private async Task<bool> SetAnswerIfNoWitnessInGame(int gameId, CancellationToken cancellationToken = default)
+  {
+    if ((await participateRepository.GetGameActiveParticipantsAsync(gameId, RoleCardEnum.Witness)).Any())
+      return false;
+    Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
+    if (game == null)
+      return false;
+    Game? gameCached = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
+    int turn = game.CharacterCardGames.Count(x => !x.IsActive) + 1;
+    if (turn > 11)
+    {
+      ElmahExtensions.RaiseError(new Exception("invalid turn in method: SetAnswerIfNoWitnessInGame - " + turn));
+      return false;
+    }
+    if (gameCached == null || !gameCached.CharacterCardGames.Any(x => x.IsActive && x.IsMurderer) &&
+        gameCached.QuestionGames.All(x => x.Turn != turn))
+      return false;
+    short cardId = gameCached.CharacterCardGames.First(x => x.IsActive && x.IsMurderer).CharacterCardId;
+    short questionId = gameCached.QuestionGames.First(x => x.Turn == turn).QuestionId;
+    var result = await questionService.GetDefaultAnswer(
+      cardId, questionId, cancellationToken);
+    if (!result.Success)
+    {
+      logger.LogWarning(
+        "Default answer was requested for gameId: {gameId} but no default answer was present for CharacterCardId: {cardId} and questionId: {questionId}",
+        gameId, cardId, questionId);
+      return false;
+    }
+    game.WitnessLastAnswer = result.Result;
+    return true;
   }
 
   public IQueryable<Game> GetAllActiveGamesWithGameType()
@@ -193,6 +240,8 @@ public sealed class GameService(IUnitOfWork uow,
     bool hasOfflineUser = await participateRepository.IsGameHasOtherActiveParticipantsAsync(gameId, userIds);
     if (hasOfflineUser)
       return false;
+    if (await SetAnswerIfNoWitnessInGame(gameId))
+      return await GoToTalkingStatus(game);
     return await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer);
   }
 
@@ -300,9 +349,9 @@ public sealed class GameService(IUnitOfWork uow,
         return new UnusualSuspectServiceResult<FinishedResponse>(result.Errors);
       game = result.Result;
     }
-    if(game.GameStatusId != (short)GameStatusEnum.FinishedAndLostTheGame &&
+    if (game.GameStatusId != (short)GameStatusEnum.FinishedAndLostTheGame &&
        game.GameStatusId != (short)GameStatusEnum.FinishedAndWonTheGame)
-        return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.GameNotFinished));
+      return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.GameNotFinished));
     return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse());
   }
 }

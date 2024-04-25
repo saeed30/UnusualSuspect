@@ -27,6 +27,7 @@ public interface IAsyncRepository<T, TY> where T : BaseEntity<TY>
 	void Update(T entity);
 
 	void Delete(T entity);
+	void DeleteRange(List<T> entity);
 	void DeleteById(TY id);
 	Task<int> ExecuteDeleteByIdAsync(TY id, CancellationToken cancellationToken = default);
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

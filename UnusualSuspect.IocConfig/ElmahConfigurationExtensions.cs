@@ -36,7 +36,7 @@ public static class ElmahConfigurationExtensions
 				context.Response.StatusCode = 500;
 				var stream = context.Response.Body;
 				var traceId = Activity.Current?.Id ?? context?.TraceIdentifier;
-				var problemDetails = new ApiResult(false,
+				var problemDetails = new ApiResultCommon(false,
 					ApiResultStatusCode.ServerError, $"appName:error: {traceId}");
 				await JsonSerializer.SerializeAsync(stream, problemDetails);
 

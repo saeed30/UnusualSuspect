@@ -10,16 +10,16 @@ using UnusualSuspect.Services.Contracts;
 namespace UnusualSuspect.Api.Endpoints.PreGame;
 public sealed class ExitFromPreGameGroupEndpoint(IPreGameService preGameService) : MyBaseEndpointAuthenticated
 	.WithRequest<ExitFromPreGameGroupRequest>
-	.WithActionResult<ApiResult>
+	.WithActionResult<ApiResultCommon>
 {
   [HttpPost("api/[namespace]/ExitFromPreGameGroup")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync(ExitFromPreGameGroupRequest request, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResultCommon>> HandleAsync(ExitFromPreGameGroupRequest request, CancellationToken cancellationToken = default)
 	{
 		UnusualSuspectServiceResult<bool> result = await preGameService.ExitFromPreGameGroup(request.PreGameGroupId, request.UserId, CurrentUser.UserId, cancellationToken);
 		if (!result.Success)
-			return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
+			return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
 		if (result.Result)
 			await preGameService.SaveChangesAsync(cancellationToken);
-		return new ApiResult(true, ApiResultStatusCode.Success);
+		return new ApiResultCommon(true, ApiResultStatusCode.Success);
 	}
 }

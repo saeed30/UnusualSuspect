@@ -23,8 +23,8 @@ public sealed class GameRepository(
 
   public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default, bool ignoreCache = false)
   {
-    if(setting.Value.IsTesting)
-      ignoreCache = true;//saeed remove after test
+    //if(setting.Value.IsTesting)
+    //  ignoreCache = true;//saeed remove after test
     Game? game = null;
     if(!ignoreCache)
       game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);

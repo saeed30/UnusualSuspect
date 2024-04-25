@@ -15,11 +15,11 @@ namespace UnusualSuspect.Api.Endpoints.Account;
 public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManager iApplicationUserManager)
   : EndpointBaseAsync
 	.WithRequest<LoginByCodeRequest>
-	.WithActionResult<ApiResult<LoginByCodeRespond>>
+	.WithActionResult<ApiResultCommon<LoginByCodeRespond>>
 {
   [AllowAnonymous]
 	[HttpPost("api/[namespace]/LoginByCode")]
-	public override async Task<ActionResult<ApiResult<LoginByCodeRespond>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResultCommon<LoginByCodeRespond>>> HandleAsync([FromBody] LoginByCodeRequest loginByCodeRequest, CancellationToken cancellationToken = default)
 	{
 		//random delay
 		var minWait = Task.Delay(new Random().Next(1, 2000), cancellationToken);
@@ -28,25 +28,25 @@ public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManage
     if (msg != null)
     {
       await minWait.ConfigureAwait(false);
-			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, msg);
+			return new ApiResultCommon<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, msg);
     }
 		var user = await iApplicationUserManager.FindByNameAsync(loginByCodeRequest.Username);
     if (user == null)
     {
       await minWait.ConfigureAwait(false);
-			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.NotFound, null, "کاربر مورد نظر یافت نشد!");
+			return new ApiResultCommon<LoginByCodeRespond>(false, ApiResultStatusCode.NotFound, null, "کاربر مورد نظر یافت نشد!");
     }
 
     if (user.SendCodeDate.HasValue && user.SendCodeDate.Value.AddMinutes(5) < DateTime.Now)
     {
       await minWait.ConfigureAwait(false);
-			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, "اعتبار کد تایید شما به پایان رسیده است. لطفا مجدد تلاش نمایید.");
+			return new ApiResultCommon<LoginByCodeRespond>(false, ApiResultStatusCode.BadRequest, null, "اعتبار کد تایید شما به پایان رسیده است. لطفا مجدد تلاش نمایید.");
     }
 
     if (user.PhoneNumberValidationCode != loginByCodeRequest.Code)
     {
       await minWait.ConfigureAwait(false);
-			return new ApiResult<LoginByCodeRespond>(false, ApiResultStatusCode.NeedToRetry, null, "کد وارد شده صحیح نیست");
+			return new ApiResultCommon<LoginByCodeRespond>(false, ApiResultStatusCode.NeedToRetry, null, "کد وارد شده صحیح نیست");
     }
 		var token = await iJwtService.GenerateAsync(user);
 		user.PhoneNumberValidationCode = null;
@@ -58,7 +58,7 @@ public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManage
 		}
 		await iApplicationUserManager.UpdateLastLoginDateAsync(user);
     await minWait.ConfigureAwait(false);
-		return new ApiResult<LoginByCodeRespond>(true, ApiResultStatusCode.Success, new LoginByCodeRespond()
+		return new ApiResultCommon<LoginByCodeRespond>(true, ApiResultStatusCode.Success, new LoginByCodeRespond()
 		{
 			Access_token = token.access_token,
 			Expires_in = token.expires_in,

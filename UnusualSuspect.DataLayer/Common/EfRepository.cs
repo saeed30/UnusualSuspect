@@ -57,6 +57,10 @@ public class EfRepository<T, TY>(IUnitOfWork uow, ILogger<EfRepository<T, TY>> l
 	{
     baseEntity.Remove(entity);
 	}
+	public void DeleteRange(List<T> entity)
+	{
+    baseEntity.RemoveRange(entity);
+	}
 
 	public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
 	{

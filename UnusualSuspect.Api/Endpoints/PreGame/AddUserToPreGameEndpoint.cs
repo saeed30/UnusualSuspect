@@ -11,20 +11,20 @@ namespace UnusualSuspect.Api.Endpoints.PreGame;
 
 public sealed class AddUserToPreGameEndpoint(IPreGameService preGameService) : MyBaseEndpointAuthenticated
 	.WithRequest<AddUserToPreGameRequest>
-	.WithActionResult<ApiResult>
+	.WithActionResult<ApiResultCommon>
 {
   [HttpPost("api/[namespace]/AddUserToPreGame")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] AddUserToPreGameRequest request,
+	public override async Task<ActionResult<ApiResultCommon>> HandleAsync([FromBody] AddUserToPreGameRequest request,
 		CancellationToken cancellationToken = default)
 	{
 		string phone = request.UserPhoneNumber;
 		if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
-			return new ApiResult(false, ApiResultStatusCode.NeedToRetry
+			return new ApiResultCommon(false, ApiResultStatusCode.NeedToRetry
 				, "لطفا شماره همراه خود را به درستی وارد نمایید");
 		var result = await preGameService.AddUserToPreGameGroup(CurrentUser.UserId, phone, request.PreGameGroupId, cancellationToken);
 		if (!result.Success)
-			return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
+			return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
 		await preGameService.SaveChangesAsync(cancellationToken);
-		return new ApiResult(true, ApiResultStatusCode.Success);
+		return new ApiResultCommon(true, ApiResultStatusCode.Success);
 	}
 }

@@ -20,14 +20,14 @@ public sealed class GetProfileInfoEndpoint(
     IGameService gameService)
   : MyBaseEndpointAuthenticated
 .WithoutRequest
-.WithActionResult<ApiResult<GetProfileInfoResponse>>
+.WithActionResult<ApiResultCommon<GetProfileInfoResponse>>
 {
   [HttpGet("api/[namespace]/GetProfileInfo")]
-  public override async Task<ActionResult<ApiResult<GetProfileInfoResponse>>> HandleAsync(CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon<GetProfileInfoResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
     var user = await iApplicationUserManager.FindByNameAsync(CurrentUser.Username);
     if (user == null)
-      return new ApiResult<GetProfileInfoResponse>(false, ApiResultStatusCode.BadRequest, null, "اطلاعات کاربری یافت نشد!");
+      return new ApiResultCommon<GetProfileInfoResponse>(false, ApiResultStatusCode.BadRequest, null, "اطلاعات کاربری یافت نشد!");
     Guid? userImageDocumentGuidKey = null;
     if (user.DocumentId.HasValue)
     {
@@ -35,7 +35,7 @@ public sealed class GetProfileInfoEndpoint(
       if (doc == null)
       {
         ElmahExtensions.RaiseError(new Exception($"User has documentId but document do not exists. userId : {user.Id} - documentId: {user.DocumentId}"));
-        return new ApiResult<GetProfileInfoResponse>(false, ApiResultStatusCode.LogicError, null,
+        return new ApiResultCommon<GetProfileInfoResponse>(false, ApiResultStatusCode.LogicError, null,
           ((int)LogicErrorCode.DocumentNotFound).ToString());
       }
       userImageDocumentGuidKey = doc.GuidKey;
@@ -43,13 +43,13 @@ public sealed class GetProfileInfoEndpoint(
 
     UnusualSuspectServiceResult<GameStatisticsDto> gameStatistics = await gameService.GetGameStatisticsAsync(CurrentUser.UserId, cancellationToken);
     if (!gameStatistics.Success)
-      return new ApiResult<GetProfileInfoResponse>(false, ApiResultStatusCode.LogicError, null, gameStatistics.MainError.ToString());
-    return new ApiResult<GetProfileInfoResponse>(true, ApiResultStatusCode.Success, new GetProfileInfoResponse()
+      return new ApiResultCommon<GetProfileInfoResponse>(false, ApiResultStatusCode.LogicError, null, gameStatistics.MainError.ToString());
+    return new ApiResultCommon<GetProfileInfoResponse>(true, ApiResultStatusCode.Success, new GetProfileInfoResponse()
     {
       NickName = user.NickName,
       UserImageDocumentGuidKey = userImageDocumentGuidKey == null ? null : userImageDocumentGuidKey.ToString(),
-      AvatarId = user.AvatarId,
-      IsMale = user.IsMale,
+      AvatarId = user.AvatarId.HasValue ? user.AvatarId.Value : -1,
+      IsMale = user.IsMale.HasValue ? user.IsMale.Value : true,
       Ranking = user.Ranking ?? 10042,
       GamesLost = gameStatistics.Result.GamesLost,
       GamesPlayed = gameStatistics.Result.GamesPlayed,

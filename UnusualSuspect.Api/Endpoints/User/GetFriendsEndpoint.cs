@@ -9,10 +9,10 @@ namespace UnusualSuspect.Api.Endpoints.User;
 
 public sealed class GetFriendsEndpoint(IFriendService friendService) : MyBaseEndpointAuthenticated
   .WithoutRequest
-  .WithActionResult<ApiResult<GetFriendsResponse>>
+  .WithActionResult<ApiResultCommon<GetFriendsResponse>>
 {
   [HttpGet("api/[namespace]/GetFriends")]
-  public override async Task<ActionResult<ApiResult<GetFriendsResponse>>> HandleAsync(CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon<GetFriendsResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
     var result = await friendService.GetFriendListAsync(CurrentUser.UserId, cancellationToken);
     return ReturnResult(result);

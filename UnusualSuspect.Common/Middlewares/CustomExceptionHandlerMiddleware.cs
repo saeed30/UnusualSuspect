@@ -108,7 +108,7 @@ public class CustomExceptionHandlerMiddleware
 			if (context.Response.HasStarted)
 				throw new InvalidOperationException("The response has already started, the http status code middleware will not be executed.");
 
-			var result = new ApiResult(false, apiStatusCode, message);
+			var result = new ApiResultCommon(false, apiStatusCode, message);
 			var json = JsonConvert.SerializeObject(result);
 
 			context.Response.StatusCode = (int)httpStatusCode;

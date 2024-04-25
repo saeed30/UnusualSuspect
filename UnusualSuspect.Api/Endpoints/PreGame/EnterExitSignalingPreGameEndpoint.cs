@@ -12,10 +12,10 @@ namespace UnusualSuspect.Api.Endpoints.PreGame;
 
 public class EnterExitSignalingPreGameEndpoint(IPreGameService preGameService, INotificationService notificationService) : MyBaseEndpointAuthenticated
   .WithRequest<EnterExitSignalingPreGameRequest>
-  .WithActionResult<ApiResult>
+  .WithActionResult<ApiResultCommon>
 {
   [HttpPost("api/[namespace]/EnterExitSignalingPreGame")]
-  public override async Task<ActionResult<ApiResult>> HandleAsync(EnterExitSignalingPreGameRequest request, CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon>> HandleAsync(EnterExitSignalingPreGameRequest request, CancellationToken cancellationToken = default)
   {
     if (request.ConnectionId.IsNull())
       return new BadRequestResult();
@@ -23,9 +23,9 @@ public class EnterExitSignalingPreGameEndpoint(IPreGameService preGameService, I
     {
       UnusualSuspectServiceResult<bool> result = await preGameService.IsMemberOfPregameGroup(CurrentUser.UserId, request.PreGameGroupId, cancellationToken);
       if(!result.Success)
-        return new ApiResult(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
+        return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
       if(!result.Result)
-        return new ApiResult(false, ApiResultStatusCode.LogicError, LogicErrorCode.UserNotMemberOfPreGameGroup.ToString());
+        return new ApiResultCommon(false, ApiResultStatusCode.LogicError, LogicErrorCode.UserNotMemberOfPreGameGroup.ToString());
       await notificationService.AddToGroupAsync(CurrentUser.UserId, request.ConnectionId, "pre" + request.PreGameGroupId);
     }
     else

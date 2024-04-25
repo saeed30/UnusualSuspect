@@ -1,5 +1,4 @@
-﻿using Castle.Core.Logging;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;

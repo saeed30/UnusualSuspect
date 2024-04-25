@@ -11,13 +11,13 @@ namespace UnusualSuspect.Api.Endpoints.Game;
 
 public sealed class OnlineUsersGetEndpoint(IMemoryCacheService memoryCacheService) : MyBaseEndpointAuthenticated
   .WithRequest<int>
-  .WithActionResult<ApiResult<OnlineUsersGetResponse>>
+  .WithActionResult<ApiResultCommon<OnlineUsersGetResponse>>
 {
   [HttpGet("api/[namespace]/OnlineUsersGet")]
-  public override async Task<ActionResult<ApiResult<OnlineUsersGetResponse>>> HandleAsync(int gameId, CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon<OnlineUsersGetResponse>>> HandleAsync(int gameId, CancellationToken cancellationToken = default)
   {
     List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(gameId.ToString());
-    return new ApiResult<OnlineUsersGetResponse>(true, ApiResultStatusCode.Success, new OnlineUsersGetResponse()
+    return new ApiResultCommon<OnlineUsersGetResponse>(true, ApiResultStatusCode.Success, new OnlineUsersGetResponse()
     {
       GameId = gameId,
       UserIds = userIds

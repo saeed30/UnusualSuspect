@@ -1,7 +1,6 @@
 ﻿using Ardalis.ApiEndpoints;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -21,12 +20,12 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
     IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService)
   : EndpointBaseAsync
 	.WithRequest<RequestLoginCodeRequest>
-	.WithActionResult<ApiResult>
+	.WithActionResult<ApiResultCommon>
 {
 
   [AllowAnonymous]
 	[HttpPost("api/[namespace]/RequestLoginCode")]
-	public override async Task<ActionResult<ApiResult>> HandleAsync([FromBody] RequestLoginCodeRequest phoneNumber, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResultCommon>> HandleAsync([FromBody] RequestLoginCodeRequest phoneNumber, CancellationToken cancellationToken = default)
 	{
     //random delay
     var minWait = Task.Delay(new Random().Next(1, 2000), cancellationToken);
@@ -35,7 +34,7 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
     if (!PhoneNumberHelper.CheckAndFixPhoneNumber(ref phone))
     {
       await minWait.ConfigureAwait(false);
-      return new ApiResult(false, ApiResultStatusCode.NeedToRetry
+      return new ApiResultCommon(false, ApiResultStatusCode.NeedToRetry
 				, "لطفا شماره همراه خود را به درستی وارد نمایید");
     }
 		Random generator = new Random();
@@ -63,11 +62,11 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
 		}
     await minWait.ConfigureAwait(false);
     if (setting.Value.IsTesting)
-			return new ApiResult(true, ApiResultStatusCode.Success, "کد تایید: " + code);
+			return new ApiResultCommon(true, ApiResultStatusCode.Success, "کد تایید: " + code);
 		if (await smsService.SendSmsAsync(phone,
 			Common.Enums.SmsMessageTextEnum.LoginCodeSms, new List<string> { code }))
-			return new ApiResult(true, ApiResultStatusCode.Success, "کد تایید به شماره همراه شما ارسال شد");
-		return new ApiResult(false, ApiResultStatusCode.ServerError
+			return new ApiResultCommon(true, ApiResultStatusCode.Success, "کد تایید به شماره همراه شما ارسال شد");
+		return new ApiResultCommon(false, ApiResultStatusCode.ServerError
 			, "اشکالی در زمان ارسال کد به شماره همراه شما رخ داد. لطفا مجدد تلاش نمایید");
 	}
 }

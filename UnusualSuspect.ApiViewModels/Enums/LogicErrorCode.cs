@@ -83,5 +83,12 @@ namespace UnusualSuspect.ApiViewModels.Enums
     [Display(Name = "کاربر انتخابی دوست کاربر جاری نیست")]
     SpecifiedUserIsNotFriend = 38,
     [Display(Name = "بازی به اتمام نرسیده است")]
-    GameNotFinished = 39}
+    GameNotFinished = 39,
+    [Display(Name = "پاسخ پیشفرض برای این سوال یافت نشد")]
+    NoDefaultAnswerForTheQuestion = 40,
+    [Display(Name = "کد سوال اشتباه است")]
+    InvalidQuestionId = 41,
+    [Display(Name = "کد کاراکتر اشتباه است")]
+    InvalidCharacterCardId = 42,
+  }
 }

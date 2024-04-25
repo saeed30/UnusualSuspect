@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using UnusualSuspect.DataLayer.Context;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using System;
@@ -21,7 +18,6 @@ using UnusualSuspect.Common.Middlewares;
 using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 using Serilog.Events;
-using System.Net.Http;
 using System.Linq;
 using UnusualSuspect.Services.SignalR;
 

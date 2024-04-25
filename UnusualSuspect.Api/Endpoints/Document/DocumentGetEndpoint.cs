@@ -12,14 +12,14 @@ namespace UnusualSuspect.Api.Endpoints.Document;
 
 public sealed class DocumentGetEndpoint(IDocumentService documentService) : MyBaseEndpointAuthenticated
 	.WithRequest<Guid>
-	.WithActionResult<ApiResult<DocumentGetResponse>>
+	.WithActionResult<ApiResultCommon<DocumentGetResponse>>
 {
   [OutputCache(Duration = 60)]
 	[HttpGet("api/[namespace]/{id}", Name = "[namespace]_[controller]")]
-	public override async Task<ActionResult<ApiResult<DocumentGetResponse>>> HandleAsync(Guid id, CancellationToken cancellationToken = default)
+	public override async Task<ActionResult<ApiResultCommon<DocumentGetResponse>>> HandleAsync(Guid id, CancellationToken cancellationToken = default)
 	{
 		if(id == Guid.Empty)
-			return new ApiResult<DocumentGetResponse>(false, ApiResultStatusCode.BadRequest, null, "کد فایل به درستی ارسال نشد");
+			return new ApiResultCommon<DocumentGetResponse>(false, ApiResultStatusCode.BadRequest, null, "کد فایل به درستی ارسال نشد");
 		var doc = await documentService.GetDocumentByGuidKeyAsync(id);
     return ReturnResult(doc);
 	}

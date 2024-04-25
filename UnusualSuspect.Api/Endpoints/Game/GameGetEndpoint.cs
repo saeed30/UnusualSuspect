@@ -10,10 +10,10 @@ namespace UnusualSuspect.Api.Endpoints.Game;
 
 public sealed class GameGetEndpoint(IGameService gameService) : MyBaseEndpointAuthenticated
   .WithRequest<int?>
-  .WithActionResult<ApiResult<GameGetResponse>>
+  .WithActionResult<ApiResultCommon<GameGetResponse>>
 {
   [HttpGet("api/[namespace]/GameGet")]
-  public override async Task<ActionResult<ApiResult<GameGetResponse>>> HandleAsync(int? gameId, CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon<GameGetResponse>>> HandleAsync(int? gameId, CancellationToken cancellationToken = default)
   {
     UnusualSuspectServiceResult<GameGetResponse> game = await gameService.GetGameResponseAsync(CurrentUser.UserId, gameId, cancellationToken);
     return ReturnResult(game);

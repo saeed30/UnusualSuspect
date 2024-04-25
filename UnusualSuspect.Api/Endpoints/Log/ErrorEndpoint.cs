@@ -2,23 +2,22 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using UnusualSuspect.ApiViewModels;
 using UnusualSuspect.ApiViewModels.Endpoints.Log;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Models;
 
-namespace UnusualSuspect.Api.Endpoints.Log
+namespace UnusualSuspect.Api.Endpoints.Log;
+
+public sealed class ErrorEndpoint(ILogger<ErrorEndpoint> logger) : MyBaseEndpointAuthenticated
+  .WithRequest<ErrorRequest>
+  .WithActionResult<ApiResultCommon>
 {
-  public sealed class ErrorEndpoint(ILogger<ErrorEndpoint> logger) : MyBaseEndpointAuthenticated
-    .WithRequest<ErrorRequest>
-    .WithActionResult<ApiResult>
+  [HttpPost("api/[namespace]/Error")]
+  public override async Task<ActionResult<ApiResultCommon>> HandleAsync(ErrorRequest request, CancellationToken cancellationToken = default)
   {
-    [HttpPost("api/[namespace]/Error")]
-    public override async Task<ActionResult<ApiResult>> HandleAsync(ErrorRequest request, CancellationToken cancellationToken = default)
-    {
-      if (request == null || string.IsNullOrWhiteSpace(request.ErrorContent))
-        return new ApiResult(false, ApiResultStatusCode.BadRequest);
-      logger.LogError(request.ErrorContent);
-      return new ApiResult(true, ApiResultStatusCode.Success);
-    }
+    if (request == null || string.IsNullOrWhiteSpace(request.ErrorContent))
+      return new ApiResultCommon(false, ApiResultStatusCode.BadRequest);
+    logger.LogError(request.ErrorContent);
+    return new ApiResultCommon(true, ApiResultStatusCode.Success);
   }
 }

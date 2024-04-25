@@ -1,0 +1,176 @@
+﻿@using UnusualSuspect.Entities.GameModels
+@{
+  ViewBag.Title = "پاسخ های پیش فرض";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="toolbar" id="kt_toolbar">
+  <div class="container-fluid d-flex flex-stack">
+    <div class="page-title d-flex align-items-center flex-wrap me-3 mb-5 mb-lg-0">
+      <h1 class="d-flex align-items-center text-dark fw-bolder fs-3 my-1">@(ViewBag.Title)</h1>
+    </div>
+    <div class="d-flex align-items-center py-1">
+    </div>
+  </div>
+</div>
+<div class="card card-flush">
+  <div class="card-body">
+    <div class="row" id="characterSetDefault">
+      <input type="hidden" id="characterCardId" />
+      <input type="hidden" id="questionId" />
+      <div class="col-md-4">
+        <img id="characterImage" alt="تصویر یافت نشد" style="max-width:100px"/>
+      </div>
+      <div class="col-md-4">
+        <span id="questionContent"></span>
+      </div>
+      <div class="col-md-4">
+        <input type="button" value="بله" id="SetDefaultAsYes" class="btn btn-primary btn-sm" />
+        <input type="button" value="خیر" id="SetDefaultAsNo" class="btn btn-danger btn-sm" />
+      </div>
+    </div>
+    <div class="form" id="noUnansweredQuestionFound">
+      به همه سوال ها پاسخ داده شد
+    </div>
+  </div>
+</div>
+<br/>
+<div class="card card-flush">
+  <div class="card-body">
+    @(Html.Kendo().Grid<QuestionCharacterCardDefaultAnswer>()
+        .Name("grid")
+        .Columns(columns =>
+        {
+          columns.Bound(c => c.Id).Title("شناسه");
+          columns.Bound(c => c.CharacterCard.ImageUrl).Title("تصویر کاراکتر").ClientTemplate("<img src='#=CharacterCard.ImageUrl#' style='max-width:100px' alt='تصویر یافت نشد!' />");
+          columns.Bound(c => c.Question.QuestionContent).Title("متن سوال");
+          columns.Bound(c => c.DateTimeAddedPersian).Title("تاریخ درج");
+          columns.Bound(c => c.DefaultAnswer).Title("پاسخ").ClientTemplate(
+          "# if (DefaultAnswer) { #" +
+          "<input type='checkbox' checked='checked' disabled='disabled' />" +
+          "# } else { #" +
+          "<input type='checkbox' disabled='disabled' />" +
+          "# } #");
+          columns.Bound(c => c.Id).Title("ویرایش").ClientTemplate(
+          "<input type='button'' value='بله' onclick='SetDefaultAsYesClick(#=CharacterCardId#, #=QuestionId#)' class='btn btn-primary btn-sm' />" +
+          "<input type='button'' value='خیر' onclick='SetDefaultAsNoClick(#=CharacterCardId#, #=QuestionId#)' class='btn btn-danger btn-sm' />");
+        })
+        .Pageable(pager => pager
+        .Input(true)
+        .Info(true)
+        .PreviousNext(true)
+        .Refresh(true)
+        )
+        .Filterable().Sortable()
+        .DataSource(dataSource => dataSource
+        .Ajax().Sort(a => a.Add("Id").Descending())
+        .PageSize(10)
+        .Model(model =>
+        {
+          model.Id(p => p.Id);
+
+        })
+        .Read(read => read.Action("SetDefaultAnswer_Read", "Question"))
+        ))
+  </div>
+</div>
+<script type="text/javascript">
+  $("#SetDefaultAsYes").click(SetQuestionDefaultAnswerYes);
+  $("#SetDefaultAsNo").click(SetQuestionDefaultAnswerNo);
+  $(document).ready(function () {
+    ReloadSetDefaultAnswerForm();
+  });
+  function ReloadSetDefaultAnswerForm() {
+    $.ajax({
+      url: "/Question/GetFirstUnansweredQuestion",
+      type: "get",
+      data: {},
+      success: function (result) {
+        if (result.IsSuccess) {
+          if (result.StatusCode == 3) {
+            $("#characterSetDefault").hide();
+            $("#noUnansweredQuestionFound").show();
+          }
+          else if (result.StatusCode == 0) {
+            $("#characterSetDefault").show();
+            $("#noUnansweredQuestionFound").hide();
+            $("#characterCardId").val(result.Data.CharacterCardId);
+            $("#questionId").val(result.Data.QuestionId);
+            $("#characterImage").attr("src", result.Data.CharacterCardImageUrl);
+            $("#questionContent").text(result.Data.QuestionContent);
+          }
+          else {
+            $("#characterSetDefault").hide();
+            $("#noUnansweredQuestionFound").hide();
+            alert('error: ' + result.StatusCode)
+          }
+        }
+        else {
+          $("#characterSetDefault").hide();
+          $("#noUnansweredQuestionFound").hide();
+          alert('error: ' + result.Message)
+        }
+      },
+      cache: false,
+      contentType: false,
+      processData: false
+    });
+
+  }
+  function SetQuestionDefaultAnswerYes() {
+    SetQuestionDefaultAnswer(true);
+  }
+  function SetQuestionDefaultAnswerNo() {
+    SetQuestionDefaultAnswer(false);
+  }
+  function SetQuestionDefaultAnswer(answer) {
+    var characterCardId = $("#characterCardId").val();
+    if (!characterCardId) {
+      toastr.error('characterCardId not found!', '', { positionClass: "toast-bottom-left" });
+      return false;
+    }
+    var questionId = $("#questionId").val();
+    if (!questionId) {
+      toastr.error('questionId not found!', '', { positionClass: "toast-bottom-left" });
+      return false;
+    }
+    SetQuestionAnswer(characterCardId, questionId, answer);
+  }
+  function SetDefaultAsYesClick(characterCardId, questionId) {
+    SetQuestionAnswer(characterCardId, questionId, true);
+  }
+  function SetDefaultAsNoClick(characterCardId, questionId) {
+    SetQuestionAnswer(characterCardId, questionId, false);
+  }
+  function SetQuestionAnswer(characterCardId, questionId, answer) {
+    var formData = new FormData();
+    formData.append('QuestionId', questionId);
+    formData.append('CharacterCardId', characterCardId);
+    formData.append('DefaultAnswer', answer);
+    var dataToSend = {
+      QuestionId: parseInt(questionId),
+      CharacterCardId: parseInt(characterCardId),
+      DefaultAnswer: answer
+    };
+    jQuery.ajaxSettings.traditional = true;
+    $.ajax({
+      url: "/Question/SetQuestionDefaultAnswer",
+      type: "post",
+      contentType: 'application/json',
+      data: formData,
+      success: function (result) {
+        if (result.IsSuccess) {
+          toastr.success('عملیات با موفقیت انجام شد', '', { positionClass: "toast-bottom-left" });
+          ReloadSetDefaultAnswerForm();
+          $('#grid').data('kendoGrid').dataSource.read();
+        }
+      },
+      cache: false,
+      contentType: false,
+      processData: false,
+      error: function (xhr, status, error) {
+        console.error('Error:', xhr.responseText);
+      }
+    });
+
+  }
+</script>
