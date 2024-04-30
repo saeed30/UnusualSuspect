@@ -24,6 +24,30 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
     private int gamesWon;
     [SerializeField]
     private int gamesLost;
+    [SerializeField]
+    private int diamonds;
+    [SerializeField]
+    private int coins;
+    [SerializeField]
+    private int score;
+
+    public int Score
+    {
+      get => score;
+      set => score = value;
+    }
+
+    public int Diamonds
+    {
+      get => diamonds;
+      set => diamonds = value;
+    }
+
+    public int Coins
+    {
+      get => coins;
+      set => coins = value;
+    }
 
     public int UserId
     {

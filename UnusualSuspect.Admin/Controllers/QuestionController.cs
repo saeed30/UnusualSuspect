@@ -1,6 +1,7 @@
 ﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using UnusualSuspect.Admin.Models;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
@@ -24,10 +25,23 @@ namespace UnusualSuspect.Admin.Controllers
     {
       return View();
     }
+
+  [HttpPost]
+    public async Task<IActionResult> SetDefaultAnswer_Destroy([DataSourceRequest] DataSourceRequest request, int id)
+    {
+      if (ModelState.IsValid)
+      {
+        questionService.DeleteQuestionCharacterCardDefaultAnswer(id);
+        await uow.SaveChangesAsync();
+      }
+
+      // Return an empty result.
+      return Json(await new[] { id }.ToDataSourceResultAsync(request, ModelState));
+    }
     public IActionResult SetDefaultAnswer_Read([DataSourceRequest] DataSourceRequest request)
     {
       IQueryable<QuestionCharacterCardDefaultAnswer> items = questionService.GetAllDefaultAnswersWithDetails();
-      var result = items.OrderByDescending(x => x.Id).ToDataSourceResult(request);
+      var result = items.ToDataSourceResult(request);
       return Json(result);
     }
 

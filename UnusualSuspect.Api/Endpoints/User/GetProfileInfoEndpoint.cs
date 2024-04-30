@@ -50,11 +50,14 @@ public sealed class GetProfileInfoEndpoint(
       UserImageDocumentGuidKey = userImageDocumentGuidKey == null ? null : userImageDocumentGuidKey.ToString(),
       AvatarId = user.AvatarId.HasValue ? user.AvatarId.Value : -1,
       IsMale = user.IsMale.HasValue ? user.IsMale.Value : true,
-      Ranking = user.Ranking ?? 10042,
+      Ranking = user.Ranking ?? -1,
       GamesLost = gameStatistics.Result.GamesLost,
       GamesPlayed = gameStatistics.Result.GamesPlayed,
       GamesWon = gameStatistics.Result.GamesWon,
-      UserId = user.Id
+      UserId = user.Id,
+      Coins = user.CalculatedCoins,
+      Diamonds = user.CalculatedDiamonds,
+      Score = user.CalculatedScore
     });
   }
 }

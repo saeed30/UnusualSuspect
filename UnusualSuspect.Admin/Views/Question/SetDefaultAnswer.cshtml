@@ -53,6 +53,10 @@
           columns.Bound(c => c.Id).Title("ویرایش").ClientTemplate(
           "<input type='button'' value='بله' onclick='SetDefaultAsYesClick(#=CharacterCardId#, #=QuestionId#)' class='btn btn-primary btn-sm' />" +
           "<input type='button'' value='خیر' onclick='SetDefaultAsNoClick(#=CharacterCardId#, #=QuestionId#)' class='btn btn-danger btn-sm' />");
+          columns.Command(command =>
+          {
+            command.Destroy();
+          }).Title(" ").Width(90);
         })
         .Pageable(pager => pager
         .Input(true)
@@ -63,17 +67,21 @@
         .Filterable().Sortable()
         .DataSource(dataSource => dataSource
         .Ajax().Sort(a => a.Add("Id").Descending())
-        .PageSize(10)
+        .PageSize(10).Events(events => events.Error("onError"))
         .Model(model =>
         {
           model.Id(p => p.Id);
 
         })
         .Read(read => read.Action("SetDefaultAnswer_Read", "Question"))
+        .Destroy(x => x.Action("SetDefaultAnswer_Destroy", "Question"))
         ))
   </div>
 </div>
 <script type="text/javascript">
+  function onError(e) {
+    alert("خطایی رخ داده است");
+  }
   $("#SetDefaultAsYes").click(SetQuestionDefaultAnswerYes);
   $("#SetDefaultAsNo").click(SetQuestionDefaultAnswerNo);
   $(document).ready(function () {

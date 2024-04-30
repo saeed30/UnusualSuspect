@@ -56,11 +56,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 		HasDataForEnumEntity<SmsSendingStatus, SmsSendingStatusEnum>(modelBuilder);
 		HasDataForEnumEntity<RoleCard, RoleCardEnum>(modelBuilder);
 		HasDataForEnumEntity<GameStatus, GameStatusEnum>(modelBuilder);
+		HasDataForEnumEntity<ScoreType, ScoreTypeEnum>(modelBuilder);
 
 		//[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		modelBuilder.Entity<GameType>().Property(x => x.Id)
 				.ValueGeneratedNever();
 		modelBuilder.Entity<Sticker>().Property(x => x.Id)
+				.ValueGeneratedNever();
+		modelBuilder.Entity<CharacterCard>().Property(x => x.Id)
 				.ValueGeneratedNever();
 	}
 

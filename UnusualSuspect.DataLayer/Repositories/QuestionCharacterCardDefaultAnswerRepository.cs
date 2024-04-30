@@ -5,7 +5,6 @@ using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.DataLayer.Context;
 using UnusualSuspect.ViewModels.Question;
-using Dapper;
 using UnusualSuspect.DataLayer.Contracts;
 
 namespace UnusualSuspect.DataLayer.Repositories;
@@ -15,19 +14,17 @@ public sealed class QuestionCharacterCardDefaultAnswerRepository(IUnitOfWork uow
     IDapperRepository dapperRepository)
   : EfRepository<QuestionCharacterCardDefaultAnswer>(uow, logger), IQuestionCharacterCardDefaultAnswerRepository
 {
-  private readonly DbSet<QuestionCharacterCardDefaultAnswer> questionCharacterCardDefaultAnswer =
-    uow.Set<QuestionCharacterCardDefaultAnswer>();
   public async Task<QuestionCharacterCardDefaultAnswer?> GetDefaultAnswer(short characterCardId, short questionId,
     CancellationToken cancellationToken = default)
   {
-    return await questionCharacterCardDefaultAnswer
+    return await baseEntity
       .FirstOrDefaultAsync(x =>
       x.CharacterCardId == characterCardId && x.QuestionId == questionId, cancellationToken);
   }
 
   public IQueryable<QuestionCharacterCardDefaultAnswer> GetAllWithDetails()
   {
-    return questionCharacterCardDefaultAnswer
+    return baseEntity
       .Include(x => x.CharacterCard)
       .Include(x => x.Question);
   }
@@ -46,7 +43,7 @@ order by qc.QuestionId, qc.CharacterCardId");
   public async Task<List<QuestionCharacterCardDefaultAnswer>> GetByCharacterIdAndQuestionId(short characterCardId, short questionId,
     CancellationToken cancellationToken = default)
   {
-    return await questionCharacterCardDefaultAnswer
+    return await baseEntity
       .Where(x => x.CharacterCardId == characterCardId && x.QuestionId == questionId).ToListAsync(cancellationToken);
   }
 }

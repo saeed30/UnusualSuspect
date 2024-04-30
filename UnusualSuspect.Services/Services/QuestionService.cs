@@ -69,4 +69,9 @@ public class QuestionService(
       });
     return new UnusualSuspectServiceResult<bool>(true);
   }
+
+  public void DeleteQuestionCharacterCardDefaultAnswer(int id)
+  {
+    questionCharacterCardDefaultAnswerRepository.DeleteById(id);
+  }
 }

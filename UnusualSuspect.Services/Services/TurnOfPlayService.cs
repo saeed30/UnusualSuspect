@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
-using UnusualSuspect.ApiViewModels.InnerModels.Game;
 using UnusualSuspect.ApiViewModels.SignalCommandsData;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;

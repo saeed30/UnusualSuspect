@@ -9,11 +9,10 @@ namespace UnusualSuspect.DataLayer.Repositories;
 public sealed class QuestionRepository(IUnitOfWork uow, ILogger<QuestionRepository> logger)
   : EfRepository<Question, short>(uow, logger), IQuestionRepository
 {
-  private readonly DbSet<Question> questions = uow.Set<Question>();
   public async Task<List<Question>> GetRandomActiveQuestionsAsync(int count, CancellationToken cancellationToken = default)
   {
     if (count < 1)
       throw new Exception("count should be more than 0");
-    return await questions.Where(x => x.IsActive).OrderBy(r => Guid.NewGuid()).Take(count).ToListAsync(cancellationToken);
+    return await baseEntity.Where(x => x.IsActive).OrderBy(r => Guid.NewGuid()).Take(count).ToListAsync(cancellationToken);
   }
 }

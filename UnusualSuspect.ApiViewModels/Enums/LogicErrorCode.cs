@@ -90,5 +90,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     InvalidQuestionId = 41,
     [Display(Name = "کد کاراکتر اشتباه است")]
     InvalidCharacterCardId = 42,
+    [Display(Name = "کد کاراکتر تکراری است")]
+    CharacterCardIdAlreadyExists = 43,
   }
 }

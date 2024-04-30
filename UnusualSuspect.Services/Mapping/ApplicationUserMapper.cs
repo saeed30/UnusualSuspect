@@ -1,5 +1,4 @@
 ﻿using UnusualSuspect.ApiViewModels.InnerModels;
-using UnusualSuspect.ApiViewModels.InnerModels.Game;
 using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.Services.Mapping;

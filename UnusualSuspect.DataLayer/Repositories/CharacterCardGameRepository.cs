@@ -9,9 +9,8 @@ namespace UnusualSuspect.DataLayer.Repositories;
 public class CharacterCardGameRepository(IUnitOfWork uow, ILogger<CharacterCardGameRepository> logger)
   : EfRepository<CharacterCardGame>(uow, logger), ICharacterCardGameRepository
 {
-  private readonly DbSet<CharacterCardGame> characterCardGame = uow.Set<CharacterCardGame>();
   public async Task<List<CharacterCardGame>> GetAllGameCharacterCardsAsync(int gameId, CancellationToken cancellationToken = default)
   {
-    return await characterCardGame.Where(x =>x.GameId == gameId).ToListAsync(cancellationToken);
+    return await baseEntity.Where(x =>x.GameId == gameId).ToListAsync(cancellationToken);
   }
 }

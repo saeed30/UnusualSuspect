@@ -9,11 +9,9 @@ namespace UnusualSuspect.DataLayer.Repositories;
 public sealed class QuestionGameRepository(IUnitOfWork uow, ILogger<QuestionGameRepository> logger)
   : EfRepository<QuestionGame>(uow, logger), IQuestionGameRepository
 {
-  private readonly DbSet<QuestionGame> questionGame = uow.Set<QuestionGame>();
-
   public async Task<QuestionGame?> GetQuestionGameByQuestionAndGame(int gameId, short questionId)
   {
-	  return await questionGame.FirstOrDefaultAsync(x=>x.GameId == gameId && x.QuestionId == questionId);
+	  return await baseEntity.FirstOrDefaultAsync(x=>x.GameId == gameId && x.QuestionId == questionId);
 
   }
 }

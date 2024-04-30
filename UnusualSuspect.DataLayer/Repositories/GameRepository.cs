@@ -19,8 +19,6 @@ public sealed class GameRepository(
     IDapperRepository dapperRepository)
   : EfRepository<Game>(uow, logger), IGameRepository
 {
-  private readonly DbSet<Game> games = uow.Set<Game>();
-
   public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default, bool ignoreCache = false)
   {
     //if(setting.Value.IsTesting)
@@ -30,7 +28,7 @@ public sealed class GameRepository(
       game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
     if (game == null)
     {
-      game = await games.AsNoTrackingWithIdentityResolution().AsSplitQuery()
+      game = await baseEntity.AsNoTrackingWithIdentityResolution().AsSplitQuery()
         .Include(x => x.CharacterCardGames)
         .ThenInclude(x => x.CharacterCard)
         .Include(x => x.GameType)
@@ -96,21 +94,21 @@ public sealed class GameRepository(
 
   public IQueryable<Game> GetAllActiveGamesWithGameType()
   {
-    return games
+    return baseEntity
       .Include(x => x.GameType)
       .Where(x => x.FinishedTime == null);
   }
 
   public async Task<Game?> GetUserCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
-    Game? game = await games.FirstOrDefaultAsync(
+    Game? game = await baseEntity.FirstOrDefaultAsync(
       x => x.FinishedTime == null &&
            x.Participates.Any(p => p.UserId == userId), cancellationToken);
     return game;
   }
   public async Task<Game?> GetUserCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default)
   {
-    Game? game = await games.FirstOrDefaultAsync(
+    Game? game = await baseEntity.FirstOrDefaultAsync(
       x => x.FinishedTime == null &&
            x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
     if (game == null)
@@ -120,7 +118,7 @@ public sealed class GameRepository(
 
   public async Task<bool> UserIsInActiveGameAsync(int userId, CancellationToken cancellationToken = default)
   {
-    return await games.AnyAsync(x =>
+    return await baseEntity.AnyAsync(x =>
       x.FinishedTime == null && x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
   }
 

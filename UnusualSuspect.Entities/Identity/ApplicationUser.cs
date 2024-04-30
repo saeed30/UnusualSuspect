@@ -38,7 +38,13 @@ public class ApplicationUser : IdentityUser<int>, IEntity<int>
 	public DateTime? SendCodeDate { set; get; }
 	public string? NickName { get; set; }
 	public short? AvatarId { get; set; }
+	public int CalculatedScore { get; set; }
+	public int CalculatedDiamonds { get; set; }
+	public int CalculatedCoins { get; set; }
 	public int? Ranking { get; set; }
+	public int? RankingDaily { get; set; }
+	public int? RankingWeekly { get; set; }
+	public int? RankingMonthly { get; set; }
 	public virtual ICollection<ActionForUser> ActionForUsers { set; get; }
 	public virtual ICollection<IdentityUserClaim<int>> Claims { get; set; }
 	public virtual ICollection<IdentityUserLogin<int>> Logins { get; set; }

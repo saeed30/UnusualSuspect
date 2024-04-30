@@ -1,6 +1,5 @@
 ﻿using ElmahCore;
 using Microsoft.Extensions.Options;
-using System.Threading;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums;

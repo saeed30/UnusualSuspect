@@ -138,10 +138,7 @@ namespace UnusualSuspect.DataLayer.Migrations
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CharacterCard", b =>
                 {
                     b.Property<short>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("Id"));
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -698,6 +695,108 @@ namespace UnusualSuspect.DataLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Score", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("GameId")
+                        .HasColumnType("int");
+
+                    b.Property<short>("ScoreTypeId")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime>("TimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("ScoreTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Score");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.ScoreType", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ScoreType");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (short)1,
+                            Name = "GameWonAsDetective",
+                            Title = "برد با نقش کارآگاه"
+                        },
+                        new
+                        {
+                            Id = (short)2,
+                            Name = "GameWonAsMainDetective",
+                            Title = "برد با نقش کارآگاه ستاره دار"
+                        },
+                        new
+                        {
+                            Id = (short)3,
+                            Name = "GameWonAsWitness",
+                            Title = "برد با نقش شاهد"
+                        },
+                        new
+                        {
+                            Id = (short)4,
+                            Name = "GameWonAsAccomplice",
+                            Title = "برد با نقش شریک جرم"
+                        },
+                        new
+                        {
+                            Id = (short)5,
+                            Name = "GameLostAsDetective",
+                            Title = "باخت با نقش کارآگاه"
+                        },
+                        new
+                        {
+                            Id = (short)6,
+                            Name = "GameLostAsMainDetective",
+                            Title = "باخت با نقش کارآگاه ستاره دار"
+                        },
+                        new
+                        {
+                            Id = (short)7,
+                            Name = "GameLostAsWitness",
+                            Title = "باخت با نقش شاهد"
+                        },
+                        new
+                        {
+                            Id = (short)8,
+                            Name = "GameLostAsAccomplice",
+                            Title = "باخت با نقش شریک جرم"
+                        });
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Sticker", b =>
                 {
                     b.Property<short>("Id")
@@ -718,6 +817,114 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.ToTable("Sticker");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopDayRanking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScoreSum")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TopDayRanking");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopMonthRanking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScoreSum")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TopMonthRanking");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopTotalRanking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScoreSum")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TopTotalRanking");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopWeekRanking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScoreSum")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TopWeekRanking");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.Identity.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
@@ -734,6 +941,15 @@ namespace UnusualSuspect.DataLayer.Migrations
 
                     b.Property<short?>("AvatarId")
                         .HasColumnType("smallint");
+
+                    b.Property<int>("CalculatedCoins")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CalculatedDiamonds")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CalculatedScore")
+                        .HasColumnType("int");
 
                     b.Property<string>("CodeForResetPassword")
                         .HasColumnType("nvarchar(max)");
@@ -812,6 +1028,15 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Ranking")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RankingDaily")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RankingMonthly")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RankingWeekly")
                         .HasColumnType("int");
 
                     b.Property<string>("SecurityStamp")
@@ -1749,6 +1974,75 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("Game");
 
                     b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Score", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId");
+
+                    b.HasOne("UnusualSuspect.Entities.GameModels.ScoreType", "ScoreType")
+                        .WithMany()
+                        .HasForeignKey("ScoreTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Game");
+
+                    b.Navigation("ScoreType");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopDayRanking", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopMonthRanking", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopTotalRanking", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopWeekRanking", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Identity.ApplicationUser", b =>

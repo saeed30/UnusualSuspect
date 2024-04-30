@@ -10,4 +10,5 @@ public interface IQuestionService
 
   Task<GetFirstUnansweredQuestionViewmodel?> GetFirstUnanswered(CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> SetDefaultAnswer(SetQuestionDefaultAnswerViewmodel model, CancellationToken cancellationToken = default);
+  void DeleteQuestionCharacterCardDefaultAnswer(int id);
 }

@@ -1,6 +1,6 @@
 ﻿@using UnusualSuspect.Entities.GameModels
 @{
-  ViewBag.Title = "بازی های فعال";
+  ViewBag.Title = "کاراکترها";
   Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="toolbar" id="kt_toolbar">
@@ -27,7 +27,7 @@
           {
             command.Edit();
             command.Destroy();
-          }).Title(" ").Width(200);
+          }).Title(" ").Width(180);
         })
         .ToolBar(toolbar => toolbar.Create())
         .Editable(editable => editable.Mode(GridEditMode.InLine))
@@ -37,24 +37,24 @@
         .PreviousNext(true)
         .Refresh(true)
         )
-        .Filterable().Sortable()
+        .Filterable().Pageable().Sortable()
         .DataSource(dataSource => dataSource
-        .Custom()
-        .PageSize(20)
-        .Transport(model =>
-        model
-        .Read(read => read.Action("Character_Read", "Character"))
-        .Create(read => read.Action("Character_Create", "Character").Type(HttpVerbs.Post))
-        .Update(read => read.Action("Character_Update", "Character").Type(HttpVerbs.Post))
-        .Destroy(read => read.Action("Character_Destroy", "Character").Type(HttpVerbs.Post))
-        ).Schema(schema => schema
-        .Data("Data")
+        .Ajax()
+        .PageSize(20).Events(events => events.Error("onError"))
         .Model(model =>
         {
           model.Id(p => p.Id);
-          model.Field(p => p.Id).Editable(false);
+
         })
-        )
+        .Read(read => read.Action("Character_Read", "Character"))
+        .Update(x => x.Action("Character_Update", "Character"))
+        .Create(x => x.Action("Character_Create", "Character"))
+        .Destroy(x => x.Action("Character_Destroy", "Character"))
         ).HtmlAttributes(new { enctype = "multipart/form-data" }))
   </div>
 </div>
+<script type="text/javascript">
+  function onError(e) {
+    alert("خطایی رخ داده است");
+  }
+</script>

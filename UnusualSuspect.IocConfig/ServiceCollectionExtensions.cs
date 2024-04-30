@@ -25,6 +25,7 @@ using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Context;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
+using UnusualSuspect.DataLayer.Contracts.Repository.TopRanking;
 using UnusualSuspect.DataLayer.Repositories;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
@@ -34,6 +35,7 @@ using UnusualSuspect.Services.IServices;
 using UnusualSuspect.Services.JcoSecurity;
 using UnusualSuspect.Services.Services;
 using UnusualSuspect.ViewModels.Settings;
+using UnusualSuspect.DataLayer.Repositories.TopRanking;
 
 namespace UnusualSuspect.IocConfig;
 
@@ -43,17 +45,25 @@ public static class ServiceCollectionExtensions
   {
     services.AddScoped<IPreGameService, PreGameService>();
     services.AddScoped<IGameService, GameService>();
+    services.AddScoped<IRankingService, RankingService>();
     services.AddScoped<IQuestionService, QuestionService>();
     services.AddScoped<ICharacterService, CharacterService>();
+    services.AddScoped<IScoreService, ScoreService>();
     services.AddScoped<IFriendService, FriendService>();
     services.AddScoped<IStickerService, StickerService>();
     services.AddScoped<IJoinedPreGameRepository, JoinedPreGameRepository>();
     services.AddScoped<IGameRepository, GameRepository>();
     services.AddScoped<IParticipateRepository, ParticipateRepository>();
+    services.AddScoped<IScoreRepository, ScoreRepository>();
     services.AddScoped<IPreGameGroupRepository, PreGameGroupRepository>();
+    services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
     services.AddScoped<IGameTypeRepository, GameTypeRepository>();
     services.AddScoped<ICharacterCardGameRepository, CharacterCardGameRepository>();
     services.AddScoped<ICharacterCardRepository, CharacterCardRepository>();
+    services.AddScoped<ITopDayRankingRepository, TopDayRankingRepository>();
+    services.AddScoped<ITopWeekRankingRepository, TopWeekRankingRepository>();
+    services.AddScoped<ITopMonthRankingRepository, TopMonthRankingRepository>();
+    services.AddScoped<ITopTotalRankingRepository, TopTotalRankingRepository>();
     services.AddScoped<IQuestionGameRepository, QuestionGameRepository>();
     services.AddScoped<IQuestionRepository, QuestionRepository>();
     services.AddScoped<IQuestionCharacterCardDefaultAnswerRepository, QuestionCharacterCardDefaultAnswerRepository>();

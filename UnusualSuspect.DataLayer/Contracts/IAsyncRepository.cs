@@ -2,7 +2,7 @@
 
 namespace UnusualSuspect.DataLayer.Contracts;
 
-public interface IAsyncRepository<T> : IAsyncRepository<T, int> where T : BaseEntity
+public interface IAsyncRepository<T> : IAsyncRepository<T, int> where T : IEntity<int>
 {
 
 }
@@ -11,7 +11,7 @@ public interface IAsyncRepository<T> : IAsyncRepository<T, int> where T : BaseEn
 /// </summary>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="TY"></typeparam>
-public interface IAsyncRepository<T, TY> where T : BaseEntity<TY>
+public interface IAsyncRepository<T, TY> where T : IEntity<TY>
 {
 	Task<T?> GetByIdAsync(TY id, CancellationToken cancellationToken = default);
 

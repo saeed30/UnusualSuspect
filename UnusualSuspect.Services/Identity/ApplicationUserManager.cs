@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata;
-using UnusualSuspect.DataLayer;
+﻿using UnusualSuspect.DataLayer;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.ViewModels.Api.User;

@@ -12,10 +12,6 @@ using Microsoft.Extensions.Options;
 using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.ViewModels.Game;
 using UnusualSuspect.ViewModels.Settings;
-using Aspose.Cells;
-using System.Threading;
-using System;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace UnusualSuspect.Services.Services;
@@ -32,6 +28,7 @@ public sealed class GameService(IUnitOfWork uow,
   IJoinedPreGameRepository joinedPreGameRepository,
   IGameCandidateRepository gameCandidateRepository,
   IQuestionService questionService,
+  IScoreService scoreService,
   IOptionsSnapshot<ProjectSetting> setting,
   ILogger<GameService> logger) : IGameService
 {
@@ -135,7 +132,17 @@ public sealed class GameService(IUnitOfWork uow,
     if (game == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     if (finalGameStatus.HasValue)
+    {
       gameRepository.SetGameStatus(game, finalGameStatus.Value);
+      if (finalGameStatus.Value == GameStatusEnum.FinishedAndLostTheGame ||
+          finalGameStatus.Value == GameStatusEnum.FinishedAndWonTheGame)
+      {
+        List<Participate> pars =
+          await participateRepository.GetGameActiveParticipantsAsync(gameId, null, cancellationToken);
+        await scoreService.SetGameFinishedScoresAsync(gameId,
+          finalGameStatus.Value == GameStatusEnum.FinishedAndWonTheGame, pars, cancellationToken);
+      }
+    }
     game.FinishedTime = DateTime.Now;
     List<int> preGameGroupIds = await preGameGroupRepository.ResetGroupsStatusAfterFinishingTheGameAsync(gameId, cancellationToken);
     await joinedPreGameRepository.ResetJoinedPreGameAfterFinishingTheGameAsync(preGameGroupIds, cancellationToken);
@@ -197,7 +204,7 @@ public sealed class GameService(IUnitOfWork uow,
 
   private async Task<bool> SetAnswerIfNoWitnessInGame(int gameId, CancellationToken cancellationToken = default)
   {
-    if ((await participateRepository.GetGameActiveParticipantsAsync(gameId, RoleCardEnum.Witness)).Any())
+    if ((await participateRepository.GetGameActiveParticipantsAsync(gameId, RoleCardEnum.Witness, cancellationToken)).Any())
       return false;
     Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
     if (game == null)

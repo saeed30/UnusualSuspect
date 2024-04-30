@@ -25,7 +25,8 @@ public class CharacterController(ILogger<CharacterController> logger,
   public IActionResult Character_Read([DataSourceRequest] DataSourceRequest request)
   {
     IQueryable<CharacterCard> items = characterService.GetAllCharacters();
-    var result = items.OrderByDescending(x => x.Id).ToDataSourceResult(request);
+    DataSourceResult result = items.ToDataSourceResult(request);
+    result.Total = items.Count();
     return Json(result);
   }
   [HttpPost]
@@ -39,14 +40,23 @@ public class CharacterController(ILogger<CharacterController> logger,
     return Json(new[] { character }.ToDataSourceResult(request, ModelState));
   }
   [HttpPost]
-  public ActionResult Character_Update([DataSourceRequest] DataSourceRequest request, [BindRequired] CharacterCard character)
+  public async Task<ActionResult> Character_Update([DataSourceRequest] DataSourceRequest request, [BindRequired] CharacterCard character)
   {
     if (character != null && ModelState.IsValid)
     {
-      characterService.UpdateCharacter(character);
-      uow.SaveChanges();
+      var result = await characterService.UpdateCharacterAsync(character, character.OriginalId);
+      if (result.Success)
+      {
+        if (result.Result)
+          await uow.SaveChangesAsync();
+      }
+      else
+      {
+        ModelState.AddModelError(string.Empty, "Update failed: " + result.MainError.GetDisplay());
+        HttpContext.Response.StatusCode = 500;
+      }
     }
-    return Json(new[] { character }.ToDataSourceResult(request, ModelState));
+    return Json(new[] { character }.ToDataSourceResultAsync(request, ModelState));
   }
   [HttpPost]
   public async Task<IActionResult> Character_Destroy([DataSourceRequest] DataSourceRequest request, [BindRequired] CharacterCard character)
