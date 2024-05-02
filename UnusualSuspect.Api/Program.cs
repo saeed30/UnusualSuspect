@@ -8,11 +8,9 @@ using System;
 using UnusualSuspect.IocConfig;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.Configuration;
-using UnusualSuspect.DataLayer.Common;
 using Hangfire;
 using HangfireBasicAuthenticationFilter;
 using UnusualSuspect.Api.Background;
-using UnusualSuspect.DataLayer.Contracts;
 using Serilog;
 using UnusualSuspect.Common.Middlewares;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +18,7 @@ using System.Diagnostics;
 using Serilog.Events;
 using System.Linq;
 using UnusualSuspect.Services.SignalR;
+using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,7 +103,6 @@ builder.Services.AddSignalR(o =>
   );
 builder.Services.AddMemoryCache();
 
-builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 builder.Services.AddHostedService<AlwaysRunningBackgroundService>();
 
 /////////////////////////////////////
@@ -181,6 +179,7 @@ app.MapHangfireDashboard("/hangfire", new DashboardOptions()
     }
   }
 });
+RecurringJob.AddOrUpdate<DailyJobs>("ScoreAndRankingJob", job => job.CalculateScoreAndRankingsAsync(CancellationToken.None), Cron.Daily(21));
 app.UseCors("AllowAll");
 app.MapHub<GameHub>("GameHub", option =>
 {

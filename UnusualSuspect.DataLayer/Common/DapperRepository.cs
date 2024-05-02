@@ -11,19 +11,31 @@ public class DapperRepository(IOptionsSnapshot<ProjectSetting> setting) : IDappe
 {
   private readonly string connectionString = setting.Value.ConnectionStrings.ApplicationConnectionString;
 
-  public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null, CommandType commandType = CommandType.Text)
+  public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null,
+    CancellationToken cancellationToken = default, IDbTransaction? dbTransaction = null,
+    int? commandTimeout = null, CommandType commandType = CommandType.Text)
   {
     using IDbConnection db = new SqlConnection(connectionString);
-    return await db.QueryAsync<T>(sql, param, commandType: commandType);
+    var command = new CommandDefinition(sql, param, commandType: commandType,
+      cancellationToken: cancellationToken, transaction: dbTransaction, commandTimeout: commandTimeout);
+    return await db.QueryAsync<T>(command);
   }
-  public async Task<T?> QuerySingleAsync<T>(string sql, object? param = null, CommandType commandType = CommandType.Text)
+  public async Task<T?> QuerySingleAsync<T>(string sql, object? param = null,
+    CancellationToken cancellationToken = default, IDbTransaction? dbTransaction = null,
+    int? commandTimeout = null, CommandType commandType = CommandType.Text)
   {
     using IDbConnection db = new SqlConnection(connectionString);
-    return await db.QuerySingleOrDefaultAsync<T>(sql, param, commandType: commandType);
+    var command = new CommandDefinition(sql, param, commandType: commandType,
+      cancellationToken: cancellationToken, transaction: dbTransaction, commandTimeout: commandTimeout);
+    return await db.QuerySingleOrDefaultAsync<T>(command);
   }
-  public async Task<int> ExecuteAsync(string sql, object? param = null, CommandType commandType = CommandType.Text)
+  public async Task<int> ExecuteAsync(string sql, object? param = null,
+    CancellationToken cancellationToken = default, IDbTransaction? dbTransaction = null,
+    int? commandTimeout = null ,CommandType commandType = CommandType.Text)
   {
     using IDbConnection db = new SqlConnection(connectionString);
-    return await db.ExecuteAsync(sql, param, commandType: commandType);
+    var command = new CommandDefinition(sql, param, commandType: commandType,
+      cancellationToken: cancellationToken, transaction: dbTransaction, commandTimeout: commandTimeout);
+    return await db.ExecuteAsync(command);
   }
 }

@@ -73,6 +73,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<INotificationService, NotificationService>();
     services.AddScoped<IMemoryCacheService, MemoryCacheService>();
     services.AddScoped<ITurnOfPlayService, TurnOfPlayService>();
+    services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 
     return services;
   }
