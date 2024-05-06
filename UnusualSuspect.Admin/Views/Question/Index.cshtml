@@ -1,6 +1,6 @@
 ﻿@using UnusualSuspect.Entities.GameModels
 @{
-  ViewBag.Title = "کاراکترها";
+  ViewBag.Title = "سوال ها";
   Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="toolbar" id="kt_toolbar">
@@ -14,15 +14,14 @@
 </div>
 <div class="card card-flush">
   <div class="card-body">
-    @(Html.Kendo().Grid<CharacterCard>()
+    @(Html.Kendo().Grid<Question>()
         .Name("grid")
         .Columns(columns =>
         {
           columns.Bound(c => c.Id).Title("شناسه");
-          columns.Bound(c => c.Title).Title("عنوان");
+          columns.Bound(c => c.QuestionContent).Title("عنوان");
           columns.Bound(c => c.IsActive).Title("فعال")
           .ClientTemplate("<input type='checkbox' #= IsActive ? checked='checked' : '' # disabled='disabled' />");
-          columns.Bound(c => c.ImageUrl).Title("آدرس تصویر");
           columns.Command(command =>
           {
             command.Edit();
@@ -44,11 +43,12 @@
         .Model(model =>
         {
           model.Id(p => p.Id);
+          model.Field(x => x.Id).Editable(false);
         })
-        .Read(read => read.Action("Character_Read", "Character"))
-        .Update(x => x.Action("Character_Update", "Character"))
-        .Create(x => x.Action("Character_Create", "Character"))
-        .Destroy(x => x.Action("Character_Destroy", "Character"))
+        .Read(read => read.Action("Question_Read", "Question"))
+        .Update(x => x.Action("Question_Update", "Question"))
+        .Create(x => x.Action("Question_Create", "Question"))
+        .Destroy(x => x.Action("Question_Destroy", "Question"))
         ).HtmlAttributes(new { enctype = "multipart/form-data" }))
   </div>
 </div>

@@ -85,4 +85,9 @@ public sealed class JoinedPreGameRepository
   {
     return await baseEntity.AnyAsync(x => x.Id == preGameGroupId && x.UserId == userId, cancellationToken);
   }
+
+  public async Task<IEnumerable<JoinedPreGame>> GetAllOwnedByUserId(int userId, CancellationToken cancellationToken = default)
+  {
+    return await baseEntity.Where(x => x.UserId == userId && x.IsOwnerOfPreGroup).ToListAsync(cancellationToken);
+  }
 }

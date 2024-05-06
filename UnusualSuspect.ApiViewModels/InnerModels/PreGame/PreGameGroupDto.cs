@@ -10,9 +10,9 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
     [SerializeField]
     private int preGameGroupId;
     [SerializeField]
-    private DateTime createdTime;
+    private string createdTimeString;
     [SerializeField]
-    private DateTime? readyToGameTime;
+    private string? readyToGameTimeString;
     [SerializeField]
     private short calculatedJoinedUsers;
     [SerializeField]
@@ -21,6 +21,33 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
     private short preGameGroupStatusId;
     [SerializeField]
     private int? gameId;
+    [SerializeField]
+    private UserDto ownerDto;
+
+    public DateTime CreatedTime
+    {
+      get
+      {
+        DateTime.TryParse(createdTimeString, out DateTime result);
+        return result;
+      }
+    }
+    public DateTime? ReadyToGameTime
+    {
+      get
+      {
+        if(string.IsNullOrWhiteSpace(createdTimeString))
+          return null;
+        DateTime.TryParse(createdTimeString, out DateTime result);
+        return result;
+      }
+    }
+
+    public UserDto OwnerDto
+    {
+      get => ownerDto;
+      set => ownerDto = value;
+    }
 
     public int PreGameGroupId
     {
@@ -28,16 +55,16 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
       set => preGameGroupId = value;
     }
 
-    public DateTime CreatedTime
+    public string CreatedTimeString
     {
-      get => createdTime;
-      set => createdTime = value;
+      get => createdTimeString;
+      set => createdTimeString = value;
     }
 
-    public DateTime? ReadyToGameTime
+    public string? ReadyToGameTimeString
     {
-      get => readyToGameTime;
-      set => readyToGameTime = value;
+      get => readyToGameTimeString;
+      set => readyToGameTimeString = value;
     }
 
     public short CalculatedJoinedUsers

@@ -106,7 +106,7 @@ public static class GameMapper
         Cups = GetCupByWinCondition((GameRole)participate.RoleCardId, won),
         UserDto = new UserDto()
         {
-          AvatarId = participate.ApplicationUser.AvatarId,
+          AvatarId = participate.ApplicationUser.AvatarId ?? -1,
           Id = participate.ApplicationUser.Id,
           NickName = participate.ApplicationUser.NickName,
           Username = participate.ApplicationUser.UserName

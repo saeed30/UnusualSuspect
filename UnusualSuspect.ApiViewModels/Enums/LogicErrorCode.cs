@@ -92,5 +92,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     InvalidCharacterCardId = 42,
     [Display(Name = "کد کاراکتر تکراری است")]
     CharacterCardIdAlreadyExists = 43,
+    [Display(Name = "کاربر مالک گروه قبل از بازی دیگری است")]
+    UserOwnsAnotherPregameGroup = 44,
   }
 }

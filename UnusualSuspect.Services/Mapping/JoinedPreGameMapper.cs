@@ -16,7 +16,7 @@ public static class JoinedPreGameMapper
       ReadyToGameStatus = (ReadyToGameStatusEnum)value.ReadyToGameStatusId,
       UserDto = new UserDto()
       {
-        AvatarId = value.User.AvatarId,
+        AvatarId = value.User.AvatarId ?? -1,
         Id = value.User.Id,
         NickName = value.User.NickName,
         Username = value.User.UserName

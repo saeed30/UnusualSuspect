@@ -5,7 +5,7 @@ using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.ViewModels.Question;
 
 namespace UnusualSuspect.Services.Services;
-public class QuestionService(
+public sealed class QuestionService(
     IQuestionCharacterCardDefaultAnswerRepository questionCharacterCardDefaultAnswerRepository,
     IQuestionRepository questionRepository,
     ICharacterCardRepository cardRepository)
@@ -24,6 +24,13 @@ public class QuestionService(
   public IQueryable<QuestionCharacterCardDefaultAnswer> GetAllDefaultAnswersWithDetails()
   {
     return questionCharacterCardDefaultAnswerRepository.GetAllWithDetails();
+  }
+
+  public IQueryable<Question> GetAllQuestions(bool? isActive = null)
+  {
+    if (isActive.HasValue)
+      return questionRepository.GetAll().Where(x => x.IsActive == isActive.Value);
+    return questionRepository.GetAll();
   }
 
   public async Task<GetFirstUnansweredQuestionViewmodel?> GetFirstUnanswered(CancellationToken cancellationToken = default)
@@ -73,5 +80,20 @@ public class QuestionService(
   public void DeleteQuestionCharacterCardDefaultAnswer(int id)
   {
     questionCharacterCardDefaultAnswerRepository.DeleteById(id);
+  }
+
+  public void AddQuestion(Question question)
+  {
+    questionRepository.Add(question);
+  }
+
+  public void UpdateQuestion(Question question)
+  {
+    questionRepository.Update(question);
+  }
+
+  public void DeleteQuestionById(short questionId)
+  {
+    questionRepository.DeleteById(questionId);
   }
 }

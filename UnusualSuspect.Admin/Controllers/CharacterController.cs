@@ -26,7 +26,6 @@ public class CharacterController(ILogger<CharacterController> logger,
   {
     IQueryable<CharacterCard> items = characterService.GetAllCharacters();
     DataSourceResult result = items.ToDataSourceResult(request);
-    result.Total = items.Count();
     return Json(result);
   }
   [HttpPost]

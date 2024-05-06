@@ -13,10 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Question\Index.cshtml" />
     <Content Remove="wwwroot\js\pages\account\EditProfile.js" />
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Question\Index.cshtml" />
     <_ContentIncludedByDefault Remove="wwwroot\js\pages\account\EditProfile.js" />
   </ItemGroup>
 
@@ -45,6 +47,7 @@
     <None Include="Views\AccessManagement\ShowAllSoftwareRoles.cshtml" />
     <None Include="Views\AccessManagement\_EditActionController.cshtml" />
     <None Include="Views\AccessManagement\_EditController.cshtml" />
+    <None Include="Views\Question\Index.cshtml" />
     <None Include="Views\Shared\Components\ActionsList\Default.cshtml" />
     <None Include="Views\Shared\Components\DynamicAdminMenu\Default.cshtml" />
     <None Include="Views\Shared\Components\PagingResultGrid\Default.cshtml" />
@@ -90,14 +93,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Ardalis.EFCore.Extensions" Version="6.0.0" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3">
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -105,7 +109,7 @@
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
     <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.0.3" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.6.0" />
-    <PackageReference Include="SkiaSharp" Version="2.88.7" />
+    <PackageReference Include="SkiaSharp" Version="2.88.8" />
   </ItemGroup>
 
   <ItemGroup>
@@ -143,6 +147,10 @@
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Question\Index.cshtml" />
   </ItemGroup>
 
 </Project>

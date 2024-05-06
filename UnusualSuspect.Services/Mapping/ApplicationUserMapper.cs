@@ -12,7 +12,7 @@ public static class ApplicationUserMapper
       Id = value.Id,
       NickName = value.NickName,
       Username = value.UserName,
-      AvatarId = value.AvatarId
+      AvatarId = value.AvatarId ?? -1
     };
   }
   public static IEnumerable<UserDto> ToGameUserDto(this IEnumerable<ApplicationUser> value)

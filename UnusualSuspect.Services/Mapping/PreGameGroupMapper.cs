@@ -1,4 +1,5 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
+using UnusualSuspect.ApiViewModels.InnerModels;
 using UnusualSuspect.ApiViewModels.InnerModels.PreGame;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.ViewModels.PreGame;
@@ -9,15 +10,20 @@ public static class PreGameGroupMapper
 {
   public static PreGameGroupDto ToPreGameGroupDto(this PreGameGroup value)
   {
+    JoinedPreGame? owner = value.JoinedPreGames.FirstOrDefault(x => x.IsOwnerOfPreGroup);
+    UserDto userDto = null;
+    if (owner != null)
+      userDto = owner.User.ToUserDto();
     return new PreGameGroupDto()
     {
       PreGameGroupId = value.Id,
       PreGameGroupStatusId = value.PreGameGroupStatusId,
       CalculatedJoinedUsers = value.CalculatedJoinedUsers,
-      ReadyToGameTime = value.ReadyToGameTime,
+      ReadyToGameTimeString = value.ReadyToGameTime.ToString(),
       GameTypeDto = value.GameType.ToGameTypeDto(),
       GameId = value.GameId,
-      CreatedTime = value.CreatedTime
+      CreatedTimeString = value.CreatedTime.ToString(),
+      OwnerDto = userDto
     };
   }
   public static IEnumerable<PreGameGroupDto> ToPreGameGroupDto(this IEnumerable<PreGameGroup> value)

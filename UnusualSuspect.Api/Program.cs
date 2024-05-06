@@ -179,11 +179,17 @@ app.MapHangfireDashboard("/hangfire", new DashboardOptions()
     }
   }
 });
-RecurringJob.AddOrUpdate<DailyJobs>("ScoreAndRankingJob", job => job.CalculateScoreAndRankingsAsync(CancellationToken.None), Cron.Daily(21));
+RecurringJob.AddOrUpdate<DailyJobs>("ScoreAndRankingJob",
+  job => job.CalculateScoreAndRankingsAsync(CancellationToken.None),
+  Cron.Daily(1),
+  new RecurringJobOptions()
+  {
+    TimeZone = TimeZoneInfo.Local
+  });
 app.UseCors("AllowAll");
 app.MapHub<GameHub>("GameHub", option =>
 {
-  //option.CloseOnAuthenticationExpiration = true;
+  option.CloseOnAuthenticationExpiration = true;
 });
 
 

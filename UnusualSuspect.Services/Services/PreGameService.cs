@@ -159,7 +159,11 @@ public sealed class PreGameService(IUnitOfWork uow,
 		bool alreadyJoinedPreGameGroup = await CheckUserJoinedPreGameGroup(userId, preGameGroupId, cancellationToken);
 		if (alreadyJoinedPreGameGroup)
 			return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.UserAlreadyJoinedPreGameGroup));
-		JoinedPreGame joinedPreGame = new JoinedPreGame()
+    List<JoinedPreGame> preGameGroupsOwned = (await joinedPreGameRepository.GetAllOwnedByUserId(userId, cancellationToken)).ToList();
+    if (preGameGroupsOwned.Any())
+      return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotOwnTheGroup));
+
+    JoinedPreGame joinedPreGame = new JoinedPreGame()
 		{
 			UserId = userId,
 			IsOwnerOfPreGroup = false,
