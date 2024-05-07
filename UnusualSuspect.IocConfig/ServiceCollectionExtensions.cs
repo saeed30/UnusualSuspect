@@ -341,6 +341,7 @@ public static class ServiceCollectionExtensions
     {
       options.Path = siteSetting.SiteSetting.ElmahPath;
       options.ConnectionString = configuration.GetConnectionString("ElmahConnectionString");
+      options.Filters.Add(new CustomErrorFilter());
       //options.CheckPermissionAction = httpContext => httpContext.User.Identity.IsAuthenticated;
     });
   }
@@ -354,4 +355,16 @@ public static class ServiceCollectionExtensions
     identityOptionsPassword.RequiredLength = siteSettings.IdentitySettings.PasswordRequiredLength;
   }
 
+}
+
+public class CustomErrorFilter : IErrorFilter
+{
+  public void OnErrorModuleFiltering(object sender, ExceptionFilterEventArgs args)
+  {
+    if (args.Context is Microsoft.AspNetCore.Http.DefaultHttpContext context)
+    {
+      if (context.Response != null && context.Response.StatusCode == StatusCodes.Status404NotFound)
+        args.Dismiss();
+    }
+  }
 }

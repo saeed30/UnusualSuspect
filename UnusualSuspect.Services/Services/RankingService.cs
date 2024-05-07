@@ -34,19 +34,19 @@ namespace UnusualSuspect.Services.Services
 
     public async Task RecalculateAllRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken = default)
     {
-      logger.LogCritical("RecalculateAllRankings job started at {startTime}", DateTime.Now);
+      logger.LogWarning("RecalculateAllRankings job started at {startTime}", DateTime.Now);
 
       await RecalculateDailyRankings(numberOfUsersInRankingTables, cancellationToken);
       await RecalculateWeekRankings(numberOfUsersInRankingTables, cancellationToken);
       await RecalculateMonthRankings(numberOfUsersInRankingTables, cancellationToken);
       await RecalculateTotalRankings(numberOfUsersInRankingTables, cancellationToken);
 
-      logger.LogCritical("RecalculateAllRankings job ended at {endTime}", DateTime.Now);
+      logger.LogWarning("RecalculateAllRankings job ended at {endTime}", DateTime.Now);
     }
 
     private async Task RecalculateTotalRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken)
     {
-      logger.LogCritical("RecalculateTotalRankings started at {startTime}", DateTime.Now);
+      logger.LogInformation("RecalculateTotalRankings started at {startTime}", DateTime.Now);
       await scoreRepository.RecalculateUserTotalScoreAsync(cancellationToken);
       await applicationUserRepository.RecalculateRaking(cancellationToken);
       await topTotalRatingRepository.RecalculateTopRankings(numberOfUsersInRankingTables, cancellationToken);
@@ -55,7 +55,7 @@ namespace UnusualSuspect.Services.Services
 
     private async Task RecalculateMonthRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken)
     {
-      logger.LogCritical("RecalculateMonthRankings started at {startTime}", DateTime.Now);
+      logger.LogInformation("RecalculateMonthRankings started at {startTime}", DateTime.Now);
       await scoreRepository.RecalculateUserMonthScoreAsync(cancellationToken);
       await applicationUserRepository.RecalculateMonthRaking(cancellationToken);
       await topMonthRatingRepository.RecalculateTopRankings(numberOfUsersInRankingTables, cancellationToken);
@@ -64,7 +64,7 @@ namespace UnusualSuspect.Services.Services
 
     private async Task RecalculateWeekRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken)
     {
-      logger.LogCritical("RecalculateWeekRankings started at {startTime}", DateTime.Now);
+      logger.LogInformation("RecalculateWeekRankings started at {startTime}", DateTime.Now);
       await scoreRepository.RecalculateUserWeekScoreAsync(cancellationToken);
       await applicationUserRepository.RecalculateWeekRaking(cancellationToken);
       await topWeekRatingRepository.RecalculateTopRankings(numberOfUsersInRankingTables, cancellationToken);
@@ -73,7 +73,7 @@ namespace UnusualSuspect.Services.Services
 
     private async Task RecalculateDailyRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken)
     {
-      logger.LogCritical("RecalculateDailyRankings started at {startTime}", DateTime.Now);
+      logger.LogInformation("RecalculateDailyRankings started at {startTime}", DateTime.Now);
       await scoreRepository.RecalculateUserDailyScoreAsync(cancellationToken);
       await applicationUserRepository.RecalculateDailyRaking(cancellationToken);
       await topDayRatingRepository.RecalculateTopRankings(numberOfUsersInRankingTables, cancellationToken);

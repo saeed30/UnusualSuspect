@@ -15,6 +15,8 @@ public sealed class PreGameGroupRepository
   {
     return await baseEntity
       .Include(x => x.GameType)
+      .Include(x => x.JoinedPreGames)
+      .ThenInclude(x => x.User)
       .Where(x => x.JoinedPreGames.Any(j => j.UserId == userId))
       .OrderByDescending(x => x.ReadyToGameTime).Take(maxNumberOfGameRequests).ToListAsync(cancellationToken);
   }
