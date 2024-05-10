@@ -28,3 +28,5 @@
 /UnusualSuspect.ApiViewModels/obj
 /UnusualSuspect.ApiViewModels/bin
 /UnusualSuspect.Admin/wwwroot/Files/Characters
+/UnusualSuspect.Api/appsettings.Production.json
+/UnusualSuspect.Admin/appsettings.Production.json
