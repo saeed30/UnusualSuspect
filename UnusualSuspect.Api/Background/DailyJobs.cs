@@ -5,21 +5,20 @@ using Hangfire;
 using ElmahCore;
 using System;
 
-namespace UnusualSuspect.Api.Background
+namespace UnusualSuspect.Api.Background;
+
+public class DailyJobs(IRankingService rankingService)
 {
-  public class DailyJobs(IRankingService rankingService)
+  [DisableConcurrentExecution(timeoutInSeconds: 10 * 60)]
+  public async Task CalculateScoreAndRankingsAsync(CancellationToken cancellationToken)
   {
-    [DisableConcurrentExecution(timeoutInSeconds: 10 * 60)]
-    public async Task CalculateScoreAndRankingsAsync(CancellationToken cancellationToken)
+    try
     {
-      try
-      {
-        await rankingService.RecalculateAllRankings(100, cancellationToken);
-      }
-      catch (Exception ex)
-      {
-        ElmahExtensions.RaiseError(ex);
-      }
+      await rankingService.RecalculateAllRankings(100, cancellationToken);
+    }
+    catch (Exception ex)
+    {
+      ElmahExtensions.RaiseError(ex);
     }
   }
 }

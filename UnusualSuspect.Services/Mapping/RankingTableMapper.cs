@@ -17,7 +17,7 @@ namespace UnusualSuspect.Services.Mapping
         Id = model.Id,
         Rank = model.Rank,
         ScoreSum = model.ScoreSum,
-        UserDto = model.ApplicationUser.ToUserDto()
+        UserDto = model.User.ToUserDto()
       };
     }
 

@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="appsettings.Production.json" />
     <Content Remove="wwwroot\js\pages\account\EditProfile.js" />
   </ItemGroup>
 
@@ -22,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="appsettings.Production.json" />
     <None Include="Areas\Identity\Pages\Account\AccessDenied.cshtml" />
     <None Include="Areas\Identity\Pages\Account\ConfirmPhoneNumber.cshtml" />
     <None Include="Areas\Identity\Pages\Account\ExternalLogin.cshtml" />

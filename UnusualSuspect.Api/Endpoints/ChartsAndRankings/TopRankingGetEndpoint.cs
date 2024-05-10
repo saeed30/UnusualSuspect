@@ -5,17 +5,17 @@ using UnusualSuspect.ApiViewModels.Endpoints.ChartsAndRankings;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.Contracts;
 
-namespace UnusualSuspect.Api.Endpoints.ChartsAndRankings
-{
-  public sealed class TopRankingGetEndpoint(IRankingService rankingService) : MyBaseEndpointAuthenticated
-    .WithoutRequest
-    .WithActionResult<ApiResultCommon<TopRankingGetResponse>>
+namespace UnusualSuspect.Api.Endpoints.ChartsAndRankings;
 
-  {
+public sealed class TopRankingGetEndpoint(IRankingService rankingService) : MyBaseEndpointAuthenticated
+  .WithoutRequest
+  .WithActionResult<ApiResultCommon<TopRankingGetResponse>>
+
+{
   [HttpGet("api/[namespace]/TopRankingGet")]
-    public override Task<ActionResult<ApiResultCommon<TopRankingGetResponse>>> HandleAsync(CancellationToken cancellationToken = new CancellationToken())
-    {
-      throw new System.NotImplementedException();
-    }
+  public override async Task<ActionResult<ApiResultCommon<TopRankingGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
+  {
+    var result = await rankingService.GetTopRankingsAsync(CurrentUser.UserId, 100, cancellationToken);
+    return ReturnResult(result);
   }
 }

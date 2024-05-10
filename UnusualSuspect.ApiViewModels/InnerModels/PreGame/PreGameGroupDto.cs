@@ -24,25 +24,6 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
     [SerializeField]
     private UserDto ownerDto;
 
-    public DateTime CreatedTime
-    {
-      get
-      {
-        DateTime.TryParse(createdTimeString, out DateTime result);
-        return result;
-      }
-    }
-    public DateTime? ReadyToGameTime
-    {
-      get
-      {
-        if(string.IsNullOrWhiteSpace(createdTimeString))
-          return null;
-        DateTime.TryParse(createdTimeString, out DateTime result);
-        return result;
-      }
-    }
-
     public UserDto OwnerDto
     {
       get => ownerDto;
