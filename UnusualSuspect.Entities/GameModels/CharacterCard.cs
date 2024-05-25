@@ -3,7 +3,7 @@ using UnusualSuspect.Entities.Common;
 
 namespace UnusualSuspect.Entities.GameModels;
 
-public class CharacterCard : BaseEntity<short>
+public class CharacterCard : BaseEntityNotIdentity<short>
 {
 	public string	Title { get; set; }
 	public bool IsActive { get; set; }

@@ -94,5 +94,11 @@ namespace UnusualSuspect.ApiViewModels.Enums
     CharacterCardIdAlreadyExists = 43,
     [Display(Name = "کاربر مالک گروه قبل از بازی دیگری است")]
     UserOwnsAnotherPregameGroup = 44,
+    [Display(Name = "تعداد گزارش های کاربر ذخیره شده توسط این کاربر بیش از حد مشخص شده است")]
+    UserReportCountMoreThanLimit = 45,
+    [Display(Name = "کد بسته جم نا معتبر است")]
+    InvalidGemPackageId = 46,
+    [Display(Name = "بسته جم غیر فعال است")]
+    GemPackageIsInActive = 47,
   }
 }

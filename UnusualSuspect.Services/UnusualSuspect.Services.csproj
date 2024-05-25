@@ -22,7 +22,7 @@
     <PackageReference Include="ElmahCore" Version="2.1.2" />
     <PackageReference Include="Hangfire" Version="1.8.12" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.2" />
   </ItemGroup>
 
 	<ItemGroup>

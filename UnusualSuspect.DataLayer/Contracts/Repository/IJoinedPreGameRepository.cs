@@ -1,4 +1,5 @@
-﻿using UnusualSuspect.Entities.GameModels;
+﻿using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Contracts.Repository;
 
@@ -19,4 +20,5 @@ public interface IJoinedPreGameRepository : IAsyncRepository<JoinedPreGame>
 	Task<bool> IsGroupOwner(int preGameGroupId, int userId, CancellationToken cancellationToken = default);
   Task<bool> IsGroupMember(int userId, int preGameGroupId, CancellationToken cancellationToken = default);
   Task<IEnumerable<JoinedPreGame>> GetAllOwnedByUserId(int userId, CancellationToken cancellationToken = default);
+  Task<List<JoinedPreGame>> GetByUserIdAsync(int userId, ReadyToGameStatusEnum? readyToGameStatusEnum = null, CancellationToken cancellationToken = default);
 }

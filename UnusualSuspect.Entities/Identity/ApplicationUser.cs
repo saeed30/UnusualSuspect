@@ -44,6 +44,7 @@ public class ApplicationUser : IdentityUser<int>, IEntity<int>
 	public int CalculatedMonthScore { get; set; }
 	public int CalculatedDiamonds { get; set; }
 	public int CalculatedCoins { get; set; }
+	public int CalculatedGems { get; set; }
 	public int? Ranking { get; set; }
 	public int? RankingDaily { get; set; }
 	public int? RankingWeekly { get; set; }

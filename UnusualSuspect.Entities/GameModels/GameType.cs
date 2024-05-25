@@ -2,7 +2,7 @@
 
 namespace UnusualSuspect.Entities.GameModels;
 
-public class GameType : BaseEntity<short>
+public class GameType : BaseEntityNotIdentity<short>
 {
 	public string Name { get; set; }
 	public string Title { get; set; }

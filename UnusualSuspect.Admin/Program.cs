@@ -12,6 +12,7 @@ using UnusualSuspect.Common.Middlewares;
 using System.Diagnostics;
 using Serilog.Events;
 using UnusualSuspect.Services.SignalR;
+using UnusualSuspect.DataLayer;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -26,6 +27,7 @@ Serilog.Debugging.SelfLog.Enable(msg =>
 });
 
 builder.Services.AddCustomIdentityServices();
+
 builder.Services.AddSiteCustomServices(configuration);
 builder.Services.AddScoped<UserFilters>();
 

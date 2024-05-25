@@ -1,10 +1,9 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.ChartsAndRankings;
 
-namespace UnusualSuspect.Services.Contracts
+namespace UnusualSuspect.Services.Contracts;
+
+public interface IRankingService
 {
-  public interface IRankingService
-  {
-    Task<UnusualSuspectServiceResult<TopRankingGetResponse>> GetTopRankingsAsync(int userId, int maxNumber = 100, CancellationToken cancellationToken = default);
-    Task RecalculateAllRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken = default);
-  }
+  Task<UnusualSuspectServiceResult<TopRankingGetResponse>> GetTopRankingsAsync(int userId, int maxNumber = 100, CancellationToken cancellationToken = default);
+  Task RecalculateAllRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken = default);
 }

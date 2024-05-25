@@ -90,4 +90,12 @@ public sealed class JoinedPreGameRepository
   {
     return await baseEntity.Where(x => x.UserId == userId && x.IsOwnerOfPreGroup).ToListAsync(cancellationToken);
   }
+
+  public async Task<List<JoinedPreGame>> GetByUserIdAsync(int userId, ReadyToGameStatusEnum? readyToGameStatusEnum = null,
+    CancellationToken cancellationToken = default)
+  {
+		if(readyToGameStatusEnum.HasValue)
+      return await baseEntity.Where(x => x.UserId == userId && x.ReadyToGameStatusId == (short)readyToGameStatusEnum.Value).ToListAsync(cancellationToken);
+    return await baseEntity.Where(x => x.UserId == userId).ToListAsync(cancellationToken);
+  }
 }

@@ -45,6 +45,8 @@ public static class ServiceCollectionExtensions
   {
     services.AddScoped<IPreGameService, PreGameService>();
     services.AddScoped<IGameService, GameService>();
+    services.AddScoped<IGemService, GemService>();
+    services.AddScoped<ICoinService, CoinService>();
     services.AddScoped<IRankingService, RankingService>();
     services.AddScoped<IQuestionService, QuestionService>();
     services.AddScoped<ICharacterService, CharacterService>();
@@ -70,8 +72,17 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IGameCandidateRepository, GameCandidateRepository>();
     services.AddScoped<IStickerRepository, StickerRepository>();
     services.AddScoped<IFriendRepository, FriendRepository>();
+    services.AddScoped<IGemPackageUserRepository, GemPackageUserRepository>();
+    services.AddScoped<IGemPackageRepository, GemPackageRepository>();
+    services.AddScoped<ICoinPackageUserRepository, CoinPackageUserRepository>();
+    services.AddScoped<ICoinPackageRepository, CoinPackageRepository>();
     services.AddScoped<INotificationService, NotificationService>();
     services.AddScoped<IMemoryCacheService, MemoryCacheService>();
+    services.AddScoped<ITurnOfPlayService, TurnOfPlayService>();
+    services.AddScoped<IAvatarRepository, AvatarRepository>();
+    services.AddScoped<IAvatarPackageRepository, AvatarPackageRepository>();
+    services.AddScoped<IAvatarService, AvatarService>();
+    services.AddScoped<IStickerPackageRepository, StickerPackageRepository>();
     services.AddScoped<ITurnOfPlayService, TurnOfPlayService>();
     services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
 

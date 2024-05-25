@@ -5,7 +5,6 @@ using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.Services.Identity;
 
 namespace UnusualSuspect.Services.Services;
 

@@ -82,7 +82,7 @@ public class ApplicationRoleManager : IApplicationRoleService
     {
         return roleManager.CreateAsync(role);
     }
-    public Task<Role> FindByNameAsync(string roleName)
+    public Task<Role?> FindByNameAsync(string roleName)
     {
         return roleManager.FindByNameAsync(roleName);
     }

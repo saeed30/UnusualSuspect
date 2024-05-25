@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnusualSuspect.ApiViewModels.InnerModels.Game;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 {

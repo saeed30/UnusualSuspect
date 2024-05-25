@@ -12,7 +12,7 @@ public interface IApplicationRoleService
     IQueryable<Role> GetRoles();
     Task<int> AddActionForRole(CustomRole customRole);
     Task<List<int>> GetUserRolse(int userid);
-    Task<Role> FindByNameAsync(string roleName);
+    Task<Role?> FindByNameAsync(string roleName);
     List<int> GetUserRoles(int userid);
     List<string> GetUserRoleNames(string username);
     IQueryable<string> GetUsersInRole(string rolename);

@@ -17,7 +17,7 @@ namespace UnusualSuspect.DataLayer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -135,6 +135,65 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Avatar", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<short?>("AvatarPackageId")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFree")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AvatarPackageId");
+
+                    b.ToTable("Avatar");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.AvatarPackage", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AvatarPackage");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CharacterCard", b =>
                 {
                     b.Property<short>("Id")
@@ -183,6 +242,69 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasIndex("GameId");
 
                     b.ToTable("CharacterCardGame");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CoinPackage", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CoinPackage");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CoinPackageUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<short>("CoinPackageId")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime>("TimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CoinPackageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CoinPackageUser");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Friend", b =>
@@ -302,44 +424,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GameStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = (short)1,
-                            Name = "WaitingForPlayers",
-                            Title = "در انتظار بازیکنان جهت شروع بازی"
-                        },
-                        new
-                        {
-                            Id = (short)2,
-                            Name = "Talking",
-                            Title = "صحبت های قبل از انتخاب"
-                        },
-                        new
-                        {
-                            Id = (short)3,
-                            Name = "WaitingForMainDetectiveToChoose",
-                            Title = "در انتظار کارآگاه ستاره جهت انتخاب"
-                        },
-                        new
-                        {
-                            Id = (short)4,
-                            Name = "FinishedAndWonTheGame",
-                            Title = "پایان با پیروزی"
-                        },
-                        new
-                        {
-                            Id = (short)5,
-                            Name = "FinishedAndLostTheGame",
-                            Title = "پایان با شکست"
-                        },
-                        new
-                        {
-                            Id = (short)6,
-                            Name = "WaitingForWitnessToAnswer",
-                            Title = "در انتظار شاهد جهت پاسخ به سوال"
-                        });
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GameType", b =>
@@ -370,6 +454,69 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GameType");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GemPackage", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GemPackage");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GemPackageUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<short>("GemPackageId")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime>("TimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GemPackageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GemPackageUser");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.JoinedPreGame", b =>
@@ -493,26 +640,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PreGameGroupStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = (short)1,
-                            Name = "NotReady",
-                            Title = "قبل از آمادگی جهت بازی"
-                        },
-                        new
-                        {
-                            Id = (short)2,
-                            Name = "Ready",
-                            Title = "آماده جهت بازی"
-                        },
-                        new
-                        {
-                            Id = (short)3,
-                            Name = "InGame",
-                            Title = "در حال بازی"
-                        });
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Question", b =>
@@ -614,26 +741,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ReadyToGameStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = (short)1,
-                            Name = "NotReady",
-                            Title = "عدم آمادگی"
-                        },
-                        new
-                        {
-                            Id = (short)2,
-                            Name = "Notified",
-                            Title = "اطلاع رسانی شده جهت تایید آمادگی"
-                        },
-                        new
-                        {
-                            Id = (short)3,
-                            Name = "Ready",
-                            Title = "آماده جهت بازی"
-                        });
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.RoleCard", b =>
@@ -659,40 +766,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RoleCard");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = (short)1,
-                            ImageUrl = "",
-                            IsActive = true,
-                            Name = "Detective",
-                            Title = "کارآگاه"
-                        },
-                        new
-                        {
-                            Id = (short)2,
-                            ImageUrl = "",
-                            IsActive = true,
-                            Name = "MainDetective",
-                            Title = "کارآگاه ستاره دار"
-                        },
-                        new
-                        {
-                            Id = (short)3,
-                            ImageUrl = "",
-                            IsActive = true,
-                            Name = "Witness",
-                            Title = "شاهد"
-                        },
-                        new
-                        {
-                            Id = (short)4,
-                            ImageUrl = "",
-                            IsActive = true,
-                            Name = "Accomplice",
-                            Title = "شریک جرم"
-                        });
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Score", b =>
@@ -745,56 +818,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ScoreType");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = (short)1,
-                            Name = "GameWonAsDetective",
-                            Title = "برد با نقش کارآگاه"
-                        },
-                        new
-                        {
-                            Id = (short)2,
-                            Name = "GameWonAsMainDetective",
-                            Title = "برد با نقش کارآگاه ستاره دار"
-                        },
-                        new
-                        {
-                            Id = (short)3,
-                            Name = "GameWonAsWitness",
-                            Title = "برد با نقش شاهد"
-                        },
-                        new
-                        {
-                            Id = (short)4,
-                            Name = "GameWonAsAccomplice",
-                            Title = "برد با نقش شریک جرم"
-                        },
-                        new
-                        {
-                            Id = (short)5,
-                            Name = "GameLostAsDetective",
-                            Title = "باخت با نقش کارآگاه"
-                        },
-                        new
-                        {
-                            Id = (short)6,
-                            Name = "GameLostAsMainDetective",
-                            Title = "باخت با نقش کارآگاه ستاره دار"
-                        },
-                        new
-                        {
-                            Id = (short)7,
-                            Name = "GameLostAsWitness",
-                            Title = "باخت با نقش شاهد"
-                        },
-                        new
-                        {
-                            Id = (short)8,
-                            Name = "GameLostAsAccomplice",
-                            Title = "باخت با نقش شریک جرم"
-                        });
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Sticker", b =>
@@ -812,9 +835,48 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<short?>("StickerPackageId")
+                        .HasColumnType("smallint");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("StickerPackageId");
+
                     b.ToTable("Sticker");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.StickerPackage", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StickerPackage");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopDayRanking", b =>
@@ -949,6 +1011,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("CalculatedDiamonds")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CalculatedGems")
                         .HasColumnType("int");
 
                     b.Property<int>("CalculatedMonthScore")
@@ -1574,6 +1639,42 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.ToTable("ObjectType");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.Models.ReportUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateTimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("GameId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReportedUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserDescription")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("ReportedUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ReportUser");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.Models.SmsLog", b =>
                 {
                     b.Property<int>("Id")
@@ -1646,20 +1747,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SmsSendingStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = (short)1,
-                            Name = "Success",
-                            Title = "ارسال موفق"
-                        },
-                        new
-                        {
-                            Id = (short)2,
-                            Name = "Failed",
-                            Title = "ارسال نا موفق"
-                        });
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Models.SoftSetting", b =>
@@ -1778,6 +1865,15 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Avatar", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.AvatarPackage", "AvatarPackage")
+                        .WithMany()
+                        .HasForeignKey("AvatarPackageId");
+
+                    b.Navigation("AvatarPackage");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CharacterCardGame", b =>
                 {
                     b.HasOne("UnusualSuspect.Entities.GameModels.CharacterCard", "CharacterCard")
@@ -1795,6 +1891,25 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("CharacterCard");
 
                     b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CoinPackageUser", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.CoinPackage", "CoinPackage")
+                        .WithMany()
+                        .HasForeignKey("CoinPackageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("CoinPackage");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Friend", b =>
@@ -1860,6 +1975,25 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("CharacterCard");
 
                     b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GemPackageUser", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.GemPackage", "GemPackage")
+                        .WithMany()
+                        .HasForeignKey("GemPackageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("GemPackage");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.JoinedPreGame", b =>
@@ -2010,48 +2144,57 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("ScoreType");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Sticker", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.StickerPackage", "StickerPackage")
+                        .WithMany()
+                        .HasForeignKey("StickerPackageId");
+
+                    b.Navigation("StickerPackage");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopDayRanking", b =>
                 {
-                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopMonthRanking", b =>
                 {
-                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopTotalRanking", b =>
                 {
-                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopWeekRanking", b =>
                 {
-                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Identity.ApplicationUser", b =>
@@ -2231,6 +2374,31 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("ObjectType");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.Models.ReportUser", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId");
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ReportedUser")
+                        .WithMany()
+                        .HasForeignKey("ReportedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+
+                    b.Navigation("ReportedUser");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Models.SmsLog", b =>

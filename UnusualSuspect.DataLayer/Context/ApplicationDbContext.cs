@@ -1,7 +1,6 @@
 ﻿using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Entities.JcoSecurity;
-using UnusualSuspect.Entities.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -9,9 +8,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Reflection;
-using UnusualSuspect.ApiViewModels.Enums.BaseData;
-using UnusualSuspect.Entities.GameModels;
-using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Entities.Common;
 
 namespace UnusualSuspect.DataLayer.Context;
@@ -51,37 +47,25 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 				AreaName = "AdminPanel"
 			});
 
-		HasDataForEnumEntity<ReadyToGameStatus, ReadyToGameStatusEnum>(modelBuilder);
-		HasDataForEnumEntity<PreGameGroupStatus, PreGameGroupStatusEnum>(modelBuilder);
-		HasDataForEnumEntity<SmsSendingStatus, SmsSendingStatusEnum>(modelBuilder);
-		HasDataForEnumEntity<RoleCard, RoleCardEnum>(modelBuilder);
-		HasDataForEnumEntity<GameStatus, GameStatusEnum>(modelBuilder);
-		HasDataForEnumEntity<ScoreType, ScoreTypeEnum>(modelBuilder);
-
 		//[DatabaseGenerated(DatabaseGeneratedOption.None)]
-		modelBuilder.Entity<GameType>().Property(x => x.Id)
-				.ValueGeneratedNever();
-		modelBuilder.Entity<Sticker>().Property(x => x.Id)
-				.ValueGeneratedNever();
-		modelBuilder.Entity<CharacterCard>().Property(x => x.Id)
-				.ValueGeneratedNever();
-	}
-
-	private void HasDataForEnumEntity<TEntity, TEnum>(ModelBuilder modelBuilder) where TEntity : BaseEnumEntity, new() where TEnum : Enum
-	{
-		List<TEntity> baseEnumEntity = new List<TEntity>();
-		foreach (TEnum value in Enum.GetValues(typeof(TEnum)))
-		{
-			baseEnumEntity.Add(new TEntity()
-			{
-				Id = Convert.ToInt16(value),
-				Name = value.ToString(),
-				Title = value.ToDisplay()
-			});
-		}
-		modelBuilder.Entity<TEntity>().HasData(baseEnumEntity.ToArray());
-		modelBuilder.Entity<TEntity>().Property(x => x.Id)
-			.ValueGeneratedNever();
+		//modelBuilder.Entity<ReadyToGameStatus>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
+		//modelBuilder.Entity<PreGameGroupStatus>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
+		//modelBuilder.Entity<SmsSendingStatus>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
+		//modelBuilder.Entity<RoleCard>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
+		//modelBuilder.Entity<GameStatus>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
+		//modelBuilder.Entity<ScoreType>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
+		//modelBuilder.Entity<GameType>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
+		//modelBuilder.Entity<Sticker>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
+		//modelBuilder.Entity<CharacterCard>().Property(x => x.Id)
+		//		.ValueGeneratedNever();
 	}
 
 	public override int SaveChanges()
