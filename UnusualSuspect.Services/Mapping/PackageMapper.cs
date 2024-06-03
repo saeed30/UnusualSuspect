@@ -1,4 +1,5 @@
-﻿using UnusualSuspect.ApiViewModels.InnerModels;
+﻿using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.ApiViewModels.InnerModels;
 using UnusualSuspect.Entities.Common;
 using UnusualSuspect.Entities.GameModels;
 
@@ -6,23 +7,23 @@ namespace UnusualSuspect.Services.Mapping;
 
 public static class PackageMapper
 {
-  public static List<PackageDto> ToPackageDto(this List<AvatarPackage> model)
+  public static List<PackageDto> ToPackageDto(this IEnumerable<AvatarPackage> model)
   {
     return model.Select(x => x.ToPackageDto()).ToList();
   }
-  public static List<PackageDto> ToPackageDto(this List<StickerPackage> model)
+  public static List<PackageDto> ToPackageDto(this IEnumerable<StickerPackage> model)
   {
     return model.Select(x => x.ToPackageDto()).ToList();
   }
-  public static List<PackageDto> ToPackageDto(this List<GemPackage> model)
+  public static List<PackageDto> ToPackageDto(this IEnumerable<GemPackage> model)
   {
     return model.Select(x => x.ToPackageDto()).ToList();
   }
-  public static List<PackageDto> ToPackageDto(this List<CoinPackage> model)
+  public static List<PackageDto> ToPackageDto(this IEnumerable<CoinPackage> model)
   {
     return model.Select(x => x.ToPackageDto()).ToList();
   }
-  public static List<PackageDto> ToPackageDto(this List<PackageEntity> model)
+  public static List<PackageDto> ToPackageDto(this IEnumerable<PackageEntity> model)
   {
     return model.Select(x => x.ToPackageDto()).ToList();
   }
@@ -33,7 +34,9 @@ public static class PackageMapper
       Amount = model.Amount,
       Id = model.Id,
       ImageUrl = model.ImageUrl,
-      Price = model.Price
+      Price = model.Price,
+      PriceTypeEnum = model.PriceTypeId.HasValue ? (PriceTypeEnum)model.PriceTypeId.Value : null,
+      ViewOrder = model.ViewOrder
     };
   }
 }

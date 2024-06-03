@@ -17,14 +17,14 @@ public sealed class QuestionCharacterCardDefaultAnswerRepository(IUnitOfWork uow
   public async Task<QuestionCharacterCardDefaultAnswer?> GetDefaultAnswer(short characterCardId, short questionId,
     CancellationToken cancellationToken = default)
   {
-    return await baseEntity
+    return await BaseEntity
       .FirstOrDefaultAsync(x =>
       x.CharacterCardId == characterCardId && x.QuestionId == questionId, cancellationToken);
   }
 
   public IQueryable<QuestionCharacterCardDefaultAnswer> GetAllWithDetails()
   {
-    return baseEntity
+    return BaseEntity
       .Include(x => x.CharacterCard)
       .Include(x => x.Question);
   }
@@ -43,7 +43,7 @@ order by qc.QuestionId, qc.CharacterCardId");
   public async Task<List<QuestionCharacterCardDefaultAnswer>> GetByCharacterIdAndQuestionId(short characterCardId, short questionId,
     CancellationToken cancellationToken = default)
   {
-    return await baseEntity
+    return await BaseEntity
       .Where(x => x.CharacterCardId == characterCardId && x.QuestionId == questionId).ToListAsync(cancellationToken);
   }
 }

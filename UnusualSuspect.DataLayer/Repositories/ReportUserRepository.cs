@@ -11,6 +11,6 @@ public sealed class ReportUserRepository(IUnitOfWork uow, ILogger<ReportUserRepo
 {
   public async Task<int> ReportCountSavedByThisUserForPastDayAsync(int userId, CancellationToken cancellationToken = default)
   {
-    return await baseEntity.CountAsync(x => x.UserId == userId && x.DateTimeAdded > DateTime.Now.AddDays(-1), cancellationToken);
+    return await BaseEntity.CountAsync(x => x.UserId == userId && x.DateTimeAdded > DateTime.Now.AddDays(-1), cancellationToken);
   }
 }

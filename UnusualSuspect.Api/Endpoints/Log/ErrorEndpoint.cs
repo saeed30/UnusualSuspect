@@ -17,7 +17,7 @@ public sealed class ErrorEndpoint(ILogger<ErrorEndpoint> logger) : MyBaseEndpoin
   {
     if (request == null || string.IsNullOrWhiteSpace(request.ErrorContent))
       return new ApiResultCommon(false, ApiResultStatusCode.BadRequest);
-    logger.LogError(request.ErrorContent);
+    logger.LogError(request.ErrorContent, request.ErrorParameterList);
     return new ApiResultCommon(true, ApiResultStatusCode.Success);
   }
 }

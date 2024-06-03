@@ -1,5 +1,4 @@
-﻿using UnusualSuspect.IocConfig;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace UnusualSuspect.IocConfig;
 

@@ -6,5 +6,8 @@ namespace UnusualSuspect.ApiViewModels.Enums.BaseData
   {
     [Display(Name = "پاداش ثبت نام")]
     SignUpAward = 1,
+    [Display(Name = "پاداش برد یا باخت در بازی")]
+    GameAward = 2,
+
   }
 }

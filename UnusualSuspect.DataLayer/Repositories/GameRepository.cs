@@ -28,7 +28,7 @@ public sealed class GameRepository(
       game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
     if (game == null)
     {
-      game = await baseEntity.AsNoTrackingWithIdentityResolution().AsSplitQuery()
+      game = await BaseEntity.AsNoTrackingWithIdentityResolution().AsSplitQuery()
         .Include(x => x.CharacterCardGames)
         .ThenInclude(x => x.CharacterCard)
         .Include(x => x.GameType)
@@ -94,21 +94,21 @@ public sealed class GameRepository(
 
   public IQueryable<Game> GetAllActiveGamesWithGameType()
   {
-    return baseEntity
+    return BaseEntity
       .Include(x => x.GameType)
       .Where(x => x.FinishedTime == null);
   }
 
   public async Task<Game?> GetUserCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
-    Game? game = await baseEntity.FirstOrDefaultAsync(
+    Game? game = await BaseEntity.FirstOrDefaultAsync(
       x => x.FinishedTime == null &&
            x.Participates.Any(p => p.UserId == userId), cancellationToken);
     return game;
   }
   public async Task<Game?> GetUserCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default)
   {
-    Game? game = await baseEntity.FirstOrDefaultAsync(
+    Game? game = await BaseEntity.FirstOrDefaultAsync(
       x => x.FinishedTime == null &&
            x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
     if (game == null)
@@ -118,7 +118,7 @@ public sealed class GameRepository(
 
   public async Task<bool> UserIsInActiveGameAsync(int userId, CancellationToken cancellationToken = default)
   {
-    return await baseEntity.AnyAsync(x =>
+    return await BaseEntity.AnyAsync(x =>
       x.FinishedTime == null && x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
   }
 

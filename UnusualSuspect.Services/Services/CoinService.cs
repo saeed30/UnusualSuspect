@@ -14,7 +14,7 @@ public sealed class CoinService(ICoinPackageUserRepository coinRepository, ICoin
     return new UnusualSuspectServiceResult<PackagesGetResponse>(
       new PackagesGetResponse()
       {
-        PackageDtos = result.ToPackageDto()
+        PackageDtos = result.OrderBy(x => x.ViewOrder).ToPackageDto()
       }
     );
 

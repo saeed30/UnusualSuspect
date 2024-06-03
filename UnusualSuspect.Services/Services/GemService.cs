@@ -33,7 +33,7 @@ public sealed class GemService(IGemPackageRepository gemPackageRepository, IGemP
     return new UnusualSuspectServiceResult<PackagesGetResponse>(
       new PackagesGetResponse()
       {
-        PackageDtos = result.ToPackageDto()
+        PackageDtos = result.OrderBy(x => x.ViewOrder).ToPackageDto()
       }
     );
   }

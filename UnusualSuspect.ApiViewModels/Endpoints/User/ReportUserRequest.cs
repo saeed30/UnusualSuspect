@@ -12,6 +12,14 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
     private string userDescription;
     [SerializeField]
     private int gameId;
+    [SerializeField]
+    private int reportUserTypeId;
+
+    public int ReportUserTypeId
+    {
+      get => reportUserTypeId;
+      set => reportUserTypeId = value;
+    }
 
     public int ReportedUserId
     {

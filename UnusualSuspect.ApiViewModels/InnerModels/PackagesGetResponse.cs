@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 
 namespace UnusualSuspect.ApiViewModels.InnerModels
 {
@@ -28,6 +29,22 @@ namespace UnusualSuspect.ApiViewModels.InnerModels
     private int price;
     [SerializeField]
     private string imageUrl;
+    [SerializeField]
+    private PriceTypeEnum? priceTypeEnum;
+    [SerializeField]
+    private int viewOrder;
+
+    public int ViewOrder
+    {
+      get => viewOrder;
+      set => viewOrder = value;
+    }
+
+    public PriceTypeEnum? PriceTypeEnum
+    {
+      get => priceTypeEnum;
+      set => priceTypeEnum = value;
+    }
 
     public int Id
     {

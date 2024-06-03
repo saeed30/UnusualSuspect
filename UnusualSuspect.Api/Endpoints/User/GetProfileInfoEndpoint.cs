@@ -19,13 +19,13 @@ public sealed class GetProfileInfoEndpoint(
     IDocumentService documentService,
     IGameService gameService)
   : MyBaseEndpointAuthenticated
-.WithoutRequest
+.WithRequest<int>
 .WithActionResult<ApiResultCommon<GetProfileInfoResponse>>
 {
   [HttpGet("api/[namespace]/GetProfileInfo")]
-  public override async Task<ActionResult<ApiResultCommon<GetProfileInfoResponse>>> HandleAsync(CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon<GetProfileInfoResponse>>> HandleAsync(int userId,CancellationToken cancellationToken = default)
   {
-    var user = await iApplicationUserManager.FindByNameAsync(CurrentUser.Username);
+    var user = await iApplicationUserManager.FindByIdAsync(userId.ToString());
     if (user == null)
       return new ApiResultCommon<GetProfileInfoResponse>(false, ApiResultStatusCode.BadRequest, null, "اطلاعات کاربری یافت نشد!");
     Guid? userImageDocumentGuidKey = null;
@@ -41,7 +41,7 @@ public sealed class GetProfileInfoEndpoint(
       userImageDocumentGuidKey = doc.GuidKey;
     }
 
-    UnusualSuspectServiceResult<GameStatisticsDto> gameStatistics = await gameService.GetGameStatisticsAsync(CurrentUser.UserId, cancellationToken);
+    UnusualSuspectServiceResult<GameStatisticsDto> gameStatistics = await gameService.GetGameStatisticsAsync(userId, cancellationToken);
     if (!gameStatistics.Success)
       return new ApiResultCommon<GetProfileInfoResponse>(false, ApiResultStatusCode.LogicError, null, gameStatistics.MainError.ToString());
     return new ApiResultCommon<GetProfileInfoResponse>(true, ApiResultStatusCode.Success, new GetProfileInfoResponse()

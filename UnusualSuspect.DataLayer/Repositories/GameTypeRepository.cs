@@ -12,6 +12,6 @@ public class GameTypeRepository
 {
   public async Task<List<GameType>> GetActiveGameTypesAsync(CancellationToken cancellationToken = default)
 	{
-		return await baseEntity.Where(x => x.IsActive).ToListAsync(cancellationToken);
+		return await BaseEntity.Where(x => x.IsActive).ToListAsync(cancellationToken);
 	}
 }

@@ -1,5 +1,4 @@
-﻿using UnusualSuspect.ViewModels.Api.User;
-using UnusualSuspect.ViewModels.Identity;
+﻿using UnusualSuspect.ViewModels.Identity;
 
 namespace UnusualSuspect.ViewModels.Api.User;
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace UnusualSuspect.ViewModels.Settings;
+﻿namespace UnusualSuspect.ViewModels.Settings;
 
 public class CookieOptions
 {

@@ -1653,6 +1653,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<int?>("GameId")
                         .HasColumnType("int");
 
+                    b.Property<short>("ReportUserTypeId")
+                        .HasColumnType("smallint");
+
                     b.Property<int>("ReportedUserId")
                         .HasColumnType("int");
 
@@ -1668,11 +1671,34 @@ namespace UnusualSuspect.DataLayer.Migrations
 
                     b.HasIndex("GameId");
 
+                    b.HasIndex("ReportUserTypeId");
+
                     b.HasIndex("ReportedUserId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("ReportUser");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.Models.ReportUserType", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReportUserType");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.Models.SmsLog", b =>
@@ -2382,6 +2408,12 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("GameId");
 
+                    b.HasOne("UnusualSuspect.Entities.Models.ReportUserType", "ReportUserType")
+                        .WithMany()
+                        .HasForeignKey("ReportUserTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ReportedUser")
                         .WithMany()
                         .HasForeignKey("ReportedUserId")
@@ -2395,6 +2427,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Game");
+
+                    b.Navigation("ReportUserType");
 
                     b.Navigation("ReportedUser");
 

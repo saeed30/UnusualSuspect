@@ -9,4 +9,5 @@ public interface IPreGameGroupRepository : IAsyncRepository<PreGameGroup>
 	Task<List<PreGameGroup>> GetTopPreGameGroupByReadyTimeAsync(GameType gameType, int count, CancellationToken cancellationToken = default);
   IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame();
   Task<List<int>> ResetGroupsStatusAfterFinishingTheGameAsync(int gameId, CancellationToken cancellationToken = default);
+  Task<PreGameGroup?> GetByIdWithGameTypeAsync(int preGameGroupId, CancellationToken cancellationToken = default);
 }

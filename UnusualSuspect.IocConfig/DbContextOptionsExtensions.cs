@@ -2,9 +2,6 @@
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using Microsoft.EntityFrameworkCore;
-using UnusualSuspect.DataLayer.Context;
 
 namespace UnusualSuspect.IocConfig;
 

@@ -11,6 +11,6 @@ public class CharacterCardGameRepository(IUnitOfWork uow, ILogger<CharacterCardG
 {
   public async Task<List<CharacterCardGame>> GetAllGameCharacterCardsAsync(int gameId, CancellationToken cancellationToken = default)
   {
-    return await baseEntity.Where(x =>x.GameId == gameId).ToListAsync(cancellationToken);
+    return await BaseEntity.Where(x =>x.GameId == gameId).ToListAsync(cancellationToken);
   }
 }

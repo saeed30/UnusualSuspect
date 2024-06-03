@@ -11,11 +11,11 @@ public sealed class GemPackageRepository(IUnitOfWork uow, ILogger<GemPackageRepo
 {
   public IEnumerable<GemPackage> GetAllActive()
   {
-    return baseEntity.Where(x => x.IsActive);
+    return BaseEntity.Where(x => x.IsActive);
   }
 
   public async Task<List<GemPackage>> GetAllActivePublicAsync(CancellationToken cancellationToken)
   {
-    return await baseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
+    return await BaseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
   }
 }

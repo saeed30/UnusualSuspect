@@ -1,8 +1,6 @@
 ﻿using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.OpenApi.Models;
-using System;
 using Microsoft.AspNetCore.Authorization;
 
 namespace UnusualSuspect.Common.Utilities;

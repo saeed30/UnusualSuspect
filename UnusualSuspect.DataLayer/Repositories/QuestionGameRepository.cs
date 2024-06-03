@@ -11,7 +11,7 @@ public sealed class QuestionGameRepository(IUnitOfWork uow, ILogger<QuestionGame
 {
   public async Task<QuestionGame?> GetQuestionGameByQuestionAndGame(int gameId, short questionId)
   {
-	  return await baseEntity.FirstOrDefaultAsync(x=>x.GameId == gameId && x.QuestionId == questionId);
+	  return await BaseEntity.FirstOrDefaultAsync(x=>x.GameId == gameId && x.QuestionId == questionId);
 
   }
 }

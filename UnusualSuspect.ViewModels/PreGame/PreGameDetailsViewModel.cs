@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
+﻿using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 
 namespace UnusualSuspect.ViewModels.PreGame
 {

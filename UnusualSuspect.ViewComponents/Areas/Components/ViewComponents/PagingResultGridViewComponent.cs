@@ -1,10 +1,5 @@
 ﻿using UnusualSuspect.ViewModels.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnusualSuspect.ViewComponents.Areas.Components.ViewComponents;
 

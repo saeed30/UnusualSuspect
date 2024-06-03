@@ -14,6 +14,7 @@ public interface IAsyncRepository<T> : IAsyncRepository<T, int> where T : IEntit
 public interface IAsyncRepository<T, TY> where T : IEntity<TY>
 {
 	Task<T?> GetByIdAsync(TY id, CancellationToken cancellationToken = default);
+	Task<bool> ExistsByIdAsync(TY id, CancellationToken cancellationToken = default);
 
 	IQueryable<T> GetAll();
 	Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default);

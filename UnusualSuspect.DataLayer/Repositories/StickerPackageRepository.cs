@@ -11,6 +11,6 @@ public sealed class StickerPackageRepository(IUnitOfWork uow, ILogger<StickerPac
 {
   public async Task<List<StickerPackage>> GetAllActivePublicAsync(CancellationToken cancellationToken)
   {
-    return await baseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
+    return await BaseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
   }
 }

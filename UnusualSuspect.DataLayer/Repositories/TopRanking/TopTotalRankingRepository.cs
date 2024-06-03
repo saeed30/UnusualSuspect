@@ -15,7 +15,7 @@ public sealed class TopTotalRankingRepository(IUnitOfWork uow,
 {
   public async Task<IEnumerable<RankingTableBase>> GetAllTopRanking(int maxNumber = 100, CancellationToken token = default)
   {
-    return await baseEntity.OrderBy(x => x.Rank).Take(maxNumber).ToListAsync(token);
+    return await BaseEntity.OrderBy(x => x.Rank).Take(maxNumber).ToListAsync(token);
   }
 
   public async Task RecalculateTopRankings(int maxNumber = 100, CancellationToken cancellationToken = default)

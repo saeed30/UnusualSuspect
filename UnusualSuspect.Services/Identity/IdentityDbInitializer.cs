@@ -155,6 +155,7 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
     await HasDataForEnumEntity<ScoreType, ScoreTypeEnum>("ScoreType");
     await HasDataForEnumEntity<GemPackage, BaseGemPackageEnum>("GemPackage");
     await HasDataForEnumEntity<CoinPackage, BaseCoinPackageEnum>("GemPackage");
+    await HasDataForEnumEntity<PriceType, PriceTypeEnum>("PriceType");
   }
 
   private async Task HasDataForEnumEntity<TEntity, TEnum>(string tableName)

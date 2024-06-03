@@ -1,9 +1,6 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
 using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using DNTPersianUtils.Core;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace UnusualSuspect.Common;

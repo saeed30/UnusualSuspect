@@ -12,7 +12,6 @@ using UnusualSuspect.Common.Middlewares;
 using System.Diagnostics;
 using Serilog.Events;
 using UnusualSuspect.Services.SignalR;
-using UnusualSuspect.DataLayer;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;

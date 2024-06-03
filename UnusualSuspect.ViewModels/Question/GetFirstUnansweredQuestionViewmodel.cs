@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UnusualSuspect.ViewModels.Question
+﻿namespace UnusualSuspect.ViewModels.Question
 {
   public sealed class GetFirstUnansweredQuestionViewmodel
   {

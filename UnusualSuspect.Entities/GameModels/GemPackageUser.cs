@@ -15,5 +15,7 @@ namespace UnusualSuspect.Entities.GameModels
     [ForeignKey("GemPackageId")]
     public virtual GemPackage GemPackage { get; set; }
 
+    public string PurchaseToken { get; set; }
+
   }
 }

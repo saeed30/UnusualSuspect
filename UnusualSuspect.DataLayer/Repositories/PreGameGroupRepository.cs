@@ -13,7 +13,7 @@ public sealed class PreGameGroupRepository
 {
   public async Task<IReadOnlyList<PreGameGroup>> GetByUserIdWithJoinedPreGameAsync(int userId, int maxNumberOfGameRequests = 50, CancellationToken cancellationToken = default)
   {
-    return await baseEntity
+    return await BaseEntity
       .Include(x => x.GameType)
       .Include(x => x.JoinedPreGames)
       .ThenInclude(x => x.User)
@@ -23,7 +23,7 @@ public sealed class PreGameGroupRepository
 
   public async Task<PreGameGroup?> GetByIdWithDetailAsync(int preGameGroupId, CancellationToken cancellationToken = default)
   {
-    return await baseEntity
+    return await BaseEntity
       .Include(x => x.PreGameGroupStatus)
       .Include(x => x.GameType)
       .Include(x => x.JoinedPreGames)
@@ -31,17 +31,23 @@ public sealed class PreGameGroupRepository
       .ThenInclude(x => x.Document)
       .FirstOrDefaultAsync(x => x.Id == preGameGroupId, cancellationToken);
   }
+  public async Task<PreGameGroup?> GetByIdWithGameTypeAsync(int preGameGroupId, CancellationToken cancellationToken = default)
+  {
+    return await BaseEntity
+      .Include(x => x.GameType)
+      .FirstOrDefaultAsync(x => x.Id == preGameGroupId, cancellationToken);
+  }
 
   public async Task<List<PreGameGroup>> GetTopPreGameGroupByReadyTimeAsync(GameType gameType, int count, CancellationToken cancellationToken = default)
   {
-    return await baseEntity
+    return await BaseEntity
       .Where(x => x.ReadyToGameTime != null && x.PreGameGroupStatusId == (short)PreGameGroupStatusEnum.Ready && x.GameTypeId == gameType.Id)
       .OrderBy(x => x.ReadyToGameTime).Take(count).ToListAsync(cancellationToken);
   }
 
   public IQueryable<PreGameGroup> GetAllPreGameGroupsWithDetailsWaitingForGame()
   {
-    return baseEntity
+    return BaseEntity
       .Include(x => x.PreGameGroupStatus)
       .Include(x => x.GameType)
       .Where(x => x.GameId == null);
@@ -49,7 +55,7 @@ public sealed class PreGameGroupRepository
 
   public async Task<List<int>> ResetGroupsStatusAfterFinishingTheGameAsync(int gameId, CancellationToken cancellationToken = default)
   {
-    List<PreGameGroup> pre = await baseEntity.Where(x => x.GameId == gameId).ToListAsync(cancellationToken);
+    List<PreGameGroup> pre = await BaseEntity.Where(x => x.GameId == gameId).ToListAsync(cancellationToken);
     foreach (PreGameGroup gameGroup in pre)
     {
       gameGroup.GameId = null;

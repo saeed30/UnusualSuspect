@@ -11,6 +11,6 @@ public class AvatarPackageRepository(IUnitOfWork uow, ILogger<AvatarPackageRepos
 {
   public async Task<List<AvatarPackage>> GetAllActivePublicAsync(CancellationToken cancellationToken = default)
   {
-    return await baseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
+    return await BaseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
   }
 }

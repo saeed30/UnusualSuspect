@@ -100,5 +100,16 @@ namespace UnusualSuspect.ApiViewModels.Enums
     InvalidGemPackageId = 46,
     [Display(Name = "بسته جم غیر فعال است")]
     GemPackageIsInActive = 47,
+    [Display(Name = "کد نوع گزارش کاربر نا معتبر است")]
+    InvalidReportUserTypeId = 48,
+    [Display(Name = "گروه قبل از بازی تکمیل شده است")]
+    PreGameGroupIsFull = 49,
+    [Display(Name = "کد بسته آواتار نا معتبر است")]
+    InvalidAvatarPackageId = 50,
+    [Display(Name = "موجودی کافی برای خرید ندارید")]
+    DoNotHaveEnoughToPay = 51,
+    [Display(Name = "این بسته قبلا خریداری شده است")]
+    AlreadyOwnsThePackage = 52,
+
   }
 }

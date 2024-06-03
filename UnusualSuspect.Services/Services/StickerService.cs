@@ -46,7 +46,7 @@ public sealed class StickerService(INotificationService notificationService,
     return new UnusualSuspectServiceResult<PackagesGetResponse>(
       new PackagesGetResponse()
       {
-        PackageDtos = result.ToPackageDto()
+        PackageDtos = result.OrderBy(x => x.ViewOrder).ToPackageDto()
       }
     );
   }

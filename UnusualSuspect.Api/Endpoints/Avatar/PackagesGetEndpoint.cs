@@ -6,17 +6,16 @@ using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services;
 using UnusualSuspect.Services.Contracts;
 
-namespace UnusualSuspect.Api.Endpoints.Avatar
+namespace UnusualSuspect.Api.Endpoints.Avatar;
+
+public sealed class PackagesGetEndpoint(IAvatarService avatarService) : MyBaseEndpointAuthenticated
+  .WithoutRequest
+  .WithActionResult<ApiResultCommon<PackagesGetResponse>>
 {
-  public sealed class PackagesGetEndpoint(IAvatarService avatarService) : MyBaseEndpointAuthenticated
-    .WithoutRequest
-    .WithActionResult<ApiResultCommon<PackagesGetResponse>>
+  [HttpGet("api/[namespace]/PackagesGet")]
+  public override async Task<ActionResult<ApiResultCommon<PackagesGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
-    [HttpGet("api/[namespace]/PackagesGet")]
-    public override async Task<ActionResult<ApiResultCommon<PackagesGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
-    {
-      UnusualSuspectServiceResult<PackagesGetResponse> result = await avatarService.GetPublicPackagesAsync(cancellationToken);
-      return ReturnResult(result);
-    }
+    UnusualSuspectServiceResult<PackagesGetResponse> result = await avatarService.GetPublicPackagesAsync(cancellationToken);
+    return ReturnResult(result);
   }
 }

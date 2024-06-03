@@ -183,9 +183,20 @@ public sealed class PreGameService(IUnitOfWork uow,
   {
     if (await gameRepository.UserIsInActiveGameAsync(userId, cancellationToken))
       return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsInActiveGame));
-    PreGameGroup? preGameGroup = await preGameGroupRepository.GetByIdAsync(preGameGroupId, cancellationToken);
+    PreGameGroup? preGameGroup = await preGameGroupRepository.GetByIdWithGameTypeAsync(preGameGroupId, cancellationToken);
     if (preGameGroup == null)
       return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidPreGameGroupId));
+    if (preGameGroup.CalculatedJoinedUsers >= preGameGroup.GameType.NumberOfPlayers)
+    {
+      if (preGameGroup.CalculatedJoinedUsers > preGameGroup.GameType.NumberOfPlayers)
+      {
+        //do some action to fix
+        logger.LogCritical(
+          "PreGameGroup CalculatedJoinedUsers ({CalculatedJoinedUsers}) is more than game type NumberOfPlayers ({NumberOfPlayers}). groupId: {preGameGroupId}",
+          preGameGroup.CalculatedJoinedUsers, preGameGroup.GameType.NumberOfPlayers, preGameGroup.Id);
+      }
+      return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.PreGameGroupIsFull));
+    }
     bool ownsTheGroup = await CheckUserOwnsThePreGameGroup(addingUserId, preGameGroupId, cancellationToken);
     if (!ownsTheGroup)
       return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotOwnTheGroup));

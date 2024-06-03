@@ -12,31 +12,31 @@ public sealed class GameCandidateRepository(IUnitOfWork uow, ILogger<GameCandida
 {
   public async Task<int> ExecuteDeleteAllGameCandidatesAsync(int gameId, CancellationToken cancellationToken = default)
   {
-    return await baseEntity.Where(x => x.GameId == gameId).ExecuteDeleteAsync(cancellationToken);
+    return await BaseEntity.Where(x => x.GameId == gameId).ExecuteDeleteAsync(cancellationToken);
   }
 
   public async Task DeleteAllGameCandidatesAsync(int gameId, CancellationToken cancellationToken = default)
   {
-    baseEntity.RemoveRange(await baseEntity.Where(x => x.GameId == gameId).ToListAsync(cancellationToken));
+    BaseEntity.RemoveRange(await BaseEntity.Where(x => x.GameId == gameId).ToListAsync(cancellationToken));
   }
 
   public async Task<List<GameCandidate>> GetAllGameCandidatesAsync(int gameId, CancellationToken cancellationToken = default)
   {
     //first get from cache
-    return await baseEntity.Where(x => x.GameId == gameId).ToListAsync(cancellationToken);
+    return await BaseEntity.Where(x => x.GameId == gameId).ToListAsync(cancellationToken);
   }
 
   public async Task DeleteUserCandidatesInGameAsync(int gameId, int userId, CancellationToken cancellationToken = default)
   {
-    var candidates = await baseEntity.Where(x => x.GameId == gameId && x.UserId == userId).ToListAsync(cancellationToken);
-    baseEntity.RemoveRange(candidates);
+    var candidates = await BaseEntity.Where(x => x.GameId == gameId && x.UserId == userId).ToListAsync(cancellationToken);
+    BaseEntity.RemoveRange(candidates);
     //reload cache
   }
 
   public async Task ChangeUserCandidateInGameAsync(int gameId, int userId, short characterCardId,
     CancellationToken cancellationToken = default)
   {
-    var candidates = await baseEntity.Where(x => x.GameId == gameId && x.UserId == userId).ToListAsync(cancellationToken);
+    var candidates = await BaseEntity.Where(x => x.GameId == gameId && x.UserId == userId).ToListAsync(cancellationToken);
     if (!candidates.Any())
       Add(new GameCandidate()
       {
@@ -60,7 +60,7 @@ public sealed class GameCandidateRepository(IUnitOfWork uow, ILogger<GameCandida
       var candidate = candidates.FirstOrDefault(x => x.CharacterCardId == characterCardId);
       if (candidate == null)
       {
-        baseEntity.RemoveRange(candidates);
+        BaseEntity.RemoveRange(candidates);
         Add(new GameCandidate()
         {
           GameId = gameId,
@@ -71,7 +71,7 @@ public sealed class GameCandidateRepository(IUnitOfWork uow, ILogger<GameCandida
       }
       else
       {
-        baseEntity.RemoveRange(candidates.Where(x => x.Id != candidate.Id));
+        BaseEntity.RemoveRange(candidates.Where(x => x.Id != candidate.Id));
         candidate.CharacterCardId = characterCardId;
         candidate.DateTimeAdded = DateTime.Now;
       }

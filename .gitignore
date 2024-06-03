@@ -3,6 +3,7 @@
 ################################################################################
 
 /.vs/*
+/Documents/*
 /UnusualSuspect.Admin/bin
 /UnusualSuspect.Admin/obj
 /UnusualSuspect.Admin/App_Data

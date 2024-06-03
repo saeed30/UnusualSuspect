@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Net;
 using UnusualSuspect.ApiViewModels.Enums;
-using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Exceptions;
 using UnusualSuspect.Common.Models;
 

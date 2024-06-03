@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.Entities.Common
 {
@@ -13,5 +10,10 @@ namespace UnusualSuspect.Entities.Common
     public bool IsActive { get; set; }
     public bool IsPublic { get; set; }
     public string ImageUrl { get; set; }
+    public short? PriceTypeId { get; set; }
+    [ForeignKey("PriceTypeId")]
+    public virtual PriceType? PriceType { get; set; }
+    public short ViewOrder { get; set; } = 0;
+
   }
 }

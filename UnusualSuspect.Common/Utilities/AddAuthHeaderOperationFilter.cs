@@ -2,8 +2,6 @@
 using Microsoft.OpenApi.Models;
 using Pluralize.NET;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Linq;
 
 namespace UnusualSuspect.Common.Utilities;
 

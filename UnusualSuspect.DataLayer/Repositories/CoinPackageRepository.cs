@@ -11,6 +11,6 @@ public class CoinPackageRepository(IUnitOfWork uow, ILogger<CoinPackageRepositor
 {
   public async Task<List<CoinPackage>> GetAllActivePublicAsync(CancellationToken cancellationToken)
   {
-    return await baseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
+    return await BaseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
   }
 }

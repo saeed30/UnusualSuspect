@@ -20,6 +20,9 @@ namespace UnusualSuspect.Entities.Models
     public int? GameId { get; set; }
     [ForeignKey("GameId")]
     public virtual Game? Game { get; set; }
+    public short ReportUserTypeId { get; set; }
+    [ForeignKey("ReportUserTypeId")]
+    public virtual ReportUserType ReportUserType { get; set; }
 
   }
 }

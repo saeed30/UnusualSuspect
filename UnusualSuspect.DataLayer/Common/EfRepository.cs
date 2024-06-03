@@ -16,21 +16,25 @@ public class EfRepository<T, TY>(IUnitOfWork uow, ILogger<EfRepository<T, TY>> l
   where T : class, IEntity<TY>, new()
   where TY : IEquatable<TY>
 {
-  public readonly DbSet<T> baseEntity = uow.Set<T>();
+  public readonly DbSet<T> BaseEntity = uow.Set<T>();
 
   public virtual async Task<T?> GetByIdAsync(TY id, CancellationToken cancellationToken = default)
   {
-    return await baseEntity.FirstOrDefaultAsync(a => a.Id.Equals(id), cancellationToken);
+    return await BaseEntity.FirstOrDefaultAsync(a => a.Id.Equals(id), cancellationToken);
+  }
+  public virtual async Task<bool> ExistsByIdAsync(TY id, CancellationToken cancellationToken = default)
+  {
+    return await BaseEntity.AnyAsync(a => a.Id.Equals(id), cancellationToken);
   }
 
   public IQueryable<T> GetAll()
   {
-    return baseEntity;
+    return BaseEntity;
   }
 
   public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default)
   {
-    return await baseEntity.ToListAsync(cancellationToken);
+    return await BaseEntity.ToListAsync(cancellationToken);
   }
 
   /// <inheritdoc />
@@ -39,12 +43,12 @@ public class EfRepository<T, TY>(IUnitOfWork uow, ILogger<EfRepository<T, TY>> l
     int page,
           CancellationToken cancellationToken = default)
   {
-    return await baseEntity.Skip(perPage * (page - 1)).Take(perPage).ToListAsync(cancellationToken);
+    return await BaseEntity.Skip(perPage * (page - 1)).Take(perPage).ToListAsync(cancellationToken);
   }
 
   public T Add(T entity)
   {
-    baseEntity.Add(entity);
+    BaseEntity.Add(entity);
     return entity;
   }
 
@@ -55,11 +59,11 @@ public class EfRepository<T, TY>(IUnitOfWork uow, ILogger<EfRepository<T, TY>> l
 
   public void Delete(T entity)
   {
-    baseEntity.Remove(entity);
+    BaseEntity.Remove(entity);
   }
   public void DeleteRange(List<T> entity)
   {
-    baseEntity.RemoveRange(entity);
+    BaseEntity.RemoveRange(entity);
   }
 
   public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
@@ -78,6 +82,6 @@ public class EfRepository<T, TY>(IUnitOfWork uow, ILogger<EfRepository<T, TY>> l
 
   public async Task<int> ExecuteDeleteByIdAsync(TY id, CancellationToken cancellationToken = default)
   {
-    return await baseEntity.Where(x => x.Id.Equals(id)).ExecuteDeleteAsync(cancellationToken);
+    return await BaseEntity.Where(x => x.Id.Equals(id)).ExecuteDeleteAsync(cancellationToken);
   }
 }

@@ -1,12 +1,10 @@
 ﻿using UnusualSuspect.DataLayer.Context;
 using UnusualSuspect.Entities.Identity;
-using UnusualSuspect.Services.Config;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace UnusualSuspect.IocConfig;
 

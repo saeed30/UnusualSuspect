@@ -5,10 +5,13 @@ using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.Common;
 
 namespace UnusualSuspect.Services.Services;
 
-public sealed class ScoreService(IScoreRepository scoreRepository, IApplicationUserManager applicationUserManager) : IScoreService
+public sealed class ScoreService(IScoreRepository scoreRepository,
+  IApplicationUserManager applicationUserManager,
+  ICoinPackageUserRepository coinPackageUserRepository) : IScoreService
 {
   public async Task<UnusualSuspectServiceResult<bool>> SetGameFinishedScoresAsync(
     int gameId, bool won, List<Participate> participates, CancellationToken cancellationToken = default)
@@ -18,6 +21,7 @@ public sealed class ScoreService(IScoreRepository scoreRepository, IApplicationU
       GameRole gameRole = (GameRole)participate.RoleCardId;
 
       int scoreChange = GetScoreByWinCondition(gameRole, won);
+      int coinChange = GetCoinByWinCondition(gameRole, won);
       scoreRepository.Add(new Score()
       {
         Amount = scoreChange,
@@ -26,9 +30,19 @@ public sealed class ScoreService(IScoreRepository scoreRepository, IApplicationU
         ScoreTypeId = (short)GetScoreTypeEnumByWinCondition(gameRole, won),
         UserId = participate.UserId
       });
+      coinPackageUserRepository.Add(new CoinPackageUser()
+      {
+        UserId = participate.UserId,
+        Amount = coinChange,
+        CoinPackageId = (short)BaseCoinPackageEnum.GameAward,
+        TimeAdded = DateTime.Now
+      });
       ApplicationUser? user = await applicationUserManager.FindByIdAsync(participate.UserId.ToString());
       if (user != null)
+      {
         user.CalculatedScore += scoreChange;
+        user.CalculatedCoins += coinChange;
+      }
     }
 
     return new UnusualSuspectServiceResult<bool>(true);
@@ -57,11 +71,26 @@ public sealed class ScoreService(IScoreRepository scoreRepository, IApplicationU
     {
       case GameRole.Detective:
       case GameRole.MainDetective:
-        return won ? 10 : 1;
+        return won ? TempSettingFile.DetectiveWinScore : TempSettingFile.DetectiveLooseScore;
       case GameRole.Witness:
-        return won ? 10 : 2;
+        return won ? TempSettingFile.WitnessWinScore : TempSettingFile.WitnessLooseScore;
       case GameRole.Accomplice:
-        return won ? 1 : 10;
+        return won ? TempSettingFile.AccompliceLooseScore: TempSettingFile.AccompliceWinScore;
+      default:
+        throw new ArgumentOutOfRangeException(nameof(gameRole), gameRole, null);
+    }
+  }
+  private static int GetCoinByWinCondition(GameRole gameRole, bool won)
+  {
+    switch (gameRole)
+    {
+      case GameRole.Detective:
+      case GameRole.MainDetective:
+        return won ? TempSettingFile.DetectiveWinCoin : TempSettingFile.DetectiveLooseCoin;
+      case GameRole.Witness:
+        return won ? TempSettingFile.WitnessWinCoin : TempSettingFile.WitnessLooseCoin;
+      case GameRole.Accomplice:
+        return won ? TempSettingFile.AccompliceLooseCoin : TempSettingFile.AccompliceWinCoin;
       default:
         throw new ArgumentOutOfRangeException(nameof(gameRole), gameRole, null);
     }
