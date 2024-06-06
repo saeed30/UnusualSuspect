@@ -56,7 +56,7 @@ public sealed class GetProfileInfoEndpoint(
       GamesWon = gameStatistics.Result.GamesWon,
       UserId = user.Id,
       Coins = user.CalculatedCoins,
-      Diamonds = user.CalculatedDiamonds,
+      Gems = user.CalculatedGems,
       Score = user.CalculatedScore
     });
   }

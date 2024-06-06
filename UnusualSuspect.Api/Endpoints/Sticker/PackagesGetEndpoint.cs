@@ -15,7 +15,7 @@ public sealed class PackagesGetEndpoint(IStickerService stickerService) : MyBase
   [HttpGet("api/[namespace]/PackagesGet")]
   public override async Task<ActionResult<ApiResultCommon<PackagesGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<PackagesGetResponse> result = await stickerService.GetPublicPackagesAsync(cancellationToken);
+    UnusualSuspectServiceResult<PackagesGetResponse> result = await stickerService.GetPublicPackagesAsync(CurrentUser.UserId, cancellationToken);
     return ReturnResult(result);
   }
 }

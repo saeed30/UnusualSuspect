@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="Endpoints\Coin\" />
-    <Folder Include="Endpoints\Gem\" />
   </ItemGroup>
 
 </Project>

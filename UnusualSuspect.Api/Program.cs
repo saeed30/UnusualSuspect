@@ -9,7 +9,6 @@ using UnusualSuspect.IocConfig;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.Configuration;
 using Hangfire;
-using HangfireBasicAuthenticationFilter;
 using UnusualSuspect.Api.Background;
 using Serilog;
 using UnusualSuspect.Common.Middlewares;
@@ -19,6 +18,8 @@ using Serilog.Events;
 using System.Linq;
 using UnusualSuspect.Services.SignalR;
 using System.Threading;
+using UnusualSuspect.Services;
+using UnusualSuspect.Services.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,7 +82,8 @@ builder.Services.AddHangfire(config => config
   .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
   .UseSimpleAssemblyNameTypeSerializer()
   .UseRecommendedSerializerSettings()
-  .UseSqlServerStorage(projectSetting.ConnectionStrings.HangfireConnectionString));
+  .UseSqlServerStorage(projectSetting.ConnectionStrings.HangfireConnectionString)
+  .UseActivator(new HangfireActivator(builder.Services.BuildServiceProvider())));
 // Hangfire Server
 builder.Services.AddHangfireServer();
 builder.Services.AddOutputCache();
@@ -170,16 +172,16 @@ app.UseHangfireDashboard();
 app.MapHangfireDashboard("/hangfire", new DashboardOptions()
 {
   DashboardTitle = "Hangfire dashboard",
-  Authorization = new[]
-  {
-    new HangfireCustomBasicAuthenticationFilter()
-    {
-      User = projectSetting.HangfireSetting.AdminUsername,
-      Pass = projectSetting.HangfireSetting.AdminPassword
-    }
-  }
+  //Authorization = new[]
+  //{
+  //  new HangfireCustomBasicAuthenticationFilter()
+  //  {
+  //    User = projectSetting.HangfireSetting.AdminUsername,
+  //    Pass = projectSetting.HangfireSetting.AdminPassword
+  //  }
+  //}
 });
-RecurringJob.AddOrUpdate<DailyJobs>("ScoreAndRankingJob",
+RecurringJob.AddOrUpdate<IDailyJobsService>("ScoreAndRankingJob",
   job => job.CalculateScoreAndRankingsAsync(CancellationToken.None),
   Cron.Daily(1),
   new RecurringJobOptions()

@@ -15,7 +15,7 @@ public sealed class PackagesGetEndpoint(IAvatarService avatarService) : MyBaseEn
   [HttpGet("api/[namespace]/PackagesGet")]
   public override async Task<ActionResult<ApiResultCommon<PackagesGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<PackagesGetResponse> result = await avatarService.GetPublicPackagesAsync(cancellationToken);
+    UnusualSuspectServiceResult<PackagesGetResponse> result = await avatarService.GetPublicPackagesAsync(CurrentUser.UserId, cancellationToken);
     return ReturnResult(result);
   }
 }

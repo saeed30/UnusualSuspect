@@ -1,13 +1,10 @@
-﻿using System.Threading.Tasks;
-using System.Threading;
-using UnusualSuspect.Services.Contracts;
+﻿using ElmahCore;
 using Hangfire;
-using ElmahCore;
-using System;
+using UnusualSuspect.Services.Contracts;
 
-namespace UnusualSuspect.Api.Background;
+namespace UnusualSuspect.Services.Services.Jobs;
 
-public class DailyJobs(IRankingService rankingService)
+public class DailyJobsService(IRankingService rankingService): IDailyJobsService
 {
   [DisableConcurrentExecution(timeoutInSeconds: 10 * 60)]
   public async Task CalculateScoreAndRankingsAsync(CancellationToken cancellationToken)

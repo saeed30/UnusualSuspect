@@ -1,8 +1,7 @@
 ﻿using UnusualSuspect.Entities.Common;
 
-namespace UnusualSuspect.Entities.GameModels
+namespace UnusualSuspect.Entities.GameModels;
+
+public class AvatarPackage : PackageEntity, IEntity<short>
 {
-  public class AvatarPackage : PackageEntity, IEntity<short>
-  {
-  }
 }

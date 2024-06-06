@@ -36,7 +36,8 @@ public static class PackageMapper
       ImageUrl = model.ImageUrl,
       Price = model.Price,
       PriceTypeEnum = model.PriceTypeId.HasValue ? (PriceTypeEnum)model.PriceTypeId.Value : null,
-      ViewOrder = model.ViewOrder
+      ViewOrder = model.ViewOrder,
+      Enabled = true
     };
   }
 }

@@ -13,6 +13,9 @@ using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.ViewModels.Game;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.Logging;
+using UnusualSuspect.Services.Timer;
+using UnusualSuspect.ApiViewModels.InnerModels.Game;
+using UnusualSuspect.ApiViewModels.SignalCommandsData;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -22,7 +25,6 @@ public sealed class GameService(IUnitOfWork uow,
   ICharacterCardGameRepository characterCardGameRepository,
   INotificationService notificationService,
   IMemoryCacheService memoryCacheService,
-  ITurnOfPlayService turnOfPlayService,
   IQuestionGameRepository questionGameRepository,
   IPreGameGroupRepository preGameGroupRepository,
   IJoinedPreGameRepository joinedPreGameRepository,
@@ -151,8 +153,10 @@ public sealed class GameService(IUnitOfWork uow,
     return new UnusualSuspectServiceResult<bool>(true);
   }
 
+
   public async Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default)
   {
+    TimerManagement.OnTimerStop(gameId);
     bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.MainDetective, cancellationToken);
     if (!hasAccess)
       return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
@@ -192,7 +196,11 @@ public sealed class GameService(IUnitOfWork uow,
           await GoToTalkingStatus(game);
         }
         else
+        {
           await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer, cancellationToken);
+          if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
+            TimerManagement.OnTimerStart(-1, gameId, new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), AutoAnswerQuestion);
+        }
         result = new UnusualSuspectServiceResult<bool?>((bool?)null);
       }
     }
@@ -249,6 +257,8 @@ public sealed class GameService(IUnitOfWork uow,
       return false;
     if (await SetAnswerIfNoWitnessInGame(gameId))
       return await GoToTalkingStatus(game);
+    if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
+      TimerManagement.OnTimerStart(-1, gameId, new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), AutoAnswerQuestion);
     return await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer);
   }
 
@@ -261,7 +271,7 @@ public sealed class GameService(IUnitOfWork uow,
   }
   public async Task<bool> GoToTalkingStatus(Game game)
   {
-    var result = await turnOfPlayService.StartTurnOfPlayAsync(game.Id);
+    var result = await StartTurnOfPlayAsync(game.Id);
     if (!result.Success)
       return false;
     gameRepository.SetGameStatus(game, GameStatusEnum.Talking);
@@ -270,6 +280,55 @@ public sealed class GameService(IUnitOfWork uow,
     game.OrderOfParticipationTalkBeginner = result.Result.OrderOfParticipationTalkBeginner;
     game.OrderOfParticipationTurnToTalk = result.Result.OrderOfParticipationTurnToTalk;
     return true;
+  }
+  public async void AutoChooseCard(int userId, int gameId)
+  {
+    try
+    {
+      var participants = (await participateRepository.GetGameActiveParticipantsAsync(gameId, RoleCardEnum.MainDetective)).FirstOrDefault();
+      if (participants == null)
+      {
+        logger.LogError("MainDetective not found in game ({gameId})", gameId);
+        return;
+      }
+
+      var game = await GetDetailByIdAsync(gameId);
+      if (!game.Success)
+      {
+        logger.LogError("Game not found with id ({gameId}). error: {error}", gameId, game.MainError.ToString());
+        return;
+      }
+
+      List<short> activeCharacters = game.Result.GameGetResponse.GameFlowDto.ActiveCharacterIds;
+      List<CandidateCardDto> candidate = game.Result.GameGetResponse.GameFlowDto.CandidateCard
+        .Where(x => activeCharacters.Contains((short)x.CharacterCardId)).ToList();
+      int characterId;
+      if (candidate == null || !candidate.Any())
+      {
+        logger.LogWarning("No candidate were found for auto choose card for game ({gameId})", gameId);
+        characterId = new Random().Next(0, activeCharacters.Count - 1); ;
+        await ChooseCardAndGetWinCondition(gameId, activeCharacters[characterId], userId);
+        return;
+      }
+      var result = candidate.GroupBy(x => x.CharacterCardId)
+        .Select(x => new { CharacterCardId = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count).ToList();
+      if (result.Count < 2 || result[0].Count == result[1].Count)
+      {
+        logger.LogWarning(
+          "No candidate with most vote were found for auto choose card for game ({gameId}). number of candidates: {CandidateCount}",
+          gameId, candidate.Count);
+        characterId = new Random().Next(0, activeCharacters.Count - 1);
+        await ChooseCardAndGetWinCondition(gameId, activeCharacters[characterId], userId);
+        return;
+      }
+      await ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
+    }
+    catch (Exception ex)
+    {
+      ElmahExtensions.RaiseError(ex);
+      throw;
+    }
+
   }
 
   public async Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default)
@@ -293,6 +352,7 @@ public sealed class GameService(IUnitOfWork uow,
   public async Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer,
     short questionId, int userId, CancellationToken cancellationToken = default)
   {
+    TimerManagement.OnTimerStop(gameId);
     bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.Witness, cancellationToken);
     if (!hasAccess)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
@@ -361,4 +421,165 @@ public sealed class GameService(IUnitOfWork uow,
       return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.GameNotFinished));
     return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse());
   }
+  public async Task<UnusualSuspectServiceResult<TurnOfPlayTalkingState>> StartTurnOfPlayAsync(int gameId)
+  {
+    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId);
+    if (game == null)
+      return new UnusualSuspectServiceResult<TurnOfPlayTalkingState>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    short starter = GetStarterOrderOfParticipation(game.Participates);
+    TurnOfPlayGetResponse model = new TurnOfPlayGetResponse(new TurnOfPlayTalkingState()
+    {
+      CurrentUserTurnStartedTime = DateTime.Now,
+      TalkingTurnStartedTime = DateTime.Now,
+      OrderOfParticipationTalkBeginner = starter,
+      OrderOfParticipationTurnToTalk = starter
+    });
+    await memoryCacheService.ResetTurnOfPlay(game.Id, model.TurnOfPlayTalkingState!);
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayersStartToTalk, starter);
+    if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
+      TimerManagement.OnTimerStart(game.Participates.First(x => x.OrderOfParticipation == starter).UserId, gameId,
+         new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), UserTurnFinished);
+    return new UnusualSuspectServiceResult<TurnOfPlayTalkingState>(model.TurnOfPlayTalkingState!);
+  }
+
+  public async Task<UnusualSuspectServiceResult<bool>> UserTurnFinishedAsync(int userId, int gameId,
+    CancellationToken cancellationToken = default)
+  {
+    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
+    if (game == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState(setting.Value.GameSetting.TimeToTalkInSeconds);
+    if (model == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
+    var partTalking = game.Participates.FirstOrDefault(x => x.UserId == userId);
+    if (partTalking == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+    if (model.OrderOfParticipationTurnToTalk != partTalking.OrderOfParticipation)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserCallingFinishTalkIsNotTalking));
+    var next = GetNextUserOrderOfParticipation(game.Participates,
+      model.OrderOfParticipationTurnToTalk);
+    if (next.OrderOfParticipation == model.OrderOfParticipationTalkBeginner)
+    {
+      await notificationService.SendSignalToGameGroup(gameId, SignalCommands.EndOfTalking, gameId);
+      await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForMainDetectiveToChoose, cancellationToken);
+      await gameRepository.SaveChangesAsync(cancellationToken);
+      memoryCacheService.ClearGameWithDetails(gameId);
+      if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
+        TimerManagement.OnTimerStart(-1, gameId, new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), AutoChooseCard);
+      return new UnusualSuspectServiceResult<bool>(false);
+    }
+    model.OrderOfParticipationTurnToTalk = next.OrderOfParticipation;
+    model.CurrentUserTurnStartedTime = DateTime.Now;
+    await gameRepository.SetNewTurnToTalk(game.Id, model.OrderOfParticipationTurnToTalk,
+      model.CurrentUserTurnStartedTime, cancellationToken);
+    await gameRepository.SaveChangesAsync(cancellationToken);
+    await memoryCacheService.ResetTurnOfPlay(gameId, model, cancellationToken);
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
+      model.OrderOfParticipationTurnToTalk);
+    if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
+      TimerManagement.OnTimerStart(next.UserId, gameId, new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), UserTurnFinished);
+    return new UnusualSuspectServiceResult<bool>(true);
+  }
+
+  public async void AutoAnswerQuestion(int userId, int gameId)
+  {
+
+  }
+  public async void UserTurnFinished(int userId, int gameId)
+  {
+    try
+    {
+      await UserTurnFinishedAsync(userId, gameId);
+    }
+    catch (Exception ex)
+    {
+      ElmahExtensions.RaiseError(ex);
+    }
+
+  }
+  public async Task<UnusualSuspectServiceResult<TurnOfPlayGetResponse>> GetTurnOfPlayGetAsync(
+    int userId, CancellationToken cancellationToken = default)
+  {
+    Game? game = await gameRepository.GetUserCurrentGameWithDetailsAsync(userId, cancellationToken);
+    if (game == null)
+      return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(
+        new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
+    var model = game.ToTurnOfPlayGetResponse(setting.Value.GameSetting.TimeToTalkInSeconds);
+    return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(model);
+  }
+
+  public async Task<UnusualSuspectServiceResult<bool>> ChangedCandidateCard(int userId, short? characterCardId, int gameId)
+  {
+    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId);
+    if (game == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    var partTalking = game.Participates.FirstOrDefault(x => x.UserId == userId);
+    if (partTalking == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
+    TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState(setting.Value.GameSetting.TimeToTalkInSeconds);
+    if (model == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+    var candidates = game.GameCandidates;
+    var candid = candidates.FirstOrDefault(x => x.UserId == userId);
+    if (candid != null)
+    {
+      var oldChoice = candid.CharacterCardId;
+      if (characterCardId.HasValue)
+      {
+        if (characterCardId.Value == oldChoice)
+          return new UnusualSuspectServiceResult<bool>(false);
+        await gameCandidateRepository.ChangeUserCandidateInGameAsync(gameId, userId, characterCardId.Value);
+      }
+      else
+      {
+        await gameCandidateRepository.DeleteUserCandidatesInGameAsync(gameId, userId);
+      }
+    }
+    else
+    {
+      if (!characterCardId.HasValue)
+        return new UnusualSuspectServiceResult<bool>(false);
+      gameCandidateRepository.Add(new GameCandidate()
+      {
+        CharacterCardId = characterCardId.Value,
+        GameId = gameId,
+        UserId = userId,
+        DateTimeAdded = DateTime.Now
+      });
+    }
+    await gameCandidateRepository.SaveChangesAsync();
+    var newCandidates = await gameCandidateRepository.GetAllGameCandidatesAsync(gameId);
+    await memoryCacheService.ResetGameCandidates(gameId, newCandidates);
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.CandidateCardChange, new CandidateCardChangeViewModel()
+    {
+      UserId = userId,
+      CharacterCardId = characterCardId
+    });
+    return new UnusualSuspectServiceResult<bool>(true);
+  }
+
+  private short GetStarterOrderOfParticipation(ICollection<Participate> gameParticipates)
+  {
+    int random = new Random().Next(0, gameParticipates.Count - 2);
+    return gameParticipates
+      .Where(x => x.RoleCardId != (short)RoleCardEnum.Witness)
+      .ToList()[random]
+      .OrderOfParticipation;
+  }
+  private Participate GetNextUserOrderOfParticipation(ICollection<Participate> participates,
+    short currentOrderOfParticipation)
+  {
+    Participate? next = participates.Where(x => x.RoleCardId != (short)RoleCardEnum.Witness && x.OrderOfParticipation > currentOrderOfParticipation)
+      .MinBy(x => x.OrderOfParticipation);
+    if (next != null)
+      return next;
+    next = participates.Where(x => x.RoleCardId != (short)RoleCardEnum.Witness).MinBy(x => x.OrderOfParticipation);
+    if (next == null)
+    {
+      logger.LogCritical("No participants found!");
+      throw new Exception("No participants found!");
+    }
+    return next;
+  }
+
 }

@@ -161,42 +161,49 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
   private async Task HasDataForEnumEntity<TEntity, TEnum>(string tableName)
     where TEntity : BaseEnumEntity, new() where TEnum : Enum
   {
-    int? result = await dapperRepository.QuerySingleAsync<int?>($@"SELECT 1 FROM sys.tables AS T 
+    try
+    {
+      int? result = await dapperRepository.QuerySingleAsync<int?>($@"SELECT 1 FROM sys.tables AS T 
 INNER JOIN sys.schemas AS S ON T.schema_id = S.schema_id
 WHERE T.Name = '{tableName}'");
-    if (!result.HasValue)
-      return;
-    DbSet<TEntity> baseEntity = uow.Set<TEntity>();
-    List<TEntity> entities = await baseEntity.ToListAsync();
-    bool newChange = false;
-    foreach (TEnum enumValue in Enum.GetValues(typeof(TEnum)))
-    {
-      short id = Convert.ToInt16(enumValue);
-      TEntity? model = entities.FirstOrDefault(x => x.Id == id);
-      if (model == null)
+      if (!result.HasValue)
+        return;
+      DbSet<TEntity> baseEntity = uow.Set<TEntity>();
+      List<TEntity> entities = await baseEntity.ToListAsync();
+      bool newChange = false;
+      foreach (TEnum enumValue in Enum.GetValues(typeof(TEnum)))
       {
-        TEntity newModel = new TEntity()
+        short id = Convert.ToInt16(enumValue);
+        TEntity? model = entities.FirstOrDefault(x => x.Id == id);
+        if (model == null)
         {
-          Id = id,
-          Title = enumValue.ToDisplay(),
-          Name = enumValue.ToString()
-        };
-        SpecificChangesBasedOnEntity(ref newModel);
-        baseEntity.Add(newModel);
-        newChange = true;
-      }
-      else
-      {
-        if (model.Name != enumValue.ToString())
-        {
-          model.Name = enumValue.ToString();
+          TEntity newModel = new TEntity()
+          {
+            Id = id,
+            Title = enumValue.ToDisplay(),
+            Name = enumValue.ToString()
+          };
+          SpecificChangesBasedOnEntity(ref newModel);
+          baseEntity.Add(newModel);
           newChange = true;
         }
-        //Title may change by admin
+        else
+        {
+          if (model.Name != enumValue.ToString())
+          {
+            model.Name = enumValue.ToString();
+            newChange = true;
+          }
+          //Title may change by admin
+        }
       }
+      if (newChange)
+        await uow.SaveChangesAsync();
     }
-    if (newChange)
-      await uow.SaveChangesAsync();
+    catch (Exception e)
+    {
+      logger.LogError(e, "Error while init data for table {tableName}", tableName);
+    }
   }
 
   private void SpecificChangesBasedOnEntity<TEntity>(ref TEntity model) where TEntity : BaseEnumEntity, new()

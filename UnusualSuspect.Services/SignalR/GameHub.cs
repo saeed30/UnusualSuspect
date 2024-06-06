@@ -9,6 +9,7 @@ using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.Services.Timer;
 
 namespace UnusualSuspect.Services.SignalR;
 
@@ -18,8 +19,7 @@ public sealed class GameHub(IGameService gameService,
   INotificationService notificationService,
   IMemoryCacheService memoryCacheService,
   IStickerService stickerService,
-  ILogger<GameHub> logger,
-  ITurnOfPlayService turnOfPlayService) : Hub<IGameClient>, IGameHub
+  ILogger<GameHub> logger) : Hub<IGameClient>, IGameHub
 {
   #region Properties
   private int? UserId
@@ -82,7 +82,8 @@ public sealed class GameHub(IGameService gameService,
         return;
       LogUserCall("FinishedTalking", gameId.ToString(), "");
       await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
-      var result = await turnOfPlayService.UserTurnFinishedAsync(UserId.Value, gameId);
+      TimerManagement.OnTimerStop(gameId);
+      var result = await gameService.UserTurnFinishedAsync(UserId.Value, gameId);
       if (!result.Success)
         await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
     }
@@ -122,7 +123,7 @@ public sealed class GameHub(IGameService gameService,
         return;
       LogUserCall("CandidateCard", gameId.ToString(), cardId.HasValue ? cardId.Value.ToString() : "");
       await Clients.Caller.ReceiveMessage("admin", "you called CandidateCard");
-      var result = await turnOfPlayService.ChangedCandidateCard(UserId.Value, (short?)cardId, gameId);
+      var result = await gameService.ChangedCandidateCard(UserId.Value, (short?)cardId, gameId);
       if (!result.Success)
         await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
     }

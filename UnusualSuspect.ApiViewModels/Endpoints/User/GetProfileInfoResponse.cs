@@ -25,7 +25,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
     [SerializeField]
     private int gamesLost;
     [SerializeField]
-    private int diamonds;
+    private int gems;
     [SerializeField]
     private int coins;
     [SerializeField]
@@ -37,10 +37,10 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.User
       set => score = value;
     }
 
-    public int Diamonds
+    public int Gems
     {
-      get => diamonds;
-      set => diamonds = value;
+      get => gems;
+      set => gems = value;
     }
 
     public int Coins

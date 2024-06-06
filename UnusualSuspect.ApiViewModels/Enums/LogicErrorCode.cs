@@ -96,10 +96,10 @@ namespace UnusualSuspect.ApiViewModels.Enums
     UserOwnsAnotherPregameGroup = 44,
     [Display(Name = "تعداد گزارش های کاربر ذخیره شده توسط این کاربر بیش از حد مشخص شده است")]
     UserReportCountMoreThanLimit = 45,
-    [Display(Name = "کد بسته جم نا معتبر است")]
+    [Display(Name = "کد بسته الماس نا معتبر است")]
     InvalidGemPackageId = 46,
-    [Display(Name = "بسته جم غیر فعال است")]
-    GemPackageIsInActive = 47,
+    [Display(Name = "بسته الماس غیر فعال است")]
+    GemPackageIsNotActive = 47,
     [Display(Name = "کد نوع گزارش کاربر نا معتبر است")]
     InvalidReportUserTypeId = 48,
     [Display(Name = "گروه قبل از بازی تکمیل شده است")]
@@ -110,6 +110,21 @@ namespace UnusualSuspect.ApiViewModels.Enums
     DoNotHaveEnoughToPay = 51,
     [Display(Name = "این بسته قبلا خریداری شده است")]
     AlreadyOwnsThePackage = 52,
-
+    [Display(Name = "کد بسته استیکر نا معتبر است")]
+    InvalidStickerPackageId = 53,
+    [Display(Name = "کد بسته سکه نا معتبر است")]
+    InvalidCoinPackageId = 54,
+    [Display(Name = "تنها برای خرید الماس از خرید نقدی استفاده می شود")]
+    MoneyOnlyUsedForGem = 55,
+    [Display(Name = "امکان پرداخت از طریق آواتار وجود ندارد")]
+    CanNotUseAvatarForPayment = 56,
+    [Display(Name = "امکان پرداخت از طریق استیکر وجود ندارد")]
+    CanNotUseStickerForPayment = 57,
+    [Display(Name = "برای استفاده از این استیکر ابتدا باید آن را بخرید")]
+    StickerIsNotFreeAndNeedToBeBought = 58,
+    [Display(Name = "بسته سکه غیر فعال است")]
+    CoinPackageIsNotActive = 59,
+    [Display(Name = "توکن خرید اجباری است")]
+    PurchaseTokenIsEmpty = 60,
   }
 }

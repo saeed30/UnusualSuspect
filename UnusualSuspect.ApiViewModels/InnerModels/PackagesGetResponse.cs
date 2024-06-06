@@ -33,6 +33,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels
     private PriceTypeEnum? priceTypeEnum;
     [SerializeField]
     private int viewOrder;
+    [SerializeField]
+    private bool enabled;
+
+    public bool Enabled
+    {
+      get => enabled;
+      set => enabled = value;
+    }
 
     public int ViewOrder
     {

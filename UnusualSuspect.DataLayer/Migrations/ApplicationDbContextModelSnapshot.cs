@@ -185,13 +185,50 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
+                    b.Property<short?>("PriceTypeId")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<short>("ViewOrder")
+                        .HasColumnType("smallint");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("PriceTypeId");
+
                     b.ToTable("AvatarPackage");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.AvatarPackageUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<short>("AvatarPackageId")
+                        .HasColumnType("smallint");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("TimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AvatarPackageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AvatarPackageUser");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CharacterCard", b =>
@@ -269,11 +306,19 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
+                    b.Property<short?>("PriceTypeId")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<short>("ViewOrder")
+                        .HasColumnType("smallint");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PriceTypeId");
 
                     b.ToTable("CoinPackage");
                 });
@@ -292,6 +337,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<short>("CoinPackageId")
                         .HasColumnType("smallint");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("TimeAdded")
                         .HasColumnType("datetime2");
 
@@ -305,6 +353,38 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CoinPackageUser");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CoinUsedUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ReferenceGuid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("TimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<short>("UsedForPriceTypeId")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsedForPriceTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CoinUsedUser");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Friend", b =>
@@ -481,11 +561,19 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
+                    b.Property<short?>("PriceTypeId")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<short>("ViewOrder")
+                        .HasColumnType("smallint");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PriceTypeId");
 
                     b.ToTable("GemPackage");
                 });
@@ -504,6 +592,12 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<short>("GemPackageId")
                         .HasColumnType("smallint");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("TimeAdded")
                         .HasColumnType("datetime2");
 
@@ -517,6 +611,38 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("GemPackageUser");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GemUsedUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ReferenceGuid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("TimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<short>("UsedForPriceTypeId")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsedForPriceTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GemUsedUser");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.JoinedPreGame", b =>
@@ -587,6 +713,48 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.ToTable("Participate");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PaymentUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsValid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PurchaseToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ReferenceGuid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("TimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<short>("UsedForPriceTypeId")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ValidationCheckDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsedForPriceTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PaymentUser");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PreGameGroup", b =>
                 {
                     b.Property<int>("Id")
@@ -640,6 +808,24 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PreGameGroupStatus");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PriceType", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PriceType");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Question", b =>
@@ -870,13 +1056,50 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
+                    b.Property<short?>("PriceTypeId")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<short>("ViewOrder")
+                        .HasColumnType("smallint");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("PriceTypeId");
+
                     b.ToTable("StickerPackage");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.StickerPackageUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<short>("StickerPackageId")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime>("TimeAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StickerPackageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("StickerPackageUser");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopDayRanking", b =>
@@ -1008,9 +1231,6 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("CalculatedDailyScore")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CalculatedDiamonds")
                         .HasColumnType("int");
 
                     b.Property<int>("CalculatedGems")
@@ -1900,6 +2120,34 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("AvatarPackage");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.AvatarPackage", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.PriceType", "PriceType")
+                        .WithMany()
+                        .HasForeignKey("PriceTypeId");
+
+                    b.Navigation("PriceType");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.AvatarPackageUser", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.AvatarPackage", "AvatarPackage")
+                        .WithMany()
+                        .HasForeignKey("AvatarPackageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("AvatarPackage");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CharacterCardGame", b =>
                 {
                     b.HasOne("UnusualSuspect.Entities.GameModels.CharacterCard", "CharacterCard")
@@ -1919,6 +2167,15 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("Game");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CoinPackage", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.PriceType", "PriceType")
+                        .WithMany()
+                        .HasForeignKey("PriceTypeId");
+
+                    b.Navigation("PriceType");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CoinPackageUser", b =>
                 {
                     b.HasOne("UnusualSuspect.Entities.GameModels.CoinPackage", "CoinPackage")
@@ -1936,6 +2193,25 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("CoinPackage");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CoinUsedUser", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.PriceType", "UsedForPriceType")
+                        .WithMany()
+                        .HasForeignKey("UsedForPriceTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("UsedForPriceType");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Friend", b =>
@@ -2003,6 +2279,15 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("Game");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GemPackage", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.PriceType", "PriceType")
+                        .WithMany()
+                        .HasForeignKey("PriceTypeId");
+
+                    b.Navigation("PriceType");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GemPackageUser", b =>
                 {
                     b.HasOne("UnusualSuspect.Entities.GameModels.GemPackage", "GemPackage")
@@ -2020,6 +2305,25 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("GemPackage");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GemUsedUser", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.PriceType", "UsedForPriceType")
+                        .WithMany()
+                        .HasForeignKey("UsedForPriceTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("UsedForPriceType");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.JoinedPreGame", b =>
@@ -2074,6 +2378,25 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("Game");
 
                     b.Navigation("RoleCard");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PaymentUser", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.PriceType", "UsedForPriceType")
+                        .WithMany()
+                        .HasForeignKey("UsedForPriceTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("UsedForPriceType");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PreGameGroup", b =>
@@ -2175,6 +2498,34 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasOne("UnusualSuspect.Entities.GameModels.StickerPackage", "StickerPackage")
                         .WithMany()
                         .HasForeignKey("StickerPackageId");
+
+                    b.Navigation("StickerPackage");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.StickerPackage", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.PriceType", "PriceType")
+                        .WithMany()
+                        .HasForeignKey("PriceTypeId");
+
+                    b.Navigation("PriceType");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.StickerPackageUser", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.StickerPackage", "StickerPackage")
+                        .WithMany()
+                        .HasForeignKey("StickerPackageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UnusualSuspect.Entities.Identity.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
 
                     b.Navigation("StickerPackage");
                 });

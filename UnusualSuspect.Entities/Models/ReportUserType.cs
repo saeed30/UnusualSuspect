@@ -1,9 +1,8 @@
 ﻿using UnusualSuspect.Entities.Common;
 
-namespace UnusualSuspect.Entities.Models
+namespace UnusualSuspect.Entities.Models;
+
+public sealed class ReportUserType : BaseEnumEntity, IEntity<short>
 {
-  public sealed class ReportUserType : BaseEnumEntity, IEntity<short>
-  {
-    public bool IsActive { get; set; }
-  }
+  public bool IsActive { get; set; }
 }
