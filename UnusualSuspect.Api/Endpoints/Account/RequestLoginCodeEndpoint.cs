@@ -13,11 +13,19 @@ using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.ViewModels.Settings;
+using Microsoft.Extensions.Logging;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.DataLayer;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
 public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserManager,
-    IOptionsSnapshot<ProjectSetting> setting, ISmsService smsService)
+    IOptionsSnapshot<ProjectSetting> setting,
+    ISmsService smsService,
+		ILogger<RequestLoginCodeEndpoint> logger,
+    IGemService gemService,
+    IUnitOfWork uow,
+    ICoinService coinService)
   : EndpointBaseAsync
 	.WithRequest<RequestLoginCodeRequest>
 	.WithActionResult<ApiResultCommon>
@@ -58,8 +66,26 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
 				PhoneNumberValidationCode = code,
 				SendCodeDate = DateTime.Now
 			};
-			await iApplicationUserManager.CreateAsync(user, Guid.NewGuid().ToString());
-		}
+			var result = await iApplicationUserManager.CreateAsync(user, Guid.NewGuid().ToString());
+      if (!result.Succeeded)
+      {
+				logger.LogError("اشکالی در زمان ثبت نام رخ داده است. phone: {phone}", phone);
+        return new ApiResultCommon(false, ApiResultStatusCode.ServerError
+          , "اشکالی در زمان ثبت نام رخ داده است. لطفا بعدا تلاش نمایید");
+      }
+
+      var result1 = await gemService.BuyPackagesAsync((short)BaseGemPackageEnum.SignUpAward, "free", user.Id, true, cancellationToken);
+      var result2 = await coinService.BuyPackagesAsync((short)BaseCoinPackageEnum.SignUpAward, user.Id, true, cancellationToken);
+      if (result1.Success && result2.Success)
+        await uow.SaveChangesAsync(cancellationToken);
+      else
+      {
+				if(!result1.Success)
+					logger.LogError("Can not save BaseGemPackageEnum.SignUpAward for user {userId}, error: {error}", user.Id, result1.MainError.ToString());
+				if(!result2.Success)
+					logger.LogError("Can not save BaseCoinPackageEnum.SignUpAward for user {userId}, error: {error}", user.Id, result2.MainError.ToString());
+      }
+    }
     await minWait.ConfigureAwait(false);
     if (setting.Value.IsTesting)
 			return new ApiResultCommon(true, ApiResultStatusCode.Success, "کد تایید: " + code);

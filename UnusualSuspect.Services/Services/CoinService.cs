@@ -27,7 +27,8 @@ public sealed class CoinService(ICoinPackageRepository coinPackageRepository,
     );
   }
 
-  public async Task<UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>> BuyPackagesAsync(int coinPackageId, int userId, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>> BuyPackagesAsync(
+    int coinPackageId, int userId, bool bySystem = false, CancellationToken cancellationToken = default)
   {
     short? packageId = coinPackageId.ToShort();
     if (!packageId.HasValue)

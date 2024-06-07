@@ -7,5 +7,6 @@ public interface ICoinService
 {
   Task<UnusualSuspectServiceResult<PackagesGetResponse>> GetPublicPackagesAsync(CancellationToken cancellationToken = default);
 
-  Task<UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>> BuyPackagesAsync(int coinPackageId, int userId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>> BuyPackagesAsync(int coinPackageId,
+    int userId, bool bySystem = false, CancellationToken cancellationToken = default);
 }

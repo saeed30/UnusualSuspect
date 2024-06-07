@@ -3,6 +3,7 @@ using ElmahCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Utilities;
@@ -10,6 +11,7 @@ using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Timer;
+using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.SignalR;
 
@@ -17,6 +19,7 @@ namespace UnusualSuspect.Services.SignalR;
 public sealed class GameHub(IGameService gameService,
   IParticipateRepository participateRepository,
   INotificationService notificationService,
+  IOptionsSnapshot<ProjectSetting> setting,
   IMemoryCacheService memoryCacheService,
   IStickerService stickerService,
   ILogger<GameHub> logger) : Hub<IGameClient>, IGameHub
@@ -82,7 +85,7 @@ public sealed class GameHub(IGameService gameService,
         return;
       LogUserCall("FinishedTalking", gameId.ToString(), "");
       await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
-      TimerManagement.OnTimerStop(gameId);
+      TimerManagement.OnGameTimerStop(gameId);
       var result = await gameService.UserTurnFinishedAsync(UserId.Value, gameId);
       if (!result.Success)
         await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
@@ -190,6 +193,7 @@ public sealed class GameHub(IGameService gameService,
         connections.Remove(Context.ConnectionId);
     }
     memoryCacheService.SetUserSignalRConnections(userId, connections);
+
     var participate = (await participateRepository.GetActiveParticipations(userId)).FirstOrDefault();
 
     if (participate != null)
@@ -197,6 +201,7 @@ public sealed class GameHub(IGameService gameService,
       string groupName = participate.GameId.ToString();
       if (isConnected)
       {
+        TimerManagement.OnUserTimerStop(userId);
         await notificationService.AddToGroupAsync(userId, Context.ConnectionId, groupName);
         List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, userIds);
@@ -207,6 +212,7 @@ public sealed class GameHub(IGameService gameService,
       {
         await notificationService.RemoveFromGroupAsync(userId, groupName, Context.ConnectionId);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberDisConnected, await memoryCacheService.GetSignalRGroupOnlineUsers(groupName));
+        TimerManagement.OnUserTimerStart(userId, TimeSpan.FromSeconds(setting.Value.GameSetting.TimeToTalkInSeconds * 3), gameService.LeaveCurrentGame);
       }
     }
     else if (!isConnected)

@@ -20,7 +20,7 @@ public sealed class PurchaseEndpoint(ICoinService coinService,
   [HttpPost("api/[namespace]/Purchase")]
   public override async Task<ActionResult<ApiResultCommon>> HandleAsync(int coinPackageId, CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<(bool, PriceTypeEnum?)> result = await coinService.BuyPackagesAsync(coinPackageId, CurrentUser.UserId, cancellationToken);
+    UnusualSuspectServiceResult<(bool, PriceTypeEnum?)> result = await coinService.BuyPackagesAsync(coinPackageId, CurrentUser.UserId, false, cancellationToken);
     if (!result.Success)
       return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
     if (result.Result.Item1)
