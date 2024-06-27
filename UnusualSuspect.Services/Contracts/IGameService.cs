@@ -19,7 +19,6 @@ public interface IGameService
   Task<bool> StartGameIfAllUsersOnline(int gameId, List<int> userIds);
   Task<bool> GoToTalkingStatus(int gameId);
   Task<bool> GoToTalkingStatus(Game game);
-  void AutoChooseCard(int userId, int gameId);
   Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer, short questionId, int? userId, CancellationToken cancellationToken = default);
   Task<bool> IsGameParticipantAsync(int userId, int gameId, CancellationToken cancellationToken = default);

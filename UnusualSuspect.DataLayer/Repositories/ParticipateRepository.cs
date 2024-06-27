@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
@@ -27,12 +28,12 @@ public sealed class ParticipateRepository
 
   public async Task<List<Participate>> GetActiveParticipations(int userId, CancellationToken cancellationToken = default)
   {
-    var result = await BaseEntity.Where(x => 
+    var result = await BaseEntity.Where(x =>
         x.UserId == userId && x.IsActive && x.Game.FinishedTime == null)
       .ToListAsync(cancellationToken);
-    if(result.Count > 1) 
+    if (result.Count > 1)
       logger.LogCritical("User has more than one active game, userId: {userId}, gameIds: {gameIds}",
-        userId, string.Join("-", result.Select(x=>x.Id)));
+        userId, string.Join("-", result.Select(x => x.Id)));
     return result;
   }
   public async Task<int> GetParticipantCountAsync(int gameId, CancellationToken cancellationToken = default)
@@ -50,5 +51,9 @@ public sealed class ParticipateRepository
   public async Task<bool> IsGameHasOtherActiveParticipantsAsync(int gameId, List<int> userIds)
   {
     return await BaseEntity.AnyAsync(x => x.IsActive && x.GameId == gameId && !userIds.Contains(x.UserId));
+  }
+  public IQueryable<int> GetUsersGameIds(List<int> userIds)
+  {
+    return BaseEntity.Where(x => userIds.Contains(x.UserId) && x.IsActive && x.Game.FinishedTime == null).Select(x => x.Id);
   }
 }

@@ -1,13 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.Entities.GameModels;
-using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
@@ -15,7 +13,7 @@ public sealed class GameRepository(
     IUnitOfWork uow,
     ILogger<GameRepository> logger,
     IMemoryCacheService memoryCacheService,
-    IOptionsSnapshot<ProjectSetting> setting,
+    //IOptionsSnapshot<ProjectSetting> setting,
     IDapperRepository dapperRepository)
   : EfRepository<Game>(uow, logger), IGameRepository
 {
@@ -24,7 +22,7 @@ public sealed class GameRepository(
     //if(setting.Value.IsTesting)
     //  ignoreCache = true;//saeed remove after test
     Game? game = null;
-    if(!ignoreCache)
+    if (!ignoreCache)
       game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
     if (game == null)
     {
@@ -124,14 +122,14 @@ public sealed class GameRepository(
 
   public async Task SetNewTurnToTalk(int gameId, short orderOfParticipationTurnToTalk, DateTime currentUserTurnStartedTime, CancellationToken cancellationToken = default)
   {
-	  Game? game = await GetByIdAsync(gameId, cancellationToken);
-	  if (game == null)
-	  {
+    Game? game = await GetByIdAsync(gameId, cancellationToken);
+    if (game == null)
+    {
       logger.LogError(new Exception("Invalid gameId"), "Invalid gameId");
-		  return;
-	  }
-	  game.OrderOfParticipationTurnToTalk = orderOfParticipationTurnToTalk;
-	  game.CurrentUserTurnStartedTime = currentUserTurnStartedTime;
+      return;
+    }
+    game.OrderOfParticipationTurnToTalk = orderOfParticipationTurnToTalk;
+    game.CurrentUserTurnStartedTime = currentUserTurnStartedTime;
   }
 
   public Task<GameStatisticsDto?> GetGameStatisticsAsync(int userId, CancellationToken cancellationToken = default)

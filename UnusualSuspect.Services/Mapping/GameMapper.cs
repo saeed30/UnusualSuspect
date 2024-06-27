@@ -11,7 +11,7 @@ public static class GameMapper
 {
   public static GameGetResponse ToGameGetResponse(this Game value, List<int> onlineUserIds, int timeToTalkInSeconds, int userId)
   {
-    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(timeToTalkInSeconds), onlineUserIds, value.GameStatusId, value.ToPrivateInfoDto(userId));
+    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(timeToTalkInSeconds), onlineUserIds, value.GameStatusId, value.ToPrivateInfoDto(userId), value.CachedTime);
   }
 
   public static IEnumerable<GameGetResponse> ToGameGetResponse(this IEnumerable<Game> value, List<int> onlineUserIds, int timeToTalkInSeconds, int userId)

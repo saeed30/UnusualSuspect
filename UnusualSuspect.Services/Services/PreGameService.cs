@@ -252,8 +252,8 @@ public sealed class PreGameService(IUnitOfWork uow,
       if (preGameGroup.JoinedPreGames.Any(x => x.ReadyToGameStatusId != (int)ReadyToGameStatusEnum.Ready))
         return new UnusualSuspectServiceResult<bool>(
           new UnusualSuspectErrorResult(LogicErrorCode.ThereIsUnreadyUserInGroup));
-      List<int> inGameUserIds = CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(preGameGroup);
-      if (inGameUserIds.Any())
+      IQueryable<int> gameIds = participateRepository.GetUsersGameIds(preGameGroup.JoinedPreGames.Select(x => x.UserId).ToList());
+      if (gameIds.Any())
         return new UnusualSuspectServiceResult<bool>(
           new UnusualSuspectErrorResult(LogicErrorCode.CurrentGroupUsersAreInGame));
       preGameGroup.PreGameGroupStatusId = (int)PreGameGroupStatusEnum.Ready;
@@ -359,13 +359,6 @@ public sealed class PreGameService(IUnitOfWork uow,
     return new UnusualSuspectServiceResult<bool>(result);
   }
 
-
-  private List<int> CheckNoJoinedUsersAreInGameAndDeleteInactiveJoinedPreGames(PreGameGroup preGameGroup)
-  {
-    //throw new NotImplementedException();
-    return new List<int>();
-  }
-
   #region PrivateMethods
   private async Task CombineGroupsToStartGamesByGameTypeAsync(GameType gameType, CancellationToken cancellationToken)
   {
@@ -408,7 +401,7 @@ public sealed class PreGameService(IUnitOfWork uow,
         }
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
           gameWithDetails.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
-          await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId, null));
+          await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId, null, gameWithDetails.CachedTime));
         needToRefill = true;
       }
       else

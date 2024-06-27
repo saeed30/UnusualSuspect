@@ -156,6 +156,7 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
   #region GameWithDetails
   public void SetGameWithDetails(Game model)
   {
+    model.CachedTime = DateTime.Now;
     cache.Set(GetGameWithDetailsKey(model.Id), model, new MemoryCacheEntryOptions()
     {
       Priority = CacheItemPriority.High,

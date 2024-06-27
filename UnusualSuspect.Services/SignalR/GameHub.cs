@@ -21,6 +21,7 @@ public sealed class GameHub(IGameService gameService,
   INotificationService notificationService,
   IOptionsSnapshot<ProjectSetting> setting,
   IMemoryCacheService memoryCacheService,
+  ITimerManagementService timerManagementService,
   IStickerService stickerService,
   ILogger<GameHub> logger) : Hub<IGameClient>, IGameHub
 {
@@ -85,7 +86,7 @@ public sealed class GameHub(IGameService gameService,
         return;
       LogUserCall("FinishedTalking", gameId.ToString(), "");
       await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
-      TimerManagement.OnGameTimerStop(gameId);
+      TimerManagementService.OnGameTimerStop(gameId);
       var result = await gameService.UserTurnFinishedAsync(UserId.Value, gameId);
       if (!result.Success)
         await Clients.Caller.ReceiveMessage("error", result.MainError.ToString());
@@ -201,18 +202,22 @@ public sealed class GameHub(IGameService gameService,
       string groupName = participate.GameId.ToString();
       if (isConnected)
       {
-        TimerManagement.OnUserTimerStop(userId);
+        TimerManagementService.OnUserTimerStop(userId);
         await notificationService.AddToGroupAsync(userId, Context.ConnectionId, groupName);
         List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, userIds);
-        await gameService.StartGameIfAllUsersOnline(participate.GameId, userIds);
-        await gameService.SaveChangesAsync();
+        bool done = await gameService.StartGameIfAllUsersOnline(participate.GameId, userIds);
+        if (done)
+        {
+          await gameService.SaveChangesAsync();
+          memoryCacheService.ClearGameWithDetails(participate.GameId);
+        }
       }
       else
       {
         await notificationService.RemoveFromGroupAsync(userId, groupName, Context.ConnectionId);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberDisConnected, await memoryCacheService.GetSignalRGroupOnlineUsers(groupName));
-        TimerManagement.OnUserTimerStart(userId, TimeSpan.FromSeconds(setting.Value.GameSetting.TimeToTalkInSeconds * 3), gameService.LeaveCurrentGame);
+        timerManagementService.OnUserTimerStart(userId, UserTimerEnum.OutOfGameTimeout);
       }
     }
     else if (!isConnected)

@@ -14,7 +14,6 @@ using UnusualSuspect.ViewModels.Game;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.Services.Timer;
-using UnusualSuspect.ApiViewModels.InnerModels.Game;
 using UnusualSuspect.ApiViewModels.SignalCommandsData;
 
 namespace UnusualSuspect.Services.Services;
@@ -31,6 +30,7 @@ public sealed class GameService(IUnitOfWork uow,
   IGameCandidateRepository gameCandidateRepository,
   IQuestionService questionService,
   IScoreService scoreService,
+  ITimerManagementService timerManagementService,
   IOptionsSnapshot<ProjectSetting> setting,
   ILogger<GameService> logger) : IGameService
 {
@@ -71,7 +71,7 @@ public sealed class GameService(IUnitOfWork uow,
     return new UnusualSuspectServiceResult<GameGetResponse>(new GameGetResponse(
       game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
       await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId,
-      game.ToPrivateInfoDto(userId)));
+      game.ToPrivateInfoDto(userId), game.CachedTime));
   }
 
   public async void LeaveCurrentGame(int userId)
@@ -161,7 +161,7 @@ public sealed class GameService(IUnitOfWork uow,
 
   public async Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default)
   {
-    TimerManagement.OnGameTimerStop(gameId);
+    TimerManagementService.OnGameTimerStop(gameId);
     bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.MainDetective, cancellationToken);
     if (!hasAccess)
       return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
@@ -203,8 +203,7 @@ public sealed class GameService(IUnitOfWork uow,
         else
         {
           await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer, cancellationToken);
-          if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
-            TimerManagement.OnGameTimerStart(-1, gameId, new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), AutoAnswerQuestion);
+          timerManagementService.OnGameTimerStart(gameId, GameTimerEnum.AutoAnswerQuestion);
         }
         result = new UnusualSuspectServiceResult<bool?>((bool?)null);
       }
@@ -262,8 +261,7 @@ public sealed class GameService(IUnitOfWork uow,
       return false;
     if (await SetAnswerIfNoWitnessInGame(gameId))
       return await GoToTalkingStatus(game);
-    if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
-      TimerManagement.OnGameTimerStart(-1, gameId, new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), AutoAnswerQuestion);
+    timerManagementService.OnGameTimerStart(gameId, GameTimerEnum.AutoAnswerQuestion);
     return await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer);
   }
 
@@ -286,56 +284,6 @@ public sealed class GameService(IUnitOfWork uow,
     game.OrderOfParticipationTurnToTalk = result.Result.OrderOfParticipationTurnToTalk;
     return true;
   }
-  public async void AutoChooseCard(int userId, int gameId)
-  {
-    logger.LogWarning("AutoChooseCard for user {userId} in game {gameId}", userId, gameId);
-    try
-    {
-      var participants = (await participateRepository.GetGameActiveParticipantsAsync(gameId, RoleCardEnum.MainDetective)).FirstOrDefault();
-      if (participants == null)
-      {
-        logger.LogError("MainDetective not found in game ({gameId})", gameId);
-        return;
-      }
-
-      var game = await GetDetailByIdAsync(gameId);
-      if (!game.Success)
-      {
-        logger.LogError("Game not found with id ({gameId}). error: {error}", gameId, game.MainError.ToString());
-        return;
-      }
-
-      List<short> activeCharacters = game.Result.GameGetResponse.GameFlowDto.ActiveCharacterIds;
-      List<CandidateCardDto> candidate = game.Result.GameGetResponse.GameFlowDto.CandidateCard
-        .Where(x => activeCharacters.Contains((short)x.CharacterCardId)).ToList();
-      int characterId;
-      if (candidate == null || !candidate.Any())
-      {
-        logger.LogWarning("No candidate were found for auto choose card for game ({gameId})", gameId);
-        characterId = new Random().Next(0, activeCharacters.Count - 1); ;
-        await ChooseCardAndGetWinCondition(gameId, activeCharacters[characterId], userId);
-        return;
-      }
-      var result = candidate.GroupBy(x => x.CharacterCardId)
-        .Select(x => new { CharacterCardId = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count).ToList();
-      if (result.Count < 2 || result[0].Count == result[1].Count)
-      {
-        logger.LogWarning(
-          "No candidate with most vote were found for auto choose card for game ({gameId}). number of candidates: {CandidateCount}",
-          gameId, candidate.Count);
-        characterId = new Random().Next(0, activeCharacters.Count - 1);
-        await ChooseCardAndGetWinCondition(gameId, activeCharacters[characterId], userId);
-        return;
-      }
-      await ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
-    }
-    catch (Exception ex)
-    {
-      ElmahExtensions.RaiseError(ex);
-      throw;
-    }
-
-  }
 
   public async Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default)
   {
@@ -347,7 +295,7 @@ public sealed class GameService(IUnitOfWork uow,
     {
       GameGetResponse = new GameGetResponse(
         game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
-        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId, null),
+        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId, null, game.CachedTime),
       FinishedTime = game.FinishedTime,
       CreateTime = game.CreateTime,
       GameStatusTitle = ((GameStatusEnum)game.GameStatusId).ToString()
@@ -358,7 +306,7 @@ public sealed class GameService(IUnitOfWork uow,
   public async Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer,
     short questionId, int? userId, CancellationToken cancellationToken = default)
   {
-    TimerManagement.OnGameTimerStop(gameId);
+    TimerManagementService.OnGameTimerStop(gameId);
     if (userId.HasValue)
     {
       bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId.Value, RoleCardEnum.Witness, cancellationToken);
@@ -445,9 +393,8 @@ public sealed class GameService(IUnitOfWork uow,
     });
     await memoryCacheService.ResetTurnOfPlay(game.Id, model.TurnOfPlayTalkingState!);
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayersStartToTalk, starter);
-    if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
-      TimerManagement.OnGameTimerStart(game.Participates.First(x => x.OrderOfParticipation == starter).UserId, gameId,
-         new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), UserTurnFinished);
+    timerManagementService.OnGameTimerStart(game.Participates.First(x => x.OrderOfParticipation == starter).UserId, gameId,
+       GameTimerEnum.UserTurnFinished);
     return new UnusualSuspectServiceResult<TurnOfPlayTalkingState>(model.TurnOfPlayTalkingState!);
   }
 
@@ -473,8 +420,7 @@ public sealed class GameService(IUnitOfWork uow,
       await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForMainDetectiveToChoose, cancellationToken);
       await gameRepository.SaveChangesAsync(cancellationToken);
       memoryCacheService.ClearGameWithDetails(gameId);
-      if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
-        TimerManagement.OnGameTimerStart(-1, gameId, new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), AutoChooseCard);
+      timerManagementService.OnGameTimerStart(gameId, GameTimerEnum.AutoChooseCard);
       return new UnusualSuspectServiceResult<bool>(false);
     }
     model.OrderOfParticipationTurnToTalk = next.OrderOfParticipation;
@@ -485,66 +431,14 @@ public sealed class GameService(IUnitOfWork uow,
     await memoryCacheService.ResetTurnOfPlay(gameId, model, cancellationToken);
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
       model.OrderOfParticipationTurnToTalk);
-    if (setting.Value.GameSetting.TimeToTalkInSeconds > 0)
-      TimerManagement.OnGameTimerStart(next.UserId, gameId, new TimeSpan(0, 0, setting.Value.GameSetting.TimeToTalkInSeconds), UserTurnFinished);
+    timerManagementService.OnGameTimerStart(next.UserId, gameId, GameTimerEnum.UserTurnFinished);
     return new UnusualSuspectServiceResult<bool>(true);
   }
 
-  public async void AutoAnswerQuestion(int userId, int gameId)
-  {
-    logger.LogWarning("AutoChooseCard for game {gameId}", gameId);
-    try
-    {
-      var game = (await GetDetailByIdAsync(gameId)).Result;
-      if (game == null)
-      {
-        logger.LogCritical("invalid gameId in AutoAnswerQuestion : {gameId}", gameId);
-        return;
-      }
 
-      short questionId = GetCurrentQuestion(game.GameGetResponse);
-      CharacterCardGame? murderer = await characterCardGameRepository.GetMurderer(gameId);
-      if (murderer == null)
-      {
-        logger.LogCritical("murderer not found in game! gameId: {gameId}", gameId);
-        return;
-      }
-      var answer = await questionService.GetDefaultAnswer(murderer.CharacterCardId, questionId);
-      if (!answer.Success)
-      {
-        logger.LogCritical("Answer not found for question {questionId}", questionId);
-        return;
-      }
-      await SetWitnessAnswer(gameId, answer.Result, questionId, null);
-    }
-    catch (Exception ex)
-    {
-      ElmahExtensions.RaiseError(ex);
-    }
-  }
 
-  private short GetCurrentQuestion(GameGetResponse gameGetResponse)
-  {
-    int turn = 12 - gameGetResponse.GameFlowDto.ActiveCharacterIds.Count;
-    if (turn < 0)
-      throw new Exception("Invalid active characterId count! " + gameGetResponse.GameFlowDto.ActiveCharacterIds.Count);
-    if(turn >= 12)
-      throw new Exception("No active card found! gameId: " + gameGetResponse.GameBaseDto.Id);
-    return gameGetResponse.GameBaseDto.QuestionGameDtos[turn].QuestionId;
-  }
 
-  public async void UserTurnFinished(int userId, int gameId)
-  {
-    try
-    {
-      await UserTurnFinishedAsync(userId, gameId);
-    }
-    catch (Exception ex)
-    {
-      ElmahExtensions.RaiseError(ex);
-    }
 
-  }
   public async Task<UnusualSuspectServiceResult<TurnOfPlayGetResponse>> GetTurnOfPlayGetAsync(
     int userId, CancellationToken cancellationToken = default)
   {

@@ -33,4 +33,6 @@ public class Game : BaseEntity
   public string CreateTimePersian => CreateTime.ToString();
 	[NotMapped]
   public string FinishedTimePersian => FinishedTime == null ? "" : FinishedTime.ToString();
+	[NotMapped]
+  public DateTime? CachedTime { get; set; }
 }
