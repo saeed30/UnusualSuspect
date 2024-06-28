@@ -4,8 +4,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog.Core;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.ApiViewModels.InnerModels.Game;
+using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.DataLayer.Repositories;
 using UnusualSuspect.Entities.GameModels;
@@ -55,6 +57,31 @@ public class TimerManagementService(
         throw new ArgumentOutOfRangeException(nameof(gameTimerEnum), gameTimerEnum, null);
     }
   }
+  public void OnUserTimerStart(int userId, UserTimerEnum userTimerEnum)
+  {
+    try
+    {
+      TimerManagementService.OnUserTimerStop(userId);
+      using (var scope = scopeFactory.CreateScope())
+      {
+        switch (userTimerEnum)
+        {
+          case UserTimerEnum.OutOfGameTimeout:
+            if (setting.Value.GameSetting.TimeToTalkInSeconds <= 0)
+              return;
+            IGameService gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
+            OnUserTimerStart(userId, TimeSpan.FromSeconds(setting.Value.GameSetting.TimeToTalkInSeconds * 3), LeaveCurrentGameWithNewScope);
+            break;
+          default:
+            throw new ArgumentOutOfRangeException(nameof(userTimerEnum), userTimerEnum, null);
+        }
+      }
+    }
+    catch (Exception ex)
+    {
+      ElmahExtensions.RaiseError(ex);
+    }
+  }
   private static void OnGameTimerStart(int userId, int gameId, TimeSpan timeSpan, Action<int, int> eventHandler)
   {
     if (_gameTimers.TryGetValue(gameId, out System.Timers.Timer? timer))
@@ -76,30 +103,6 @@ public class TimerManagementService(
     }
   }
 
-  public void OnUserTimerStart(int userId, UserTimerEnum userTimerEnum)
-  {
-    try
-    {
-      using (var scope = scopeFactory.CreateScope())
-      {
-        switch (userTimerEnum)
-        {
-          case UserTimerEnum.OutOfGameTimeout:
-            if (setting.Value.GameSetting.TimeToTalkInSeconds <= 0)
-              return;
-            IGameService gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
-            OnUserTimerStart(userId, TimeSpan.FromSeconds(setting.Value.GameSetting.TimeToTalkInSeconds * 3), gameService.LeaveCurrentGame);
-            break;
-          default:
-            throw new ArgumentOutOfRangeException(nameof(userTimerEnum), userTimerEnum, null);
-        }
-      }
-    }
-    catch (Exception ex)
-    {
-      ElmahExtensions.RaiseError(ex);
-    }
-  }
   private static void OnUserTimerStart(int userId, TimeSpan timeSpan, Action<int> eventHandler)
   {
     if (_userTimers.TryGetValue(userId, out System.Timers.Timer? timer))
@@ -120,6 +123,32 @@ public class TimerManagementService(
       _userTimers.Remove(userId);
     }
   }
+  private async void LeaveCurrentGameWithNewScope(int userId)
+  {
+    using var scope = scopeFactory.CreateScope();
+
+    IGameService gameServiceNew = scope.ServiceProvider.GetRequiredService<IGameService>();
+    ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
+    try
+    {
+      loggerNew.LogWarning("LeaveCurrentGame for user {userId}", userId);
+      var result = await gameServiceNew.LeaveCurrentGameAsync(userId);
+      if(!result.Success)
+        loggerNew.LogWarning("LeaveCurrentGame for user {userId} unSuccess.", userId);
+      else if(!result.Result)
+        loggerNew.LogWarning("LeaveCurrentGame for user {userId} failed.", userId);
+      else
+      {
+        await gameServiceNew.SaveChangesAsync();
+        loggerNew.LogWarning("LeaveCurrentGame for user {userId} finished.", userId);
+      }
+    }
+    catch (Exception ex)
+    {
+      ElmahExtensions.RaiseError(ex);
+    }
+  }
+
   private async void UserTurnFinishedWithNewScope(int userId, int gameId)
   {
     using var scope = scopeFactory.CreateScope();
@@ -130,12 +159,12 @@ public class TimerManagementService(
     try
     {
       await gameServiceNew.UserTurnFinishedAsync(userId, gameId);
+      loggerNew.LogWarning("UserTurnFinished for game {gameId} and user {userId} finished.", gameId, userId);
     }
     catch (Exception ex)
     {
       ElmahExtensions.RaiseError(ex);
     }
-
   }
 
   private async void AutoAnswerQuestionWithNewScope(int userId, int gameId)
@@ -146,7 +175,8 @@ public class TimerManagementService(
     IQuestionService questionServiceNew = scope.ServiceProvider.GetRequiredService<IQuestionService>();
     ICharacterCardGameRepository characterCardGameRepositoryNew = scope.ServiceProvider.GetRequiredService<ICharacterCardGameRepository>();
     ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
-
+    IMemoryCacheService memoryCacheServiceNew = scope.ServiceProvider.GetRequiredService<IMemoryCacheService>();
+    INotificationService notificationServiceNew = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
     loggerNew.LogWarning("AutoAnswerQuestion for game {gameId}", gameId);
     try
@@ -172,6 +202,11 @@ public class TimerManagementService(
         return;
       }
       await gameServiceNew.SetWitnessAnswer(gameId, answer.Result, questionId, null);
+      await gameServiceNew.SaveChangesAsync();
+      await notificationServiceNew.SendSignalToGameGroup(gameId, SignalCommands.WitnessAnswered, answer.Result);
+
+      memoryCacheServiceNew.ClearGameWithDetails(gameId);
+      loggerNew.LogWarning("AutoAnswerQuestion for game {gameId} finished.", gameId);
     }
     catch (Exception ex)
     {
@@ -193,6 +228,8 @@ public class TimerManagementService(
 
     IGameService gameServiceNew = scope.ServiceProvider.GetRequiredService<IGameService>();
     IParticipateRepository participateRepositoryNew = scope.ServiceProvider.GetRequiredService<IParticipateRepository>();
+    IMemoryCacheService memoryCacheServiceNew = scope.ServiceProvider.GetRequiredService<IMemoryCacheService>();
+    INotificationService notificationServiceNew = scope.ServiceProvider.GetRequiredService<INotificationService>();
     ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
 
     loggerNew.LogWarning("AutoChooseCard for user {userId} in game {gameId}", userId, gameId);
@@ -225,16 +262,24 @@ public class TimerManagementService(
       }
       var result = candidate.GroupBy(x => x.CharacterCardId)
         .Select(x => new { CharacterCardId = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count).ToList();
-      if (result.Count < 2 || result[0].Count == result[1].Count)
+      UnusualSuspectServiceResult<bool?> chooseCardResult;
+      if (result.Count >= 2 && result[0].Count == result[1].Count)
       {
         loggerNew.LogWarning(
           "No candidate with most vote were found for auto choose card for game ({gameId}). number of candidates: {CandidateCount}",
           gameId, candidate.Count);
-        characterId = new Random().Next(0, activeCharacters.Count - 1);
-        await gameServiceNew.ChooseCardAndGetWinCondition(gameId, activeCharacters[characterId], userId);
-        return;
+        var charWithMax = result.Where(x => x.Count == result[0].Count).ToList();
+        characterId = new Random().Next(0, charWithMax.Count - 1);
+        chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, charWithMax[characterId].CharacterCardId, userId);
       }
-      await gameServiceNew.ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
+      else
+        chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
+      await gameServiceNew.SaveChangesAsync();
+      if (chooseCardResult.Result.HasValue)
+        await notificationServiceNew.RemoveAllUsersFromGame(gameId);
+
+      memoryCacheServiceNew.ClearGameWithDetails(gameId);
+      loggerNew.LogWarning("AutoChooseCard for user {userId} in game {gameId} finished.", userId, gameId);
     }
     catch (Exception ex)
     {

@@ -23,7 +23,7 @@ public interface IApplicationUserManager
     Task UpdateLastLoginDateAsync(ApplicationUser user);
     Task<bool> UserInRole(ApplicationUser user, string rolename);
     ApplicationUser DetailsUserWithPhoneNumber(string PhoneNumber);
-    ApplicationUser FindByName(string username);
+    ApplicationUser? FindByName(string username);
     Task<ResultAction> EditPassword(ApplicationUser model);
 
 }

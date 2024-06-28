@@ -123,7 +123,7 @@ public class ApplicationUserManager(UserManager<ApplicationUser> userManager,
         return users.FirstOrDefault(x => x.PhoneNumber == phoneNumber || x.UserName == phoneNumber);
     }
 
-    public ApplicationUser FindByName(string username)
+    public ApplicationUser? FindByName(string username)
     {
         return users.SingleOrDefault(x => x.UserName == username);
     }

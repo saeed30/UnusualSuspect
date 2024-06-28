@@ -126,5 +126,13 @@ namespace UnusualSuspect.ApiViewModels.Enums
     CoinPackageIsNotActive = 59,
     [Display(Name = "توکن خرید اجباری است")]
     PurchaseTokenIsEmpty = 60,
+    [Display(Name = "طول متن پیام بیش از مقدار قابل قبول است")]
+    MessageContentLengthTooLong = 61,
+    [Display(Name = "امکان ارسال پیام بدون گیرنده وجود ندارد")]
+    CanNotSendMessageWithoutReceiver = 62,
+    [Display(Name = "کاربر مدیریت سامانه یافت نشد")]
+    AdminUserNotFound = 63,
+    [Display(Name = "اختلاف بازه زمانی درخواست ارسال پیام کاربر کمتر از حد مجاز است")]
+    MessageSendIntervalIsLowerThanAcceptedLimit = 64,
   }
 }

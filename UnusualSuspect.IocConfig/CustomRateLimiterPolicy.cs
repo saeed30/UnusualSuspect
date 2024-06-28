@@ -25,6 +25,17 @@ public class CustomRateLimiterPolicy : IRateLimiterPolicy<string>
     RateLimiterSetting rateSetting = setting.Value.RateLimiterSetting;
     if (httpContext.User.Identity?.IsAuthenticated == true)
     {
+      string endpoint = httpContext.Request.Path;
+      if (endpoint == "/api/Log/BugReport" || endpoint == "/api/Log/Error")
+      {
+        return RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity.Name!,
+          _ => new FixedWindowRateLimiterOptions
+          {
+            AutoReplenishment = true,
+            PermitLimit = 5,
+            Window = TimeSpan.FromSeconds(5),
+          });
+      }
       return RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity.Name!,
         _ => new FixedWindowRateLimiterOptions
         {
@@ -33,7 +44,6 @@ public class CustomRateLimiterPolicy : IRateLimiterPolicy<string>
           Window = TimeSpan.FromSeconds(rateSetting.AuthenticatedUserRequestPeriodInSeconds),
         });
     }
-
     return RateLimitPartition.GetFixedWindowLimiter(httpContext.Request.Headers.Host.ToString(),
       _ => new FixedWindowRateLimiterOptions
       {

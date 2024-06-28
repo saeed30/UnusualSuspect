@@ -7,7 +7,8 @@ using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public sealed class FriendRepository(IUnitOfWork uow, ILogger<FriendRepository> logger) : EfRepository<Friend>(uow, logger), IFriendRepository
+public sealed class FriendRepository(IUnitOfWork uow, ILogger<FriendRepository> logger) :
+  EfRepository<Friend>(uow, logger), IFriendRepository
 {
   public IQueryable<ApplicationUser> GetFriends(int userId)
   {

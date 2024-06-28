@@ -74,11 +74,7 @@ public sealed class GameService(IUnitOfWork uow,
       game.ToPrivateInfoDto(userId), game.CachedTime));
   }
 
-  public async void LeaveCurrentGame(int userId)
-  {
-    logger.LogWarning("LeaveCurrentGame for user {userId}", userId);
-    await LeaveCurrentGameAsync(userId);
-  }
+
   public async Task<UnusualSuspectServiceResult<bool>> LeaveCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
   {
     Game? game = await gameRepository.GetUserCurrentGameAsync(userId, cancellationToken);
@@ -209,7 +205,7 @@ public sealed class GameService(IUnitOfWork uow,
       }
     }
     await gameCandidateRepository.DeleteAllGameCandidatesAsync(gameId, cancellationToken);
-    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.NewCardWasChosen);
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.NewCardWasChosen, characterCardId);
     memoryCacheService.ClearGameWithDetails(gameId);
     return result;
   }
