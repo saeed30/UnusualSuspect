@@ -149,10 +149,10 @@ app.UseHttpsRedirection();
 app.UseElmahCore(projectSetting);
 
 app.UseRouting();
-app.UseRateLimiter();
-app.UseOutputCache();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseOutputCache();
+app.UseRateLimiter();
 app.UseMiddleware<LogExtraInfoMiddleware>();
 if (app.Environment.IsDevelopment() || projectSetting.IsTesting)
 {

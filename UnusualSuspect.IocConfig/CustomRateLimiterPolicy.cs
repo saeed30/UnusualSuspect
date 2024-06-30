@@ -6,13 +6,8 @@ using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.IocConfig;
 
-public class CustomRateLimiterPolicy : IRateLimiterPolicy<string>
+public class CustomRateLimiterPolicy(IOptions<ProjectSetting> setting) : IRateLimiterPolicy<string>
 {
-  private readonly IOptions<ProjectSetting> setting;
-  public CustomRateLimiterPolicy(IOptions<ProjectSetting> setting)
-  {
-    this.setting = setting;
-  }
   public Func<OnRejectedContext, CancellationToken, ValueTask>? OnRejected { get; } =
     (context, _) =>
     {
@@ -25,8 +20,7 @@ public class CustomRateLimiterPolicy : IRateLimiterPolicy<string>
     RateLimiterSetting rateSetting = setting.Value.RateLimiterSetting;
     if (httpContext.User.Identity?.IsAuthenticated == true)
     {
-      string endpoint = httpContext.Request.Path;
-      if (endpoint == "/api/Log/BugReport" || endpoint == "/api/Log/Error")
+      if (GetIsLowRateEndpoint(httpContext.Request.Path.ToString().ToLower()))
       {
         return RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity.Name!,
           _ => new FixedWindowRateLimiterOptions
@@ -51,5 +45,14 @@ public class CustomRateLimiterPolicy : IRateLimiterPolicy<string>
         PermitLimit = rateSetting.AnonymousUserAllowedRequestCount,
         Window = TimeSpan.FromSeconds(rateSetting.AnonymousUserRequestPeriodInSeconds),
       });
+  }
+
+  private readonly string[] apiWithLowRateLimit = { "/api/log/bugreport", "/api/log/error" };
+  private bool GetIsLowRateEndpoint(string endpoint)
+  {
+    foreach (string s in apiWithLowRateLimit)
+      if (endpoint.StartsWith(s))
+        return true;
+    return false;
   }
 }
