@@ -3,10 +3,9 @@ using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 
-namespace UnusualSuspect.DataLayer.Repositories
+namespace UnusualSuspect.DataLayer.Repositories;
+
+public sealed class PaymentUserRepository(IUnitOfWork uow, ILogger<PaymentUserRepository> logger)
+  : EfRepository<PaymentUser>(uow, logger), IPaymentUserRepository
 {
-  public sealed class PaymentUserRepository(IUnitOfWork uow, ILogger<PaymentUserRepository> logger)
-    : EfRepository<PaymentUser>(uow, logger), IPaymentUserRepository
-  {
-  }
 }

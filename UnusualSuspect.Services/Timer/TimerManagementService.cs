@@ -126,16 +126,22 @@ public class TimerManagementService(
   private async void LeaveCurrentGameWithNewScope(int userId)
   {
     using var scope = scopeFactory.CreateScope();
+    IOptionsSnapshot<ProjectSetting> setting = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ProjectSetting>>();
+    ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
+    if (setting.Value.IsTesting)
+    {
+      loggerNew.LogCritical("LeaveCurrentGame for user {userId} did not executed. Testing ...", userId);
+      return;
+    }
 
     IGameService gameServiceNew = scope.ServiceProvider.GetRequiredService<IGameService>();
-    ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
     try
     {
       loggerNew.LogWarning("LeaveCurrentGame for user {userId}", userId);
       var result = await gameServiceNew.LeaveCurrentGameAsync(userId);
-      if(!result.Success)
+      if (!result.Success)
         loggerNew.LogWarning("LeaveCurrentGame for user {userId} unSuccess.", userId);
-      else if(!result.Result)
+      else if (!result.Result)
         loggerNew.LogWarning("LeaveCurrentGame for user {userId} failed.", userId);
       else
       {
@@ -253,31 +259,32 @@ public class TimerManagementService(
       List<CandidateCardDto> candidate = game.Result.GameGetResponse.GameFlowDto.CandidateCard
         .Where(x => activeCharacters.Contains((short)x.CharacterCardId)).ToList();
       int characterId;
+      UnusualSuspectServiceResult<bool?> chooseCardResult;
       if (candidate == null || !candidate.Any())
       {
         loggerNew.LogWarning("No candidate were found for auto choose card for game ({gameId})", gameId);
         characterId = new Random().Next(0, activeCharacters.Count - 1); ;
-        await gameServiceNew.ChooseCardAndGetWinCondition(gameId, activeCharacters[characterId], userId);
-        return;
-      }
-      var result = candidate.GroupBy(x => x.CharacterCardId)
-        .Select(x => new { CharacterCardId = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count).ToList();
-      UnusualSuspectServiceResult<bool?> chooseCardResult;
-      if (result.Count >= 2 && result[0].Count == result[1].Count)
-      {
-        loggerNew.LogWarning(
-          "No candidate with most vote were found for auto choose card for game ({gameId}). number of candidates: {CandidateCount}",
-          gameId, candidate.Count);
-        var charWithMax = result.Where(x => x.Count == result[0].Count).ToList();
-        characterId = new Random().Next(0, charWithMax.Count - 1);
-        chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, charWithMax[characterId].CharacterCardId, userId);
+        chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, activeCharacters[characterId], userId);
       }
       else
-        chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
+      {
+        var result = candidate.GroupBy(x => x.CharacterCardId)
+          .Select(x => new { CharacterCardId = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count).ToList();
+        if (result.Count >= 2 && result[0].Count == result[1].Count)
+        {
+          loggerNew.LogWarning(
+            "No candidate with most vote were found for auto choose card for game ({gameId}). number of candidates: {CandidateCount}",
+            gameId, candidate.Count);
+          var charWithMax = result.Where(x => x.Count == result[0].Count).ToList();
+          characterId = new Random().Next(0, charWithMax.Count - 1);
+          chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, charWithMax[characterId].CharacterCardId, userId);
+        }
+        else
+          chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
+      }
       await gameServiceNew.SaveChangesAsync();
       if (chooseCardResult.Result.HasValue)
         await notificationServiceNew.RemoveAllUsersFromGame(gameId);
-
       memoryCacheServiceNew.ClearGameWithDetails(gameId);
       loggerNew.LogWarning("AutoChooseCard for user {userId} in game {gameId} finished.", userId, gameId);
     }

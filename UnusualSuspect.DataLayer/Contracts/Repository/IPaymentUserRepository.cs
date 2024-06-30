@@ -1,8 +1,7 @@
 ﻿using UnusualSuspect.Entities.GameModels;
 
-namespace UnusualSuspect.DataLayer.Contracts.Repository
+namespace UnusualSuspect.DataLayer.Contracts.Repository;
+
+public interface IPaymentUserRepository : IAsyncRepository<PaymentUser>
 {
-  public interface IPaymentUserRepository : IAsyncRepository<PaymentUser>
-  {
-  }
 }

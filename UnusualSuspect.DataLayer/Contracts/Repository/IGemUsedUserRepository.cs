@@ -1,9 +1,8 @@
 ﻿using UnusualSuspect.Entities.GameModels;
 
-namespace UnusualSuspect.DataLayer.Contracts.Repository
+namespace UnusualSuspect.DataLayer.Contracts.Repository;
+
+public interface IGemUsedUserRepository : IAsyncRepository<GemUsedUser>
 {
-  public interface IGemUsedUserRepository : IAsyncRepository<GemUsedUser>
-  {
-    Task<int> GetSumAsync(int userId);
-  }
+  Task<int> GetSumAsync(int userId);
 }

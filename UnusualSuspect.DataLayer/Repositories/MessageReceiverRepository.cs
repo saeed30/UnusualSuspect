@@ -3,10 +3,9 @@ using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.Models;
 
-namespace UnusualSuspect.DataLayer.Repositories
+namespace UnusualSuspect.DataLayer.Repositories;
+
+public sealed class MessageReceiverRepository(IUnitOfWork uow, ILogger<MessageReceiverRepository> logger) :
+  EfRepository<MessageReceiver>(uow, logger), IMessageReceiverRepository
 {
-  public sealed class MessageReceiverRepository(IUnitOfWork uow, ILogger<MessageReceiverRepository> logger) :
-    EfRepository<MessageReceiver>(uow, logger), IMessageReceiverRepository
-  {
-  }
 }
