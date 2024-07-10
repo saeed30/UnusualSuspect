@@ -11,7 +11,7 @@ public static class GameMapper
 {
   public static GameGetResponse ToGameGetResponse(this Game value, List<int> onlineUserIds, int timeToTalkInSeconds, int userId)
   {
-    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(timeToTalkInSeconds), onlineUserIds, value.GameStatusId, value.ToPrivateInfoDto(userId), value.CachedTime);
+    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(), onlineUserIds, value.GameStatusId, value.ToPrivateInfoDto(userId), value.CachedTime, timeToTalkInSeconds);
   }
 
   public static IEnumerable<GameGetResponse> ToGameGetResponse(this IEnumerable<Game> value, List<int> onlineUserIds, int timeToTalkInSeconds, int userId)
@@ -19,27 +19,24 @@ public static class GameMapper
     return value.Select(x => x.ToGameGetResponse(onlineUserIds, timeToTalkInSeconds, userId));
   }
 
-  public static TurnOfPlayTalkingState? ToTurnOfPlayTalkingState(this Game value, int timeToTalkInSeconds)
+  public static TurnOfPlayTalkingState? ToTurnOfPlayTalkingState(this Game value)
   {
     if (!value.OrderOfParticipationTurnToTalk.HasValue ||
         !value.OrderOfParticipationTalkBeginner.HasValue ||
-        !value.TalkingTurnStartedTime.HasValue ||
-        !value.CurrentUserTurnStartedTime.HasValue)
+        !value.TalkingTurnStartedTime.HasValue)
       return null;
     return new TurnOfPlayTalkingState()
     {
-      TimeToTalkInSeconds = timeToTalkInSeconds,
       OrderOfParticipationTurnToTalk = value.OrderOfParticipationTurnToTalk.Value,
-      CurrentUserTurnStartedTime = value.CurrentUserTurnStartedTime.Value,
       OrderOfParticipationTalkBeginner = value.OrderOfParticipationTalkBeginner.Value,
       TalkingTurnStartedTime = value.TalkingTurnStartedTime.Value
     };
   }
-  public static TurnOfPlayGetResponse ToTurnOfPlayGetResponse(this Game value, int timeToTalkInSeconds)
+  public static TurnOfPlayGetResponse ToTurnOfPlayGetResponse(this Game value)
   {
     if (value.GameStatusId != (short)GameStatusEnum.Talking)
       return new TurnOfPlayGetResponse();
-    return new TurnOfPlayGetResponse(value.ToTurnOfPlayTalkingState(timeToTalkInSeconds));
+    return new TurnOfPlayGetResponse(value.ToTurnOfPlayTalkingState(), value.CurrentUserTurnStartedTime);
   }
   public static GameBaseDto ToGameBaseDto(this Game value)
   {
@@ -52,7 +49,7 @@ public static class GameMapper
       QuestionGameDtos = value.QuestionGames.ToQuestionGameDto()
     };
   }
-  public static GameFlowDto ToGameFlowDto(this Game value, int timeToTalkInSeconds)
+  public static GameFlowDto ToGameFlowDto(this Game value)
   {
     List<CandidateCardDto> candidates = new List<CandidateCardDto>();
     foreach (var item in value.GameCandidates)
@@ -68,8 +65,9 @@ public static class GameMapper
     return new GameFlowDto()
     {
       Id = value.Id,
+      CurrentUserTurnStartedTime = value.CurrentUserTurnStartedTime??DateTime.MinValue,
       ActiveCharacterIds = value.CharacterCardGames.Where(x => x.IsActive).Select(x => x.CharacterCardId).ToList(),
-      TurnOfPlayTalkingState = value.GameStatusId == (short)GameStatusEnum.Talking ? value.ToTurnOfPlayTalkingState(timeToTalkInSeconds) : null,
+      TurnOfPlayTalkingState = value.GameStatusId == (short)GameStatusEnum.Talking ? value.ToTurnOfPlayTalkingState() : null,
       WitnessLastAnswer = (value.WitnessLastAnswer.HasValue ? (value.WitnessLastAnswer.Value ? WitnessAnswer.Yes : WitnessAnswer.No) : WitnessAnswer.NoAnswer),
       CandidateCard = candidates
     };

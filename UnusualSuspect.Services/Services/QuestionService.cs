@@ -1,4 +1,7 @@
-﻿using UnusualSuspect.ApiViewModels.Enums;
+﻿using Microsoft.Extensions.Logging;
+using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
@@ -8,7 +11,8 @@ namespace UnusualSuspect.Services.Services;
 public sealed class QuestionService(
     IQuestionCharacterCardDefaultAnswerRepository questionCharacterCardDefaultAnswerRepository,
     IQuestionRepository questionRepository,
-    ICharacterCardRepository cardRepository)
+    ICharacterCardRepository cardRepository,
+    ILogger<QuestionService> logger)
   : IQuestionService
 {
   public async Task<UnusualSuspectServiceResult<bool>> GetDefaultAnswer(short characterCardId, short questionId, CancellationToken cancellationToken = default)
@@ -16,8 +20,11 @@ public sealed class QuestionService(
     QuestionCharacterCardDefaultAnswer? result = await questionCharacterCardDefaultAnswerRepository
       .GetDefaultAnswer(characterCardId, questionId, cancellationToken);
     if (result == null)
+    {
+      logger.LogEvent(SystemEventType.DefaultAnswerNotFound, characterCardId, questionId.ToString());
       return new UnusualSuspectServiceResult<bool>(
-        new UnusualSuspectErrorResult(LogicErrorCode.NoDefaultAnswerForTheQuestion));
+          new UnusualSuspectErrorResult(LogicErrorCode.NoDefaultAnswerForTheQuestion));
+    }
     return new UnusualSuspectServiceResult<bool>(result.DefaultAnswer);
   }
 

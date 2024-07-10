@@ -2,17 +2,16 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Serilog.Core;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.ApiViewModels.InnerModels.Game;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
-using UnusualSuspect.DataLayer.Repositories;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
-using UnusualSuspect.Services.Services;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Timer;
@@ -42,6 +41,7 @@ public class TimerManagementService(
   {
     if (setting.Value.GameSetting.TimeToTalkInSeconds <= 0)
       return;
+    TimerManagementService.OnGameTimerStop(gameId);
     switch (gameTimerEnum)
     {
       case GameTimerEnum.AutoChooseCard:
@@ -59,27 +59,36 @@ public class TimerManagementService(
   }
   public void OnUserTimerStart(int userId, UserTimerEnum userTimerEnum)
   {
-    try
+    if (setting.Value.GameSetting.TimeToTalkInSeconds <= 0)
+      return;
+    TimerManagementService.OnUserTimerStop(userId);
+    switch (userTimerEnum)
     {
-      TimerManagementService.OnUserTimerStop(userId);
-      using (var scope = scopeFactory.CreateScope())
-      {
-        switch (userTimerEnum)
-        {
-          case UserTimerEnum.OutOfGameTimeout:
-            if (setting.Value.GameSetting.TimeToTalkInSeconds <= 0)
-              return;
-            IGameService gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
-            OnUserTimerStart(userId, TimeSpan.FromSeconds(setting.Value.GameSetting.TimeToTalkInSeconds * 3), LeaveCurrentGameWithNewScope);
-            break;
-          default:
-            throw new ArgumentOutOfRangeException(nameof(userTimerEnum), userTimerEnum, null);
-        }
-      }
+      case UserTimerEnum.OutOfGameTimeout:
+        if (setting.Value.GameSetting.TimeToTalkInSeconds <= 0)
+          return;
+        OnUserTimerStart(userId, TimeSpan.FromSeconds(setting.Value.GameSetting.TimeToTalkInSeconds * 3), LeaveCurrentGameWithNewScope);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException(nameof(userTimerEnum), userTimerEnum, null);
     }
-    catch (Exception ex)
+  }
+  public static void OnGameTimerStop(int gameId)
+  {
+    if (_gameTimers.TryGetValue(gameId, out System.Timers.Timer? timer))
     {
-      ElmahExtensions.RaiseError(ex);
+      timer.Stop();
+      timer.Dispose();
+      _gameTimers.Remove(gameId);
+    }
+  }
+  public static void OnUserTimerStop(int userId)
+  {
+    if (_userTimers.TryGetValue(userId, out System.Timers.Timer? timer))
+    {
+      timer.Stop();
+      timer.Dispose();
+      _userTimers.Remove(userId);
     }
   }
   private static void OnGameTimerStart(int userId, int gameId, TimeSpan timeSpan, Action<int, int> eventHandler)
@@ -93,15 +102,6 @@ public class TimerManagementService(
     _gameTimers[gameId] = timer;
   }
 
-  public static void OnGameTimerStop(int gameId)
-  {
-    if (_gameTimers.TryGetValue(gameId, out System.Timers.Timer? timer))
-    {
-      timer.Stop();
-      timer.Dispose();
-      _gameTimers.Remove(gameId);
-    }
-  }
 
   private static void OnUserTimerStart(int userId, TimeSpan timeSpan, Action<int> eventHandler)
   {
@@ -114,15 +114,6 @@ public class TimerManagementService(
     _userTimers[userId] = timer;
   }
 
-  public static void OnUserTimerStop(int userId)
-  {
-    if (_userTimers.TryGetValue(userId, out System.Timers.Timer? timer))
-    {
-      timer.Stop();
-      timer.Dispose();
-      _userTimers.Remove(userId);
-    }
-  }
   private async void LeaveCurrentGameWithNewScope(int userId)
   {
     using var scope = scopeFactory.CreateScope();
@@ -130,23 +121,23 @@ public class TimerManagementService(
     ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
     if (setting.Value.IsTesting)
     {
-      loggerNew.LogCritical("LeaveCurrentGame for user {userId} did not executed. Testing ...", userId);
+      loggerNew.LogEvent(SystemEventType.LeaveCurrentGameNotDoneWhenTesting, userId);
       return;
     }
 
     IGameService gameServiceNew = scope.ServiceProvider.GetRequiredService<IGameService>();
     try
     {
-      loggerNew.LogWarning("LeaveCurrentGame for user {userId}", userId);
+      loggerNew.LogEvent(SystemEventType.LeaveCurrentGameStartedForUser, userId);
       var result = await gameServiceNew.LeaveCurrentGameAsync(userId);
       if (!result.Success)
-        loggerNew.LogWarning("LeaveCurrentGame for user {userId} unSuccess.", userId);
+        loggerNew.LogEvent(SystemEventType.LeaveCurrentGameUnsuccessful, userId);
       else if (!result.Result)
-        loggerNew.LogWarning("LeaveCurrentGame for user {userId} failed.", userId);
+        loggerNew.LogEvent(SystemEventType.LeaveCurrentGameFailed, userId);
       else
       {
         await gameServiceNew.SaveChangesAsync();
-        loggerNew.LogWarning("LeaveCurrentGame for user {userId} finished.", userId);
+        loggerNew.LogEvent(SystemEventType.LeaveCurrentGameDone, userId);
       }
     }
     catch (Exception ex)
@@ -161,11 +152,11 @@ public class TimerManagementService(
 
     IGameService gameServiceNew = scope.ServiceProvider.GetRequiredService<IGameService>();
     ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
-    loggerNew.LogWarning("UserTurnFinished for game {gameId} and user {userId}", gameId, userId);
+    loggerNew.LogEvent(SystemEventType.UserTurnFinishedWithNewScopeStarted, gameId, userId.ToString());
     try
     {
       await gameServiceNew.UserTurnFinishedAsync(userId, gameId);
-      loggerNew.LogWarning("UserTurnFinished for game {gameId} and user {userId} finished.", gameId, userId);
+      loggerNew.LogEvent(SystemEventType.UserTurnFinishedWithNewScopeFinished, gameId, userId.ToString());
     }
     catch (Exception ex)
     {
@@ -184,13 +175,13 @@ public class TimerManagementService(
     IMemoryCacheService memoryCacheServiceNew = scope.ServiceProvider.GetRequiredService<IMemoryCacheService>();
     INotificationService notificationServiceNew = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-    loggerNew.LogWarning("AutoAnswerQuestion for game {gameId}", gameId);
+    loggerNew.LogEvent(SystemEventType.AutoAnswerQuestionWithNewScopeStarted, gameId, userId.ToString());
     try
     {
       var game = (await gameServiceNew.GetDetailByIdAsync(gameId)).Result;
       if (game == null)
       {
-        loggerNew.LogCritical("invalid gameId in AutoAnswerQuestion : {gameId}", gameId);
+        loggerNew.LogEvent(SystemEventType.AutoAnswerQuestionWithNewScopeInvalidGameId, gameId, userId.ToString());
         return;
       }
 
@@ -198,13 +189,13 @@ public class TimerManagementService(
       CharacterCardGame? murderer = await characterCardGameRepositoryNew.GetMurderer(gameId);
       if (murderer == null)
       {
-        loggerNew.LogCritical("murderer not found in game! gameId: {gameId}", gameId);
+        loggerNew.LogEvent(SystemEventType.AutoAnswerQuestionWithNewScopeMurdererNotFound, gameId, userId.ToString());
         return;
       }
       var answer = await questionServiceNew.GetDefaultAnswer(murderer.CharacterCardId, questionId);
       if (!answer.Success)
       {
-        loggerNew.LogCritical("Answer not found for question {questionId}", questionId);
+        loggerNew.LogEvent(SystemEventType.AutoAnswerQuestionWithNewScopeDefaultAnswerNotFound, gameId, userId.ToString());
         return;
       }
       await gameServiceNew.SetWitnessAnswer(gameId, answer.Result, questionId, null);
@@ -212,7 +203,7 @@ public class TimerManagementService(
       await notificationServiceNew.SendSignalToGameGroup(gameId, SignalCommands.WitnessAnswered, answer.Result);
 
       memoryCacheServiceNew.ClearGameWithDetails(gameId);
-      loggerNew.LogWarning("AutoAnswerQuestion for game {gameId} finished.", gameId);
+      loggerNew.LogEvent(SystemEventType.AutoAnswerQuestionWithNewScopeFinished, gameId, userId.ToString());
     }
     catch (Exception ex)
     {
@@ -238,20 +229,20 @@ public class TimerManagementService(
     INotificationService notificationServiceNew = scope.ServiceProvider.GetRequiredService<INotificationService>();
     ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
 
-    loggerNew.LogWarning("AutoChooseCard for user {userId} in game {gameId}", userId, gameId);
+    loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeStarted, gameId, userId.ToString());
     try
     {
       var participants = (await participateRepositoryNew.GetGameActiveParticipantsAsync(gameId, RoleCardEnum.MainDetective)).FirstOrDefault();
       if (participants == null)
       {
-        loggerNew.LogError("MainDetective not found in game ({gameId})", gameId);
+        loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeMainDetectiveNotFound, gameId, userId.ToString());
         return;
       }
 
       var game = await gameServiceNew.GetDetailByIdAsync(gameId);
       if (!game.Success)
       {
-        loggerNew.LogError("Game not found with id ({gameId}). error: {error}", gameId, game.MainError.ToString());
+        loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeErrorOnGettingGameInfo, gameId, game.MainError.ToString(), logLevel: LogLevel.Error);
         return;
       }
 
@@ -262,7 +253,7 @@ public class TimerManagementService(
       UnusualSuspectServiceResult<bool?> chooseCardResult;
       if (candidate == null || !candidate.Any())
       {
-        loggerNew.LogWarning("No candidate were found for auto choose card for game ({gameId})", gameId);
+        loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeNoCandidate, gameId, userId.ToString());
         characterId = new Random().Next(0, activeCharacters.Count - 1); ;
         chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, activeCharacters[characterId], userId);
       }
@@ -282,6 +273,9 @@ public class TimerManagementService(
         else
           chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
       }
+      if(!chooseCardResult.Success)
+        loggerNew.LogWarning("AutoChooseCard for user {userId} in game {gameId} hasError: {myError}",
+          userId, gameId, chooseCardResult.MainError.ToString());
       await gameServiceNew.SaveChangesAsync();
       if (chooseCardResult.Result.HasValue)
         await notificationServiceNew.RemoveAllUsersFromGame(gameId);

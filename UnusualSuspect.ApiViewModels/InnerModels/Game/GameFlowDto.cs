@@ -19,6 +19,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     private TurnOfPlayTalkingState? turnOfPlayTalkingState;
     [SerializeField]
     private List<CandidateCardDto> candidateCard;
+    [SerializeField]
+    private DateTime currentUserTurnStartedTime;
+    public DateTime CurrentUserTurnStartedTime
+    {
+      get => currentUserTurnStartedTime;
+      set => currentUserTurnStartedTime = value;
+    }
+
     public List<CandidateCardDto> CandidateCard
     {
       get => candidateCard;

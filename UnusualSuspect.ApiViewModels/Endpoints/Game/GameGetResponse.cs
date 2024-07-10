@@ -9,7 +9,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
   public class GameGetResponse
   {
     public GameGetResponse(GameBaseDto gameBaseDto, GameFlowDto gameFlowDto, List<int> onlineUserIds,
-      short gameStatusId, PrivateInfoDto privateInfoDto, DateTime? cachedTime)
+      short gameStatusId, PrivateInfoDto privateInfoDto, DateTime? cachedTime, int baseTimingInSeconds)
     {
       GameBaseDto = gameBaseDto;
       GameFlowDto = gameFlowDto;
@@ -18,6 +18,8 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
       GameStatusId = gameStatusId;
       PrivateInfoDto = privateInfoDto;
       CachedTime = cachedTime;
+      ServerCurrentTime = DateTime.Now;
+      BaseTimingInSeconds = baseTimingInSeconds;
     }
 
     [SerializeField]
@@ -34,6 +36,23 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
     private PrivateInfoDto privateInfoDto;
     [SerializeField]
     private DateTime? cachedTime;
+    [SerializeField]
+    private int baseTimingInSeconds;
+    [SerializeField]
+    private DateTime serverCurrentTime;
+
+    public DateTime ServerCurrentTime
+    {
+      get => serverCurrentTime;
+      set => serverCurrentTime = value;
+    }
+
+    public int BaseTimingInSeconds
+    {
+      get => baseTimingInSeconds;
+      set => baseTimingInSeconds = value;
+    }
+
 
     public DateTime? CachedTime
     {

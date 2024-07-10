@@ -9,10 +9,15 @@ using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts.Identity;
+using Microsoft.Extensions.Logging;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 
 namespace UnusualSuspect.Api.Endpoints.Account;
 
-public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManager iApplicationUserManager)
+public class LoginByCodeEndpoint(IJwtService iJwtService,
+    IApplicationUserManager iApplicationUserManager,
+    ILogger<LoginByCodeEndpoint> logger)
   : EndpointBaseAsync
 	.WithRequest<LoginByCodeRequest>
 	.WithActionResult<ApiResultCommon<LoginByCodeRespond>>
@@ -58,6 +63,7 @@ public class LoginByCodeEndpoint(IJwtService iJwtService, IApplicationUserManage
 		}
 		await iApplicationUserManager.UpdateLastLoginDateAsync(user);
     await minWait.ConfigureAwait(false);
+		logger.LogEvent(SystemEventType.Login, user.Id, user.UserName);
 		return new ApiResultCommon<LoginByCodeRespond>(true, ApiResultStatusCode.Success, new LoginByCodeRespond()
 		{
 			Access_token = token.access_token,

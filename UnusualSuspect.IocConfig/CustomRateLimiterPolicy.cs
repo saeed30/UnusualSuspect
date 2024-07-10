@@ -26,8 +26,8 @@ public class CustomRateLimiterPolicy(IOptions<ProjectSetting> setting) : IRateLi
           _ => new FixedWindowRateLimiterOptions
           {
             AutoReplenishment = true,
-            PermitLimit = 5,
-            Window = TimeSpan.FromSeconds(5),
+            PermitLimit = rateSetting.LowRateApiAllowedRequestCount,
+            Window = TimeSpan.FromSeconds(rateSetting.LowRateApiRequestPeriodInSeconds),
           });
       }
       return RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity.Name!,

@@ -129,13 +129,13 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
   //  return gameId + "TurnOfPlay";
   //}
   //#endregion TurnOfPlay
-  public async Task ResetTurnOfPlay(int gameId, TurnOfPlayTalkingState model, CancellationToken cancellationToken = default)
+  public async Task ResetTurnOfPlay(int gameId, TurnOfPlayTalkingState model, DateTime currentUserTurnStartedTime, CancellationToken cancellationToken = default)
   {
     Game? game = await GetGameWithDetails(gameId, cancellationToken);
     if (game == null)
       return;
     game.TalkingTurnStartedTime = model.TalkingTurnStartedTime;
-    game.CurrentUserTurnStartedTime = model.CurrentUserTurnStartedTime;
+    game.CurrentUserTurnStartedTime = currentUserTurnStartedTime;
     game.OrderOfParticipationTalkBeginner = model.OrderOfParticipationTalkBeginner;
     game.OrderOfParticipationTurnToTalk = model.OrderOfParticipationTurnToTalk;
 

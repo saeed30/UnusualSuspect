@@ -6,4 +6,6 @@ public class RateLimiterSetting
   public int AuthenticatedUserAllowedRequestCount { get; set; }
   public int AnonymousUserRequestPeriodInSeconds { get; set; }
   public int AnonymousUserAllowedRequestCount { get; set; }
+  public int LowRateApiRequestPeriodInSeconds { get; set; }
+  public int LowRateApiAllowedRequestCount { get; set; }
 }

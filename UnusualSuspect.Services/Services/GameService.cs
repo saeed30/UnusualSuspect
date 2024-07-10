@@ -69,9 +69,9 @@ public sealed class GameService(IUnitOfWork uow,
       game = result.Result;
     }
     return new UnusualSuspectServiceResult<GameGetResponse>(new GameGetResponse(
-      game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
+      game.ToGameBaseDto(), game.ToGameFlowDto(),
       await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId,
-      game.ToPrivateInfoDto(userId), game.CachedTime));
+      game.ToPrivateInfoDto(userId), game.CachedTime, setting.Value.GameSetting.TimeToTalkInSeconds));
   }
 
 
@@ -158,9 +158,12 @@ public sealed class GameService(IUnitOfWork uow,
   public async Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default)
   {
     TimerManagementService.OnGameTimerStop(gameId);
-    bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.MainDetective, cancellationToken);
-    if (!hasAccess)
-      return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
+    if (userId != -1)//for auto choose
+    {
+      bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.MainDetective, cancellationToken);
+      if (!hasAccess)
+        return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
+    }
     var cards = await characterCardGameRepository.GetAllGameCharacterCardsAsync(gameId, cancellationToken);
     if (cards.All(x => x.CharacterCardId != characterCardId))
       return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.CharacterCardIdNotFoundInTheGame));
@@ -274,7 +277,7 @@ public sealed class GameService(IUnitOfWork uow,
     if (!result.Success)
       return false;
     gameRepository.SetGameStatus(game, GameStatusEnum.Talking);
-    game.CurrentUserTurnStartedTime = result.Result.CurrentUserTurnStartedTime;
+    game.CurrentUserTurnStartedTime = result.Result.TalkingTurnStartedTime;
     game.TalkingTurnStartedTime = result.Result.TalkingTurnStartedTime;
     game.OrderOfParticipationTalkBeginner = result.Result.OrderOfParticipationTalkBeginner;
     game.OrderOfParticipationTurnToTalk = result.Result.OrderOfParticipationTurnToTalk;
@@ -290,8 +293,8 @@ public sealed class GameService(IUnitOfWork uow,
     GameDetailsViewModel model = new GameDetailsViewModel()
     {
       GameGetResponse = new GameGetResponse(
-        game.ToGameBaseDto(), game.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
-        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId, null, game.CachedTime),
+        game.ToGameBaseDto(), game.ToGameFlowDto(),
+        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId, null, game.CachedTime, setting.Value.GameSetting.TimeToTalkInSeconds),
       FinishedTime = game.FinishedTime,
       CreateTime = game.CreateTime,
       GameStatusTitle = ((GameStatusEnum)game.GameStatusId).ToString()
@@ -382,12 +385,11 @@ public sealed class GameService(IUnitOfWork uow,
     short starter = GetStarterOrderOfParticipation(game.Participates);
     TurnOfPlayGetResponse model = new TurnOfPlayGetResponse(new TurnOfPlayTalkingState()
     {
-      CurrentUserTurnStartedTime = DateTime.Now,
       TalkingTurnStartedTime = DateTime.Now,
       OrderOfParticipationTalkBeginner = starter,
       OrderOfParticipationTurnToTalk = starter
-    });
-    await memoryCacheService.ResetTurnOfPlay(game.Id, model.TurnOfPlayTalkingState!);
+    }, DateTime.Now);
+    await memoryCacheService.ResetTurnOfPlay(game.Id, model.TurnOfPlayTalkingState!, DateTime.Now);
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayersStartToTalk, starter);
     timerManagementService.OnGameTimerStart(game.Participates.First(x => x.OrderOfParticipation == starter).UserId, gameId,
        GameTimerEnum.UserTurnFinished);
@@ -400,7 +402,7 @@ public sealed class GameService(IUnitOfWork uow,
     Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
     if (game == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
-    TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState(setting.Value.GameSetting.TimeToTalkInSeconds);
+    TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState();
     if (model == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
     var partTalking = game.Participates.FirstOrDefault(x => x.UserId == userId);
@@ -420,11 +422,11 @@ public sealed class GameService(IUnitOfWork uow,
       return new UnusualSuspectServiceResult<bool>(false);
     }
     model.OrderOfParticipationTurnToTalk = next.OrderOfParticipation;
-    model.CurrentUserTurnStartedTime = DateTime.Now;
+    DateTime currentUserTurnStartedTime = DateTime.Now;
     await gameRepository.SetNewTurnToTalk(game.Id, model.OrderOfParticipationTurnToTalk,
-      model.CurrentUserTurnStartedTime, cancellationToken);
+      currentUserTurnStartedTime, cancellationToken);
     await gameRepository.SaveChangesAsync(cancellationToken);
-    await memoryCacheService.ResetTurnOfPlay(gameId, model, cancellationToken);
+    await memoryCacheService.ResetTurnOfPlay(gameId, model, currentUserTurnStartedTime, cancellationToken);
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
       model.OrderOfParticipationTurnToTalk);
     timerManagementService.OnGameTimerStart(next.UserId, gameId, GameTimerEnum.UserTurnFinished);
@@ -442,7 +444,7 @@ public sealed class GameService(IUnitOfWork uow,
     if (game == null)
       return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(
         new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
-    var model = game.ToTurnOfPlayGetResponse(setting.Value.GameSetting.TimeToTalkInSeconds);
+    var model = game.ToTurnOfPlayGetResponse();
     return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(model);
   }
 
@@ -454,7 +456,7 @@ public sealed class GameService(IUnitOfWork uow,
     var partTalking = game.Participates.FirstOrDefault(x => x.UserId == userId);
     if (partTalking == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
-    TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState(setting.Value.GameSetting.TimeToTalkInSeconds);
+    TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState();
     if (model == null)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
     var candidates = game.GameCandidates;

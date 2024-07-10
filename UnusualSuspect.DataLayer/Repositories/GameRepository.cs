@@ -19,8 +19,6 @@ public sealed class GameRepository(
 {
   public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default, bool ignoreCache = false)
   {
-    //if(setting.Value.IsTesting)
-    //  ignoreCache = true;//saeed remove after test
     Game? game = null;
     if (!ignoreCache)
       game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
@@ -47,7 +45,7 @@ public sealed class GameRepository(
 
   private void ValidateGameData(Game game)
   {
-    if (game.GameStatusId != (short)GameStatusEnum.Talking &&
+    if (game.GameStatusId == (short)GameStatusEnum.Talking &&
       (!game.OrderOfParticipationTurnToTalk.HasValue ||
         !game.OrderOfParticipationTalkBeginner.HasValue ||
         !game.TalkingTurnStartedTime.HasValue ||
@@ -85,6 +83,10 @@ public sealed class GameRepository(
     {
       case GameStatusEnum.WaitingForWitnessToAnswer:
         game.WitnessLastAnswer = null;
+        game.CurrentUserTurnStartedTime = DateTime.Now;
+        break;
+      case GameStatusEnum.WaitingForMainDetectiveToChoose:
+        game.CurrentUserTurnStartedTime = DateTime.Now;
         break;
     }
     return true;

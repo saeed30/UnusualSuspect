@@ -5,20 +5,16 @@ namespace UnusualSuspect.Common.Extensions;
 
 public static class LoggerExtensions
 {
-  public static void LogEvent(this ILogger logger, SystemEventType eventType, string message, int? dataKey = null,
-    string? extraInfo = null, LogLevel? logLevel = null, Exception? exception = null)
+  public static void LogEvent(this ILogger logger, SystemEventType eventType, int? dataKey,
+    string? extraInfo = null, string? message = null,
+    LogLevel? logLevel = null, Exception? exception = null, params object?[] paramStrings)
   {
-    logger.LogEvent((int)eventType, message, dataKey, extraInfo, logLevel, exception);
-  }
-  public static void LogEvent(this ILogger logger, int eventTypeId, string message, int? dataKey = null,
-    string? extraInfo = null, LogLevel? logLevel = null, Exception? exception = null)
-  {
-    if (!Enum.IsDefined(typeof(SystemEventType), eventTypeId))
-      throw new Exception("eventTypeId not valid: " + eventTypeId);
+    if (string.IsNullOrWhiteSpace(message))
+      message = eventType.ToDisplay();
     logLevel ??= LogLevel.Information;
-    using (logger.BeginScope("{DataKey} - {EventTypeId} - {ExtraInfo}", dataKey, eventTypeId, extraInfo))
+    using (logger.BeginScope("{DataKey} - {EventType} - {ExtraInfo}", dataKey, eventType, extraInfo))
     {
-      logger.Log(logLevel.Value, exception, message);
+      logger.Log(logLevel.Value, exception, message, paramStrings);
     }
   }
 }

@@ -48,6 +48,8 @@ public sealed class GameHub(IGameService gameService,
     {
       LogUserCall("SendMessage", user, message);
       await Clients.All.ReceiveMessage(user, message);
+      if (message.StartsWith("startChooseCardTimer"))
+        timerManagementService.OnGameTimerStart(message.Split(":")[1].ToInt(), GameTimerEnum.AutoChooseCard);
     }
     catch (Exception exception)
     {

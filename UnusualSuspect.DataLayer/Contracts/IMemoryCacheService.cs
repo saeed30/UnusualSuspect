@@ -11,7 +11,7 @@ public interface IMemoryCacheService
   void SetUserSignalRGroups(int userId, List<string> groups);
   //Task<TurnOfPlayGetResponse?> GetTurnOfPlay(int gameId);
   //void SetTurnOfPlay(int gameId, TurnOfPlayGetResponse model);
-  Task ResetTurnOfPlay(int gameId, TurnOfPlayTalkingState model, CancellationToken cancellationToken = default);
+  Task ResetTurnOfPlay(int gameId, TurnOfPlayTalkingState model, DateTime currentUserTurnStartedTime, CancellationToken cancellationToken = default);
   Task ResetGameCandidates(int gameId, List<GameCandidate> model, CancellationToken cancellationToken = default);
 	Task<Game?> GetGameWithDetails(int gameId, CancellationToken cancellationToken = default);
   void SetGameWithDetails(Game game);

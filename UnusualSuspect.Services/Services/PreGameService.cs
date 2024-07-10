@@ -400,8 +400,9 @@ public sealed class PreGameService(IUnitOfWork uow,
           return;
         }
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
-          gameWithDetails.ToGameFlowDto(setting.Value.GameSetting.TimeToTalkInSeconds),
-          await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId, null, gameWithDetails.CachedTime));
+          gameWithDetails.ToGameFlowDto(),
+          await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId,
+          null, gameWithDetails.CachedTime, setting.Value.GameSetting.TimeToTalkInSeconds));
         needToRefill = true;
       }
       else
