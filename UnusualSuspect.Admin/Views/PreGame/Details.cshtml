@@ -23,7 +23,7 @@
         <div class="form-group row no-gutters">
           <label class="control-label col-md-3">زمان ایجاد</label>
           <div class="col-md-9">
-            @Model.PreGameGroupGetResponse.CreatedTime
+            @Model.PreGameGroupGetResponse.CreatedTimeString
           </div>
         </div>
         <div class="form-group row no-gutters">
@@ -72,7 +72,7 @@
                   <td>@dto.UserDto.Id</td>
                   <td>@dto.UserDto.Username</td>
                   <td>@dto.UserDto.NickName</td>
-                  <td>@dto.JoinTime</td>
+                  <td>@dto.JoinTimeString</td>
                   <td>@(dto.IsOwnerOfPreGroup ? "بله" : "خیر")</td>
                   <td>@dto.ReadyToGameStatus</td>
                 </tr>

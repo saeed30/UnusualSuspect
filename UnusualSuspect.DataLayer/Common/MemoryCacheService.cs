@@ -134,7 +134,7 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
     Game? game = await GetGameWithDetails(gameId, cancellationToken);
     if (game == null)
       return;
-    game.TalkingTurnStartedTime = model.TalkingTurnStartedTime;
+    game.TalkingTurnStartedTime = DateTime.Parse(model.TalkingTurnStartedTimeString);
     game.CurrentUserTurnStartedTime = currentUserTurnStartedTime;
     game.OrderOfParticipationTalkBeginner = model.OrderOfParticipationTalkBeginner;
     game.OrderOfParticipationTurnToTalk = model.OrderOfParticipationTurnToTalk;

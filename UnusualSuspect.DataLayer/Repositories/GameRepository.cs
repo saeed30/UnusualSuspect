@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
@@ -50,13 +52,14 @@ public sealed class GameRepository(
         !game.OrderOfParticipationTalkBeginner.HasValue ||
         !game.TalkingTurnStartedTime.HasValue ||
         !game.CurrentUserTurnStartedTime.HasValue))
-      logger.LogCritical("Invalid status data on Talking. gameId: {gameId}", game.Id);
+      logger.LogEvent(SystemEventType.InvalidStatusDataOnTalking, game.Id, logLevel: LogLevel.Warning);
+
     if (game.GameCandidates.Any())
     {
       foreach (var gameCandidate in game.GameCandidates)
       {
         if (game.GameCandidates.Any(x => x.Id != gameCandidate.Id && x.UserId == gameCandidate.UserId))
-          logger.LogCritical("Game has multiple candidate for one user. gameId: {gameId} - userId: {userId}", game.Id, gameCandidate.UserId);
+          logger.LogEvent(SystemEventType.GameWithUserWithMultipleCandidates, game.Id, gameCandidate.UserId.ToString(), logLevel: LogLevel.Warning);
       }
     }
   }
@@ -127,7 +130,7 @@ public sealed class GameRepository(
     Game? game = await GetByIdAsync(gameId, cancellationToken);
     if (game == null)
     {
-      logger.LogError(new Exception("Invalid gameId"), "Invalid gameId");
+      logger.LogEvent(SystemEventType.InvalidGameIdInSetNewTurnToTalk, gameId, logLevel: LogLevel.Critical);
       return;
     }
     game.OrderOfParticipationTurnToTalk = orderOfParticipationTurnToTalk;

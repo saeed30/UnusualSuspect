@@ -9,14 +9,6 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Log
   {
     [SerializeField]
     private string errorContent;
-    [SerializeField]
-    private List<string> errorParameterList;
-
-    public List<string> ErrorParameterList
-    {
-      get => errorParameterList;
-      set => errorParameterList = value;
-    }
 
     public string ErrorContent
     {

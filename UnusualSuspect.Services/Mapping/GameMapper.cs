@@ -11,7 +11,8 @@ public static class GameMapper
 {
   public static GameGetResponse ToGameGetResponse(this Game value, List<int> onlineUserIds, int timeToTalkInSeconds, int userId)
   {
-    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(), onlineUserIds, value.GameStatusId, value.ToPrivateInfoDto(userId), value.CachedTime, timeToTalkInSeconds);
+    return new GameGetResponse(value.ToGameBaseDto(), value.ToGameFlowDto(), onlineUserIds,
+      value.GameStatusId, value.ToPrivateInfoDto(userId), value.CachedTime.ToString(), timeToTalkInSeconds);
   }
 
   public static IEnumerable<GameGetResponse> ToGameGetResponse(this IEnumerable<Game> value, List<int> onlineUserIds, int timeToTalkInSeconds, int userId)
@@ -29,14 +30,14 @@ public static class GameMapper
     {
       OrderOfParticipationTurnToTalk = value.OrderOfParticipationTurnToTalk.Value,
       OrderOfParticipationTalkBeginner = value.OrderOfParticipationTalkBeginner.Value,
-      TalkingTurnStartedTime = value.TalkingTurnStartedTime.Value
+      TalkingTurnStartedTimeString = value.TalkingTurnStartedTime.Value.ToString()
     };
   }
   public static TurnOfPlayGetResponse ToTurnOfPlayGetResponse(this Game value)
   {
     if (value.GameStatusId != (short)GameStatusEnum.Talking)
       return new TurnOfPlayGetResponse();
-    return new TurnOfPlayGetResponse(value.ToTurnOfPlayTalkingState(), value.CurrentUserTurnStartedTime);
+    return new TurnOfPlayGetResponse(value.ToTurnOfPlayTalkingState(), value.CurrentUserTurnStartedTime.ToString());
   }
   public static GameBaseDto ToGameBaseDto(this Game value)
   {
@@ -65,7 +66,7 @@ public static class GameMapper
     return new GameFlowDto()
     {
       Id = value.Id,
-      CurrentUserTurnStartedTime = value.CurrentUserTurnStartedTime??DateTime.MinValue,
+      CurrentUserTurnStartedTimeString = value.CurrentUserTurnStartedTime.ToString() ?? DateTime.MinValue.ToString(),
       ActiveCharacterIds = value.CharacterCardGames.Where(x => x.IsActive).Select(x => x.CharacterCardId).ToList(),
       TurnOfPlayTalkingState = value.GameStatusId == (short)GameStatusEnum.Talking ? value.ToTurnOfPlayTalkingState() : null,
       WitnessLastAnswer = (value.WitnessLastAnswer.HasValue ? (value.WitnessLastAnswer.Value ? WitnessAnswer.Yes : WitnessAnswer.No) : WitnessAnswer.NoAnswer),

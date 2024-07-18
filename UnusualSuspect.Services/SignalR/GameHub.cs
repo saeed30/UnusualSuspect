@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog.Events;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
@@ -46,9 +49,9 @@ public sealed class GameHub(IGameService gameService,
   {
     try
     {
-      LogUserCall("SendMessage", user, message);
+      logger.LogEvent(SystemEventType.GameHubSendMessage,UserId,$"user ({user}) - message ({message})");
       await Clients.All.ReceiveMessage(user, message);
-      if (message.StartsWith("startChooseCardTimer"))
+      if (message.StartsWith("startChooseCardTimer") && setting.Value.IsTesting)
         timerManagementService.OnGameTimerStart(message.Split(":")[1].ToInt(), GameTimerEnum.AutoChooseCard);
     }
     catch (Exception exception)
@@ -58,18 +61,17 @@ public sealed class GameHub(IGameService gameService,
       throw;
     }
   }
-
-  private void LogUserCall(string methodName, string param1, string param2)
-  {
-    logger.LogInformation("UserId ({UserId}) called signalR method ({methodName}) with these parameters: ({param1} - {param2})",
-      UserId, methodName, param1, param2);
-  }
-
+  //private void LogUserCall(string methodName, string param1, string param2)
+  //{
+  //  LogEvent
+  //  logger.LogInformation("UserId ({UserId}) called signalR method ({methodName}) with these parameters: ({param1} - {param2})",
+  //    UserId, methodName, param1, param2);
+  //}
   public async Task StartedToTalk(int gameId)
   {
     try
     {
-      LogUserCall("StartedToTalk", gameId.ToString(), "");
+      logger.LogEvent(SystemEventType.GameHubStartedToTalk, UserId, gameId.ToString());
       await Clients.Caller.ReceiveMessage("admin", "you called StartedToTalk");
     }
     catch (Exception exception)
@@ -86,7 +88,7 @@ public sealed class GameHub(IGameService gameService,
     {
       if (!UserId.HasValue)
         return;
-      LogUserCall("FinishedTalking", gameId.ToString(), "");
+      logger.LogEvent(SystemEventType.GameHubFinishedTalking, UserId, gameId.ToString());
       await Clients.Caller.ReceiveMessage("admin", "you called FinishedTalking");
       TimerManagementService.OnGameTimerStop(gameId);
       var result = await gameService.UserTurnFinishedAsync(UserId.Value, gameId);
@@ -107,7 +109,7 @@ public sealed class GameHub(IGameService gameService,
     {
       if (!UserId.HasValue)
         return;
-      LogUserCall("UseSticker", gameId.ToString(), stickerId.ToString());
+      logger.LogEvent(SystemEventType.GameHubUseSticker, UserId,$"stickerId ({stickerId}) - gameId ({gameId})");
       await Clients.Caller.ReceiveMessage("admin", "you called UseSticker");
       var result = await stickerService.SendStickerToGroupAsync(UserId.Value, (short)stickerId, gameId);
       if (!result.Success)
@@ -127,7 +129,7 @@ public sealed class GameHub(IGameService gameService,
     {
       if (!UserId.HasValue)
         return;
-      LogUserCall("CandidateCard", gameId.ToString(), cardId.HasValue ? cardId.Value.ToString() : "");
+      logger.LogEvent(SystemEventType.GameHubCandidateCard, UserId,$"cardId ({cardId}) - gameId ({gameId})");
       await Clients.Caller.ReceiveMessage("admin", "you called CandidateCard");
       var result = await gameService.ChangedCandidateCard(UserId.Value, (short?)cardId, gameId);
       if (!result.Success)
@@ -148,7 +150,7 @@ public sealed class GameHub(IGameService gameService,
   {
     try
     {
-      logger.LogWarning("User Connected to SignalR. connectionId: {ConnectionId}", Context.ConnectionId);
+      logger.LogEvent(SystemEventType.GameHubOnConnectedAsync, UserId, Context.ConnectionId);
       int? userId = UserId;
       if (userId.HasValue)
       {
@@ -168,7 +170,7 @@ public sealed class GameHub(IGameService gameService,
   {
     try
     {
-      logger.LogWarning("User Disconnected from SignalR. connectionId: {ConnectionId}", Context.ConnectionId);
+      logger.LogEvent(SystemEventType.GameHubOnDisconnectedAsync, UserId, Context.ConnectionId);
       int? userId = UserId;
       if (userId.HasValue)
       {

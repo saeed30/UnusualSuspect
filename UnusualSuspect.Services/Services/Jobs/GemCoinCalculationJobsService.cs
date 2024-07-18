@@ -3,6 +3,8 @@ using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.Identity;
@@ -60,10 +62,12 @@ public sealed class GemCoinCalculationJobsService(IGemUsedUserRepository gemUsed
     int result = await gemPackageUserRepository.GetSumAsync(user.Id) -
                  await gemUsedUserRepository.GetSumAsync(user.Id);
     if (result < 0)
-      logger.LogCritical("User CalculatedGems is below zero. userId: {userId}, calculatedGems: {CalculatedGems}", user.Id, user.CalculatedGems);
+      logger.LogEvent(SystemEventType.UserCalculatedGemsBelowZero, user.Id,
+        $"CalculatedGems({user.CalculatedGems}) - newCalculatedGems({result})", logLevel: LogLevel.Critical);
     if (user.CalculatedGems != result)
     {
-      logger.LogWarning("User CalculatedGems({CalculatedGems}) is not equal to user newCalculatedGems({newCalculatedGems}). userId: {userId}", result, user.CalculatedGems, user.Id);
+      logger.LogEvent(SystemEventType.UserCalculatedGemsNotEqualToCurrentValue,
+        user.Id, $"CalculatedGems({user.CalculatedGems}) - newCalculatedGems({result})", logLevel: LogLevel.Critical);
       user.CalculatedGems = result;
     }
   }
@@ -72,10 +76,12 @@ public sealed class GemCoinCalculationJobsService(IGemUsedUserRepository gemUsed
     int result = await coinPackageUserRepository.GetSumAsync(user.Id) -
                  await coinUsedUserRepository.GetSumAsync(user.Id);
     if (result < 0)
-      logger.LogCritical("User CalculatedCoins is below zero. userId: {userId}, calculatedCoins: {CalculatedCoins}", user.Id, user.CalculatedCoins);
+      logger.LogEvent(SystemEventType.UserCalculatedCoinsBelowZero, user.Id,
+        $"CalculatedCoins({user.CalculatedCoins}) - newCalculatedCoins({result})", logLevel: LogLevel.Critical);
     if (user.CalculatedCoins != result)
     {
-      logger.LogWarning("User CalculatedCoins({CalculatedCoins}) is not equal to user newCalculatedCoins({CalculatedCoins}). userId: {userId}", result, user.CalculatedCoins, user.Id);
+      logger.LogEvent(SystemEventType.UserCalculatedCoinsNotEqualToCurrentValue, user.Id,
+        $"CalculatedCoins({user.CalculatedCoins}) - newCalculatedCoins({result})", logLevel: LogLevel.Critical);
       user.CalculatedCoins = result;
     }
   }

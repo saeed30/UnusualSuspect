@@ -12,7 +12,7 @@ public static class JoinedPreGameMapper
     return new JoinedPreGameDto()
     {
       IsOwnerOfPreGroup = value.IsOwnerOfPreGroup,
-      JoinTime = value.JoinTime,
+      JoinTimeString = value.JoinTime.ToString(),
       ReadyToGameStatus = (ReadyToGameStatusEnum)value.ReadyToGameStatusId,
       UserDto = new UserDto()
       {

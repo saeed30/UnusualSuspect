@@ -9,7 +9,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
   public class GameGetResponse
   {
     public GameGetResponse(GameBaseDto gameBaseDto, GameFlowDto gameFlowDto, List<int> onlineUserIds,
-      short gameStatusId, PrivateInfoDto privateInfoDto, DateTime? cachedTime, int baseTimingInSeconds)
+      short gameStatusId, PrivateInfoDto privateInfoDto, string? cachedTimeString, int baseTimingInSeconds)
     {
       GameBaseDto = gameBaseDto;
       GameFlowDto = gameFlowDto;
@@ -17,8 +17,8 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
       OnlineUserIds = onlineUserIds;
       GameStatusId = gameStatusId;
       PrivateInfoDto = privateInfoDto;
-      CachedTime = cachedTime;
-      ServerCurrentTime = DateTime.Now;
+      CachedTimeString = cachedTimeString;
+      ServerCurrentTimeString = DateTime.Now.ToString();
       BaseTimingInSeconds = baseTimingInSeconds;
     }
 
@@ -35,16 +35,16 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
     [SerializeField]
     private PrivateInfoDto privateInfoDto;
     [SerializeField]
-    private DateTime? cachedTime;
+    private string? cachedTimeString;
     [SerializeField]
     private int baseTimingInSeconds;
     [SerializeField]
-    private DateTime serverCurrentTime;
+    private string serverCurrentTimeString;
 
-    public DateTime ServerCurrentTime
+    public string ServerCurrentTimeString
     {
-      get => serverCurrentTime;
-      set => serverCurrentTime = value;
+      get => serverCurrentTimeString;
+      set => serverCurrentTimeString = value;
     }
 
     public int BaseTimingInSeconds
@@ -54,10 +54,10 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
     }
 
 
-    public DateTime? CachedTime
+    public string? CachedTimeString
     {
-      get => cachedTime;
-      set => cachedTime = value;
+      get => cachedTimeString;
+      set => cachedTimeString = value;
     }
 
     public PrivateInfoDto PrivateInfoDto

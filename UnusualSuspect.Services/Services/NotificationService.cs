@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.SignalR;
@@ -20,15 +22,13 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
 
   public async Task SendSignalToPreGameGroup(int preGameGroupId, SignalCommands command, object? data = null)
 	{
-    logger.LogInformation("SendSignalToPreGameGroup was called with preGameGroupId: {preGameGroupId} and command: {command}",
-      preGameGroupId.ToString(), command.ToString());
+    logger.LogEvent(SystemEventType.SendSignalToPreGameGroup, preGameGroupId, command.ToString());
 		await context.Clients.Group(GetPreGameGroupName(preGameGroupId)).GameCommand(command, data);
 	}
 
 	public async Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null)
   {
-    logger.LogInformation("SendSignalToGameGroup was called with gameId: {gameId} and command: {command}",
-      gameId.ToString(), command.ToString());
+    logger.LogEvent(SystemEventType.SendSignalToGameGroup, gameId, command.ToString());
     await context.Clients.Group(gameId.ToString()).GameCommand(command, data);
   }
 

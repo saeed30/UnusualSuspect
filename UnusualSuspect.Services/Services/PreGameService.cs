@@ -5,6 +5,8 @@ using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.DataLayer.Contracts;
@@ -191,9 +193,9 @@ public sealed class PreGameService(IUnitOfWork uow,
       if (preGameGroup.CalculatedJoinedUsers > preGameGroup.GameType.NumberOfPlayers)
       {
         //do some action to fix
-        logger.LogCritical(
-          "PreGameGroup CalculatedJoinedUsers ({CalculatedJoinedUsers}) is more than game type NumberOfPlayers ({NumberOfPlayers}). groupId: {preGameGroupId}",
-          preGameGroup.CalculatedJoinedUsers, preGameGroup.GameType.NumberOfPlayers, preGameGroup.Id);
+        logger.LogEvent(SystemEventType.CalculatedJoinedUsersMoreThanTypeNumberOfPlayers, preGameGroupId,
+          $"calculatedJoinedUsers ({preGameGroup.CalculatedJoinedUsers}) - userId ({userId})",
+          logLevel: LogLevel.Critical);
       }
       return new UnusualSuspectServiceResult<JoinedPreGame>(new UnusualSuspectErrorResult(LogicErrorCode.PreGameGroupIsFull));
     }
@@ -402,7 +404,7 @@ public sealed class PreGameService(IUnitOfWork uow,
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
           gameWithDetails.ToGameFlowDto(),
           await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId,
-          null, gameWithDetails.CachedTime, setting.Value.GameSetting.TimeToTalkInSeconds));
+          null, gameWithDetails.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds));
         needToRefill = true;
       }
       else
@@ -516,8 +518,9 @@ public sealed class PreGameService(IUnitOfWork uow,
       {
         if (usersAddedCounter > gameType.NumberOfPlayers)
         {
-          logger.LogCritical("Number of joined users are more than gameType capacity. Game createTime: {CreateTime}, PreGameGroupIds: {PreGameGroupIds}, userId not in game: {userId}",
-            game.CreateTime, string.Join(", ", preGameGroups.Select(x => x.Id)), joined[j].UserId);
+          logger.LogEvent(SystemEventType.GameAddedParticipantsMoreThanTypeNumberOfPlayers, game.Id,
+            $"PreGameGroupIds ({string.Join(", ", preGameGroups.Select(x => x.Id))}) - userId ({joined[j].UserId})",
+            logLevel: LogLevel.Critical);
           break;
         }
         //random role selection

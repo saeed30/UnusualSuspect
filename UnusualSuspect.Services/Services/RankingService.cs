@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Endpoints.ChartsAndRankings;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.DataLayer.Contracts.Repository.TopRanking;
 using UnusualSuspect.Entities.Common;
@@ -50,49 +52,49 @@ public sealed class RankingService(ITopWeekRankingRepository topWeekRatingReposi
 
   public async Task RecalculateAllRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken = default)
   {
-    logger.LogWarning("RecalculateAllRankings job started at {startTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateAllRankingsStarted, numberOfUsersInRankingTables);
 
     await RecalculateDailyRankings(numberOfUsersInRankingTables, cancellationToken);
     await RecalculateWeekRankings(numberOfUsersInRankingTables, cancellationToken);
     await RecalculateMonthRankings(numberOfUsersInRankingTables, cancellationToken);
     await RecalculateTotalRankings(numberOfUsersInRankingTables, cancellationToken);
 
-    logger.LogWarning("RecalculateAllRankings job ended at {endTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateAllRankingsFinished, numberOfUsersInRankingTables);
   }
 
   private async Task RecalculateTotalRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken)
   {
-    logger.LogInformation("RecalculateTotalRankings started at {startTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateTotalRankingsStarted, numberOfUsersInRankingTables);
     await scoreRepository.RecalculateUserTotalScoreAsync(cancellationToken);
     await applicationUserRepository.RecalculateRaking(cancellationToken);
     await topTotalRatingRepository.RecalculateTopRankings(numberOfUsersInRankingTables, cancellationToken);
-    logger.LogInformation("RecalculateTotalRankings ended at {endTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateTotalRankingsFinished, numberOfUsersInRankingTables);
   }
 
   private async Task RecalculateMonthRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken)
   {
-    logger.LogInformation("RecalculateMonthRankings started at {startTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateMonthRankingsStarted, numberOfUsersInRankingTables);
     await scoreRepository.RecalculateUserMonthScoreAsync(cancellationToken);
     await applicationUserRepository.RecalculateMonthRaking(cancellationToken);
     await topMonthRatingRepository.RecalculateTopRankings(numberOfUsersInRankingTables, cancellationToken);
-    logger.LogInformation("RecalculateMonthRankings ended at {endTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateMonthRankingsFinished, numberOfUsersInRankingTables);
   }
 
   private async Task RecalculateWeekRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken)
   {
-    logger.LogInformation("RecalculateWeekRankings started at {startTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateWeekRankingsStarted, numberOfUsersInRankingTables);
     await scoreRepository.RecalculateUserWeekScoreAsync(cancellationToken);
     await applicationUserRepository.RecalculateWeekRaking(cancellationToken);
     await topWeekRatingRepository.RecalculateTopRankings(numberOfUsersInRankingTables, cancellationToken);
-    logger.LogInformation("RecalculateWeekRankings ended at {endTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateWeekRankingsFinished, numberOfUsersInRankingTables);
   }
 
   private async Task RecalculateDailyRankings(int numberOfUsersInRankingTables, CancellationToken cancellationToken)
   {
-    logger.LogInformation("RecalculateDailyRankings started at {startTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateDailyRankingsStarted, numberOfUsersInRankingTables);
     await scoreRepository.RecalculateUserDailyScoreAsync(cancellationToken);
     await applicationUserRepository.RecalculateDailyRaking(cancellationToken);
     await topDayRatingRepository.RecalculateTopRankings(numberOfUsersInRankingTables, cancellationToken);
-    logger.LogInformation("RecalculateDailyRankings ended at {endTime}", DateTime.Now);
+    logger.LogEvent(SystemEventType.RecalculateDailyRankingsFinished, numberOfUsersInRankingTables);
   }
 }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.Common;
@@ -27,7 +29,7 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
       case PriceTypeEnum.Money:
         if (package is GemPackage)
           return new UnusualSuspectServiceResult<bool>(true);
-        logger.LogCritical("Buying with Money should not be checked here! userId: {userId}, packageId: {packageId}", user.Id, package.Id);
+        logger.LogEvent(SystemEventType.PayPackageWithMoneyShouldNotBeChecked, user.Id, package.Id.ToString(), logLevel: LogLevel.Critical);
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.MoneyOnlyUsedForGem));
       case PriceTypeEnum.Gem:
         result = user.CalculatedGems >= package.Price;
@@ -40,10 +42,10 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
           user.CalculatedCoins -= package.Price;
         break;
       case PriceTypeEnum.Avatar:
-        logger.LogCritical("Buying with Avatar should not be checked here! userId: {userId}, packageId: {packageId}", user.Id, package.Id);
+        logger.LogEvent(SystemEventType.PayPackageWithAvatarShouldNotBeChecked, user.Id, package.Id.ToString(), logLevel: LogLevel.Critical);
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseAvatarForPayment));
       case PriceTypeEnum.Sticker:
-        logger.LogCritical("Buying with Sticker should not be checked here! userId: {userId}, packageId: {packageId}", user.Id, package.Id);
+        logger.LogEvent(SystemEventType.PayPackageWithStickerShouldNotBeChecked, user.Id, package.Id.ToString(), logLevel: LogLevel.Critical);
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseStickerForPayment));
       default:
         throw new ArgumentOutOfRangeException();
@@ -93,10 +95,10 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
         });
         break;
       case PriceTypeEnum.Avatar:
-        logger.LogCritical("Cannot pay with Avatar! userId: {userId}, packageId: {packageId}", userId, package.Id);
+        logger.LogEvent(SystemEventType.PayPackageWithAvatarIsNotValid, userId, package.Id.ToString(), logLevel: LogLevel.Critical);
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseAvatarForPayment));
       case PriceTypeEnum.Sticker:
-        logger.LogCritical("Cannot pay with Sticker! userId: {userId}, packageId: {packageId}", userId, package.Id);
+        logger.LogEvent(SystemEventType.PayPackageWithStickerIsNotValid, userId, package.Id.ToString(), logLevel: LogLevel.Critical);
         return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseStickerForPayment));
       default:
         throw new ArgumentOutOfRangeException();

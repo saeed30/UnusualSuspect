@@ -9,17 +9,17 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 		[SerializeField]
 		private TurnOfPlayTalkingState? turnOfPlayTalkingState;
     [SerializeField]
-    private DateTime currentUserTurnStartedTime;
+    private string currentUserTurnStartedTimeString;
 
     public TurnOfPlayGetResponse()
 		{
 			TurnOfPlayTalkingState = null;
-      currentUserTurnStartedTime = DateTime.MinValue;
+      currentUserTurnStartedTimeString = DateTime.MinValue.ToString();
     }
 		public TurnOfPlayGetResponse(TurnOfPlayTalkingState? turnOfPlayTalkingState,
-      DateTime? currentUserTurnStartedTime)
+      string? currentUserTurnStartedTimeString)
     {
-      CurrentUserTurnStartedTime = currentUserTurnStartedTime??DateTime.MinValue;
+      CurrentUserTurnStartedTimeString = currentUserTurnStartedTimeString ??DateTime.MinValue.ToString();
       if (turnOfPlayTalkingState == null)
 			{
 				TurnOfPlayTalkingState = null;
@@ -29,10 +29,10 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 				TurnOfPlayTalkingState = turnOfPlayTalkingState;
 			}
 		}
-    public DateTime CurrentUserTurnStartedTime
+    public string CurrentUserTurnStartedTimeString
     {
-      get => currentUserTurnStartedTime;
-      set => currentUserTurnStartedTime = value;
+      get => currentUserTurnStartedTimeString;
+      set => currentUserTurnStartedTimeString = value;
     }
 
     public TurnOfPlayTalkingState? TurnOfPlayTalkingState
@@ -50,7 +50,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 		[SerializeField]
 		private short orderOfParticipationTurnToTalk;
 		[SerializeField]
-		private DateTime talkingTurnStartedTime;
+		private string talkingTurnStartedTimeString;
 
 		public short OrderOfParticipationTalkBeginner
 		{
@@ -64,10 +64,10 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
 			set => orderOfParticipationTurnToTalk = value;
 		}
 
-		public DateTime TalkingTurnStartedTime
+		public string TalkingTurnStartedTimeString
 		{
-			get => talkingTurnStartedTime;
-			set => talkingTurnStartedTime = value;
+			get => talkingTurnStartedTimeString;
+			set => talkingTurnStartedTimeString = value;
 		}
 	}
 }

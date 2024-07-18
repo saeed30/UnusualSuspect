@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
@@ -32,8 +34,8 @@ public sealed class ParticipateRepository
         x.UserId == userId && x.IsActive && x.Game.FinishedTime == null)
       .ToListAsync(cancellationToken);
     if (result.Count > 1)
-      logger.LogCritical("User has more than one active game, userId: {userId}, gameIds: {gameIds}",
-        userId, string.Join("-", result.Select(x => x.Id)));
+      logger.LogEvent(SystemEventType.UserHasMoreThanOneActiveGame, userId,
+        string.Join("-", result.Select(x => x.Id)), logLevel: LogLevel.Critical);
     return result;
   }
   public async Task<int> GetParticipantCountAsync(int gameId, CancellationToken cancellationToken = default)

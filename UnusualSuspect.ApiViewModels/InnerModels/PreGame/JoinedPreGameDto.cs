@@ -8,7 +8,7 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
   public class JoinedPreGameDto
   {
     [SerializeField]
-    private DateTime joinTime;
+    private string joinTimeString;
     [SerializeField]
     private bool isOwnerOfPreGroup;
     [SerializeField]
@@ -22,10 +22,10 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.PreGame
       set => userDto = value;
     }
 
-    public DateTime JoinTime
+    public string JoinTimeString
     {
-      get => joinTime;
-      set => joinTime = value;
+      get => joinTimeString;
+      set => joinTimeString = value;
     }
 
     public bool IsOwnerOfPreGroup

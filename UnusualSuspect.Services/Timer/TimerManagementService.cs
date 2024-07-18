@@ -263,9 +263,7 @@ public class TimerManagementService(
           .Select(x => new { CharacterCardId = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count).ToList();
         if (result.Count >= 2 && result[0].Count == result[1].Count)
         {
-          loggerNew.LogWarning(
-            "No candidate with most vote were found for auto choose card for game ({gameId}). number of candidates: {CandidateCount}",
-            gameId, candidate.Count);
+          loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeNoCandidateWithTopVote, gameId, userId.ToString());
           var charWithMax = result.Where(x => x.Count == result[0].Count).ToList();
           characterId = new Random().Next(0, charWithMax.Count - 1);
           chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, charWithMax[characterId].CharacterCardId, userId);
@@ -273,14 +271,13 @@ public class TimerManagementService(
         else
           chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
       }
-      if(!chooseCardResult.Success)
-        loggerNew.LogWarning("AutoChooseCard for user {userId} in game {gameId} hasError: {myError}",
-          userId, gameId, chooseCardResult.MainError.ToString());
+      if (!chooseCardResult.Success)
+        loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeErrorOnChoose, gameId, userId.ToString(), null, LogLevel.Critical,null, chooseCardResult.MainError.ToString());
       await gameServiceNew.SaveChangesAsync();
       if (chooseCardResult.Result.HasValue)
         await notificationServiceNew.RemoveAllUsersFromGame(gameId);
       memoryCacheServiceNew.ClearGameWithDetails(gameId);
-      loggerNew.LogWarning("AutoChooseCard for user {userId} in game {gameId} finished.", userId, gameId);
+      loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeFinished, gameId, userId.ToString());
     }
     catch (Exception ex)
     {

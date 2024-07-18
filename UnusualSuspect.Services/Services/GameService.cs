@@ -15,6 +15,8 @@ using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.Services.Timer;
 using UnusualSuspect.ApiViewModels.SignalCommandsData;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -71,7 +73,7 @@ public sealed class GameService(IUnitOfWork uow,
     return new UnusualSuspectServiceResult<GameGetResponse>(new GameGetResponse(
       game.ToGameBaseDto(), game.ToGameFlowDto(),
       await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId,
-      game.ToPrivateInfoDto(userId), game.CachedTime, setting.Value.GameSetting.TimeToTalkInSeconds));
+      game.ToPrivateInfoDto(userId), game.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds));
   }
 
 
@@ -236,9 +238,8 @@ public sealed class GameService(IUnitOfWork uow,
       cardId, questionId, cancellationToken);
     if (!result.Success)
     {
-      logger.LogWarning(
-        "Default answer was requested for gameId: {gameId} but no default answer was present for CharacterCardId: {cardId} and questionId: {questionId}",
-        gameId, cardId, questionId);
+      logger.LogEvent(SystemEventType.NoDefaultAnswerAvailable, gameId,
+        $"CharacterCardId: {cardId} and questionId: {questionId}", logLevel: LogLevel.Critical);
       return false;
     }
     game.WitnessLastAnswer = result.Result;
@@ -277,8 +278,8 @@ public sealed class GameService(IUnitOfWork uow,
     if (!result.Success)
       return false;
     gameRepository.SetGameStatus(game, GameStatusEnum.Talking);
-    game.CurrentUserTurnStartedTime = result.Result.TalkingTurnStartedTime;
-    game.TalkingTurnStartedTime = result.Result.TalkingTurnStartedTime;
+    game.CurrentUserTurnStartedTime = DateTime.Parse(result.Result.TalkingTurnStartedTimeString);
+    game.TalkingTurnStartedTime = DateTime.Parse(result.Result.TalkingTurnStartedTimeString);
     game.OrderOfParticipationTalkBeginner = result.Result.OrderOfParticipationTalkBeginner;
     game.OrderOfParticipationTurnToTalk = result.Result.OrderOfParticipationTurnToTalk;
     return true;
@@ -294,7 +295,7 @@ public sealed class GameService(IUnitOfWork uow,
     {
       GameGetResponse = new GameGetResponse(
         game.ToGameBaseDto(), game.ToGameFlowDto(),
-        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId, null, game.CachedTime, setting.Value.GameSetting.TimeToTalkInSeconds),
+        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId, null, game.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds),
       FinishedTime = game.FinishedTime,
       CreateTime = game.CreateTime,
       GameStatusTitle = ((GameStatusEnum)game.GameStatusId).ToString()
@@ -385,10 +386,10 @@ public sealed class GameService(IUnitOfWork uow,
     short starter = GetStarterOrderOfParticipation(game.Participates);
     TurnOfPlayGetResponse model = new TurnOfPlayGetResponse(new TurnOfPlayTalkingState()
     {
-      TalkingTurnStartedTime = DateTime.Now,
+      TalkingTurnStartedTimeString = DateTime.Now.ToString(),
       OrderOfParticipationTalkBeginner = starter,
       OrderOfParticipationTurnToTalk = starter
-    }, DateTime.Now);
+    }, DateTime.Now.ToString());
     await memoryCacheService.ResetTurnOfPlay(game.Id, model.TurnOfPlayTalkingState!, DateTime.Now);
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayersStartToTalk, starter);
     timerManagementService.OnGameTimerStart(game.Participates.First(x => x.OrderOfParticipation == starter).UserId, gameId,
@@ -410,7 +411,7 @@ public sealed class GameService(IUnitOfWork uow,
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
     if (model.OrderOfParticipationTurnToTalk != partTalking.OrderOfParticipation)
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserCallingFinishTalkIsNotTalking));
-    var next = GetNextUserOrderOfParticipation(game.Participates,
+    var next = GetNextUserOrderOfParticipation(game.Id, game.Participates,
       model.OrderOfParticipationTurnToTalk);
     if (next.OrderOfParticipation == model.OrderOfParticipationTalkBeginner)
     {
@@ -506,7 +507,7 @@ public sealed class GameService(IUnitOfWork uow,
       .ToList()[random]
       .OrderOfParticipation;
   }
-  private Participate GetNextUserOrderOfParticipation(ICollection<Participate> participates,
+  private Participate GetNextUserOrderOfParticipation(int gameId, ICollection<Participate> participates,
     short currentOrderOfParticipation)
   {
     Participate? next = participates.Where(x => x.RoleCardId != (short)RoleCardEnum.Witness && x.OrderOfParticipation > currentOrderOfParticipation)
@@ -515,10 +516,7 @@ public sealed class GameService(IUnitOfWork uow,
       return next;
     next = participates.Where(x => x.RoleCardId != (short)RoleCardEnum.Witness).MinBy(x => x.OrderOfParticipation);
     if (next == null)
-    {
-      logger.LogCritical("No participants found!");
-      throw new Exception("No participants found!");
-    }
+      throw new Exception("No participants found! gameId: " + gameId);
     return next;
   }
 

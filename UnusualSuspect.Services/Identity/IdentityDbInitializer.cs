@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
+using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.DataLayer.Context;
@@ -64,7 +65,7 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
     }
     catch (Exception e)
     {
-      logger.LogError("users table not created");
+      logger.LogEvent(SystemEventType.SeedUserTableNotCreated, null, logLevel: LogLevel.Error, exception: e);
       return IdentityResult.Success;
     }
     if (adminUser != null)
@@ -80,7 +81,8 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
       var adminRoleResult = await applicationRoleManager.CreateAsync(adminRole);
       if (adminRoleResult == IdentityResult.Failed())
       {
-        logger.LogError($"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}");
+        logger.LogEvent(SystemEventType.SeedUserTableNotCreated, null,
+          $"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}", logLevel: LogLevel.Critical);
         //return IdentityResult.Failed();
       }
     }
@@ -89,10 +91,11 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
     if (adminRole2 == null)
     {
       adminRole2 = new Role("CustomerRole");
-      var adminRoleResult = await applicationRoleManager.CreateAsync(adminRole2);
-      if (adminRoleResult == IdentityResult.Failed())
+      var customerRoleResult = await applicationRoleManager.CreateAsync(adminRole2);
+      if (customerRoleResult == IdentityResult.Failed())
       {
-        logger.LogError($"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}");
+        logger.LogEvent(SystemEventType.SeedCustomerRoleCreateFailed, null,
+          $"{thisMethodName}: CustomerRole CreateAsync failed. {customerRoleResult.DumpErrors()}", logLevel: LogLevel.Critical);
         //return IdentityResult.Failed();
       }
     }

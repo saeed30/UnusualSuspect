@@ -12,7 +12,7 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
     [SerializeField]
     private int preGameGroupId;
     [SerializeField]
-    private DateTime createdTime;
+    private string createdTimeString;
     [SerializeField]
     private short calculatedJoinedUsers;
     [SerializeField]
@@ -30,10 +30,10 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
       set => preGameGroupId = value;
     }
 
-    public DateTime CreatedTime
+    public string CreatedTimeString
     {
-      get => createdTime;
-      set => createdTime = value;
+      get => createdTimeString;
+      set => createdTimeString = value;
     }
 
     public short CalculatedJoinedUsers

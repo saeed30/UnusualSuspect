@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Endpoints.Log;
 using UnusualSuspect.ApiViewModels.Enums;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Models;
 
 namespace UnusualSuspect.Api.Endpoints.Log;
@@ -17,7 +19,7 @@ public sealed class ErrorEndpoint(ILogger<ErrorEndpoint> logger) : MyBaseEndpoin
   {
     if (request == null || string.IsNullOrWhiteSpace(request.ErrorContent))
       return new ApiResultCommon(false, ApiResultStatusCode.BadRequest);
-    logger.LogError(request.ErrorContent, request.ErrorParameterList);
+    logger.LogEvent(SystemEventType.MobileAppError, CurrentUser.UserId, request.ErrorContent);
     return new ApiResultCommon(true, ApiResultStatusCode.Success);
   }
 }

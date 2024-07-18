@@ -20,11 +20,11 @@ namespace UnusualSuspect.ApiViewModels.InnerModels.Game
     [SerializeField]
     private List<CandidateCardDto> candidateCard;
     [SerializeField]
-    private DateTime currentUserTurnStartedTime;
-    public DateTime CurrentUserTurnStartedTime
+    private string currentUserTurnStartedTimeString;
+    public string CurrentUserTurnStartedTimeString
     {
-      get => currentUserTurnStartedTime;
-      set => currentUserTurnStartedTime = value;
+      get => currentUserTurnStartedTimeString;
+      set => currentUserTurnStartedTimeString = value;
     }
 
     public List<CandidateCardDto> CandidateCard

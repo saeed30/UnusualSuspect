@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using UnusualSuspect.Common.Enums;
+using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
@@ -56,7 +58,7 @@ public sealed class GameCandidateRepository(IUnitOfWork uow, ILogger<GameCandida
     }
     else
     {
-      logger.LogWarning("User has multiple candidates in a game. userId: {userId} - gameId: {gameId}", userId, gameId);
+      logger.LogEvent(SystemEventType.UserWithMultipleCandidates, gameId, userId.ToString(), logLevel: LogLevel.Warning);
       var candidate = candidates.FirstOrDefault(x => x.CharacterCardId == characterCardId);
       if (candidate == null)
       {
