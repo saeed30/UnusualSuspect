@@ -38,6 +38,7 @@ using UnusualSuspect.Services.JcoSecurity;
 using UnusualSuspect.Services.Services;
 using UnusualSuspect.ViewModels.Settings;
 using UnusualSuspect.DataLayer.Repositories.TopRanking;
+using UnusualSuspect.Common.Attribute;
 
 namespace UnusualSuspect.IocConfig;
 
@@ -54,6 +55,7 @@ public static class ServiceCollectionExtensions
     services.RegisterAssemblyPublicNonGenericClasses(assembliesToScan)
       .Where(c => c.Name.EndsWith("Service") || c.Name.EndsWith("Repository"))
       .AsPublicImplementedInterfaces(ServiceLifetime.Scoped);
+
     //services.AddScoped<IPreGameService, PreGameService>();
     //services.AddScoped<IGameService, GameService>();
     //services.AddScoped<IGemService, GemService>();

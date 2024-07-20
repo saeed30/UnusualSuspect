@@ -2,9 +2,13 @@
 using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Mvc;
 using UnusualSuspect.Admin.Models;
+using UnusualSuspect.ApiViewModels.Endpoints.LocalOnly;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Attribute;
+using UnusualSuspect.Common.Models;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.ViewModels.Question;
 
 namespace UnusualSuspect.Admin.Controllers;
 
@@ -32,4 +36,14 @@ public class GameController(ILogger<GameController> logger, IGameService gameSer
       return NotFound();
     return View(game.Result);
   }
+
+  [ServiceFilter(typeof(UserFilters))]
+  [HttpPost]
+  public async Task<IActionResult> ChangeGameStatus(ChangeGameStateRequest model,
+    CancellationToken cancellationToken = default)
+  {
+    
+    return Json(new ApiResultCommon(false, ApiResultStatusCode.LogicError," result.MainError.GetDisplay()"));
+  }
+
 }

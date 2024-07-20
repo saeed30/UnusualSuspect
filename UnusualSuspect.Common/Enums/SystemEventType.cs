@@ -4,8 +4,11 @@ namespace UnusualSuspect.Common.Enums;
 
 public enum SystemEventType
 {
-  [Display(Name = "ورود کاربر")] Login = 1,
-  [Display(Name = "خروج کاربر")] Logout = 2,
+  [Display(Name = "ورود کاربر")]
+  Login = 1,
+
+  [Display(Name = "خروج کاربر")]
+  Logout = 2,
 
   [Display(Name = "به دلیل وضعیت آزمایشی خروج خودکار کاربر انجام نشد")]
   LeaveCurrentGameNotDoneWhenTesting = 3,

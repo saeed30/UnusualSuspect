@@ -43,6 +43,9 @@ Serilog.Debugging.SelfLog.Enable(msg =>
   Debug.Print(msg);
   //Debugger.Break();
 });
+Log.Logger = new LoggerConfiguration()
+  .WriteTo.Console()
+  .CreateLogger();
 
 builder.Services.AddCustomServices(configuration);
 

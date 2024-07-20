@@ -81,7 +81,7 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
       var adminRoleResult = await applicationRoleManager.CreateAsync(adminRole);
       if (adminRoleResult == IdentityResult.Failed())
       {
-        logger.LogEvent(SystemEventType.SeedUserTableNotCreated, null,
+        logger.LogEvent(SystemEventType.SeedAdminRoleCreateFailed, null,
           $"{thisMethodName}: adminRole CreateAsync failed. {adminRoleResult.DumpErrors()}", logLevel: LogLevel.Critical);
         //return IdentityResult.Failed();
       }
@@ -122,7 +122,8 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
       Email = email,
       EmailConfirmed = true,
       LockoutEnabled = true,
-      IsActive = true
+      IsActive = true,
+      SecurityStamp = Guid.NewGuid().ToString()
     };
     var adminUserResult = await applicationUserManager.CreateAsync(adminUser, password);
     if (adminUserResult == IdentityResult.Failed())

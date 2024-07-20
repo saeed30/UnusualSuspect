@@ -9,7 +9,7 @@ using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.PreGame;
-public sealed class UserReadyStatusPreGameGroupEndpoint(IPreGameService preGameService) : MyBaseEndpointAuthenticated
+public sealed class UserReadyStatusPreGameGroupEndpoint(IPreGameService preGameService, INotificationService notificationService) : MyBaseEndpointAuthenticated
 	.WithRequest<UserReadyStatusPreGameGroupRequest>
 	.WithActionResult<ApiResultCommon>
 {
@@ -24,6 +24,9 @@ public sealed class UserReadyStatusPreGameGroupEndpoint(IPreGameService preGameS
 		if (!result.Success)
 			return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
 		await preGameService.SaveChangesAsync(cancellationToken);
-		return new ApiResultCommon(true, ApiResultStatusCode.Success);
+    await notificationService.SendSignalToPreGameGroup(request.PreGameGroupId, SignalCommands.UserActiveStatusChangedInPregameGroup, 
+      new { ReadyToGameStatusEnum = statusEnum , UserId = CurrentUser.UserId });
+
+    return new ApiResultCommon(true, ApiResultStatusCode.Success);
 	}
 }

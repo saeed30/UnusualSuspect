@@ -50,6 +50,8 @@
           <label class="control-label col-md-3"> عنوان وضعیت بازی</label>
           <div class="col-md-9">
             @Model.GameStatusTitle
+            <br/>
+            <button class="btn btn-sm btn-primary" id="start-game-btn">شروع بازی</button>
           </div>
         </div>
         @if (Model.GameGetResponse.GameFlowDto.TurnOfPlayTalkingState != null)
@@ -84,23 +86,23 @@
           <div class="col-md-9">
             <table class="table">
               <thead>
-                <tr>
-                  <td>کد کاربر</td>
-                  <td>کد کارت</td>
-                </tr>
+              <tr>
+                <td>کد کاربر</td>
+                <td>کد کارت</td>
+              </tr>
               </thead>
               <tbody>
-                @foreach (var candidate in Model.GameGetResponse.GameFlowDto.CandidateCard)
-                {
-                  <tr>
-                    <td>
-                      @candidate.UserId
-                    </td>
-                    <td>
-                      @candidate.CharacterCardId
-                    </td>
-                  </tr>
-                }
+              @foreach (var candidate in Model.GameGetResponse.GameFlowDto.CandidateCard)
+              {
+                <tr>
+                  <td>
+                    @candidate.UserId
+                  </td>
+                  <td>
+                    @candidate.CharacterCardId
+                  </td>
+                </tr>
+              }
               </tbody>
             </table>
           </div>
@@ -118,26 +120,26 @@
         <h2>کاراکترهای بازی</h2>
         <table class="table">
           <thead>
-            <tr>
-              <td>کد کاراکتر</td>
-              <td>آیا قاتل است</td>
-              <td>آدرس تصویر</td>
-              <td>عنوان</td>
-            </tr>
+          <tr>
+            <td>کد کاراکتر</td>
+            <td>آیا قاتل است</td>
+            <td>آدرس تصویر</td>
+            <td>عنوان</td>
+          </tr>
           </thead>
           <tbody>
-            @{
-              foreach (var characterDto in Model.GameGetResponse.GameBaseDto.GameCharacterDtos)
-              {
-                <tr>
-                  <td>@characterDto.CharacterId</td>
-                  <td></td>
-                  <td>@characterDto.ImageUrl</td>
-                  <td>@characterDto.Title</td>
-                  <td>@(Model.GameGetResponse.GameFlowDto.ActiveCharacterIds.Contains(characterDto.CharacterId) ? "فعال" : "حذف شده")</td>
-                </tr>
-              }
+          @{
+            foreach (var characterDto in Model.GameGetResponse.GameBaseDto.GameCharacterDtos)
+            {
+                  <tr>
+                    <td>@characterDto.CharacterId</td>
+                    <td></td>
+                    <td>@characterDto.ImageUrl</td>
+                    <td>@characterDto.Title</td>
+                    <td>@(Model.GameGetResponse.GameFlowDto.ActiveCharacterIds.Contains(characterDto.CharacterId) ? "فعال" : "حذف شده")</td>
+                  </tr>
             }
+          }
           </tbody>
         </table>
       </div>
@@ -145,25 +147,25 @@
         <h2>سوال ها</h2>
         <table class="table">
           <thead>
-            <tr>
-              <td>کد سوال</td>
-              <td>نوبت</td>
-              <td>متن سوال</td>
-              <td>پاسخ شاهد</td>
-            </tr>
+          <tr>
+            <td>کد سوال</td>
+            <td>نوبت</td>
+            <td>متن سوال</td>
+            <td>پاسخ شاهد</td>
+          </tr>
           </thead>
           <tbody>
-            @{
-              foreach (var dto in Model.GameGetResponse.GameBaseDto.QuestionGameDtos)
-              {
-                <tr>
-                  <td>@dto.QuestionId</td>
-                  <td>@dto.Turn</td>
-                  <td>@dto.QuestionContent</td>
-                  <td>@(dto.WithnessAnswer.HasValue ? (dto.WithnessAnswer.Value ? "بله" : "خیر") : "پاسخی ثبت نشده")</td>
-                </tr>
-              }
+          @{
+            foreach (var dto in Model.GameGetResponse.GameBaseDto.QuestionGameDtos)
+            {
+                  <tr>
+                    <td>@dto.QuestionId</td>
+                    <td>@dto.Turn</td>
+                    <td>@dto.QuestionContent</td>
+                    <td>@(dto.WithnessAnswer.HasValue ? (dto.WithnessAnswer.Value ? "بله" : "خیر") : "پاسخی ثبت نشده")</td>
+                  </tr>
             }
+          }
           </tbody>
         </table>
       </div>
@@ -173,25 +175,25 @@
         <h2>کاربرها</h2>
         <table class="table">
           <thead>
-            <tr>
-              <td>ترتیب</td>
-              <td>نقش</td>
-              <td>نام کاربری</td>
-              <td>نام مستعار</td>
-            </tr>
+          <tr>
+            <td>ترتیب</td>
+            <td>نقش</td>
+            <td>نام کاربری</td>
+            <td>نام مستعار</td>
+          </tr>
           </thead>
           <tbody>
-            @{
-              foreach (var dto in Model.GameGetResponse.GameBaseDto.GameParticipantDto)
-              {
-                <tr>
-                  <td>@dto.OrderOfParticipation</td>
-                  <td>@dto.GameRole</td>
-                  <td>@dto.UserDto.Username</td>
-                  <td>@dto.UserDto.NickName</td>
-                </tr>
-              }
+          @{
+            foreach (var dto in Model.GameGetResponse.GameBaseDto.GameParticipantDto)
+            {
+                  <tr>
+                    <td>@dto.OrderOfParticipation</td>
+                    <td>@dto.GameRole</td>
+                    <td>@dto.UserDto.Username</td>
+                    <td>@dto.UserDto.NickName</td>
+                  </tr>
             }
+          }
           </tbody>
         </table>
       </div>
@@ -199,3 +201,34 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  $("#start-game-btn").click(StartGameButton);
+  function StartGameButton(){
+    ChangeGameStatus(@Model.GameGetResponse.GameBaseDto.Id , @((int)UnusualSuspect.ApiViewModels.Enums.BaseData.GameStatusEnum.WaitingForWitnessToAnswer) );
+  }
+  function ChangeGameStatus(gameId, statusId) {
+    var formData = new FormData();
+    formData.append('GameId', gameId);
+    formData.append('GameStatus', statusId);
+    $.ajax({
+      url: "/Game/ChangeGameStatus",
+      type: "post",
+      contentType: 'application/json',
+      data: formData,
+      success: function (result) {
+        if (result.IsSuccess) {
+          toastr.success('عملیات با موفقیت انجام شد', '', { positionClass: "toast-bottom-left" });
+        }
+        else{
+          toastr.error(result.Message, '', { positionClass: "toast-bottom-left" });
+        }
+      },
+      cache: false,
+      contentType: false,
+      processData: false,
+      error: function (xhr, status, error) {
+        console.error('Error:', xhr.responseText);
+      }
+    });
+  }
+</script>

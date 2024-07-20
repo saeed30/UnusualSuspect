@@ -154,12 +154,7 @@
     formData.append('QuestionId', questionId);
     formData.append('CharacterCardId', characterCardId);
     formData.append('DefaultAnswer', answer);
-    var dataToSend = {
-      QuestionId: parseInt(questionId),
-      CharacterCardId: parseInt(characterCardId),
-      DefaultAnswer: answer
-    };
-    jQuery.ajaxSettings.traditional = true;
+    // jQuery.ajaxSettings.traditional = true;
     $.ajax({
       url: "/Question/SetQuestionDefaultAnswer",
       type: "post",

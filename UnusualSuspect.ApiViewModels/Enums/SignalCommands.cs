@@ -32,5 +32,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     UserWasRemovedFromPreGameGroup = 13,
 		[Display(Name = "کاربر استیکر ارسال کرد")]
     SendSticker = 14,
+		[Display(Name = "وضعیت فعال بودن کاربر در گروه قبل بازی تغییر کرد")]
+    UserActiveStatusChangedInPregameGroup = 15,
   }
 }
