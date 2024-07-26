@@ -11,18 +11,12 @@ using System.Text;
 
 namespace UnusualSuspect.Services.Identity;
 
-public class JwtService : IJwtService
+public class JwtService(IOptionsSnapshot<ProjectSetting> settings, SignInManager<ApplicationUser> signInManager)
+  : IJwtService
 {
-	private readonly ProjectSetting _siteSetting;
-	private readonly SignInManager<ApplicationUser> signInManager;
+	private readonly ProjectSetting _siteSetting = settings.Value;
 
-	public JwtService(IOptionsSnapshot<ProjectSetting> settings, SignInManager<ApplicationUser> signInManager)
-	{
-		_siteSetting = settings.Value;
-		this.signInManager = signInManager;
-	}
-
-	public async Task<AccessToken> GenerateAsync(ApplicationUser user)
+  public async Task<AccessToken> GenerateAsync(ApplicationUser user)
 	{
 		var secretKey = Encoding.UTF8.GetBytes(_siteSetting.JwtSettings.SecretKey);
 		var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature);

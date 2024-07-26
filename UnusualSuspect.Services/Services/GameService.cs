@@ -138,7 +138,7 @@ public sealed class GameService(IUnitOfWork uow,
       return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
     if (finalGameStatus.HasValue)
     {
-      gameRepository.SetGameStatus(game, finalGameStatus.Value);
+      SetGameStatus(game, finalGameStatus.Value);
       if (finalGameStatus.Value == GameStatusEnum.FinishedAndLostTheGame ||
           finalGameStatus.Value == GameStatusEnum.FinishedAndWonTheGame)
       {
@@ -203,7 +203,7 @@ public sealed class GameService(IUnitOfWork uow,
         }
         else
         {
-          await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer, cancellationToken);
+          await SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer, cancellationToken);
           timerManagementService.OnGameTimerStart(gameId, GameTimerEnum.AutoAnswerQuestion);
         }
         result = new UnusualSuspectServiceResult<bool?>((bool?)null);
@@ -262,7 +262,7 @@ public sealed class GameService(IUnitOfWork uow,
     if (await SetAnswerIfNoWitnessInGame(gameId))
       return await GoToTalkingStatus(game);
     timerManagementService.OnGameTimerStart(gameId, GameTimerEnum.AutoAnswerQuestion);
-    return await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer);
+    return (await SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer)).Result;
   }
 
   public async Task<bool> GoToTalkingStatus(int gameId)
@@ -277,7 +277,7 @@ public sealed class GameService(IUnitOfWork uow,
     var result = await StartTurnOfPlayAsync(game.Id);
     if (!result.Success)
       return false;
-    gameRepository.SetGameStatus(game, GameStatusEnum.Talking);
+    SetGameStatus(game, GameStatusEnum.Talking);
     game.CurrentUserTurnStartedTime = DateTime.Parse(result.Result.TalkingTurnStartedTimeString);
     game.TalkingTurnStartedTime = DateTime.Parse(result.Result.TalkingTurnStartedTimeString);
     game.OrderOfParticipationTalkBeginner = result.Result.OrderOfParticipationTalkBeginner;
@@ -416,7 +416,7 @@ public sealed class GameService(IUnitOfWork uow,
     if (next.OrderOfParticipation == model.OrderOfParticipationTalkBeginner)
     {
       await notificationService.SendSignalToGameGroup(gameId, SignalCommands.EndOfTalking, gameId);
-      await gameRepository.SetGameStatusAsync(gameId, GameStatusEnum.WaitingForMainDetectiveToChoose, cancellationToken);
+      await SetGameStatusAsync(gameId, GameStatusEnum.WaitingForMainDetectiveToChoose, cancellationToken);
       await gameRepository.SaveChangesAsync(cancellationToken);
       memoryCacheService.ClearGameWithDetails(gameId);
       timerManagementService.OnGameTimerStart(gameId, GameTimerEnum.AutoChooseCard);
@@ -497,6 +497,63 @@ public sealed class GameService(IUnitOfWork uow,
       CharacterCardId = characterCardId
     });
     return new UnusualSuspectServiceResult<bool>(true);
+  }
+
+  public async Task<UnusualSuspectServiceResult<bool>> SetGameStatusAsync(int gameId, GameStatusEnum gameStatus,
+    CancellationToken cancellationToken = default)
+  {
+    var game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
+    if (game == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    return SetGameStatus(game, gameStatus);
+  }
+  public UnusualSuspectServiceResult<bool> SetGameStatus(Game game, GameStatusEnum gameStatus)
+  {
+    game.GameStatusId = (short)gameStatus;
+    if (game.GameStatusId != (short)GameStatusEnum.Talking)
+    {
+      game.OrderOfParticipationTurnToTalk = null;
+      game.OrderOfParticipationTalkBeginner = null;
+      game.TalkingTurnStartedTime = null;
+      game.CurrentUserTurnStartedTime = null;
+    }
+    switch (gameStatus)
+    {
+      case GameStatusEnum.WaitingForWitnessToAnswer:
+        game.WitnessLastAnswer = null;
+        game.CurrentUserTurnStartedTime = DateTime.Now;
+        break;
+      case GameStatusEnum.WaitingForMainDetectiveToChoose:
+        game.CurrentUserTurnStartedTime = DateTime.Now;
+        break;
+    }
+    return new UnusualSuspectServiceResult<bool>(true);
+  }
+
+  public async Task<UnusualSuspectServiceResult<bool>> ManualSetGameStatusAsync(int gameId, GameStatusEnum gameStatus, CancellationToken cancellationToken = default)
+  {
+    var game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
+    if (game == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    switch (gameStatus)
+    {
+      case GameStatusEnum.WaitingForPlayers:
+      case GameStatusEnum.Talking:
+      case GameStatusEnum.WaitingForMainDetectiveToChoose:
+      case GameStatusEnum.FinishedAndWonTheGame:
+      case GameStatusEnum.FinishedAndLostTheGame:
+        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.ManualSettingToThisStatusNotAvailable));
+      case GameStatusEnum.WaitingForWitnessToAnswer:
+        if (game.GameStatusId == (int)GameStatusEnum.WaitingForPlayers)
+        {
+          SetGameStatus(game, GameStatusEnum.WaitingForWitnessToAnswer);
+        }
+        else
+          return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.ManualSettingFromThisStatusToThisStatusNotAvailable));
+        break;
+      default:
+        throw new ArgumentOutOfRangeException(nameof(gameStatus), gameStatus, null);
+    }
   }
 
   private short GetStarterOrderOfParticipation(ICollection<Participate> gameParticipates)

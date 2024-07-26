@@ -12,7 +12,9 @@ using UnusualSuspect.ViewModels.Question;
 
 namespace UnusualSuspect.Admin.Controllers;
 
-public class GameController(ILogger<GameController> logger, IGameService gameService) : BaseController<GameController>(logger)
+public class GameController(ILogger<GameController> logger,
+  IGameService gameService,
+  IApiCallService apiCallService) : BaseController<GameController>(logger)
 {
   [PersianTitle("لیست بازی ها")]
   [ServiceFilter(typeof(UserFilters))]
@@ -32,7 +34,7 @@ public class GameController(ILogger<GameController> logger, IGameService gameSer
   public async Task<IActionResult> Details(int id, CancellationToken cancellationToken = default)
   {
     var game = await gameService.GetDetailByIdAsync(id, cancellationToken);
-    if(!game.Success)
+    if (!game.Success)
       return NotFound();
     return View(game.Result);
   }
@@ -42,8 +44,10 @@ public class GameController(ILogger<GameController> logger, IGameService gameSer
   public async Task<IActionResult> ChangeGameStatus(ChangeGameStateRequest model,
     CancellationToken cancellationToken = default)
   {
-    
-    return Json(new ApiResultCommon(false, ApiResultStatusCode.LogicError," result.MainError.GetDisplay()"));
+    var result = await apiCallService.ChangeGameStateAsync(model, User.Identity.Name);
+    if (result.Success)
+      return Json(new ApiResultCommon(true, ApiResultStatusCode.Success));
+    return Json(new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.GetDisplay()));
   }
 
 }

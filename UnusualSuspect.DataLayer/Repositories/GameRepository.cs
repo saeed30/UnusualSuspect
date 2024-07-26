@@ -64,37 +64,6 @@ public sealed class GameRepository(
     }
   }
 
-  public async Task<bool> SetGameStatusAsync(int id, GameStatusEnum gameStatus,
-    CancellationToken cancellationToken = default)
-  {
-    var game = await GetByIdAsync(id, cancellationToken);
-    if (game == null)
-      return false;
-    return SetGameStatus(game, gameStatus);
-  }
-  public bool SetGameStatus(Game game, GameStatusEnum gameStatus)
-  {
-    game.GameStatusId = (short)gameStatus;
-    if (game.GameStatusId != (short)GameStatusEnum.Talking)
-    {
-      game.OrderOfParticipationTurnToTalk = null;
-      game.OrderOfParticipationTalkBeginner = null;
-      game.TalkingTurnStartedTime = null;
-      game.CurrentUserTurnStartedTime = null;
-    }
-    switch (gameStatus)
-    {
-      case GameStatusEnum.WaitingForWitnessToAnswer:
-        game.WitnessLastAnswer = null;
-        game.CurrentUserTurnStartedTime = DateTime.Now;
-        break;
-      case GameStatusEnum.WaitingForMainDetectiveToChoose:
-        game.CurrentUserTurnStartedTime = DateTime.Now;
-        break;
-    }
-    return true;
-  }
-
   public IQueryable<Game> GetAllActiveGamesWithGameType()
   {
     return BaseEntity

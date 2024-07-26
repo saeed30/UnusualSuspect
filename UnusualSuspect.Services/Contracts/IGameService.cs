@@ -1,4 +1,5 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.ViewModels.Game;
@@ -27,5 +28,7 @@ public interface IGameService
   Task<UnusualSuspectServiceResult<bool>> UserTurnFinishedAsync(int userId, int gameId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<TurnOfPlayGetResponse>> GetTurnOfPlayGetAsync(int userId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> ChangedCandidateCard(int userId, short? characterCardId, int gameId);
-
+  Task<UnusualSuspectServiceResult<bool>> SetGameStatusAsync(int gameId, GameStatusEnum gameStatus, CancellationToken cancellationToken = default);
+  UnusualSuspectServiceResult<bool> SetGameStatus(Game game, GameStatusEnum gameStatus);
+  Task<UnusualSuspectServiceResult<bool>> ManualSetGameStatusAsync(int gameId, GameStatusEnum gameStatus, CancellationToken cancellationToken = default);
 }

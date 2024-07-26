@@ -25,12 +25,12 @@ public static class MyBaseEndpointAuthenticated
         return new ApiResultCommon<T>(true, ApiResultStatusCode.Success, result.Result);
       }
 		}
-    public abstract class WithoutResult : EndpointBaseAsync
-			.WithRequest<TRequest>
-			.WithoutResult
-		{
-			public CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
-		}
+  //  public abstract class WithoutResult : EndpointBaseAsync
+		//	.WithRequest<TRequest>
+		//	.WithoutResult
+		//{
+		//	public CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
+		//}
 
 		public abstract class WithActionResult<TResponse> : EndpointBaseAsync
 			.WithRequest<TRequest>
@@ -76,12 +76,12 @@ public static class MyBaseEndpointAuthenticated
       }
 		}
 
-    public abstract class WithoutResult : EndpointBaseAsync
-			.WithoutRequest
-			.WithoutResult
-		{
-			public CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
-		}
+  //  public abstract class WithoutResult : EndpointBaseAsync
+		//	.WithoutRequest
+		//	.WithoutResult
+		//{
+		//	public CurrentUserViewModel CurrentUser => new CurrentUserViewModel(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier).ToInt(), User.Identity.Name);
+		//}
 
 		public abstract class WithActionResult<TResponse> : EndpointBaseAsync
 			.WithoutRequest

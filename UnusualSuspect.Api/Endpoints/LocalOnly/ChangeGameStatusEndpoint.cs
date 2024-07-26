@@ -1,25 +1,27 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Castle.Core.Logging;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Endpoints.LocalOnly;
-using UnusualSuspect.Common.Attribute;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
+using UnusualSuspect.Services;
+using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.LocalOnly;
 
-public class ChangeGameStatusEndpoint(ILogger<ChangeGameStatusEndpoint> logger) : MyBaseEndpointAuthenticated
+public class ChangeGameStatusEndpoint(ILogger<ChangeGameStatusEndpoint> logger,
+  IGameService gameService) : MyBaseEndpointLocal
   .WithRequest<ChangeGameStateRequest>
   .WithActionResult<ApiResultCommon>
 {
-  [AllowAnonymous]
-  [LocalRequestOnly]
-  [ApiExplorerSettings(IgnoreApi = true)]
   [HttpPost("api/[namespace]/ChangeGameState")]
-  public override async Task<ActionResult<ApiResultCommon>> HandleAsync(ChangeGameStateRequest request, CancellationToken cancellationToken = default)
+  public override async Task<ActionResult<ApiResultCommon>> HandleAsync([FromBody] ChangeGameStateRequest request, CancellationToken cancellationToken = default)
   {
-    throw new System.NotImplementedException();
+    UnusualSuspectServiceResult<bool>  result = await gameService.ManualSetGameStatusAsync(request.GameId, request.GameStatus);
+    if(!result.Success)
+      return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.GetDisplay());
+    await gameService.SaveChangesAsync(cancellationToken);
+    return new ApiResultCommon(true, ApiResultStatusCode.Success);
   }
 }

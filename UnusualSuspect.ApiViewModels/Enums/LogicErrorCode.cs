@@ -134,5 +134,11 @@ namespace UnusualSuspect.ApiViewModels.Enums
     AdminUserNotFound = 63,
     [Display(Name = "اختلاف بازه زمانی درخواست ارسال پیام کاربر کمتر از حد مجاز است")]
     MessageSendIntervalIsLowerThanAcceptedLimit = 64,
+    [Display(Name = "خروجی درخواست وب سرویس نامعتبر است")]
+    InvalidApiResponse = 65,
+    [Display(Name = "تغییر وضعیت دستی به این وضعیت در دسترس نیست")]
+    ManualSettingToThisStatusNotAvailable = 66,
+    [Display(Name = "تغییر وضعیت دستی به این وضعیت در دسترس نیست")]
+    ManualSettingFromThisStatusToThisStatusNotAvailable = 67,
   }
 }
