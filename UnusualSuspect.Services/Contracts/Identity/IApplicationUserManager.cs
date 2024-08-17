@@ -14,6 +14,7 @@ public interface IApplicationUserManager
     Task<IdentityResult> CreateAsync(ApplicationUser user, string password);
     Task<IdentityResult> DeleteAsync(ApplicationUser user);
     Task<ApplicationUser?> FindByIdAsync(string id);
+    ApplicationUser? FindById(int id);
     Task<ApplicationUser?> FindByNameAsync(string name);
     Task<UserProfileViewModel> GetProfileAsync(int userId);
     Task SetFireBaseToken(ApplicationUser user, string token, CancellationToken cancellationToken);

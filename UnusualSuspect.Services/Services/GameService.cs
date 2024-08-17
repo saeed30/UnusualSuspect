@@ -251,18 +251,21 @@ public sealed class GameService(IUnitOfWork uow,
     return gameRepository.GetAllActiveGamesWithGameType();
   }
 
-  public async Task<bool> StartGameIfAllUsersOnline(int gameId, List<int> userIds)
+  public async Task<UnusualSuspectServiceResult<bool>> StartGameIfAllUsersOnline(int gameId, List<int> userIds)
   {
     Game? game = await gameRepository.GetByIdAsync(gameId);
-    if (game == null || game.GameStatusId != (short)GameStatusEnum.WaitingForPlayers)
-      return false;
+    if (game == null)
+      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+    if (game.GameStatusId != (short)GameStatusEnum.WaitingForPlayers)
+      return new UnusualSuspectServiceResult<bool>(false);
     bool hasOfflineUser = await participateRepository.IsGameHasOtherActiveParticipantsAsync(gameId, userIds);
     if (hasOfflineUser)
-      return false;
+      return new UnusualSuspectServiceResult<bool>(false);
     if (await SetAnswerIfNoWitnessInGame(gameId))
-      return await GoToTalkingStatus(game);
+      return new UnusualSuspectServiceResult<bool>(await GoToTalkingStatus(game));
+    await notificationService.SendSignalToGameGroup(gameId, SignalCommands.WaitingWitnessToAnswer);
     timerManagementService.OnGameTimerStart(gameId, GameTimerEnum.AutoAnswerQuestion);
-    return (await SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer)).Result;
+    return await SetGameStatusAsync(gameId, GameStatusEnum.WaitingForWitnessToAnswer);
   }
 
   public async Task<bool> GoToTalkingStatus(int gameId)
@@ -546,7 +549,12 @@ public sealed class GameService(IUnitOfWork uow,
       case GameStatusEnum.WaitingForWitnessToAnswer:
         if (game.GameStatusId == (int)GameStatusEnum.WaitingForPlayers)
         {
+          if (await SetAnswerIfNoWitnessInGame(gameId, cancellationToken))
+            return new UnusualSuspectServiceResult<bool>(await GoToTalkingStatus(game));
+          await notificationService.SendSignalToGameGroup(gameId, SignalCommands.WaitingWitnessToAnswer);
+          timerManagementService.OnGameTimerStart(gameId, GameTimerEnum.AutoAnswerQuestion);
           SetGameStatus(game, GameStatusEnum.WaitingForWitnessToAnswer);
+          memoryCacheService.ClearGameWithDetails(gameId);
         }
         else
           return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.ManualSettingFromThisStatusToThisStatusNotAvailable));
@@ -554,6 +562,7 @@ public sealed class GameService(IUnitOfWork uow,
       default:
         throw new ArgumentOutOfRangeException(nameof(gameStatus), gameStatus, null);
     }
+    return new UnusualSuspectServiceResult<bool>(true);
   }
 
   private short GetStarterOrderOfParticipation(ICollection<Participate> gameParticipates)

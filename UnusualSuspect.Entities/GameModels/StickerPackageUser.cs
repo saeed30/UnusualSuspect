@@ -4,7 +4,7 @@ using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.Entities.GameModels;
 
-public class StickerPackageUser : GuidBaseEntity, IEntity<int>
+public class StickerPackageUser : GuidBaseEntity
 {
   public DateTime TimeAdded { get; set; }
   public int UserId { get; set; }

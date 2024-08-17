@@ -4,7 +4,7 @@ using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.Entities.GameModels;
 
-public class CoinPackageUser : GuidBaseEntity, IEntity<int>
+public class CoinPackageUser : GuidBaseEntity
 {
   public int Amount { get; set; }
   public DateTime TimeAdded { get; set; }

@@ -34,5 +34,9 @@ namespace UnusualSuspect.ApiViewModels.Enums
     SendSticker = 14,
 		[Display(Name = "وضعیت فعال بودن کاربر در گروه قبل بازی تغییر کرد")]
     UserActiveStatusChangedInPregameGroup = 15,
+		[Display(Name = "تغییر وضعیت به منتظر پاسخ شاهد")]
+    WaitingWitnessToAnswer = 16,
+		[Display(Name = "گروه قبل از بازی حذف شد")]
+    PregameGroupWasRemoved = 17,
   }
 }

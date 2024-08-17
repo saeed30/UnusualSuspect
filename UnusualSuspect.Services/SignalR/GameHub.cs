@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Serilog.Events;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Enums;
@@ -210,8 +209,8 @@ public sealed class GameHub(IGameService gameService,
         await notificationService.AddToGroupAsync(userId, Context.ConnectionId, groupName);
         List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, userIds);
-        bool done = await gameService.StartGameIfAllUsersOnline(participate.GameId, userIds);
-        if (done)
+        UnusualSuspectServiceResult<bool> done = await gameService.StartGameIfAllUsersOnline(participate.GameId, userIds);
+        if (done.Success && done.Result)
         {
           await gameService.SaveChangesAsync();
           memoryCacheService.ClearGameWithDetails(participate.GameId);
@@ -224,9 +223,13 @@ public sealed class GameHub(IGameService gameService,
         timerManagementService.OnUserTimerStart(userId, UserTimerEnum.OutOfGameTimeout);
       }
     }
-    else if (!isConnected)
+    else
     {
-      await notificationService.RemoveFromAllGroupsAsync(userId);
+      //send signal for pregame groups
+      if (!isConnected)
+      {
+        await notificationService.RemoveFromAllGroupsAsync(userId);
+      }
     }
   }
   #endregion Events

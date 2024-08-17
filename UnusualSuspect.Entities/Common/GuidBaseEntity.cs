@@ -2,14 +2,12 @@
 
 namespace UnusualSuspect.Entities.Common
 {
-  public class GuidBaseEntity<T>
+  public abstract class GuidBaseEntity<T>: BaseEntity<T>
   {
-    public T Id { get; set; }
     public Guid Guid { get; set; }
   }
 
-  [NotMapped]
-  public class GuidBaseEntity : GuidBaseEntity<int>
+  public abstract class GuidBaseEntity : GuidBaseEntity<int>
   {
   }
 }

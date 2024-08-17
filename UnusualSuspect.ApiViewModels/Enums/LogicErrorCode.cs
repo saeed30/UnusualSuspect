@@ -116,10 +116,8 @@ namespace UnusualSuspect.ApiViewModels.Enums
     InvalidCoinPackageId = 54,
     [Display(Name = "تنها برای خرید الماس از خرید نقدی استفاده می شود")]
     MoneyOnlyUsedForGem = 55,
-    [Display(Name = "امکان پرداخت از طریق آواتار وجود ندارد")]
-    CanNotUseAvatarForPayment = 56,
-    [Display(Name = "امکان پرداخت از طریق استیکر وجود ندارد")]
-    CanNotUseStickerForPayment = 57,
+    [Display(Name = "امکان پرداخت از طریق واحد انتخابی وجود ندارد")]
+    CanNotUseThisPriceTypeForPayment = 56,
     [Display(Name = "برای استفاده از این استیکر ابتدا باید آن را بخرید")]
     StickerIsNotFreeAndNeedToBeBought = 58,
     [Display(Name = "بسته سکه غیر فعال است")]

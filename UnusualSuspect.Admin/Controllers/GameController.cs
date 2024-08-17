@@ -46,7 +46,7 @@ public class GameController(ILogger<GameController> logger,
   {
     var result = await apiCallService.ChangeGameStateAsync(model, User.Identity.Name);
     if (result.Success)
-      return Json(new ApiResultCommon(true, ApiResultStatusCode.Success));
+      return Json(result.Result);
     return Json(new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.GetDisplay()));
   }
 

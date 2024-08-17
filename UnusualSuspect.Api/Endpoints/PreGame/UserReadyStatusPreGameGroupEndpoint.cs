@@ -20,7 +20,7 @@ public sealed class UserReadyStatusPreGameGroupEndpoint(IPreGameService preGameS
 		if (!Enum.IsDefined(typeof(ReadyToGameStatusEnum), (int)request.ReadyToGameStatusId))
 			return new ApiResultCommon(false, ApiResultStatusCode.LogicError, ((int)LogicErrorCode.InvalidReadyToGameStatusId).ToString());
 		ReadyToGameStatusEnum statusEnum = (ReadyToGameStatusEnum)request.ReadyToGameStatusId;
-		var result = await preGameService.ChangeUserReadyStatus(CurrentUser.UserId, request.PreGameGroupId, statusEnum, cancellationToken);
+		var result = await preGameService.ChangeUserReadyStatusAsync(CurrentUser.UserId, request.PreGameGroupId, statusEnum, cancellationToken);
 		if (!result.Success)
 			return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
 		await preGameService.SaveChangesAsync(cancellationToken);

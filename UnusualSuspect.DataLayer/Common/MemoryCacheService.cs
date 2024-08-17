@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.Entities.Models;
 
 namespace UnusualSuspect.DataLayer.Common;
 
@@ -101,34 +102,6 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
 
   #endregion UserSignalRGroups
 
-  //#region TurnOfPlay
-  //public async Task<TurnOfPlayGetResponse?> GetTurnOfPlay(int gameId)
-  //{
-  //  var groups = await cache.GetOrCreateAsync(GetTurnOfPlayKey(gameId), entry =>
-  //  {
-  //    // Set the cache options for the entry
-  //    entry.SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes);
-  //    entry.Priority = CacheItemPriority.High;
-  //    entry.Size = 1;
-
-  //    return Task.FromResult((TurnOfPlayGetResponse?)null);
-  //  });
-  //  return groups;
-  //}
-  //public void SetTurnOfPlay(int gameId, TurnOfPlayGetResponse model)
-  //{
-  //  cache.Set(GetTurnOfPlayKey(gameId), model, new MemoryCacheEntryOptions()
-  //  {
-  //    Priority = CacheItemPriority.High,
-  //    SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes),
-  //    Size = 1
-  //  });
-  //}
-  //private string GetTurnOfPlayKey(int gameId)
-  //{
-  //  return gameId + "TurnOfPlay";
-  //}
-  //#endregion TurnOfPlay
   public async Task ResetTurnOfPlay(int gameId, TurnOfPlayTalkingState model, DateTime currentUserTurnStartedTime, CancellationToken cancellationToken = default)
   {
     Game? game = await GetGameWithDetails(gameId, cancellationToken);
@@ -189,4 +162,51 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
     return gameId + "GameWithDetails";
   }
   #endregion GameWithDetails
+
+  #region SoftSetting
+
+  private readonly string softSettingKey = "SoftSettingKey";
+  public void SetGameWithDetails(SoftSetting model)
+  {
+    cache.Set(softSettingKey, model, new MemoryCacheEntryOptions()
+    {
+      Priority = CacheItemPriority.High,
+      SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes),
+      Size = 1
+    });
+  }
+
+  public SoftSetting? GetSoftSetting()
+  {
+    SoftSetting? setting = cache.GetOrCreate(softSettingKey, entry =>
+    {
+      // Set the cache options for the entry
+      entry.SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes);
+      entry.Priority = CacheItemPriority.High;
+      entry.Size = 1;
+
+      return (SoftSetting?)null;
+    });
+    return setting;
+  }
+  public async Task<SoftSetting?> GetSoftSettingAsync(CancellationToken cancellationToken = default)
+  {
+    var setting = await cache.GetOrCreateAsync(softSettingKey, entry =>
+    {
+      // Set the cache options for the entry
+      entry.SlidingExpiration = TimeSpan.FromMinutes(CacheTimeInMinutes);
+      entry.Priority = CacheItemPriority.High;
+      entry.Size = 1;
+
+      return Task.FromResult((SoftSetting?)null);
+    });
+    return setting;
+  }
+  public void ClearSoftSetting()
+  {
+    cache.Remove(softSettingKey);
+  }
+
+
+  #endregion SoftSetting
 }

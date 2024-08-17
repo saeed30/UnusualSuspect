@@ -10,20 +10,18 @@ public class Game : BaseEntity
 	public DateTime CreateTime { get; set; }
 	public DateTime? FinishedTime { get; set; }
 	public short GameTypeId { get; set; }
-  [ForeignKey("GameTypeId")]
-	public virtual GameType GameType { get; set; }
-
   [DefaultValue((short)GameStatusEnum.WaitingForPlayers)]
   public short GameStatusId { get; set; }
-  [ForeignKey("GameStatusId")]
-  public virtual GameStatus GameStatus { get; set; }
-
   public short? OrderOfParticipationTalkBeginner { get; set; }
   public short? OrderOfParticipationTurnToTalk { get; set; }
   public DateTime? TalkingTurnStartedTime { get; set; }
   public DateTime? CurrentUserTurnStartedTime { get; set; }
   public bool? WitnessLastAnswer { get; set; }
 
+  [ForeignKey("GameTypeId")]
+	public virtual GameType GameType { get; set; }
+  [ForeignKey("GameStatusId")]
+  public virtual GameStatus GameStatus { get; set; }
   public virtual ICollection<CharacterCardGame> CharacterCardGames { get; set; }
 	public virtual ICollection<Participate> Participates { get; set; }
 	public virtual ICollection<QuestionGame> QuestionGames { get; set; }

@@ -38,6 +38,18 @@ public sealed class PreGameGroupRepository
       .FirstOrDefaultAsync(x => x.Id == preGameGroupId, cancellationToken);
   }
 
+  public async Task<PreGameGroup?> GetFirstExpiredPregameGroupWithDetailsAsync(int expireMinutes, CancellationToken cancellationToken)
+  {
+    if (expireMinutes < 0)
+      return null;
+    DateTime expireTime = DateTime.Now.AddMinutes(-expireMinutes);
+    return await BaseEntity.Include(x => x.JoinedPreGames)
+      .FirstOrDefaultAsync(x =>
+        !x.GameId.HasValue && x.PreGameGroupStatusId != (int)PreGameGroupStatusEnum.Ready &&
+        !x.ReadyToGameTime.HasValue && x.CreatedTime < expireTime,
+      cancellationToken);
+  }
+
   public async Task<List<PreGameGroup>> GetTopPreGameGroupByReadyTimeAsync(GameType gameType, int count, CancellationToken cancellationToken = default)
   {
     return await BaseEntity

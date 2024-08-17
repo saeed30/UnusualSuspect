@@ -41,12 +41,13 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
         if (result)
           user.CalculatedCoins -= package.Price;
         break;
+      case PriceTypeEnum.Game:
+      case PriceTypeEnum.PreGame:
       case PriceTypeEnum.Avatar:
-        logger.LogEvent(SystemEventType.PayPackageWithAvatarShouldNotBeChecked, user.Id, package.Id.ToString(), logLevel: LogLevel.Critical);
-        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseAvatarForPayment));
       case PriceTypeEnum.Sticker:
-        logger.LogEvent(SystemEventType.PayPackageWithStickerShouldNotBeChecked, user.Id, package.Id.ToString(), logLevel: LogLevel.Critical);
-        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseStickerForPayment));
+        logger.LogEvent(SystemEventType.PayPackageIsNotValidForPayIfHasEnough, user.Id,
+          $"packageId ({package.Id}) - priceType ({package.PriceTypeId.Value})", logLevel: LogLevel.Critical);
+        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseThisPriceTypeForPayment));
       default:
         throw new ArgumentOutOfRangeException();
     }
@@ -94,12 +95,13 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
           ReferenceGuid = referenceGuid
         });
         break;
+      case PriceTypeEnum.Game:
+      case PriceTypeEnum.PreGame:
       case PriceTypeEnum.Avatar:
-        logger.LogEvent(SystemEventType.PayPackageWithAvatarIsNotValid, userId, package.Id.ToString(), logLevel: LogLevel.Critical);
-        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseAvatarForPayment));
       case PriceTypeEnum.Sticker:
-        logger.LogEvent(SystemEventType.PayPackageWithStickerIsNotValid, userId, package.Id.ToString(), logLevel: LogLevel.Critical);
-        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseStickerForPayment));
+        logger.LogEvent(SystemEventType.PayPackageIsNotValidForSavePayment, userId,
+          $"packageId ({package.Id}) - priceType ({package.PriceTypeId.Value})", logLevel: LogLevel.Critical);
+        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseThisPriceTypeForPayment));
       default:
         throw new ArgumentOutOfRangeException();
     }

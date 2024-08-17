@@ -4,7 +4,7 @@ using UnusualSuspect.Entities.Identity;
 
 namespace UnusualSuspect.Entities.GameModels;
 
-public class AvatarPackageUser : GuidBaseEntity, IEntity<int>
+public class AvatarPackageUser : GuidBaseEntity
 {
   public DateTime TimeAdded { get; set; }
   public int UserId { get; set; }

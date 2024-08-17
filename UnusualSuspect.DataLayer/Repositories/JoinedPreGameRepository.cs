@@ -23,10 +23,6 @@ public sealed class JoinedPreGameRepository
 		  preGame.ReadyToGameStatusId = (short)ReadyToGameStatusEnum.Notified;
   }
 
-  public async Task<int> ExecuteDeleteAllJoinedPreGameGroupAsync(int preGameGroupId, CancellationToken cancellationToken = default)
-	{
-		return await BaseEntity.Where(x => x.PreGameGroupId == preGameGroupId).ExecuteDeleteAsync(cancellationToken);
-	}
 	public async Task ExecuteDeleteUserJoinedPreGameGroupAsync(int userId, CancellationToken cancellationToken = default)
 	{
 		await BaseEntity.Where(x => x.UserId == userId).ExecuteDeleteAsync(cancellationToken);

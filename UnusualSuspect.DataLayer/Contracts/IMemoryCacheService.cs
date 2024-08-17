@@ -1,5 +1,6 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.Entities.Models;
 
 namespace UnusualSuspect.DataLayer.Contracts;
 
@@ -18,4 +19,8 @@ public interface IMemoryCacheService
   void ClearGameWithDetails(int gameId);
   Task<List<int>> GetSignalRGroupOnlineUsers(string groupName);
   void SetSignalRGroupOnlineUsers(string groupName, List<int> userIds);
+  void SetGameWithDetails(SoftSetting model);
+  Task<SoftSetting?> GetSoftSettingAsync(CancellationToken cancellationToken = default);
+  SoftSetting? GetSoftSetting();
+  void ClearSoftSetting();
 }

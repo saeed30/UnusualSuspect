@@ -1,5 +1,4 @@
-﻿using UnusualSuspect.ApiViewModels.Enums.BaseData;
-using UnusualSuspect.Entities.Dtos;
+﻿using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Contracts.Repository;

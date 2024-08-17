@@ -184,13 +184,7 @@ app.MapHangfireDashboard("/hangfire", new DashboardOptions()
   //  }
   //}
 });
-RecurringJob.AddOrUpdate<IDailyJobsService>("ScoreAndRankingJob",
-  job => job.CalculateScoreAndRankingsAsync(CancellationToken.None),
-  Cron.Daily(1),
-  new RecurringJobOptions()
-  {
-    TimeZone = TimeZoneInfo.Local
-  });
+RecurringJobConfig.Config();
 app.UseCors("AllowAll");
 app.MapHub<GameHub>("GameHub", option =>
 {

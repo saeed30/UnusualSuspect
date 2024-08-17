@@ -18,7 +18,7 @@ public class ChangeGameStatusEndpoint(ILogger<ChangeGameStatusEndpoint> logger,
   [HttpPost("api/[namespace]/ChangeGameState")]
   public override async Task<ActionResult<ApiResultCommon>> HandleAsync([FromBody] ChangeGameStateRequest request, CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<bool>  result = await gameService.ManualSetGameStatusAsync(request.GameId, request.GameStatus);
+    UnusualSuspectServiceResult<bool>  result = await gameService.ManualSetGameStatusAsync(request.GameId, request.GameStatus, cancellationToken);
     if(!result.Success)
       return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.GetDisplay());
     await gameService.SaveChangesAsync(cancellationToken);

@@ -4,11 +4,9 @@ namespace UnusualSuspect.Common.Enums;
 
 public enum SystemEventType
 {
-  [Display(Name = "ورود کاربر")]
-  Login = 1,
+  [Display(Name = "ورود کاربر")] Login = 1,
 
-  [Display(Name = "خروج کاربر")]
-  Logout = 2,
+  [Display(Name = "خروج کاربر")] Logout = 2,
 
   [Display(Name = "به دلیل وضعیت آزمایشی خروج خودکار کاربر انجام نشد")]
   LeaveCurrentGameNotDoneWhenTesting = 3,
@@ -121,17 +119,11 @@ public enum SystemEventType
   [Display(Name = "خرید بسته با پول نباید به این شکل بررسی شود")]
   PayPackageWithMoneyShouldNotBeChecked = 39,
 
-  [Display(Name = "خرید بسته با آواتار نباید به این شکل بررسی شود")]
-  PayPackageWithAvatarShouldNotBeChecked = 40,
+  [Display(Name = "خرید بسته با برای این واحد نباید به این شکل بررسی شود")]
+  PayPackageIsNotValidForPayIfHasEnough = 40,
 
-  [Display(Name = "خرید بسته با استیکر نباید به این شکل بررسی شود")]
-  PayPackageWithStickerShouldNotBeChecked = 41,
-
-  [Display(Name = "خرید بسته با آواتار معتبر نیست")]
-  PayPackageWithAvatarIsNotValid = 42,
-
-  [Display(Name = "خرید بسته با استیکر معتبر نیست")]
-  PayPackageWithStickerIsNotValid = 43,
+  [Display(Name = "خرید بسته با این واحد معتبر نیست")]
+  PayPackageIsNotValidForSavePayment = 42,
 
   [Display(Name = "تعداد افراد اضافه شده به گروه قبل از بازی بیش از مقدار قابل قبول نوع بازی")]
   CalculatedJoinedUsersMoreThanTypeNumberOfPlayers = 44,
@@ -196,4 +188,13 @@ public enum SystemEventType
 
   [Display(Name = "ایجاد نقش مشتری با مشکل مواجه شد")]
   SeedCustomerRoleCreateFailed = 65,
+
+  [Display(Name = "در زمان ایجاد بازی پرداخت سکه قبل بازی یافت نشد")]
+  PreGamePaymentNotFoundToWhileChangingToGame,
+
+  [Display(Name = "هزینه شروع بازی ثبت شده با مقدار آن در تنظیمات برای کاربر برابر نیست")]
+  CoinUsedUserAmountNoEqualToCoinCostToEnterPreGame,
+
+  [Display(Name = "گروه قبل بازی به دلیل انقضا حذف شد")]
+  PregameGroupExpiredAndRemoved,
 }

@@ -14,5 +14,9 @@ namespace UnusualSuspect.ApiViewModels.Enums.BaseData
     Avatar = 4,
     [Display(Name = "استیکر")]
     Sticker = 5,
+    [Display(Name = "بازی")]
+    Game = 6,
+    [Display(Name = "گروه قبل ازی")]
+    PreGame = 7,
   }
 }

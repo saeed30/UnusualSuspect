@@ -27,6 +27,17 @@ public class UnusualSuspectServiceResult<TResult> : ServiceResult<TResult, Unusu
 	{
 
 	}
+  public static implicit operator UnusualSuspectServiceResult<TResult>(TResult data) =>
+    new UnusualSuspectServiceResult<TResult>(data);
+
+  public static implicit operator UnusualSuspectServiceResult<TResult>(LogicErrorCode error) =>
+    new UnusualSuspectServiceResult<TResult>(new UnusualSuspectErrorResult(error));
+
+  public static implicit operator UnusualSuspectServiceResult<TResult>(UnusualSuspectErrorResult error) =>
+    new UnusualSuspectServiceResult<TResult>(error);
+
+  public static implicit operator UnusualSuspectServiceResult<TResult>(List<UnusualSuspectErrorResult> error) =>
+    new UnusualSuspectServiceResult<TResult>(error);
 }
 
 public class UnusualSuspectServiceResult<TResult, TError> : ServiceResult<TResult, UnusualSuspectErrorResult<TError>, LogicErrorCode>
