@@ -5,23 +5,25 @@ using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.Common;
+using UnusualSuspect.Entities.Models;
 
 namespace UnusualSuspect.Services.Services;
 
 public sealed class ScoreService(IScoreRepository scoreRepository,
   IApplicationUserManager applicationUserManager,
+  ISoftSettingService softSettingService,
   ICoinPackageUserRepository coinPackageUserRepository) : IScoreService
 {
   public async Task<UnusualSuspectServiceResult<bool>> SetGameFinishedScoresAsync(
     int gameId, bool won, List<Participate> participates, CancellationToken cancellationToken = default)
   {
+    SoftSetting softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
     foreach (Participate participate in participates)
     {
       GameRole gameRole = (GameRole)participate.RoleCardId;
 
-      int scoreChange = GetScoreByWinCondition(gameRole, won);
-      int coinChange = GetCoinByWinCondition(gameRole, won);
+      int scoreChange = GetScoreByWinCondition(gameRole, won, softSetting);
+      int coinChange = GetCoinByWinCondition(gameRole, won, softSetting);
       scoreRepository.Add(new Score()
       {
         Amount = scoreChange,
@@ -65,32 +67,32 @@ public sealed class ScoreService(IScoreRepository scoreRepository,
     }
   }
 
-  private static int GetScoreByWinCondition(GameRole gameRole, bool won)
+  private static int GetScoreByWinCondition(GameRole gameRole, bool won, SoftSetting softSetting)
   {
     switch (gameRole)
     {
       case GameRole.Detective:
       case GameRole.MainDetective:
-        return won ? TempSettingFile.DetectiveWinScore : TempSettingFile.DetectiveLooseScore;
+        return won ? softSetting.DetectiveWinScore : softSetting.DetectiveLooseScore;
       case GameRole.Witness:
-        return won ? TempSettingFile.WitnessWinScore : TempSettingFile.WitnessLooseScore;
+        return won ? softSetting.WitnessWinScore : softSetting.WitnessLooseScore;
       case GameRole.Accomplice:
-        return won ? TempSettingFile.AccompliceLooseScore: TempSettingFile.AccompliceWinScore;
+        return won ? softSetting.AccompliceLooseScore: softSetting.AccompliceWinScore;
       default:
         throw new ArgumentOutOfRangeException(nameof(gameRole), gameRole, null);
     }
   }
-  private static int GetCoinByWinCondition(GameRole gameRole, bool won)
+  private static int GetCoinByWinCondition(GameRole gameRole, bool won, SoftSetting softSetting)
   {
     switch (gameRole)
     {
       case GameRole.Detective:
       case GameRole.MainDetective:
-        return won ? TempSettingFile.DetectiveWinCoin : TempSettingFile.DetectiveLooseCoin;
+        return won ? softSetting.DetectiveWinCoin : softSetting.DetectiveLooseCoin;
       case GameRole.Witness:
-        return won ? TempSettingFile.WitnessWinCoin : TempSettingFile.WitnessLooseCoin;
+        return won ? softSetting.WitnessWinCoin : softSetting.WitnessLooseCoin;
       case GameRole.Accomplice:
-        return won ? TempSettingFile.AccompliceLooseCoin : TempSettingFile.AccompliceWinCoin;
+        return won ? softSetting.AccompliceLooseCoin : softSetting.AccompliceWinCoin;
       default:
         throw new ArgumentOutOfRangeException(nameof(gameRole), gameRole, null);
     }

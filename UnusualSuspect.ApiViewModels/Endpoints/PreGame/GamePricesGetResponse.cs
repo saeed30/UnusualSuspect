@@ -8,6 +8,14 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.PreGame
   {
     [SerializeField]
     private int joinNormalGamePriceInCoin;
+    [SerializeField]
+    private int joinNormalGamePriceInCoinForHost;
+
+    public int JoinNormalGamePriceInCoinForHost
+    {
+      get => joinNormalGamePriceInCoinForHost;
+      set => joinNormalGamePriceInCoinForHost = value;
+    }
 
     public int JoinNormalGamePriceInCoin
     {

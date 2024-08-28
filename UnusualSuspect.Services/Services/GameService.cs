@@ -34,6 +34,7 @@ public sealed class GameService(IUnitOfWork uow,
   IScoreService scoreService,
   ITimerManagementService timerManagementService,
   IOptionsSnapshot<ProjectSetting> setting,
+  ISoftSettingService softSettingService,
   ILogger<GameService> logger) : IGameService
 {
   public async Task<UnusualSuspectServiceResult<Game>> GetCurrentGameAsync(int userId, CancellationToken cancellationToken = default)
@@ -379,7 +380,7 @@ public sealed class GameService(IUnitOfWork uow,
     if (game.GameStatusId != (short)GameStatusEnum.FinishedAndLostTheGame &&
        game.GameStatusId != (short)GameStatusEnum.FinishedAndWonTheGame)
       return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.GameNotFinished));
-    return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse());
+    return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse(await softSettingService.GetSoftSettingAsync(cancellationToken)));
   }
   public async Task<UnusualSuspectServiceResult<TurnOfPlayTalkingState>> StartTurnOfPlayAsync(int gameId)
   {

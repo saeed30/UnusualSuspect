@@ -18,7 +18,8 @@ public class GamePricesGetEndpoint(ISoftSettingService softSettingService) : MyB
     var softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
     return new ApiResultCommon<GamePricesGetResponse>(true, ApiResultStatusCode.Success, new GamePricesGetResponse()
     {
-      JoinNormalGamePriceInCoin = softSetting.CoinCostToEnterPreGame
+      JoinNormalGamePriceInCoin = softSetting.CoinCostToEnterPreGame,
+      JoinNormalGamePriceInCoinForHost = softSetting.CoinCostToEnterPreGameForHost
     });
   }
 }

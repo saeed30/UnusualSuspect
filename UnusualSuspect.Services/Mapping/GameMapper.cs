@@ -3,7 +3,9 @@ using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.ApiViewModels.InnerModels;
 using UnusualSuspect.ApiViewModels.InnerModels.Game;
+using UnusualSuspect.Common;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.Entities.Models;
 
 namespace UnusualSuspect.Services.Mapping;
 
@@ -86,7 +88,7 @@ public static class GameMapper
     };
   }
 
-  public static FinishedResponse ToFinishedResponse(this Game game)
+  public static FinishedResponse ToFinishedResponse(this Game game, SoftSetting softSetting)
   {
     bool won;
     if (game.GameStatusId == (short)GameStatusEnum.FinishedAndLostTheGame)
@@ -101,8 +103,8 @@ public static class GameMapper
       parDtos.Add(new FinishedParticipantDto()
       {
         GameRole = (GameRole)participate.RoleCardId,
-        Coins = GetCoinByWinCondition((GameRole)participate.RoleCardId, won),
-        Cups = GetCupByWinCondition((GameRole)participate.RoleCardId, won),
+        Coins = GetCoinByWinCondition((GameRole)participate.RoleCardId, won, softSetting),
+        Cups = GetCupByWinCondition((GameRole)participate.RoleCardId, won, softSetting),
         UserDto = new UserDto()
         {
           AvatarId = participate.ApplicationUser.AvatarId ?? -1,
@@ -116,37 +118,38 @@ public static class GameMapper
     {
       SessionTimeSpan = game.FinishedTime.HasValue ? game.FinishedTime.Value.Subtract(game.CreateTime) : DateTime.Now.Subtract(game.CreateTime),
       MurdererId = game.CharacterCardGames.Single(x => x.IsMurderer && x.IsActive).CharacterCardId,
-      FinishedParticipantDtos = parDtos
+      FinishedParticipantDtos = parDtos,
+      Won = won
     };
   }
 
-  private static int GetCupByWinCondition(GameRole gameRole, bool won)
+  private static int GetCupByWinCondition(GameRole gameRole, bool won, SoftSetting softSetting)
   {
     switch (gameRole)
     {
       case GameRole.Detective:
       case GameRole.MainDetective:
-        return won ? 1 : 0;
+        return won ? softSetting.DetectiveWinScore : softSetting.DetectiveLooseScore;
       case GameRole.Witness:
-        return won ? 1 : 0;
+        return won ? softSetting.WitnessWinScore : softSetting.WitnessLooseScore;
       case GameRole.Accomplice:
-        return won ? 0 : 1;
+        return won ? softSetting.AccompliceLooseScore : softSetting.AccompliceWinScore;
       default:
         throw new ArgumentOutOfRangeException(nameof(gameRole), gameRole, null);
     }
   }
 
-  private static int GetCoinByWinCondition(GameRole gameRole, bool won)
+  private static int GetCoinByWinCondition(GameRole gameRole, bool won, SoftSetting softSetting)
   {
     switch (gameRole)
     {
       case GameRole.Detective:
       case GameRole.MainDetective:
-        return won ? 10 : 1;
+        return won ? softSetting.DetectiveWinCoin : softSetting.DetectiveLooseCoin;
       case GameRole.Witness:
-        return won ? 10 : 2;
+        return won ? softSetting.WitnessWinCoin : softSetting.WitnessLooseCoin;
       case GameRole.Accomplice:
-        return won ? 1 : 10;
+        return won ? softSetting.AccompliceLooseCoin : softSetting.AccompliceWinCoin;
       default:
         throw new ArgumentOutOfRangeException(nameof(gameRole), gameRole, null);
     }

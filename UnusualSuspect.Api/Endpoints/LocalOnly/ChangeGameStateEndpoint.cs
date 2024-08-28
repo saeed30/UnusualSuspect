@@ -10,7 +10,7 @@ using UnusualSuspect.Services.Contracts;
 
 namespace UnusualSuspect.Api.Endpoints.LocalOnly;
 
-public class ChangeGameStatusEndpoint(ILogger<ChangeGameStatusEndpoint> logger,
+public class ChangeGameStateEndpoint(ILogger<ChangeGameStateEndpoint> logger,
   IGameService gameService) : MyBaseEndpointLocal
   .WithRequest<ChangeGameStateRequest>
   .WithActionResult<ApiResultCommon>

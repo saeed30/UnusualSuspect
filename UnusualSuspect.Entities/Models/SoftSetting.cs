@@ -45,4 +45,19 @@ public class SoftSetting : BaseEntity
   public int CoinCostToEnterPreGame { get; set; }
   [Display(Name = "انقضا گروه قبل از بازی بر اساس دقیقه")]
   public int PreGameGroupExpiresInMinutes { get; set; }
+  [Display(Name = "سکه مورد نیاز جهت پیوستن به بازی برای ایجاد کننده گروه")]
+  public int CoinCostToEnterPreGameForHost { get; set; }
+  public int DetectiveWinScore { get; set; }
+  public int WitnessWinScore { get; set; }
+  public int AccompliceWinScore { get; set; }
+  public int DetectiveLooseScore { get; set; }
+  public int WitnessLooseScore { get; set; }
+  public int AccompliceLooseScore { get; set; }
+  public int DetectiveWinCoin { get; set; }
+  public int WitnessWinCoin { get; set; }
+  public int AccompliceWinCoin { get; set; }
+  public int DetectiveLooseCoin { get; set; }
+  public int WitnessLooseCoin { get; set; }
+  public int AccompliceLooseCoin { get; set; }
+
 }

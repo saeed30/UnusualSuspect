@@ -15,6 +15,14 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Game
     private int murdererId;
     [SerializeField]
     private List<FinishedParticipantDto> finishedParticipantDtos;
+    [SerializeField]
+    private bool won;
+
+    public bool Won
+    {
+      get => won;
+      set => won = value;
+    }
 
     public TimeSpan SessionTimeSpan
     {
