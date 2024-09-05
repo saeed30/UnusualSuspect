@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.Dto;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
@@ -13,9 +14,15 @@ public sealed class CoinPackageUserRepository(IUnitOfWork uow, ILogger<CoinPacka
   {
     return await BaseEntity.Where(x => x.UserId == userId).SumAsync(x => x.Amount);
   }
-
-  public async Task<bool> OwnedByUserAsync(short packageId, int userId, CancellationToken cancellationToken = default)
+  public IQueryable<CoinPackageUser> Search(CoinPackageUserSearchFilterDto filterDto)
   {
-    return await BaseEntity.AnyAsync(x => x.UserId == userId && x.CoinPackageId == packageId, cancellationToken);
+    IQueryable<CoinPackageUser> result = BaseEntity;
+    if (filterDto.UserId.HasValue)
+      result = result.Where(x => x.UserId == filterDto.UserId.Value);
+    if (filterDto.OnlyToday)
+      result = result.Where(x => x.TimeAdded.Date == DateTime.Now.Date);
+    if (filterDto.PackageId.HasValue)
+      result = result.Where(x => x.CoinPackageId == filterDto.PackageId.Value);
+    return result;
   }
 }

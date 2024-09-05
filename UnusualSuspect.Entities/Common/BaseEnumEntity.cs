@@ -3,10 +3,11 @@
 namespace UnusualSuspect.Entities.Common;
 
 [NotMapped]
-public class BaseEnumEntity 
+public class BaseEnumEntity
 {
   [DatabaseGenerated(DatabaseGeneratedOption.None)]
-	public short Id { get; set; }
-	public string Name { get; set; }
-	public string Title { get; set; }
+  public short Id { get; set; }
+  public string Name { get; set; }
+  public string Title { get; set; }
+  public int ViewOrder { get; set; } = 0;
 }

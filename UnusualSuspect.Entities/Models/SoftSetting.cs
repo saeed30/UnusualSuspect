@@ -59,5 +59,7 @@ public class SoftSetting : BaseEntity
   public int DetectiveLooseCoin { get; set; }
   public int WitnessLooseCoin { get; set; }
   public int AccompliceLooseCoin { get; set; }
+  [Display(Name = "نسخه")]
+  public int Version { get; set; }
 
 }

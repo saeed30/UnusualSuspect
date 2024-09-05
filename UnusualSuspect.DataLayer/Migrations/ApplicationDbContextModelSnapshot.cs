@@ -192,8 +192,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<short>("ViewOrder")
-                        .HasColumnType("smallint");
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -313,8 +313,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<short>("ViewOrder")
-                        .HasColumnType("smallint");
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -501,6 +501,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("GameStatus");
@@ -568,8 +571,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<short>("ViewOrder")
-                        .HasColumnType("smallint");
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -746,6 +749,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<Guid>("ReferenceGuid")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<short?>("StoreId")
+                        .HasColumnType("smallint");
+
                     b.Property<DateTime>("TimeAdded")
                         .HasColumnType("datetime2");
 
@@ -758,7 +764,12 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<DateTime?>("ValidationCheckDateTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ValidationError")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StoreId");
 
                     b.HasIndex("UsedForPriceTypeId");
 
@@ -817,6 +828,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("PreGameGroupStatus");
@@ -834,6 +848,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -936,6 +953,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("ReadyToGameStatus");
@@ -960,6 +980,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1012,6 +1035,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1075,8 +1101,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<short>("ViewOrder")
-                        .HasColumnType("smallint");
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1112,6 +1138,27 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("StickerPackageUser");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.Store", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Store");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.TopDayRanking", b =>
@@ -1992,6 +2039,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("ReportUserType");
@@ -2065,6 +2115,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -2155,6 +2208,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<string>("SmallTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
 
                     b.Property<int>("WitnessLooseCoin")
                         .HasColumnType("int");
@@ -2503,6 +2559,10 @@ namespace UnusualSuspect.DataLayer.Migrations
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PaymentUser", b =>
                 {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId");
+
                     b.HasOne("UnusualSuspect.Entities.GameModels.PriceType", "UsedForPriceType")
                         .WithMany()
                         .HasForeignKey("UsedForPriceTypeId")
@@ -2516,6 +2576,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
+
+                    b.Navigation("Store");
 
                     b.Navigation("UsedForPriceType");
                 });

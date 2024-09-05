@@ -18,6 +18,9 @@ public class PaymentUser : BaseEntity
   [ForeignKey("UsedForPriceTypeId")]
   public virtual PriceType UsedForPriceType { get; set; }
   public Guid ReferenceGuid { get; set; }
-
+  public short? StoreId { get; set; } = 1;
+  [ForeignKey("StoreId")]
+  public virtual Store? Store { get; set; }
+  public string? ValidationError { get; set; }
 
 }

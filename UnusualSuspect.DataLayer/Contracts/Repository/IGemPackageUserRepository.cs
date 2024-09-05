@@ -1,9 +1,10 @@
 ﻿using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.Dto;
 
 namespace UnusualSuspect.DataLayer.Contracts.Repository;
 
 public interface IGemPackageUserRepository : IAsyncRepository<GemPackageUser>
 {
   Task<int> GetSumAsync(int userId);
-  Task<bool> OwnedByUserAsync(short packageId, int userId, CancellationToken cancellationToken = default);
+  IQueryable<GemPackageUser> Search(GemPackageUserSearchFilterDto filterDto);
 }

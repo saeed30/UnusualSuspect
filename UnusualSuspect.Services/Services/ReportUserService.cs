@@ -37,7 +37,7 @@ public sealed class ReportUserService(IReportUserRepository reportUserRepository
     return new UnusualSuspectServiceResult<ReportUserTypesGetResponse>(
       new ReportUserTypesGetResponse()
       {
-        ReportUserTypeDtos = result.ToReportUserTypeDto()
+        ReportUserTypeDtos = result.ToReportUserTypeDto().ToList()
       });
   }
 }

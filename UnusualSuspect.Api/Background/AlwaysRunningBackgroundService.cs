@@ -41,5 +41,5 @@ public class AlwaysRunningBackgroundService(IServiceScopeFactory scopeFactory) :
 	{
 		IPreGameService preGameService = scope.ServiceProvider.GetRequiredService<IPreGameService>();
 		await preGameService.CombineGroupsToStartGames(stoppingToken);
-	}
+  }
 }

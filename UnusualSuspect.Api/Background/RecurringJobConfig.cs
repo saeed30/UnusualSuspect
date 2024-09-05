@@ -9,16 +9,23 @@ namespace UnusualSuspect.Api.Background
   {
     public static void Config()
     {
-      RecurringJob.AddOrUpdate<IDailyJobsService>("ScoreAndRankingJob",
+      RecurringJob.AddOrUpdate<IRecurringJobsService>("ScoreAndRankingJob",
         job => job.CalculateScoreAndRankingsAsync(CancellationToken.None),
         Cron.Daily(1),
         new RecurringJobOptions()
         {
           TimeZone = TimeZoneInfo.Local
         });
-      RecurringJob.AddOrUpdate<IFiveMinuteJobsService>("DeleteExpiredPregameGroups",
+      RecurringJob.AddOrUpdate<IRecurringJobsService>("DeleteExpiredPregameGroups",
         job => job.DeleteExpiredPregameGroupsAsync(CancellationToken.None),
         "*/5 * * * *",
+        new RecurringJobOptions()
+        {
+          TimeZone = TimeZoneInfo.Local
+        });
+      RecurringJob.AddOrUpdate<IRecurringJobsService>("CheckAllUncheckedPayments",
+        job => job.CheckAllUncheckedPayments(CancellationToken.None),
+        "*/2 * * * *",
         new RecurringJobOptions()
         {
           TimeZone = TimeZoneInfo.Local

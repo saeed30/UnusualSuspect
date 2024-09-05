@@ -14,8 +14,8 @@ public static class ReportUserMapper
       Title = value.Title
     };
   }
-  public static List<ReportUserTypeDto> ToReportUserTypeDto(this List<ReportUserType> value)
+  public static IEnumerable<ReportUserTypeDto> ToReportUserTypeDto(this IEnumerable<ReportUserType> value)
   {
-    return value.Select(x => x.ToReportUserTypeDto()).ToList();
+    return value.Select(x => x.ToReportUserTypeDto());
   }
 }

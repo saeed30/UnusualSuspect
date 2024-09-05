@@ -3,7 +3,6 @@ using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.ApiViewModels.InnerModels;
 using UnusualSuspect.ApiViewModels.InnerModels.Game;
-using UnusualSuspect.Common;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Models;
 

@@ -1,4 +1,5 @@
-﻿using UnusualSuspect.ApiViewModels.Enums;
+﻿using Microsoft.EntityFrameworkCore;
+using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.ApiViewModels.InnerModels;
 using UnusualSuspect.Common.Extensions;
@@ -8,6 +9,7 @@ using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Mapping;
+using UnusualSuspect.ViewModels.Dto;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -27,37 +29,39 @@ public sealed class CoinService(ICoinPackageRepository coinPackageRepository,
     );
   }
 
-  public async Task<UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>> BuyPackagesAsync(
+  public async Task<UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>> BuyPackagesAsync(
+    BaseCoinPackageEnum coinPackage, int userId, bool bySystem = false, CancellationToken cancellationToken = default)
+  {
+    return await BuyPackagesAsync((short)coinPackage, userId, bySystem, cancellationToken);
+  }
+  public async Task<UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>> BuyPackagesAsync(
     int coinPackageId, int userId, bool bySystem = false, CancellationToken cancellationToken = default)
   {
     short? packageId = coinPackageId.ToShort();
     if (!packageId.HasValue)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidCoinPackageId));
+      return LogicErrorCode.InvalidCoinPackageId;
     CoinPackage? package = await coinPackageRepository.GetByIdAsync(packageId.Value, cancellationToken);
     if (package == null)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidCoinPackageId));
-    if(!package.IsActive)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidCoinPackageId));
+      return LogicErrorCode.InvalidCoinPackageId;
     if (!package.IsActive)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(new UnusualSuspectErrorResult(LogicErrorCode.CoinPackageIsNotActive));
+      return LogicErrorCode.InvalidCoinPackageId;
+    if (!package.IsActive)
+      return LogicErrorCode.CoinPackageIsNotActive;
     if (package.Id < 1000 && package.IsPublic)//one time use package
     {
-      if (await coinPackageUserRepository.OwnedByUserAsync(packageId.Value, userId, cancellationToken))
-        return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-          new UnusualSuspectErrorResult(LogicErrorCode.AlreadyOwnsThePackage));
+      if (await coinPackageUserRepository.Search(
+            new CoinPackageUserSearchFilterDto(userId, packageId.Value))
+            .AnyAsync(cancellationToken))
+        return LogicErrorCode.AlreadyOwnsThePackage;
     }
     ApplicationUser? user = await applicationUserManager.FindByIdAsync(userId.ToString());
     if (user == null)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidUserId));
+      return LogicErrorCode.InvalidUserId;
     var hasEnough = packageEntityService.PayIfHasEnough(package, user, cancellationToken);
     if (!hasEnough.Success)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((false, (PriceTypeEnum?)package.PriceTypeId));
+      return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>(hasEnough.Errors);
     if (!hasEnough.Result)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.DoNotHaveEnoughToPay));
+      return LogicErrorCode.DoNotHaveEnoughToPay;
     Guid guid = Guid.NewGuid();
     coinPackageUserRepository.Add(new CoinPackageUser()
     {
@@ -67,9 +71,20 @@ public sealed class CoinService(ICoinPackageRepository coinPackageRepository,
       Guid = guid,
       Amount = package.Amount
     });
-    UnusualSuspectServiceResult<bool> saved = packageEntityService.SavePayment(package, userId, guid);
+    UnusualSuspectServiceResult<int?> saved = packageEntityService.SavePayment(package, userId, guid);
     if (!saved.Success)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((false, (PriceTypeEnum?)package.PriceTypeId));
-    return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((saved.Result, (PriceTypeEnum?)package.PriceTypeId));
+      return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>(saved.Errors);
+    return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>((package.Amount, (PriceTypeEnum?)package.PriceTypeId));
+  }
+
+  public async Task<bool> GivenTodayAward(int userId, CancellationToken cancellationToken = default)
+  {
+    return await coinPackageUserRepository
+      .Search(new CoinPackageUserSearchFilterDto(
+        userId,
+        (short)BaseCoinPackageEnum.DailyAward,
+        true))
+      .AnyAsync(cancellationToken);
+
   }
 }

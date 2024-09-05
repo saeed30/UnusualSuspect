@@ -29,4 +29,5 @@ public interface IPreGameService
   Task<UnusualSuspectServiceResult<bool>> ExitFromPreGameGroup(int preGameGroupId, int? userIdToExit, int currentUserId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> IsMemberOfPregameGroup(int userId, int preGameGroupId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> DeleteAsync(PreGameGroup group);
+  Task DeleteExpiredPregameGroupsAsync(CancellationToken cancellationToken);
 }

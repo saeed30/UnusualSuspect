@@ -76,8 +76,8 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
           , "اشکالی در زمان ثبت نام رخ داده است. لطفا بعدا تلاش نمایید");
       }
 
-      var result1 = await gemService.BuyPackagesAsync((short)BaseGemPackageEnum.SignUpAward, "free", user.Id, true, cancellationToken);
-      var result2 = await coinService.BuyPackagesAsync((short)BaseCoinPackageEnum.SignUpAward, user.Id, true, cancellationToken);
+      var result1 = await gemService.BuyPackagesAsync(BaseGemPackageEnum.SignUpAward, "", user.Id, StoreEnum.Unknown, true, cancellationToken);
+      var result2 = await coinService.BuyPackagesAsync(BaseCoinPackageEnum.SignUpAward, user.Id, true, cancellationToken);
       if (result1.Success && result2.Success)
         await uow.SaveChangesAsync(cancellationToken);
       else

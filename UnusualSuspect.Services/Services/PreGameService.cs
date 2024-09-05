@@ -11,12 +11,12 @@ using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
-using UnusualSuspect.DataLayer.Model;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Mapping;
+using UnusualSuspect.ViewModels.Dto;
 using UnusualSuspect.ViewModels.PreGame;
 using UnusualSuspect.ViewModels.Settings;
 
@@ -29,6 +29,7 @@ public sealed class PreGameService(IUnitOfWork uow,
     IGameTypeRepository gameTypeRepository,
     IGameRepository gameRepository,
     IParticipateRepository participateRepository,
+    ISoftSettingService softSetting,
     ICharacterCardRepository characterCardRepository,
     ICharacterCardGameRepository characterCardGameRepository,
     INotificationService notificationService,
@@ -409,6 +410,26 @@ public sealed class PreGameService(IUnitOfWork uow,
     }
     preGameGroupRepository.Delete(group);
     return true;
+  }
+
+  public async Task DeleteExpiredPregameGroupsAsync(CancellationToken cancellationToken)
+  {
+    int expireMinutes = (await softSetting.GetSoftSettingAsync(cancellationToken)).PreGameGroupExpiresInMinutes;
+    if (expireMinutes <= 0)
+      return;
+    PreGameGroup? group = await preGameGroupRepository.GetFirstExpiredPregameGroupWithDetailsAsync(expireMinutes, cancellationToken);
+    while (group != null)
+    {
+      UnusualSuspectServiceResult<bool> result = await DeleteAsync(group);
+      if (result.Success && result.Result)
+      {
+        await uow.SaveChangesAsync(cancellationToken);
+        await notificationService.SendSignalToPreGameGroup(group.Id, SignalCommands.PregameGroupWasRemoved);
+        logger.LogEvent(SystemEventType.PregameGroupExpiredAndRemoved, group.Id);
+      }
+      group = await preGameGroupRepository.GetFirstExpiredPregameGroupWithDetailsAsync(expireMinutes, cancellationToken);
+    }
+
   }
 
   #region PrivateMethods

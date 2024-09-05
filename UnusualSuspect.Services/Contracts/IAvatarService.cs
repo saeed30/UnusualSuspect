@@ -6,5 +6,5 @@ namespace UnusualSuspect.Services.Contracts;
 public interface IAvatarService
 {
   Task<UnusualSuspectServiceResult<PackagesGetResponse>> GetPublicPackagesAsync(int userId, CancellationToken cancellationToken = default);
-  Task<UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>> BuyPackagesAsync(int avatarPackageId, int userId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>> BuyPackagesAsync(int avatarPackageId, int userId, CancellationToken cancellationToken = default);
 }

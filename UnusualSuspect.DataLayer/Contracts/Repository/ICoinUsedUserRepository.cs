@@ -1,5 +1,5 @@
-﻿using UnusualSuspect.DataLayer.Model;
-using UnusualSuspect.Entities.GameModels;
+﻿using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.Dto;
 
 namespace UnusualSuspect.DataLayer.Contracts.Repository;
 

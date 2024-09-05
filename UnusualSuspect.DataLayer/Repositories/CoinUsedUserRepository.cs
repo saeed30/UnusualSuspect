@@ -3,8 +3,8 @@ using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts.Repository;
-using UnusualSuspect.DataLayer.Model;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.Dto;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 

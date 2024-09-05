@@ -65,28 +65,24 @@ public sealed class StickerService(INotificationService notificationService,
     );
   }
 
-  public async Task<UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>> BuyPackagesAsync(int stickerPackageId, int userId, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>> BuyPackagesAsync(int stickerPackageId, int userId, CancellationToken cancellationToken = default)
   {
     short? packageId = stickerPackageId.ToShort();
     if (!packageId.HasValue)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidStickerPackageId));
+      return LogicErrorCode.InvalidStickerPackageId;
     StickerPackage? package = await stickerPackageRepository.GetByIdAsync(packageId.Value, cancellationToken);
     if (package == null)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidStickerPackageId));
+      return LogicErrorCode.InvalidStickerPackageId;
     if (await stickerPackageUserRepository.OwnedByUserAsync(packageId.Value, userId, cancellationToken))
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.AlreadyOwnsThePackage));
+      return LogicErrorCode.AlreadyOwnsThePackage;
     ApplicationUser? user = await applicationUserManager.FindByIdAsync(userId.ToString());
     if (user == null)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidUserId));
+      return LogicErrorCode.InvalidUserId;
     var hasEnough = packageEntityService.PayIfHasEnough(package, user, cancellationToken);
     if (!hasEnough.Success)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((false, (PriceTypeEnum?)package.PriceTypeId));
+      return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>(hasEnough.Errors);
     if (!hasEnough.Result)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.DoNotHaveEnoughToPay));
+      return LogicErrorCode.DoNotHaveEnoughToPay;
     Guid guid = Guid.NewGuid();
     stickerPackageUserRepository.Add(new StickerPackageUser()
     {
@@ -95,9 +91,9 @@ public sealed class StickerService(INotificationService notificationService,
       TimeAdded = DateTime.Now,
       Guid = guid
     });
-    UnusualSuspectServiceResult<bool> saved = packageEntityService.SavePayment(package, userId, guid);
+    UnusualSuspectServiceResult<int?> saved = packageEntityService.SavePayment(package, userId, guid);
     if (!saved.Success)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((false, (PriceTypeEnum?)package.PriceTypeId));
-    return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((saved.Result, (PriceTypeEnum?)package.PriceTypeId));
+      return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>(saved.Errors);
+    return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>((package.Amount, (PriceTypeEnum?)package.PriceTypeId));
   }
 }

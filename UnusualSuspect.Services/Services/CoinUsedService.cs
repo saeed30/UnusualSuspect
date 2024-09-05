@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using UnusualSuspect.ApiViewModels.Enums.BaseData;
+﻿using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Identity;

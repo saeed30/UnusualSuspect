@@ -44,7 +44,7 @@ public class GameController(ILogger<GameController> logger,
   public async Task<IActionResult> ChangeGameStatus(ChangeGameStateRequest model,
     CancellationToken cancellationToken = default)
   {
-    var result = await apiCallService.ChangeGameStateAsync(model, User.Identity.Name);
+    var result = await apiCallService.ChangeGameStateAsync(model, User.Identity.Name, cancellationToken);
     if (result.Success)
       return Json(result.Result);
     return Json(new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.GetDisplay()));

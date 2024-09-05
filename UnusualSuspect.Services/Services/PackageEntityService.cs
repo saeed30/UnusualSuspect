@@ -54,10 +54,11 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
     return new UnusualSuspectServiceResult<bool>(result);
   }
 
-  public UnusualSuspectServiceResult<bool> SavePayment(PackageEntity package, int userId, Guid referenceGuid, string? token = null)
+  public UnusualSuspectServiceResult<int?> SavePayment(PackageEntity package, int userId, Guid referenceGuid,
+    StoreEnum store = StoreEnum.Unknown, string? token = null)
   {
     if (!package.PriceTypeId.HasValue || package.Price <= 0)
-      return new UnusualSuspectServiceResult<bool>(true);
+      return new UnusualSuspectServiceResult<int?>((int?)null);
     PriceTypeEnum priceTypeUsedFor = GetUsedForPriceType(package);
 
     switch ((PriceTypeEnum)package.PriceTypeId.Value)
@@ -72,7 +73,8 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
           UsedForPriceTypeId = (short)priceTypeUsedFor,
           TimeAdded = DateTime.Now,
           ReferenceGuid = referenceGuid,
-          PurchaseToken = token
+          PurchaseToken = token,
+          StoreId = (short)store
         });
         break;
       case PriceTypeEnum.Gem:
@@ -101,11 +103,11 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
       case PriceTypeEnum.Sticker:
         logger.LogEvent(SystemEventType.PayPackageIsNotValidForSavePayment, userId,
           $"packageId ({package.Id}) - priceType ({package.PriceTypeId.Value})", logLevel: LogLevel.Critical);
-        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.CanNotUseThisPriceTypeForPayment));
+        return LogicErrorCode.CanNotUseThisPriceTypeForPayment;
       default:
         throw new ArgumentOutOfRangeException();
     }
-    return new UnusualSuspectServiceResult<bool>(true);
+    return new UnusualSuspectServiceResult<int?>(package.Amount);
   }
 
   private PriceTypeEnum GetUsedForPriceType(PackageEntity package)

@@ -1,5 +1,4 @@
-﻿using UnusualSuspect.Entities.GameModels;
-using UnusualSuspect.Entities.Models;
+﻿using UnusualSuspect.Entities.Models;
 
 namespace UnusualSuspect.DataLayer.Contracts.Repository;
 

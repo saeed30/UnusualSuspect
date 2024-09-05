@@ -21,15 +21,15 @@ public sealed class PurchaseEndpoint(IGemService gemService,
   [HttpPost("api/[namespace]/Purchase")]
   public override async Task<ActionResult<ApiResultCommon>> HandleAsync(GemPurchaseRequest request, CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<(bool, PriceTypeEnum?)> result = await gemService.BuyPackagesAsync(
-      request.GemPackageId, request.PurchaseToken, CurrentUser.UserId, false, cancellationToken);
+    UnusualSuspectServiceResult<(int?, PriceTypeEnum?)> result = await gemService.BuyPackagesAsync(
+      request.GemPackageId, request.PurchaseToken, CurrentUser.UserId, request.Store, false, cancellationToken);
     if (!result.Success)
       return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
-    if (result.Result.Item1)
+    if (result.Result.Item1.HasValue)
     {
       await uow.SaveChangesAsync(cancellationToken);
       backgroundJobs.Enqueue<IGemCoinCalculationJobsService>(job => job.RecalculateGemAndCoinByUserId(CurrentUser.UserId));
     }
-    return new ApiResultCommon(result.Result.Item1, ApiResultStatusCode.Success);
+    return new ApiResultCommon(result.Result.Item1.HasValue, ApiResultStatusCode.Success);
   }
 }

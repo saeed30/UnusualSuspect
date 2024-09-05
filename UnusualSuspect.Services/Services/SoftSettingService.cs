@@ -3,9 +3,7 @@ using UnusualSuspect.DataLayer;
 using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Services.IServices;
 using UnusualSuspect.ViewModels.Settings;
-using Microsoft.EntityFrameworkCore;
 using UnusualSuspect.DataLayer.Contracts.Repository;
-using UnusualSuspect.DataLayer.Repositories;
 
 namespace UnusualSuspect.Services.Services;
 

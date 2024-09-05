@@ -41,14 +41,14 @@ public sealed class GameService(IUnitOfWork uow,
   {
     Game? game = await gameRepository.GetUserCurrentGameAsync(userId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<Game>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
+      return LogicErrorCode.UserIsNotInActiveGame;
     return new UnusualSuspectServiceResult<Game>(game);
   }
   public async Task<UnusualSuspectServiceResult<Game>> GetCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default)
   {
     Game? game = await gameRepository.GetUserCurrentGameWithDetailsAsync(userId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<Game>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
+      return LogicErrorCode.UserIsNotInActiveGame;
     return new UnusualSuspectServiceResult<Game>(game);
   }
 
@@ -59,10 +59,10 @@ public sealed class GameService(IUnitOfWork uow,
     if (gameId.HasValue)
     {
       if (await participateRepository.GetParticipantRoleAsync(gameId.Value, userId, cancellationToken) == null)
-        return new UnusualSuspectServiceResult<GameGetResponse>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+        return LogicErrorCode.UserDoNotParticipateInThisGame;
       game = await gameRepository.GetGameWithDetailsAsync(gameId.Value, cancellationToken);
       if (game == null)
-        return new UnusualSuspectServiceResult<GameGetResponse>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+        return LogicErrorCode.InvalidGameId;
     }
     else
     {
@@ -82,20 +82,20 @@ public sealed class GameService(IUnitOfWork uow,
   {
     Game? game = await gameRepository.GetUserCurrentGameAsync(userId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
+      return LogicErrorCode.UserIsNotInActiveGame;
     return await LeaveGameAsync(game.Id, userId, cancellationToken);
   }
   public async Task<UnusualSuspectServiceResult<bool>> LeaveGameAsync(int gameId, int userId, CancellationToken cancellationToken = default)
   {
     int participantCount = await participateRepository.GetParticipantCountAsync(gameId, cancellationToken);
     if (participantCount <= 0)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameHasNoParticipants));
+      return LogicErrorCode.GameHasNoParticipants;
     if (participantCount <= 4)
       return await FinishGameAsync(gameId, null, cancellationToken);
     Participate? participate = (await participateRepository.GetActiveParticipations(userId, cancellationToken))
       .FirstOrDefault(x => x.GameId == gameId);
     if (participate == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+      return LogicErrorCode.UserDoNotParticipateInThisGame;
     participate.IsActive = false;
 
     RoleCardEnum userRole = (RoleCardEnum)participate.RoleCardId;
@@ -125,7 +125,7 @@ public sealed class GameService(IUnitOfWork uow,
       .GetGameActiveParticipantsAsync(gameId, RoleCardEnum.Detective))
       .Where(x => x.UserId != leftUserId).ToList();
     if (!participants.Any())
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.NoDetectiveInGameToReplaceUser));
+      return LogicErrorCode.NoDetectiveInGameToReplaceUser;
     int random = new Random().Next(0, participants.Count - 1);
     participants[random].RoleCardId = (short)leftUserRole;
     return new UnusualSuspectServiceResult<bool>(true);
@@ -136,7 +136,7 @@ public sealed class GameService(IUnitOfWork uow,
   {
     Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     if (finalGameStatus.HasValue)
     {
       SetGameStatus(game, finalGameStatus.Value);
@@ -165,14 +165,14 @@ public sealed class GameService(IUnitOfWork uow,
     {
       bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId, RoleCardEnum.MainDetective, cancellationToken);
       if (!hasAccess)
-        return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
+        return LogicErrorCode.AccessIsDenied;
     }
     var cards = await characterCardGameRepository.GetAllGameCharacterCardsAsync(gameId, cancellationToken);
     if (cards.All(x => x.CharacterCardId != characterCardId))
-      return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.CharacterCardIdNotFoundInTheGame));
+      return LogicErrorCode.CharacterCardIdNotFoundInTheGame;
     var card = cards.FirstOrDefault(x => x.CharacterCardId == characterCardId && x.IsActive);
     if (card == null)
-      return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.CharacterCardIsNotActiveInTheGame));
+      return LogicErrorCode.CharacterCardIsNotActiveInTheGame;
     UnusualSuspectServiceResult<bool?> result;
     if (card.IsMurderer)
     {
@@ -186,7 +186,7 @@ public sealed class GameService(IUnitOfWork uow,
       if (!cards.Any(x => x.IsActive && x.IsMurderer))
       {
         ElmahExtensions.RaiseError(new Exception("Game not have Active murderer. gameId: " + gameId));
-        return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.NoActiveMurdererFoundInGame));
+        return LogicErrorCode.NoActiveMurdererFoundInGame;
       }
       if (!cards.Any(x => x.IsActive && !x.IsMurderer))
       {
@@ -199,7 +199,7 @@ public sealed class GameService(IUnitOfWork uow,
         {
           Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
           if (game == null)
-            return new UnusualSuspectServiceResult<bool?>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+            return LogicErrorCode.InvalidGameId;
           await GoToTalkingStatus(game);
         }
         else
@@ -256,7 +256,7 @@ public sealed class GameService(IUnitOfWork uow,
   {
     Game? game = await gameRepository.GetByIdAsync(gameId);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     if (game.GameStatusId != (short)GameStatusEnum.WaitingForPlayers)
       return new UnusualSuspectServiceResult<bool>(false);
     bool hasOfflineUser = await participateRepository.IsGameHasOtherActiveParticipantsAsync(gameId, userIds);
@@ -293,8 +293,7 @@ public sealed class GameService(IUnitOfWork uow,
   {
     Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken, true);
     if (game == null)
-      return new UnusualSuspectServiceResult<GameDetailsViewModel>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     GameDetailsViewModel model = new GameDetailsViewModel()
     {
       GameGetResponse = new GameGetResponse(
@@ -315,16 +314,16 @@ public sealed class GameService(IUnitOfWork uow,
     {
       bool hasAccess = await HasSpecificRoleInTheGame(gameId, userId.Value, RoleCardEnum.Witness, cancellationToken);
       if (!hasAccess)
-        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.AccessIsDenied));
+        return LogicErrorCode.AccessIsDenied;
     }
     Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     if (game.GameStatusId != (short)GameStatusEnum.WaitingForWitnessToAnswer)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInWaitingForWitnessToAnswerStatus));
+      return LogicErrorCode.GameIsNotInWaitingForWitnessToAnswerStatus;
     QuestionGame? questionGame = await questionGameRepository.GetQuestionGameByQuestionAndGame(gameId, questionId);
     if (questionGame == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.NoGameQuestionWithThisGameIdAndQuestionId));
+      return LogicErrorCode.NoGameQuestionWithThisGameIdAndQuestionId;
     questionGame.AnswerUserId = userId;
     questionGame.UserAnswer = witnessAnswer;
     game.WitnessLastAnswer = witnessAnswer;
@@ -354,7 +353,7 @@ public sealed class GameService(IUnitOfWork uow,
   {
     GameStatisticsDto? gameStatistics = await gameRepository.GetGameStatisticsAsync(userId, cancellationToken);
     if (gameStatistics == null)
-      return new UnusualSuspectServiceResult<GameStatisticsDto>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidUserId));
+      return LogicErrorCode.InvalidUserId;
     return new UnusualSuspectServiceResult<GameStatisticsDto>(gameStatistics);
   }
 
@@ -365,10 +364,10 @@ public sealed class GameService(IUnitOfWork uow,
     if (gameId.HasValue)
     {
       if (await participateRepository.GetParticipantRoleAsync(gameId.Value, userId, cancellationToken) == null)
-        return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+        return LogicErrorCode.UserDoNotParticipateInThisGame;
       game = await gameRepository.GetGameWithDetailsAsync(gameId.Value, cancellationToken);
       if (game == null)
-        return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+        return LogicErrorCode.InvalidGameId;
     }
     else
     {
@@ -379,14 +378,14 @@ public sealed class GameService(IUnitOfWork uow,
     }
     if (game.GameStatusId != (short)GameStatusEnum.FinishedAndLostTheGame &&
        game.GameStatusId != (short)GameStatusEnum.FinishedAndWonTheGame)
-      return new UnusualSuspectServiceResult<FinishedResponse>(new UnusualSuspectErrorResult(LogicErrorCode.GameNotFinished));
+      return LogicErrorCode.GameNotFinished;
     return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse(await softSettingService.GetSoftSettingAsync(cancellationToken)));
   }
   public async Task<UnusualSuspectServiceResult<TurnOfPlayTalkingState>> StartTurnOfPlayAsync(int gameId)
   {
     Game? game = await gameRepository.GetGameWithDetailsAsync(gameId);
     if (game == null)
-      return new UnusualSuspectServiceResult<TurnOfPlayTalkingState>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     short starter = GetStarterOrderOfParticipation(game.Participates);
     TurnOfPlayGetResponse model = new TurnOfPlayGetResponse(new TurnOfPlayTalkingState()
     {
@@ -406,15 +405,15 @@ public sealed class GameService(IUnitOfWork uow,
   {
     Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState();
     if (model == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
+      return LogicErrorCode.GameIsNotInTalkingStatus;
     var partTalking = game.Participates.FirstOrDefault(x => x.UserId == userId);
     if (partTalking == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+      return LogicErrorCode.UserDoNotParticipateInThisGame;
     if (model.OrderOfParticipationTurnToTalk != partTalking.OrderOfParticipation)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserCallingFinishTalkIsNotTalking));
+      return LogicErrorCode.UserCallingFinishTalkIsNotTalking;
     var next = GetNextUserOrderOfParticipation(game.Id, game.Participates,
       model.OrderOfParticipationTurnToTalk);
     if (next.OrderOfParticipation == model.OrderOfParticipationTalkBeginner)
@@ -447,8 +446,7 @@ public sealed class GameService(IUnitOfWork uow,
   {
     Game? game = await gameRepository.GetUserCurrentGameWithDetailsAsync(userId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(
-        new UnusualSuspectErrorResult(LogicErrorCode.UserIsNotInActiveGame));
+      return LogicErrorCode.UserIsNotInActiveGame;
     var model = game.ToTurnOfPlayGetResponse();
     return new UnusualSuspectServiceResult<TurnOfPlayGetResponse>(model);
   }
@@ -457,13 +455,13 @@ public sealed class GameService(IUnitOfWork uow,
   {
     Game? game = await gameRepository.GetGameWithDetailsAsync(gameId);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     var partTalking = game.Participates.FirstOrDefault(x => x.UserId == userId);
     if (partTalking == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.GameIsNotInTalkingStatus));
+      return LogicErrorCode.GameIsNotInTalkingStatus;
     TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState();
     if (model == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.UserDoNotParticipateInThisGame));
+      return LogicErrorCode.UserDoNotParticipateInThisGame;
     var candidates = game.GameCandidates;
     var candid = candidates.FirstOrDefault(x => x.UserId == userId);
     if (candid != null)
@@ -508,7 +506,7 @@ public sealed class GameService(IUnitOfWork uow,
   {
     var game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     return SetGameStatus(game, gameStatus);
   }
   public UnusualSuspectServiceResult<bool> SetGameStatus(Game game, GameStatusEnum gameStatus)
@@ -538,7 +536,7 @@ public sealed class GameService(IUnitOfWork uow,
   {
     var game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
     if (game == null)
-      return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidGameId));
+      return LogicErrorCode.InvalidGameId;
     switch (gameStatus)
     {
       case GameStatusEnum.WaitingForPlayers:
@@ -546,7 +544,7 @@ public sealed class GameService(IUnitOfWork uow,
       case GameStatusEnum.WaitingForMainDetectiveToChoose:
       case GameStatusEnum.FinishedAndWonTheGame:
       case GameStatusEnum.FinishedAndLostTheGame:
-        return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.ManualSettingToThisStatusNotAvailable));
+        return LogicErrorCode.ManualSettingToThisStatusNotAvailable;
       case GameStatusEnum.WaitingForWitnessToAnswer:
         if (game.GameStatusId == (int)GameStatusEnum.WaitingForPlayers)
         {
@@ -558,7 +556,7 @@ public sealed class GameService(IUnitOfWork uow,
           memoryCacheService.ClearGameWithDetails(gameId);
         }
         else
-          return new UnusualSuspectServiceResult<bool>(new UnusualSuspectErrorResult(LogicErrorCode.ManualSettingFromThisStatusToThisStatusNotAvailable));
+          return LogicErrorCode.ManualSettingFromThisStatusToThisStatusNotAvailable;
         break;
       default:
         throw new ArgumentOutOfRangeException(nameof(gameStatus), gameStatus, null);

@@ -13,6 +13,4 @@ public class PackageEntity : BaseEnumEntity
   public short? PriceTypeId { get; set; }
   [ForeignKey("PriceTypeId")]
   public virtual PriceType? PriceType { get; set; }
-  public short ViewOrder { get; set; } = 0;
-
 }

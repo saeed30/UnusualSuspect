@@ -1,19 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using UnityEngine;
+using UnusualSuspect.ApiViewModels.Enums.BaseData;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.Gem
 {
+  [Serializable]
   public sealed class GemPurchaseRequest
   {
-    public int GemPackageId {
-      get;
-      set;
+    [SerializeField]
+    private StoreEnum store;
+    [SerializeField]
+    private int gemPackageId;
+    [SerializeField]
+    private string purchaseToken;
+
+    public StoreEnum Store
+    {
+      get => store;
+      set => store = value;
     }
+
+    public int GemPackageId
+    {
+      get => gemPackageId;
+      set => gemPackageId = value;
+    }
+
     public string PurchaseToken
     {
-      get;
-      set;
+      get => purchaseToken;
+      set => purchaseToken = value;
     }
   }
 }

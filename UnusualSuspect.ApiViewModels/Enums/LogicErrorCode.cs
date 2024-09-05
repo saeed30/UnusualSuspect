@@ -138,5 +138,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     ManualSettingToThisStatusNotAvailable = 66,
     [Display(Name = "تغییر وضعیت دستی به این وضعیت در دسترس نیست")]
     ManualSettingFromThisStatusToThisStatusNotAvailable = 67,
+    [Display(Name = "پاداش روزانه از قبل دریافت شده است")]
+    AlreadyRecievedDailyAward = 68,
   }
 }

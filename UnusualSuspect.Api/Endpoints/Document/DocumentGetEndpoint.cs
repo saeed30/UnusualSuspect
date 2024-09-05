@@ -7,6 +7,7 @@ using UnusualSuspect.ApiViewModels.Endpoints.Document;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.IServices;
+using UnusualSuspect.Services;
 
 namespace UnusualSuspect.Api.Endpoints.Document;
 
@@ -20,7 +21,7 @@ public sealed class DocumentGetEndpoint(IDocumentService documentService) : MyBa
 	{
 		if(id == Guid.Empty)
 			return new ApiResultCommon<DocumentGetResponse>(false, ApiResultStatusCode.BadRequest, null, "کد فایل به درستی ارسال نشد");
-		var doc = await documentService.GetDocumentByGuidKeyAsync(id);
+    UnusualSuspectServiceResult<DocumentGetResponse> doc = await documentService.GetDocumentByGuidKeyAsync(id);
     return ReturnResult(doc);
 	}
 }

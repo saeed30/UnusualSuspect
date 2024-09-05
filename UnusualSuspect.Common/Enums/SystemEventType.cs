@@ -197,4 +197,16 @@ public enum SystemEventType
 
   [Display(Name = "گروه قبل بازی به دلیل انقضا حذف شد")]
   PregameGroupExpiredAndRemoved,
+
+  [Display(Name = "درج بسته روزانه الماس با خطا روبرو شد")]
+  DailyGemPackageEnumOnFailed,
+
+  [Display(Name = "درج بسته روزانه سکه با خطا روبرو شد")]
+  DailyCoinPackageEnumOnFailed,
+
+  [Display(Name = "اشکال در زمان تبدیل پاسخ کافه بازار رخ داد")]
+  ErrorOnDeserializingCafeBazzarResponse,
+
+  [Display(Name = "اشکال در زمان استفاده از ChangeGameState به صورت api")]
+  ChangeGameStateApiCallFailed,
 }

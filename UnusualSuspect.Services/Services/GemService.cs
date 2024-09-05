@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.ApiViewModels.InnerModels;
@@ -10,6 +11,7 @@ using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Mapping;
+using UnusualSuspect.ViewModels.Dto;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Services;
@@ -31,40 +33,43 @@ public sealed class GemService(IGemPackageRepository gemPackageRepository,
     );
   }
 
-  public async Task<UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>> BuyPackagesAsync(
-    int gemPackageId, string purchaseToken, int userId, bool bySystem = false,
+  public async Task<UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>> BuyPackagesAsync(
+    BaseGemPackageEnum gemPackage, string purchaseToken, int userId, StoreEnum store, bool bySystem = false,
+    CancellationToken cancellationToken = default)
+  {
+    return await BuyPackagesAsync((short)gemPackage, purchaseToken, userId, store, bySystem, cancellationToken);
+  }
+  public async Task<UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>> BuyPackagesAsync(
+    int gemPackageId, string purchaseToken, int userId, StoreEnum store, bool bySystem = false,
     CancellationToken cancellationToken = default)
   {
     if (purchaseToken.IsNull())
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.PurchaseTokenIsEmpty));
+      return LogicErrorCode.PurchaseTokenIsEmpty;
     short? packageId = gemPackageId.ToShort();
     if (!packageId.HasValue)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidGemPackageId));
+      return LogicErrorCode.InvalidGemPackageId;
     GemPackage? package = await gemPackageRepository.GetByIdAsync(packageId.Value, cancellationToken);
     if (package == null)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-        new UnusualSuspectErrorResult(LogicErrorCode.InvalidGemPackageId));
+      return LogicErrorCode.InvalidGemPackageId;
     if (!package.IsActive)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(new UnusualSuspectErrorResult(LogicErrorCode.GemPackageIsNotActive));
+      return LogicErrorCode.GemPackageIsNotActive;
     if (!bySystem && package.Id < 1000 && package.IsPublic)//one time use package
     {
-      if (await gemPackageUserRepository.OwnedByUserAsync(packageId.Value, userId, cancellationToken))
-        return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-          new UnusualSuspectErrorResult(LogicErrorCode.AlreadyOwnsThePackage));
+      if (await gemPackageUserRepository.Search(
+            new GemPackageUserSearchFilterDto(userId, packageId.Value))
+            .AnyAsync(cancellationToken))
+        return LogicErrorCode.AlreadyOwnsThePackage;
     }
     ApplicationUser? user = await applicationUserManager.FindByIdAsync(userId.ToString());
     if (user == null)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(new UnusualSuspectErrorResult(LogicErrorCode.InvalidUserId));
+      return LogicErrorCode.InvalidUserId;
     if (!bySystem)
     {
       var hasEnough = packageEntityService.PayIfHasEnough(package, user, cancellationToken);
       if (!hasEnough.Success)
-        return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((false, (PriceTypeEnum?)package.PriceTypeId));
+        return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>(hasEnough.Errors);
       if (!hasEnough.Result)
-        return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>(
-          new UnusualSuspectErrorResult(LogicErrorCode.DoNotHaveEnoughToPay));
+        return LogicErrorCode.DoNotHaveEnoughToPay;
     }
     Guid guid = Guid.NewGuid();
     gemPackageUserRepository.Add(new GemPackageUser()
@@ -76,9 +81,19 @@ public sealed class GemService(IGemPackageRepository gemPackageRepository,
       IsActive = setting.Value.IsTesting, // become true after validation
       Amount = package.Amount
     });
-    UnusualSuspectServiceResult<bool> saved = packageEntityService.SavePayment(package, userId, guid, purchaseToken);
+    UnusualSuspectServiceResult<int?> saved = packageEntityService.SavePayment(package, userId, guid, store, purchaseToken);
     if (!saved.Success)
-      return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((false, (PriceTypeEnum?)package.PriceTypeId));
-    return new UnusualSuspectServiceResult<(bool, PriceTypeEnum?)>((saved.Result, (PriceTypeEnum?)package.PriceTypeId));
+      return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>(saved.Errors);
+    return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>((package.Amount, (PriceTypeEnum?)package.PriceTypeId));
+  }
+
+  public async Task<bool> GivenTodayAward(int userId, CancellationToken cancellationToken = default)
+  {
+    return await gemPackageUserRepository
+      .Search(new GemPackageUserSearchFilterDto(
+        userId,
+        (short)BaseGemPackageEnum.DailyAward,
+        true))
+      .AnyAsync(cancellationToken);
   }
 }
