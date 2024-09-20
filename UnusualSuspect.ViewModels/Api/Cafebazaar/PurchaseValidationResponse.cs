@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace UnusualSuspect.ViewModels.Api.Cafebazzar;
+namespace UnusualSuspect.ViewModels.Api.Cafebazaar;
 public class PurchaseValidationResponse
 {
     [JsonProperty("consumptionState")]

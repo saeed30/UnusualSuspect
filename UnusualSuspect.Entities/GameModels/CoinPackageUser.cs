@@ -11,6 +11,7 @@ public class CoinPackageUser : GuidBaseEntity
   public int UserId { get; set; }
   [ForeignKey("UserId")]
   public virtual ApplicationUser ApplicationUser { get; set; }
+  public bool IsActive { get; set; }
   public short CoinPackageId { get; set; }
   [ForeignKey("CoinPackageId")]
   public virtual CoinPackage CoinPackage { get; set; }

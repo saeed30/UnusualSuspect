@@ -2,5 +2,5 @@
 
 public interface IPaymentUserService
 {
-  Task CheckAllUncheckedPayments(CancellationToken cancellationToken);
+  Task CheckAllUncheckedPayments(int? userId = null, CancellationToken cancellationToken = default);
 }

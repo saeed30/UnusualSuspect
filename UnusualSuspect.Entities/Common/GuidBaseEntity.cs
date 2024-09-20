@@ -1,13 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace UnusualSuspect.Entities.Common;
 
-namespace UnusualSuspect.Entities.Common
+public abstract class GuidBaseEntity<T>: BaseEntity<T>
 {
-  public abstract class GuidBaseEntity<T>: BaseEntity<T>
-  {
-    public Guid Guid { get; set; }
-  }
+  public Guid Guid { get; set; }
+}
 
-  public abstract class GuidBaseEntity : GuidBaseEntity<int>
-  {
-  }
+public abstract class GuidBaseEntity : GuidBaseEntity<int>
+{
 }

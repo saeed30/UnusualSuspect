@@ -160,7 +160,11 @@ public sealed class PreGameService(IUnitOfWork uow,
   {
     if (readyToGameStatusEnum != ReadyToGameStatusEnum.Notified)
     {
-
+      if (readyToGameStatusEnum == ReadyToGameStatusEnum.Ready)
+      {
+        if (await gameRepository.UserIsInActiveGameAsync(joinedPreGame.UserId, cancellationToken))
+          return LogicErrorCode.UserIsInActiveGame;
+      }
       var softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
       if (softSetting.CoinCostToEnterPreGame > 0)
       {

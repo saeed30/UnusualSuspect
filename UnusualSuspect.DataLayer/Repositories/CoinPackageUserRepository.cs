@@ -12,7 +12,7 @@ public sealed class CoinPackageUserRepository(IUnitOfWork uow, ILogger<CoinPacka
 {
   public async Task<int> GetSumAsync(int userId)
   {
-    return await BaseEntity.Where(x => x.UserId == userId).SumAsync(x => x.Amount);
+    return await BaseEntity.Where(x => x.UserId == userId && x.IsActive).SumAsync(x => x.Amount);
   }
   public IQueryable<CoinPackageUser> Search(CoinPackageUserSearchFilterDto filterDto)
   {

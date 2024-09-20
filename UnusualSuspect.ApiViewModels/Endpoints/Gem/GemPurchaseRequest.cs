@@ -12,7 +12,21 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Gem
     [SerializeField]
     private int gemPackageId;
     [SerializeField]
-    private string purchaseToken;
+    private CafeBazaarRequest? cafeBazaarRequest;
+    [SerializeField]
+    private MyketRequest? myketRequest;
+
+    public CafeBazaarRequest? CafeBazaarRequest
+    {
+      get => cafeBazaarRequest;
+      set => cafeBazaarRequest = value;
+    }
+
+    public MyketRequest? MyketRequest
+    {
+      get => myketRequest;
+      set => myketRequest = value;
+    }
 
     public StoreEnum Store
     {
@@ -26,10 +40,5 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Gem
       set => gemPackageId = value;
     }
 
-    public string PurchaseToken
-    {
-      get => purchaseToken;
-      set => purchaseToken = value;
-    }
   }
 }

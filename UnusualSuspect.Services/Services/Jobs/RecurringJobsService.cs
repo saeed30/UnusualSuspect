@@ -35,9 +35,10 @@ public class RecurringJobsService(IRankingService rankingService,
   [DisableConcurrentExecution(timeoutInSeconds: 60)]
   public async Task CheckAllUncheckedPayments(CancellationToken cancellationToken)
   {
+    return;
     try
     {
-      await paymentUserService.CheckAllUncheckedPayments(cancellationToken);
+      await paymentUserService.CheckAllUncheckedPayments(null, cancellationToken);
     }
     catch (Exception e)
     {

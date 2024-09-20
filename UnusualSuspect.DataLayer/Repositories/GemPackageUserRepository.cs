@@ -20,10 +20,12 @@ public sealed class GemPackageUserRepository(IUnitOfWork uow, ILogger<GemPackage
     IQueryable<GemPackageUser> result = BaseEntity;
     if (filterDto.UserId.HasValue)
       result = result.Where(x => x.UserId == filterDto.UserId.Value);
-    if (filterDto.OnlyToday)
-      result = result.Where(x => x.TimeAdded.Date == DateTime.Now.Date);
+    if (filterDto.FromTime.HasValue)
+      result = result.Where(x => x.TimeAdded >= filterDto.FromTime.Value);
     if (filterDto.PackageId.HasValue)
       result = result.Where(x => x.GemPackageId == filterDto.PackageId.Value);
+    if (filterDto.Guid.HasValue)
+      result = result.Where(x => x.Guid == filterDto.Guid.Value);
     return result;
   }
 }

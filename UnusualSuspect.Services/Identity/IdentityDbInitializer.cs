@@ -161,6 +161,7 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
     await HasDataForEnumEntity<CoinPackage, BaseCoinPackageEnum>("GemPackage");
     await HasDataForEnumEntity<PriceType, PriceTypeEnum>("PriceType");
     await HasDataForEnumEntity<Store, StoreEnum>("Store");
+    await HasDataForEnumEntity<RepetitionType, RepetitionTypeEnum>("RepetitionType");
   }
 
   private async Task HasDataForEnumEntity<TEntity, TEnum>(string tableName)

@@ -1,12 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using UnityEngine;
 
 namespace UnusualSuspect.ApiViewModels.Endpoints.User
 {
+  [Serializable]
   public class DailyRewardGetResponse
   {
-    public int GemReward { get; set; }
-    public int CoinReward { get; set; }
+    [SerializeField]
+    private int gemReward;
+    [SerializeField]
+    private int coinReward;
+
+    public int GemReward
+    {
+      get => gemReward;
+      set => gemReward = value;
+    }
+
+    public int CoinReward
+    {
+      get => coinReward;
+      set => coinReward = value;
+    }
   }
 }

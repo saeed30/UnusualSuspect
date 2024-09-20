@@ -9,7 +9,6 @@ using ElmahCore;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Contracts;
 using Microsoft.Extensions.Options;
-using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.ViewModels.Game;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.Logging;
@@ -17,6 +16,7 @@ using UnusualSuspect.Services.Timer;
 using UnusualSuspect.ApiViewModels.SignalCommandsData;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
+using UnusualSuspect.ViewModels.Dto;
 
 namespace UnusualSuspect.Services.Services;
 

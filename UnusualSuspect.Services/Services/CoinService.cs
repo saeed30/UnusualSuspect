@@ -63,14 +63,19 @@ public sealed class CoinService(ICoinPackageRepository coinPackageRepository,
     if (!hasEnough.Result)
       return LogicErrorCode.DoNotHaveEnoughToPay;
     Guid guid = Guid.NewGuid();
-    coinPackageUserRepository.Add(new CoinPackageUser()
+    CoinPackageUser coinPackageUser = new CoinPackageUser()
     {
       UserId = userId,
       CoinPackageId = packageId.Value,
       TimeAdded = DateTime.Now,
       Guid = guid,
-      Amount = package.Amount
-    });
+      Amount = package.Amount,
+      IsActive = bySystem || (!package.PriceTypeId.HasValue || (PriceTypeEnum)package.PriceTypeId.Value != PriceTypeEnum.Money ||
+                 package.Price <= 0)
+    };
+    coinPackageUserRepository.Add(coinPackageUser);
+    if (coinPackageUser.IsActive)
+      user.CalculatedCoins += package.Amount;
     UnusualSuspectServiceResult<int?> saved = packageEntityService.SavePayment(package, userId, guid);
     if (!saved.Success)
       return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>(saved.Errors);

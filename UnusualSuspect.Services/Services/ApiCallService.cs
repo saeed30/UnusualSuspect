@@ -9,9 +9,10 @@ using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Models;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.ViewModels.Api.Cafebazzar;
+using UnusualSuspect.ViewModels.Api.Cafebazaar;
 using UnusualSuspect.ViewModels.Identity;
 using UnusualSuspect.ViewModels.Settings;
 
@@ -20,6 +21,7 @@ namespace UnusualSuspect.Services.Services;
 public sealed class ApiCallService(IJwtService iJwtService,
   IApplicationUserManager iApplicationUserManager,
   IOptionsSnapshot<ProjectSetting> setting,
+  ISoftSettingService softSettingService,
   ILogger<ApiCallService> logger) : IApiCallService
 {
   public async Task<UnusualSuspectServiceResult<ApiResultCommon>> ChangeGameStateAsync(ChangeGameStateRequest request, string username, CancellationToken cancellationToken = default)
@@ -51,14 +53,16 @@ public sealed class ApiCallService(IJwtService iJwtService,
 
   }
 
-  public async Task<UnusualSuspectServiceResult<(bool, string?)>> CheckPaymentInCafebazaar(PaymentUser paymentUser, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<(bool, string?)>> CheckPaymentInCafebazaar(PaymentCafeBazaar paymentCafeBazaar, CancellationToken cancellationToken = default)
   {
+    SoftSetting softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
     using HttpClient httpClient = new HttpClient();
-    string packageName = "your.package.name";
-    string productId = "your_product_id";
-    string accessToken = "your_access_token";
+    string packageName = paymentCafeBazaar.PackageName;
+    string productId = softSetting.CafebazaarProductId;
+    string accessToken = softSetting.CafebazaarAccessToken;
+    string purchaseToken = paymentCafeBazaar.PurchaseToken;
 
-    string url = $"https://pardakht.cafebazaar.ir/devapi/v2/api/validate/{packageName}/inapp/{productId}/purchases/{paymentUser.PurchaseToken}";
+    string url = $"https://pardakht.cafebazaar.ir/devapi/v2/api/validate/{packageName}/inapp/{productId}/purchases/{purchaseToken}";
 
     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
@@ -73,7 +77,7 @@ public sealed class ApiCallService(IJwtService iJwtService,
           PurchaseValidationResponse? validationResponse = JsonConvert.DeserializeObject<PurchaseValidationResponse>(responseBody);
           if (validationResponse == null)
           {
-            logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentUser.UserId, responseBody, logLevel: LogLevel.Critical);
+            logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, responseBody, logLevel: LogLevel.Critical);
             return LogicErrorCode.InvalidApiResponse;
           }
           return new UnusualSuspectServiceResult<(bool, string?)>((true, null));
@@ -81,18 +85,18 @@ public sealed class ApiCallService(IJwtService iJwtService,
         ErrorResponse? errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseBody);
         if (errorResponse == null)
         {
-          logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentUser.UserId, responseBody, logLevel: LogLevel.Warning);
+          logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, responseBody, logLevel: LogLevel.Warning);
           return LogicErrorCode.InvalidApiResponse;
         }
         return new UnusualSuspectServiceResult<(bool, string?)>((false, errorResponse.ErrorDescription));
       }
       catch (Exception a)
       {
-        logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentUser.UserId, responseBody, exception: a, logLevel: LogLevel.Error);
+        logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, responseBody, exception: a, logLevel: LogLevel.Error);
         return LogicErrorCode.InvalidApiResponse;
       }
     }
-    logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentUser.UserId, $"Error: {response.StatusCode}", logLevel: LogLevel.Error);
+    logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, $"Error: {response.StatusCode}", logLevel: LogLevel.Error);
     return LogicErrorCode.InvalidApiResponse;
   }
 

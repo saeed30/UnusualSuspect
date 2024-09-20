@@ -26,11 +26,11 @@ namespace UnusualSuspect.Api.Endpoints.User
     public override async Task<ActionResult<ApiResultCommon<DailyRewardGetResponse>>> HandleAsync(
         CancellationToken cancellationToken = default)
     {
-      if (!(await gemService.GivenTodayAward(CurrentUser.UserId, cancellationToken)) &&
+      if (!(await gemService.GivenTodayAward(CurrentUser.UserId, cancellationToken)) ||
           !(await coinService.GivenTodayAward(CurrentUser.UserId, cancellationToken)))
       {
         UnusualSuspectServiceResult<(int?, PriceTypeEnum?)> result1 =
-          await gemService.BuyPackagesAsync(BaseGemPackageEnum.DailyAward, "", CurrentUser.UserId, StoreEnum.Unknown, true, cancellationToken);
+          await gemService.BuyPackagesAsync(BaseGemPackageEnum.DailyAward, CurrentUser.UserId, true, cancellationToken);
         UnusualSuspectServiceResult<(int?, PriceTypeEnum?)> result2 =
           await coinService.BuyPackagesAsync(BaseCoinPackageEnum.DailyAward, CurrentUser.UserId, true, cancellationToken);
         if (result1.Success && result2.Success)

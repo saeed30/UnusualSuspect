@@ -61,5 +61,8 @@ public class SoftSetting : BaseEntity
   public int AccompliceLooseCoin { get; set; }
   [Display(Name = "نسخه")]
   public int Version { get; set; }
+  public string SmsProviderApiKey { get; set; }
+  public string CafebazaarAccessToken { get; set; }
+  public string CafebazaarProductId { get; set; }
 
 }

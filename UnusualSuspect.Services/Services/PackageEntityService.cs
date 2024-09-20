@@ -3,18 +3,20 @@ using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
-using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts.Repository;
+using UnusualSuspect.DataLayer.Repositories;
 using UnusualSuspect.Entities.Common;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Identity;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.ViewModels.Dto.Gem;
 
 namespace UnusualSuspect.Services.Services;
 
 public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
   IApplicationUserManager applicationUserManager,
+  IPaymentCafeBazaarRepository paymentCafeBazaarRepository,
   IGemUsedUserRepository gemUsedUserRepository,
   ICoinUsedUserRepository coinUsedUserRepository,
   IPaymentUserRepository paymentUserRepository) : IPackageEntityService
@@ -55,7 +57,7 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
   }
 
   public UnusualSuspectServiceResult<int?> SavePayment(PackageEntity package, int userId, Guid referenceGuid,
-    StoreEnum store = StoreEnum.Unknown, string? token = null)
+    GemPurchaseRequestDto? gemPurchaseRequestDto = null)
   {
     if (!package.PriceTypeId.HasValue || package.Price <= 0)
       return new UnusualSuspectServiceResult<int?>((int?)null);
@@ -64,18 +66,33 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
     switch ((PriceTypeEnum)package.PriceTypeId.Value)
     {
       case PriceTypeEnum.Money:
-        if (token == null || !token.HasValue())
-          throw new Exception($"PurchaseToken not found. userId: {userId} - packageId: {package.Id}");
-        paymentUserRepository.Add(new PaymentUser()
+        PaymentUser paymentUser = new PaymentUser()
         {
           UserId = userId,
           Amount = package.Price,
           UsedForPriceTypeId = (short)priceTypeUsedFor,
           TimeAdded = DateTime.Now,
           ReferenceGuid = referenceGuid,
-          PurchaseToken = token,
-          StoreId = (short)store
-        });
+          StoreId = (short)StoreEnum.Unknown
+        };
+        if (gemPurchaseRequestDto != null && gemPurchaseRequestDto.Store == StoreEnum.Cafebazaar)
+        {
+          if (gemPurchaseRequestDto.CafeBazaarRequestDto == null || string.IsNullOrWhiteSpace(gemPurchaseRequestDto.CafeBazaarRequestDto.PurchaseToken))
+            return LogicErrorCode.PurchaseTokenIsEmpty;
+          if (string.IsNullOrWhiteSpace(gemPurchaseRequestDto.CafeBazaarRequestDto.PackageName))
+            return LogicErrorCode.PackageNameIsEmpty;
+          paymentCafeBazaarRepository.Add(new PaymentCafeBazaar()
+          {
+            IsValid = null,
+            PackageName = gemPurchaseRequestDto.CafeBazaarRequestDto.PackageName,
+            PaymentUser = paymentUser,
+            PurchaseToken = gemPurchaseRequestDto.CafeBazaarRequestDto.PurchaseToken,
+            ValidationCheckDateTime = null,
+            ValidationError = null
+          });
+          paymentUser.StoreId = (short)StoreEnum.Cafebazaar;
+        }
+        paymentUserRepository.Add(paymentUser);
         break;
       case PriceTypeEnum.Gem:
         gemUsedUserRepository.Add(new GemUsedUser()

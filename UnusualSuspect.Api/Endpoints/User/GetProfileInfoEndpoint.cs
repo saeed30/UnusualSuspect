@@ -8,9 +8,9 @@ using UnusualSuspect.Common.Models;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.IServices;
 using ElmahCore;
-using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.Services;
 using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.ViewModels.Dto;
 
 namespace UnusualSuspect.Api.Endpoints.User;
 

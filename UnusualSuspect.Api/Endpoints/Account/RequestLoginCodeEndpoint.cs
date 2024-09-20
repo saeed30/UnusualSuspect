@@ -76,7 +76,7 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
           , "اشکالی در زمان ثبت نام رخ داده است. لطفا بعدا تلاش نمایید");
       }
 
-      var result1 = await gemService.BuyPackagesAsync(BaseGemPackageEnum.SignUpAward, "", user.Id, StoreEnum.Unknown, true, cancellationToken);
+      var result1 = await gemService.BuyPackagesAsync(BaseGemPackageEnum.SignUpAward, user.Id, true, cancellationToken);
       var result2 = await coinService.BuyPackagesAsync(BaseCoinPackageEnum.SignUpAward, user.Id, true, cancellationToken);
       if (result1.Success && result2.Success)
         await uow.SaveChangesAsync(cancellationToken);
@@ -88,11 +88,11 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
           logger.LogEvent(SystemEventType.BaseCoinPackageEnumOnRegisterFailed, user.Id, result2.MainError.ToString(), logLevel: LogLevel.Critical);
       }
     }
-    await minWait.ConfigureAwait(false);
     if (setting.Value.IsTesting)
       return new ApiResultCommon(true, ApiResultStatusCode.Success, "کد تایید: " + code);
-    if (await smsService.SendSmsAsync(phone,
-      Common.Enums.SmsMessageTextEnum.LoginCodeSms, new List<string> { code }))
+    bool smsSent = await smsService.SendOtpAsync(phone, code, user.Id, cancellationToken);
+    await minWait.ConfigureAwait(false);
+    if (smsSent)
       return new ApiResultCommon(true, ApiResultStatusCode.Success, "کد تایید به شماره همراه شما ارسال شد");
     return new ApiResultCommon(false, ApiResultStatusCode.ServerError
       , "اشکالی در زمان ارسال کد به شماره همراه شما رخ داد. لطفا مجدد تلاش نمایید");

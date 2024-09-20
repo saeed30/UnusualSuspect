@@ -6,8 +6,8 @@ using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
-using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.Dto;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 

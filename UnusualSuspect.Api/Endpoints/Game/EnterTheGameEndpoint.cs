@@ -17,11 +17,14 @@ public class EnterTheGameEndpoint(IGameService gameService, INotificationService
   public override async Task<ActionResult<ApiResultCommon<GameGetResponse>>> HandleAsync(
     EnterTheGameRequest request, CancellationToken cancellationToken = default)
   {
-    UnusualSuspectServiceResult<GameGetResponse> result = await gameService.GetGameResponseAsync(CurrentUser.UserId, request.GameId, cancellationToken);
+    UnusualSuspectServiceResult<GameGetResponse> result = await gameService.GetGameResponseAsync(
+      CurrentUser.UserId, request.GameId, cancellationToken);
     if (!result.Success)
-      return new ApiResultCommon<GameGetResponse>(false, ApiResultStatusCode.LogicError, null, result.MainError.ToString());
+      return new ApiResultCommon<GameGetResponse>(false, ApiResultStatusCode.LogicError,
+        null, result.MainError.ToString());
     if (result.Result == null)
-      return new ApiResultCommon<GameGetResponse>(false, ApiResultStatusCode.NotFound, null, "هیچ بازی فعالی برای شما یافت نشد");
+      return new ApiResultCommon<GameGetResponse>(false, ApiResultStatusCode.NotFound,
+        null, "هیچ بازی فعالی برای شما یافت نشد");
     await notificationService.AddToGroupAsync(CurrentUser.UserId, request.ConnectionId, result.Result.RoomName);
     return new ApiResultCommon<GameGetResponse>(true, ApiResultStatusCode.Success, result.Result);
   }

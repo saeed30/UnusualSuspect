@@ -9,6 +9,6 @@ public interface IApiCallService
   Task<UnusualSuspectServiceResult<ApiResultCommon>> ChangeGameStateAsync(ChangeGameStateRequest request,
     string username, CancellationToken cancellationToken = default);
 
-  Task<UnusualSuspectServiceResult<(bool, string?)>> CheckPaymentInCafebazaar(PaymentUser paymentUser, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<(bool, string?)>> CheckPaymentInCafebazaar(PaymentCafeBazaar paymentCafeBazaar, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<(bool, string?)>> CheckPaymentInMyket(PaymentUser paymentUser, CancellationToken cancellationToken = default);
 }

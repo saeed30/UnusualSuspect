@@ -140,5 +140,9 @@ namespace UnusualSuspect.ApiViewModels.Enums
     ManualSettingFromThisStatusToThisStatusNotAvailable = 67,
     [Display(Name = "پاداش روزانه از قبل دریافت شده است")]
     AlreadyRecievedDailyAward = 68,
+    [Display(Name = "نام بسته خریداری شده اجباری است")]
+    PackageNameIsEmpty = 69,
+    [Display(Name = "ورودی ها به درستی مقداردهی نشده است")]
+    InvalidParameters = 70,
   }
 }

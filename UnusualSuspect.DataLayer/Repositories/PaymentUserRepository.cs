@@ -17,8 +17,6 @@ public sealed class PaymentUserRepository(IUnitOfWork uow, ILogger<PaymentUserRe
       result = result.Where(x => x.UserId == filterDto.UserId.Value);
     if (filterDto.MinAmount.HasValue)
       result = result.Where(x => x.Amount >= filterDto.MinAmount.Value);
-    if (filterDto.ExceptPurchaseToken != null)
-      result = result.Where(x => x.PurchaseToken != filterDto.ExceptPurchaseToken);
 
     switch (filterDto.IsValid)
     {

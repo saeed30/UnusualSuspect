@@ -1,7 +1,7 @@
 ﻿using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
-using UnusualSuspect.Entities.Dtos;
 using UnusualSuspect.Entities.GameModels;
+using UnusualSuspect.ViewModels.Dto;
 using UnusualSuspect.ViewModels.Game;
 
 namespace UnusualSuspect.Services.Contracts;

@@ -26,7 +26,10 @@ public sealed class PurchaseEndpoint(ICoinService coinService,
     if (result.Result.Item1.HasValue)
     {
       await uow.SaveChangesAsync(cancellationToken);
-      backgroundJobs.Enqueue<IGemCoinCalculationJobsService>(job => job.RecalculateGemAndCoinByUserId(CurrentUser.UserId));
+      if (result.Result.Item2.HasValue && result.Result.Item2.Value == PriceTypeEnum.Money)
+        backgroundJobs.Enqueue<IGemCoinCalculationJobsService>(job => job.ValidatePayments(CurrentUser.UserId));
+      else
+        backgroundJobs.Enqueue<IGemCoinCalculationJobsService>(job => job.RecalculateGemAndCoinByUserId(CurrentUser.UserId));
     }
     return new ApiResultCommon(result.Result.Item1.HasValue, ApiResultStatusCode.Success);
   }

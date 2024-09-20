@@ -209,4 +209,7 @@ public enum SystemEventType
 
   [Display(Name = "اشکال در زمان استفاده از ChangeGameState به صورت api")]
   ChangeGameStateApiCallFailed,
+
+  [Display(Name = "خطا در زمان بررسی پرداخت در کافه بازار")]
+  CheckPaymentInCafebazaarError,
 }

@@ -309,6 +309,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<short?>("PriceTypeId")
                         .HasColumnType("smallint");
 
+                    b.Property<short>("RepetitionTypeId")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -319,6 +322,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PriceTypeId");
+
+                    b.HasIndex("RepetitionTypeId");
 
                     b.ToTable("CoinPackage");
                 });
@@ -339,6 +344,9 @@ namespace UnusualSuspect.DataLayer.Migrations
 
                     b.Property<Guid>("Guid")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("TimeAdded")
                         .HasColumnType("datetime2");
@@ -567,6 +575,9 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Property<short?>("PriceTypeId")
                         .HasColumnType("smallint");
 
+                    b.Property<short>("RepetitionTypeId")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -577,6 +588,8 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PriceTypeId");
+
+                    b.HasIndex("RepetitionTypeId");
 
                     b.ToTable("GemPackage");
                 });
@@ -728,6 +741,41 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.ToTable("Participate");
                 });
 
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PaymentCafeBazaar", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool?>("IsValid")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PackageName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PurchaseToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ValidationCheckDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ValidationError")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentUserId");
+
+                    b.ToTable("PaymentCafeBazaar");
+                });
+
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PaymentUser", b =>
                 {
                     b.Property<int>("Id")
@@ -741,10 +789,6 @@ namespace UnusualSuspect.DataLayer.Migrations
 
                     b.Property<bool?>("IsValid")
                         .HasColumnType("bit");
-
-                    b.Property<string>("PurchaseToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ReferenceGuid")
                         .HasColumnType("uniqueidentifier");
@@ -760,12 +804,6 @@ namespace UnusualSuspect.DataLayer.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("ValidationCheckDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ValidationError")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -959,6 +997,27 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ReadyToGameStatus");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.RepetitionType", b =>
+                {
+                    b.Property<short>("Id")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ViewOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RepetitionType");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.RoleCard", b =>
@@ -2152,6 +2211,14 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CafebazaarAccessToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CafebazaarProductId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("CoinCostToEnterPreGame")
                         .HasColumnType("int");
 
@@ -2206,6 +2273,10 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SmallTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SmsProviderApiKey")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -2350,7 +2421,15 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("PriceTypeId");
 
+                    b.HasOne("UnusualSuspect.Entities.GameModels.RepetitionType", "RepetitionType")
+                        .WithMany()
+                        .HasForeignKey("RepetitionTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("PriceType");
+
+                    b.Navigation("RepetitionType");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.CoinPackageUser", b =>
@@ -2462,7 +2541,15 @@ namespace UnusualSuspect.DataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("PriceTypeId");
 
+                    b.HasOne("UnusualSuspect.Entities.GameModels.RepetitionType", "RepetitionType")
+                        .WithMany()
+                        .HasForeignKey("RepetitionTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("PriceType");
+
+                    b.Navigation("RepetitionType");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.GemPackageUser", b =>
@@ -2555,6 +2642,17 @@ namespace UnusualSuspect.DataLayer.Migrations
                     b.Navigation("Game");
 
                     b.Navigation("RoleCard");
+                });
+
+            modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PaymentCafeBazaar", b =>
+                {
+                    b.HasOne("UnusualSuspect.Entities.GameModels.PaymentUser", "PaymentUser")
+                        .WithMany()
+                        .HasForeignKey("PaymentUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PaymentUser");
                 });
 
             modelBuilder.Entity("UnusualSuspect.Entities.GameModels.PaymentUser", b =>

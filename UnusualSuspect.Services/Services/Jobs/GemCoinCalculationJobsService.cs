@@ -17,6 +17,7 @@ public sealed class GemCoinCalculationJobsService(IGemUsedUserRepository gemUsed
   IGemPackageUserRepository gemPackageUserRepository,
   ICoinUsedUserRepository coinUsedUserRepository,
   ICoinPackageUserRepository coinPackageUserRepository,
+  IPaymentUserService paymentUserService,
   IUnitOfWork uow,
   ILogger<GemCoinCalculationJobsService> logger,
   IApplicationUserManager applicationUserManager,
@@ -57,6 +58,12 @@ public sealed class GemCoinCalculationJobsService(IGemUsedUserRepository gemUsed
     if (done)
       await uow.SaveChangesAsync();
   }
+
+  public async Task ValidatePayments(int userId)
+  {
+    await paymentUserService.CheckAllUncheckedPayments(userId);
+  }
+
   private async Task RecalculateGemByUserId(ApplicationUser user)
   {
     int result = await gemPackageUserRepository.GetSumAsync(user.Id) -

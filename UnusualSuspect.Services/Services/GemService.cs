@@ -3,8 +3,6 @@ using Microsoft.Extensions.Options;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.ApiViewModels.InnerModels;
-using UnusualSuspect.Common.Extensions;
-using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Identity;
@@ -12,6 +10,7 @@ using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Mapping;
 using UnusualSuspect.ViewModels.Dto;
+using UnusualSuspect.ViewModels.Dto.Gem;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Services;
@@ -34,36 +33,63 @@ public sealed class GemService(IGemPackageRepository gemPackageRepository,
   }
 
   public async Task<UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>> BuyPackagesAsync(
-    BaseGemPackageEnum gemPackage, string purchaseToken, int userId, StoreEnum store, bool bySystem = false,
+    BaseGemPackageEnum gemPackage, int userId, bool isBySystem,
     CancellationToken cancellationToken = default)
   {
-    return await BuyPackagesAsync((short)gemPackage, purchaseToken, userId, store, bySystem, cancellationToken);
+    return await BuyPackagesAsync(new GemPurchaseRequestDto()
+    {
+      GemPackageId = (short)gemPackage,
+      Store = StoreEnum.Unknown,
+      CafeBazaarRequestDto = null,
+      MyketRequestDto = null,
+      IsBySystem = isBySystem
+    }, userId, cancellationToken);
   }
   public async Task<UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>> BuyPackagesAsync(
-    int gemPackageId, string purchaseToken, int userId, StoreEnum store, bool bySystem = false,
+    GemPurchaseRequestDto gemPurchaseRequestDto, int userId,
     CancellationToken cancellationToken = default)
   {
-    if (purchaseToken.IsNull())
-      return LogicErrorCode.PurchaseTokenIsEmpty;
-    short? packageId = gemPackageId.ToShort();
-    if (!packageId.HasValue)
-      return LogicErrorCode.InvalidGemPackageId;
-    GemPackage? package = await gemPackageRepository.GetByIdAsync(packageId.Value, cancellationToken);
+    if (gemPurchaseRequestDto.IsBySystem &&
+        (gemPurchaseRequestDto.CafeBazaarRequestDto != null || gemPurchaseRequestDto.MyketRequestDto != null || gemPurchaseRequestDto.Store != StoreEnum.Unknown))
+      return LogicErrorCode.InvalidParameters;
+    GemPackage? package = await gemPackageRepository.GetByIdAsync(gemPurchaseRequestDto.GemPackageId, cancellationToken);
     if (package == null)
       return LogicErrorCode.InvalidGemPackageId;
     if (!package.IsActive)
       return LogicErrorCode.GemPackageIsNotActive;
-    if (!bySystem && package.Id < 1000 && package.IsPublic)//one time use package
+    if (package.RepetitionTypeId != (short)RepetitionTypeEnum.NoLimit)//one time use package
     {
+      DateTime? fromTime;
+      switch ((RepetitionTypeEnum)package.RepetitionTypeId)
+      {
+        case RepetitionTypeEnum.None:
+          fromTime = null;
+          break;
+        case RepetitionTypeEnum.Daily:
+          fromTime = DateTime.Now.Date;
+          break;
+        case RepetitionTypeEnum.Weekly:
+          fromTime = DateTime.Now.AddDays(-7);
+          break;
+        case RepetitionTypeEnum.Monthly:
+          fromTime = DateTime.Now.AddMonths(-1);
+          break;
+        case RepetitionTypeEnum.Yearly:
+          fromTime = DateTime.Now.AddYears(-1);
+          break;
+        case RepetitionTypeEnum.NoLimit:
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
       if (await gemPackageUserRepository.Search(
-            new GemPackageUserSearchFilterDto(userId, packageId.Value))
+            new GemPackageUserSearchFilterDto(userId, gemPurchaseRequestDto.GemPackageId, fromTime, null))
             .AnyAsync(cancellationToken))
         return LogicErrorCode.AlreadyOwnsThePackage;
     }
     ApplicationUser? user = await applicationUserManager.FindByIdAsync(userId.ToString());
     if (user == null)
       return LogicErrorCode.InvalidUserId;
-    if (!bySystem)
+    if (package.Price > 0)
     {
       var hasEnough = packageEntityService.PayIfHasEnough(package, user, cancellationToken);
       if (!hasEnough.Success)
@@ -72,16 +98,19 @@ public sealed class GemService(IGemPackageRepository gemPackageRepository,
         return LogicErrorCode.DoNotHaveEnoughToPay;
     }
     Guid guid = Guid.NewGuid();
-    gemPackageUserRepository.Add(new GemPackageUser()
+    var gemPackageUser = new GemPackageUser()
     {
       UserId = userId,
-      GemPackageId = packageId.Value,
+      GemPackageId = gemPurchaseRequestDto.GemPackageId,
       TimeAdded = DateTime.Now,
       Guid = guid,
-      IsActive = setting.Value.IsTesting, // become true after validation
+      IsActive = gemPurchaseRequestDto.IsBySystem, // become true after validation
       Amount = package.Amount
-    });
-    UnusualSuspectServiceResult<int?> saved = packageEntityService.SavePayment(package, userId, guid, store, purchaseToken);
+    };
+    gemPackageUserRepository.Add(gemPackageUser);
+    if (gemPackageUser.IsActive)
+      user.CalculatedGems += package.Amount;
+    UnusualSuspectServiceResult<int?> saved = packageEntityService.SavePayment(package, userId, guid, gemPurchaseRequestDto);
     if (!saved.Success)
       return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>(saved.Errors);
     return new UnusualSuspectServiceResult<(int?, PriceTypeEnum?)>((package.Amount, (PriceTypeEnum?)package.PriceTypeId));
@@ -93,7 +122,7 @@ public sealed class GemService(IGemPackageRepository gemPackageRepository,
       .Search(new GemPackageUserSearchFilterDto(
         userId,
         (short)BaseGemPackageEnum.DailyAward,
-        true))
+        DateTime.Now.Date, null))
       .AnyAsync(cancellationToken);
   }
 }
