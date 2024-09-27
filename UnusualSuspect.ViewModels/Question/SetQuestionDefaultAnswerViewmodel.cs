@@ -1,9 +1,8 @@
-﻿namespace UnusualSuspect.ViewModels.Question
+﻿namespace UnusualSuspect.ViewModels.Question;
+
+public class SetQuestionDefaultAnswerViewmodel
 {
-  public class SetQuestionDefaultAnswerViewmodel
-  {
-    public short QuestionId { get; set; }
-    public short CharacterCardId { get; set; }
-    public bool DefaultAnswer { get; set; }
-  }
+  public short QuestionId { get; set; }
+  public short CharacterCardId { get; set; }
+  public bool DefaultAnswer { get; set; }
 }

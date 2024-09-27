@@ -9,12 +9,12 @@ namespace UnusualSuspect.ApiViewModels.Endpoints.Gem
     [SerializeField]
     private string purchaseToken;
     [SerializeField]
-    private string packageName;
+    private string productId;
 
-    public string PackageName
+    public string ProductId
     {
-      get => packageName;
-      set => packageName = value;
+      get => productId;
+      set => productId = value;
     }
 
     public string PurchaseToken

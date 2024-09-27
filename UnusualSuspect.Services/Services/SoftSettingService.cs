@@ -11,18 +11,24 @@ public interface ISoftSettingService
 {
   ResultAction EditSoftSetting(SoftSetting model);
   SoftSetting GetSoftSetting();
-  Task<SoftSetting> GetSoftSettingAsync(CancellationToken cancellationToken = default);
+  Task<SoftSetting> GetSoftSettingAsync(bool ignoreCache = false, CancellationToken cancellationToken = default);
+  Task ExecuteUpdateCafebazaarAccessToken(string cafebazaarAccessToken);
 }
 
-public class SoftSettingService(IUnitOfWork uow, ILogService iLogService, ISoftSettingRepository softSettingRepository) : ISoftSettingService
+public sealed class SoftSettingService(IUnitOfWork uow, ILogService iLogService, ISoftSettingRepository softSettingRepository) : ISoftSettingService
 {
   public SoftSetting GetSoftSetting()
   {
     return softSettingRepository.Get() ?? new SoftSetting();
   }
-  public async Task<SoftSetting> GetSoftSettingAsync(CancellationToken cancellationToken = default)
+  public async Task<SoftSetting> GetSoftSettingAsync(bool ignoreCache = false, CancellationToken cancellationToken = default)
   {
-    return await softSettingRepository.GetAsync(cancellationToken) ?? new SoftSetting();
+    return await softSettingRepository.GetAsync(ignoreCache, cancellationToken) ?? new SoftSetting();
+  }
+
+  public async Task ExecuteUpdateCafebazaarAccessToken(string cafebazaarAccessToken)
+  {
+    await softSettingRepository.ExecuteUpdateCafebazaarAccessToken(cafebazaarAccessToken);
   }
 
   public ResultAction EditSoftSetting(SoftSetting model)

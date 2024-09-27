@@ -141,8 +141,12 @@ namespace UnusualSuspect.ApiViewModels.Enums
     [Display(Name = "پاداش روزانه از قبل دریافت شده است")]
     AlreadyRecievedDailyAward = 68,
     [Display(Name = "نام بسته خریداری شده اجباری است")]
-    PackageNameIsEmpty = 69,
+    ProductIdIsEmpty = 69,
     [Display(Name = "ورودی ها به درستی مقداردهی نشده است")]
     InvalidParameters = 70,
+    [Display(Name = "توکن کافه بازار از پیش استفاده شده است")]
+    CafeBazaarPurchaseTokenWasUsed = 71,
+    [Display(Name = "درخواست به سرویس خارجی با خطا پاسخ داده شد")]
+    ApiRespondedWithError = 72,
   }
 }

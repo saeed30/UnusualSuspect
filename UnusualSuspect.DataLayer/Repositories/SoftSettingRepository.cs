@@ -7,12 +7,12 @@ using UnusualSuspect.Entities.Models;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public class SoftSettingRepository(IUnitOfWork uow,
+public sealed class SoftSettingRepository(IUnitOfWork uow,
     ILogger<SoftSettingRepository> logger,
     IMemoryCacheService memoryCacheService)
   : EfRepository<SoftSetting>(uow, logger), ISoftSettingRepository
 {
-  public async Task<SoftSetting?> GetAsync(CancellationToken cancellationToken = default, bool ignoreCache = false)
+  public async Task<SoftSetting?> GetAsync(bool ignoreCache = false, CancellationToken cancellationToken = default)
   {
     SoftSetting? setting = null;
     if (!ignoreCache)
@@ -26,5 +26,10 @@ public class SoftSettingRepository(IUnitOfWork uow,
     if (!ignoreCache)
       setting = memoryCacheService.GetSoftSetting();
     return setting ?? BaseEntity.FirstOrDefault();
+  }
+
+  public async Task<int> ExecuteUpdateCafebazaarAccessToken(string cafebazaarAccessToken)
+  {
+    return await BaseEntity.ExecuteUpdateAsync(x => x.SetProperty(a => a.CafebazaarAccessToken, cafebazaarAccessToken));
   }
 }

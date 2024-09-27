@@ -55,7 +55,7 @@ public class SmsService(IOptionsSnapshot<ProjectSetting> setting,
   #region sms-webservice.com
   private async Task<string> SmsWebserviceComSendOtpAsync(string mobile, string code, CancellationToken cancellationToken = default)
   {
-    var setting = await softSettingService.GetSoftSettingAsync(cancellationToken);
+    var setting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
     string apiKey = setting.SmsProviderApiKey;//"268091-bdd186bb39f6461685f91088568704e4";
     string templateKey = "GameLogin";
     string p1 = code;

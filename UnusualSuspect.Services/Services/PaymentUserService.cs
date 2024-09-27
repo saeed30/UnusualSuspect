@@ -26,7 +26,7 @@ public class PaymentUserService(IPaymentUserRepository paymentUserRepository,
       result = await cafeBazaarRepository.GetAll()
       .Include(x => x.PaymentUser)
       .ThenInclude(x => x.ApplicationUser)
-      .Where(x => !x.IsValid.HasValue && x.PaymentUserId == userId.Value).ToListAsync(cancellationToken);
+      .Where(x => !x.IsValid.HasValue && x.PaymentUser.UserId == userId.Value).ToListAsync(cancellationToken);
     else
       result = await cafeBazaarRepository.GetAll()
       .Include(x => x.PaymentUser)
@@ -56,16 +56,22 @@ public class PaymentUserService(IPaymentUserRepository paymentUserRepository,
               .GetAll().FirstOrDefaultAsync(x => x.Guid == paymentCafeBazaar.PaymentUser.ReferenceGuid, cancellationToken);
             if (gemPackage == null)
               throw new Exception("Gem package not found");
-            gemPackage.IsActive = true;
-            paymentCafeBazaar.PaymentUser.ApplicationUser.CalculatedGems += gemPackage.Amount;
+            if (!gemPackage.IsActive)
+            {
+              gemPackage.IsActive = true;
+              paymentCafeBazaar.PaymentUser.ApplicationUser.CalculatedGems += gemPackage.Amount;
+            }
             break;
           case PriceTypeEnum.Coin:
             var coinPackage = await coinPackageUserRepository
               .GetAll().FirstOrDefaultAsync(x => x.Guid == paymentCafeBazaar.PaymentUser.ReferenceGuid, cancellationToken);
             if (coinPackage == null)
               throw new Exception("Coin package not found");
-            coinPackage.IsActive = true;
-            paymentCafeBazaar.PaymentUser.ApplicationUser.CalculatedCoins += coinPackage.Amount;
+            if (!coinPackage.IsActive)
+            {
+              coinPackage.IsActive = true;
+              paymentCafeBazaar.PaymentUser.ApplicationUser.CalculatedCoins += coinPackage.Amount;
+            }
             break;
           case PriceTypeEnum.Avatar:
           case PriceTypeEnum.Sticker:

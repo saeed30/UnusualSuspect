@@ -109,7 +109,8 @@ public static class GameMapper
           AvatarId = participate.ApplicationUser.AvatarId ?? -1,
           Id = participate.ApplicationUser.Id,
           NickName = participate.ApplicationUser.NickName,
-          Username = participate.ApplicationUser.UserName
+          Username = participate.ApplicationUser.UserName,
+          IsMale = participate.ApplicationUser.IsMale ?? true
         }
       });
     }

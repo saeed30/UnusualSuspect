@@ -15,7 +15,7 @@ public class GamePricesGetEndpoint(ISoftSettingService softSettingService) : MyB
   [HttpGet("api/[namespace]/GamePricesGet")]
   public override async Task<ActionResult<ApiResultCommon<GamePricesGetResponse>>> HandleAsync(CancellationToken cancellationToken = default)
   {
-    var softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
+    var softSetting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
     return new ApiResultCommon<GamePricesGetResponse>(true, ApiResultStatusCode.Success, new GamePricesGetResponse()
     {
       JoinNormalGamePriceInCoin = softSetting.CoinCostToEnterPreGame,

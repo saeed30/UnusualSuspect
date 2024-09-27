@@ -4,6 +4,7 @@ namespace UnusualSuspect.DataLayer.Contracts.Repository;
 
 public interface ISoftSettingRepository : IAsyncRepository<SoftSetting>
 {
-  Task<SoftSetting?> GetAsync(CancellationToken cancellationToken = default, bool ignoreCache = false);
+  Task<SoftSetting?> GetAsync(bool ignoreCache = false, CancellationToken cancellationToken = default);
   SoftSetting? Get(bool ignoreCache = false);
+  Task<int> ExecuteUpdateCafebazaarAccessToken(string cafebazaarAccessToken);
 }

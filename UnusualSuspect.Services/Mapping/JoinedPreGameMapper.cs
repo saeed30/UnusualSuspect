@@ -19,7 +19,8 @@ public static class JoinedPreGameMapper
         AvatarId = value.User.AvatarId ?? -1,
         Id = value.User.Id,
         NickName = value.User.NickName,
-        Username = value.User.UserName
+        Username = value.User.UserName,
+        IsMale = value.User.IsMale ?? true
       }
     };
   }

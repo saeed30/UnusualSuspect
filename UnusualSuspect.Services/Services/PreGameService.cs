@@ -71,7 +71,7 @@ public sealed class PreGameService(IUnitOfWork uow,
     //  await RemoveFromAllUserPreGames(oldPreGames.ToList(), userId, cancellationToken);
     //}
     await UnreadyAllUserReadyPreGameGroups(userId, cancellationToken);
-    var softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
+    var softSetting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
     Guid newGuid = Guid.NewGuid();
     if (softSetting.CoinCostToEnterPreGameForHost > 0 && gameType.AllowUserToAddOtherUsers)
     {
@@ -165,7 +165,7 @@ public sealed class PreGameService(IUnitOfWork uow,
         if (await gameRepository.UserIsInActiveGameAsync(joinedPreGame.UserId, cancellationToken))
           return LogicErrorCode.UserIsInActiveGame;
       }
-      var softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
+      var softSetting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
       if (softSetting.CoinCostToEnterPreGame > 0)
       {
         ApplicationUser? user = applicationUserManager.FindById(joinedPreGame.UserId);
@@ -418,7 +418,7 @@ public sealed class PreGameService(IUnitOfWork uow,
 
   public async Task DeleteExpiredPregameGroupsAsync(CancellationToken cancellationToken)
   {
-    int expireMinutes = (await softSetting.GetSoftSettingAsync(cancellationToken)).PreGameGroupExpiresInMinutes;
+    int expireMinutes = (await softSetting.GetSoftSettingAsync(false, cancellationToken)).PreGameGroupExpiresInMinutes;
     if (expireMinutes <= 0)
       return;
     PreGameGroup? group = await preGameGroupRepository.GetFirstExpiredPregameGroupWithDetailsAsync(expireMinutes, cancellationToken);
@@ -618,7 +618,7 @@ public sealed class PreGameService(IUnitOfWork uow,
           RoleCardId = (short)role,
           Guid = newGuid
         });
-        var softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
+        var softSetting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
         if (softSetting.CoinCostToEnterPreGame > 0)
         {
           CoinUsedUser? coinUsedUser = await coinUsedUserRepository.GetPreGameSavePaymentAsync(joined[j].Guid, cancellationToken);

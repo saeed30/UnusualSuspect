@@ -27,7 +27,7 @@ public static class GemMapper
   {
     return new CafeBazaarRequestDto()
     {
-      PackageName = model.PackageName,
+      ProductId = model.ProductId,
       PurchaseToken = model.PurchaseToken
     };
   }

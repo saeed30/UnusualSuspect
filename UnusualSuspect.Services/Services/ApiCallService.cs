@@ -1,5 +1,7 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -8,6 +10,7 @@ using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Models;
+using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Services.Contracts;
@@ -22,7 +25,8 @@ public sealed class ApiCallService(IJwtService iJwtService,
   IApplicationUserManager iApplicationUserManager,
   IOptionsSnapshot<ProjectSetting> setting,
   ISoftSettingService softSettingService,
-  ILogger<ApiCallService> logger) : IApiCallService
+  ILogger<ApiCallService> logger,
+  IMemoryCacheService memoryCacheService) : IApiCallService
 {
   public async Task<UnusualSuspectServiceResult<ApiResultCommon>> ChangeGameStateAsync(ChangeGameStateRequest request, string username, CancellationToken cancellationToken = default)
   {
@@ -53,35 +57,35 @@ public sealed class ApiCallService(IJwtService iJwtService,
 
   }
 
-  public async Task<UnusualSuspectServiceResult<(bool, string?)>> CheckPaymentInCafebazaar(PaymentCafeBazaar paymentCafeBazaar, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<(bool, string?)>> CheckPaymentInCafebazaar(
+    PaymentCafeBazaar paymentCafeBazaar, CancellationToken cancellationToken = default)
   {
-    SoftSetting softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
+    SoftSetting softSetting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
     using HttpClient httpClient = new HttpClient();
-    string packageName = paymentCafeBazaar.PackageName;
-    string productId = softSetting.CafebazaarProductId;
+    string packageName = softSetting.CafebazaarPackageName;
+    string productId = paymentCafeBazaar.ProductId;
     string accessToken = softSetting.CafebazaarAccessToken;
     string purchaseToken = paymentCafeBazaar.PurchaseToken;
+    string url = $"https://pardakht.cafebazaar.ir/devapi/v2/api/validate/{packageName}/inapp/{productId}/purchases/{purchaseToken}?access_token={accessToken}";
 
-    string url = $"https://pardakht.cafebazaar.ir/devapi/v2/api/validate/{packageName}/inapp/{productId}/purchases/{purchaseToken}";
-
-    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+    //httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
     HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
-    if (response.IsSuccessStatusCode)
+    string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+    try
     {
-      string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-      try
+      if (response.IsSuccessStatusCode)
       {
-        if (response.IsSuccessStatusCode)
+        PurchaseValidationResponse? validationResponse = JsonConvert.DeserializeObject<PurchaseValidationResponse>(responseBody);
+        if (validationResponse == null)
         {
-          PurchaseValidationResponse? validationResponse = JsonConvert.DeserializeObject<PurchaseValidationResponse>(responseBody);
-          if (validationResponse == null)
-          {
-            logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, responseBody, logLevel: LogLevel.Critical);
-            return LogicErrorCode.InvalidApiResponse;
-          }
-          return new UnusualSuspectServiceResult<(bool, string?)>((true, null));
+          logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, responseBody, logLevel: LogLevel.Critical);
+          return LogicErrorCode.InvalidApiResponse;
         }
+        return new UnusualSuspectServiceResult<(bool, string?)>((true, null));
+      }
+      if (response.StatusCode == HttpStatusCode.NotFound)
+      {
         ErrorResponse? errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseBody);
         if (errorResponse == null)
         {
@@ -90,14 +94,47 @@ public sealed class ApiCallService(IJwtService iJwtService,
         }
         return new UnusualSuspectServiceResult<(bool, string?)>((false, errorResponse.ErrorDescription));
       }
-      catch (Exception a)
+      if (response.StatusCode == HttpStatusCode.Unauthorized)
       {
-        logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, responseBody, exception: a, logLevel: LogLevel.Error);
-        return LogicErrorCode.InvalidApiResponse;
+        logger.LogEvent(SystemEventType.CafeBazzarCheckPaymentErrorResponse, paymentCafeBazaar.Id, $"StatusCode: {response.StatusCode} - response: {response.ToString()}", logLevel: LogLevel.Critical);
+        await CafebazaarRefreshTokenAsync(softSetting);
       }
+      logger.LogEvent(SystemEventType.CafeBazzarCheckPaymentErrorResponse, paymentCafeBazaar.Id, $"StatusCode: {response.StatusCode} - response: {response.ToString()}", logLevel: LogLevel.Critical);
+      return LogicErrorCode.ApiRespondedWithError;
     }
-    logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, $"Error: {response.StatusCode}", logLevel: LogLevel.Error);
-    return LogicErrorCode.InvalidApiResponse;
+    catch (Exception a)
+    {
+      logger.LogEvent(SystemEventType.ErrorOnDeserializingCafeBazzarResponse, paymentCafeBazaar.PaymentUserId, responseBody, exception: a, logLevel: LogLevel.Error);
+      return LogicErrorCode.InvalidApiResponse;
+    }
+  }
+
+  public async Task CafebazaarRefreshTokenAsync(SoftSetting softSetting)
+  {
+    using HttpClient httpClient = new HttpClient();
+    var requestBody = new Dictionary<string, string>
+    {
+      { "grant_type", "refresh_token" },
+      { "client_id", softSetting.CafebazaarClientId },
+      { "client_secret", softSetting.CafebazaarClientSecret },
+      { "refresh_token", softSetting.CafebazaarRefreshToken }
+    };
+
+    var requestContent = new FormUrlEncodedContent(requestBody);
+    var response = await httpClient.PostAsync("https://pardakht.cafebazaar.ir/devapi/v2/auth/token/", requestContent);
+
+    if (!response.IsSuccessStatusCode)
+    {
+      logger.LogEvent(SystemEventType.CafeBazzarRefreshTokenErrorResponse, null, $"StatusCode: {response.StatusCode} - response: {response.ToString()}", logLevel: LogLevel.Critical);
+      return;
+    }
+
+    var responseContent = await response.Content.ReadAsStringAsync();
+    var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(responseContent);
+
+    softSetting.CafebazaarAccessToken = tokenResponse.AccessToken;
+    await softSettingService.ExecuteUpdateCafebazaarAccessToken(tokenResponse.AccessToken);
+    memoryCacheService.ClearSoftSetting();
   }
 
   public Task<UnusualSuspectServiceResult<(bool, string?)>> CheckPaymentInMyket(PaymentUser paymentUser, CancellationToken cancellationToken = default)

@@ -7,7 +7,7 @@ public class PaymentCafeBazaar : BaseEntity
 {
   public string PurchaseToken { get; set; }
   public string? ValidationError { get; set; }
-  public string PackageName { get; set; }
+  public string ProductId { get; set; }
   public DateTime? ValidationCheckDateTime { get; set; }
   public bool? IsValid { get; set; }
   public int PaymentUserId { get; set; }

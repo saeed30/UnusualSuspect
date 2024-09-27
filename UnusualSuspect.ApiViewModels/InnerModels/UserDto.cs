@@ -14,6 +14,14 @@ namespace UnusualSuspect.ApiViewModels.InnerModels
     private string? nickName;
     [SerializeField]
     private int avatarId;
+    [SerializeField]
+    private bool isMale;
+
+    public bool IsMale
+    {
+      set => isMale = value;
+      get => isMale;
+    }
 
     public int AvatarId
     {

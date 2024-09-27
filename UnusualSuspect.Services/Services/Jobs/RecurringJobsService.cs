@@ -32,17 +32,22 @@ public class RecurringJobsService(IRankingService rankingService,
       ElmahExtensions.RaiseError(e);
     }
   }
+  private static readonly SemaphoreSlim SemaphoreCheckAllUncheckedPayments = new SemaphoreSlim(1, 1);
   [DisableConcurrentExecution(timeoutInSeconds: 60)]
   public async Task CheckAllUncheckedPayments(CancellationToken cancellationToken)
   {
-    return;
     try
     {
+      await SemaphoreCheckAllUncheckedPayments.WaitAsync(cancellationToken);
       await paymentUserService.CheckAllUncheckedPayments(null, cancellationToken);
     }
     catch (Exception e)
     {
       ElmahExtensions.RaiseError(e);
+    }
+    finally
+    {
+      SemaphoreCheckAllUncheckedPayments.Release();
     }
   }
 }

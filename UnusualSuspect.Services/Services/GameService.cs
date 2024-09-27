@@ -379,7 +379,7 @@ public sealed class GameService(IUnitOfWork uow,
     if (game.GameStatusId != (short)GameStatusEnum.FinishedAndLostTheGame &&
        game.GameStatusId != (short)GameStatusEnum.FinishedAndWonTheGame)
       return LogicErrorCode.GameNotFinished;
-    return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse(await softSettingService.GetSoftSettingAsync(cancellationToken)));
+    return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse(await softSettingService.GetSoftSettingAsync(false, cancellationToken)));
   }
   public async Task<UnusualSuspectServiceResult<TurnOfPlayTalkingState>> StartTurnOfPlayAsync(int gameId)
   {

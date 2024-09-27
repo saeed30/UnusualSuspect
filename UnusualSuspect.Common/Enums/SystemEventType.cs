@@ -212,4 +212,13 @@ public enum SystemEventType
 
   [Display(Name = "خطا در زمان بررسی پرداخت در کافه بازار")]
   CheckPaymentInCafebazaarError,
+
+  [Display(Name = "پاک سازی دستی کش تنظیمات")]
+  ManualClearSoftSettingCache,
+
+  [Display(Name = "پاسخ خطا به درخواست بررسی پرداخت کافه بازار")]
+  CafeBazzarCheckPaymentErrorResponse,
+
+  [Display(Name = "پاسخ خطا به درخواست بروزرسانی توکن کافه بازار")]
+  CafeBazzarRefreshTokenErrorResponse,
 }

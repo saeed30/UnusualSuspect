@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnusualSuspect.ViewModels.Dto.Gem
+namespace UnusualSuspect.ViewModels.Dto.Gem;
+
+public class MyketRequestDto
 {
-  public class MyketRequestDto
-  {
-  }
 }

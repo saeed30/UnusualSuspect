@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Common.Enums;
@@ -79,12 +80,16 @@ public sealed class PackageEntityService(ILogger<PackageEntityService> logger,
         {
           if (gemPurchaseRequestDto.CafeBazaarRequestDto == null || string.IsNullOrWhiteSpace(gemPurchaseRequestDto.CafeBazaarRequestDto.PurchaseToken))
             return LogicErrorCode.PurchaseTokenIsEmpty;
-          if (string.IsNullOrWhiteSpace(gemPurchaseRequestDto.CafeBazaarRequestDto.PackageName))
-            return LogicErrorCode.PackageNameIsEmpty;
+          if (string.IsNullOrWhiteSpace(gemPurchaseRequestDto.CafeBazaarRequestDto.ProductId))
+            return LogicErrorCode.ProductIdIsEmpty;
+          bool alreadyExists = paymentCafeBazaarRepository.GetAll().Any(x =>
+            x.PurchaseToken == gemPurchaseRequestDto.CafeBazaarRequestDto.PurchaseToken);
+          if(alreadyExists)
+            return LogicErrorCode.CafeBazaarPurchaseTokenWasUsed;
           paymentCafeBazaarRepository.Add(new PaymentCafeBazaar()
           {
             IsValid = null,
-            PackageName = gemPurchaseRequestDto.CafeBazaarRequestDto.PackageName,
+            ProductId = gemPurchaseRequestDto.CafeBazaarRequestDto.ProductId,
             PaymentUser = paymentUser,
             PurchaseToken = gemPurchaseRequestDto.CafeBazaarRequestDto.PurchaseToken,
             ValidationCheckDateTime = null,

@@ -8,7 +8,7 @@ public class BaseDataService(ISoftSettingService softSettingService) : IBaseData
 {
   public async Task<UnusualSuspectServiceResult<BaseDataGetResponse>> GetBaseDataGetResponseAsync(int userId, CancellationToken cancellationToken = default)
   {
-    SoftSetting setting = await softSettingService.GetSoftSettingAsync(cancellationToken);
+    SoftSetting setting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
     return new UnusualSuspectServiceResult<BaseDataGetResponse>(new BaseDataGetResponse()
     {
       Version = setting.Version

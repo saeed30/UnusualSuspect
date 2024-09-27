@@ -17,7 +17,7 @@ public sealed class ScoreService(IScoreRepository scoreRepository,
   public async Task<UnusualSuspectServiceResult<bool>> SetGameFinishedScoresAsync(
     int gameId, bool won, List<Participate> participates, CancellationToken cancellationToken = default)
   {
-    SoftSetting softSetting = await softSettingService.GetSoftSettingAsync(cancellationToken);
+    SoftSetting softSetting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
     foreach (Participate participate in participates)
     {
       GameRole gameRole = (GameRole)participate.RoleCardId;

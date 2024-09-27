@@ -63,6 +63,9 @@ public class SoftSetting : BaseEntity
   public int Version { get; set; }
   public string SmsProviderApiKey { get; set; }
   public string CafebazaarAccessToken { get; set; }
-  public string CafebazaarProductId { get; set; }
+  public string CafebazaarPackageName { get; set; }
+  public string CafebazaarClientId { get; set; }
+  public string CafebazaarClientSecret { get; set; }
+  public string CafebazaarRefreshToken { get; set; }
 
 }
