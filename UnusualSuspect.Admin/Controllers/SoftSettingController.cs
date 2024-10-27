@@ -22,7 +22,7 @@ public class SoftSettingController : Controller
     public ActionResult EditeSoftSetting()
     {
         LanguageName = "fa-IR";// Request.HttpContext.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
-        return View(_ISoftSettingService.GetSoftSetting());
+        return View(_ISoftSettingService.GetSoftSetting(true));
     }
 
     [ServiceFilter(typeof(UserFilters))]

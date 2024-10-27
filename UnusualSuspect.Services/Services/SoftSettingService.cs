@@ -10,16 +10,16 @@ namespace UnusualSuspect.Services.Services;
 public interface ISoftSettingService
 {
   ResultAction EditSoftSetting(SoftSetting model);
-  SoftSetting GetSoftSetting();
+  SoftSetting GetSoftSetting(bool ignoreCache = false);
   Task<SoftSetting> GetSoftSettingAsync(bool ignoreCache = false, CancellationToken cancellationToken = default);
   Task ExecuteUpdateCafebazaarAccessToken(string cafebazaarAccessToken);
 }
 
 public sealed class SoftSettingService(IUnitOfWork uow, ILogService iLogService, ISoftSettingRepository softSettingRepository) : ISoftSettingService
 {
-  public SoftSetting GetSoftSetting()
+  public SoftSetting GetSoftSetting(bool ignoreCache = false)
   {
-    return softSettingRepository.Get() ?? new SoftSetting();
+    return softSettingRepository.Get(ignoreCache) ?? new SoftSetting();
   }
   public async Task<SoftSetting> GetSoftSettingAsync(bool ignoreCache = false, CancellationToken cancellationToken = default)
   {

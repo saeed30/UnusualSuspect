@@ -1,6 +1,10 @@
-﻿using ElmahCore;
+﻿using Aspose.Cells;
+using ElmahCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Security.AccessControl;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums;
@@ -13,6 +17,7 @@ using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Entities.Identity;
+using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Mapping;
@@ -268,9 +273,10 @@ public sealed class PreGameService(IUnitOfWork uow,
   public async Task CombineGroupsToStartGames(CancellationToken cancellationToken = default)
   {
     var gameTypes = await gameTypeRepository.GetActiveGameTypesAsync(cancellationToken);
+    var setting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
     foreach (var gameType in gameTypes)
     {
-      await CombineGroupsToStartGamesByGameTypeAsync(gameType, cancellationToken);
+      await CombineGroupsToStartGamesByGameTypeAsync(gameType, setting, cancellationToken);
     }
   }
 
@@ -437,7 +443,7 @@ public sealed class PreGameService(IUnitOfWork uow,
   }
 
   #region PrivateMethods
-  private async Task CombineGroupsToStartGamesByGameTypeAsync(GameType gameType, CancellationToken cancellationToken)
+  private async Task CombineGroupsToStartGamesByGameTypeAsync(GameType gameType, Entities.Models.SoftSetting softSetting, CancellationToken cancellationToken)
   {
     bool needToRefill = true;
     List<PreGameGroup> topGroups = new List<PreGameGroup>();
@@ -451,24 +457,48 @@ public sealed class PreGameService(IUnitOfWork uow,
       }
       if (!topGroups.Any())
         return;
+      int totalPlayersInQueue = topGroups.Sum(x => x.CalculatedJoinedUsers);
+      if (totalPlayersInQueue < 2)//min required
+        return;
       int currentGameUserCount = 0;
       List<PreGameGroup> currentGamePreGameGroups = new List<PreGameGroup>();
-      for (int i = 0; i < topGroups.Count; i++)
+      List<ApplicationUser> botUsers = new List<ApplicationUser>();
+      if (totalPlayersInQueue < gameType.NumberOfPlayers && softSetting.WaitTimeToAddEachBotInSec > 0)//not enough players to create game
       {
-        if (topGroups[i].CalculatedJoinedUsers > gameType.NumberOfPlayers)
-          throw new Exception($"invalid group CalculatedJoinedUsers: {topGroups[i].Id} - CalculatedJoinedUsers: {topGroups[i].CalculatedJoinedUsers}");
-        if (topGroups[i].CalculatedJoinedUsers + currentGameUserCount <= gameType.NumberOfPlayers)
+        double mostWaitTime = (DateTime.Now - topGroups.Min(x => x.ReadyToGameTime.Value)).TotalSeconds;
+        int numberOfPlayersCanBeAdded = (int)Math.Floor(mostWaitTime / softSetting.WaitTimeToAddEachBotInSec);
+        if (numberOfPlayersCanBeAdded + totalPlayersInQueue >= gameType.NumberOfPlayers)//can start game using bots
         {
-          currentGamePreGameGroups.Add(topGroups[i]);
-          currentGameUserCount += topGroups[i].CalculatedJoinedUsers;
+          currentGamePreGameGroups.AddRange(topGroups);
+          currentGameUserCount = totalPlayersInQueue;
+          botUsers = await GetFreeBotUsersAsync(gameType.NumberOfPlayers - currentGameUserCount, cancellationToken);
+          if (botUsers == null || botUsers.Count != gameType.NumberOfPlayers - currentGameUserCount)
+            return; //could not get free bots
+          currentGameUserCount += botUsers.Count;
         }
-        if (currentGameUserCount >= gameType.NumberOfPlayers)
-          break;
+        else
+          return;//total number of players in queue and the bots are lower that required number of players
       }
-
+      else
+      {
+        for (int i = 0; i < topGroups.Count; i++)
+        {
+          if (topGroups[i].CalculatedJoinedUsers > gameType.NumberOfPlayers)
+            throw new Exception($"invalid group CalculatedJoinedUsers: {topGroups[i].Id} - CalculatedJoinedUsers: {topGroups[i].CalculatedJoinedUsers}");
+          if (topGroups[i].CalculatedJoinedUsers + currentGameUserCount <= gameType.NumberOfPlayers)
+          {
+            currentGamePreGameGroups.Add(topGroups[i]);
+            currentGameUserCount += topGroups[i].CalculatedJoinedUsers;
+          }
+          if (currentGameUserCount >= gameType.NumberOfPlayers)
+            break;
+        }
+      }
       if (currentGameUserCount == gameType.NumberOfPlayers)
       {
-        Game game = await CreateGameWithSelectedPreGameGroupAsync(currentGamePreGameGroups, gameType, cancellationToken);
+        Game? game = await CreateGameWithSelectedPreGameGroupAsync(currentGamePreGameGroups, gameType, botUsers, softSetting, cancellationToken);
+        if (game == null)
+          return;
         await SaveChangesAsync(cancellationToken);
         Game? gameWithDetails = await gameRepository.GetGameWithDetailsAsync(game.Id, cancellationToken);
         if (gameWithDetails == null)
@@ -549,8 +579,13 @@ public sealed class PreGameService(IUnitOfWork uow,
      */
   }
 
-  private async Task<Game> CreateGameWithSelectedPreGameGroupAsync(List<PreGameGroup> preGameGroups, GameType gameType,
-    CancellationToken cancellationToken = default)
+  private async Task<List<ApplicationUser>> GetFreeBotUsersAsync(int numberOfBots, CancellationToken cancellationToken = default)
+  {
+    return await applicationUserManager.GetFreeBotUsersAsync(numberOfBots, cancellationToken);
+  }
+
+  private async Task<Game?> CreateGameWithSelectedPreGameGroupAsync(List<PreGameGroup> preGameGroups, GameType gameType,
+    List<ApplicationUser> botUsers, SoftSetting softSetting, CancellationToken cancellationToken = default)
   {
     Game game = gameRepository.Add(new Game()
     {
@@ -559,7 +594,9 @@ public sealed class PreGameService(IUnitOfWork uow,
       GameType = gameType,
       GameStatusId = (short)GameStatusEnum.WaitingForPlayers
     });
-    await AddGameParticipants(preGameGroups, game, gameType, cancellationToken);
+    bool done = await AddGameParticipants(preGameGroups, game, gameType, botUsers, softSetting, cancellationToken);
+    if (!done)
+      return null;
     await Add12RandomCharactersToGame(game, cancellationToken);
     await Add11RandomQuestionsToGame(game, cancellationToken);
     return game;
@@ -579,11 +616,14 @@ public sealed class PreGameService(IUnitOfWork uow,
     }
   }
 
-  private async Task AddGameParticipants(List<PreGameGroup> preGameGroups, Game game, GameType gameType,
-    CancellationToken cancellationToken = default)
+  private async Task<bool> AddGameParticipants(List<PreGameGroup> preGameGroups, Game game, GameType gameType,
+    List<ApplicationUser> botUsers, SoftSetting softSetting, CancellationToken cancellationToken = default)
   {
     short counter = 1;
-    List<int> selectedNumbers = RandomHelper.GetUniqueRandomNumbers(0, gameType.NumberOfPlayers - 1, 3);
+    int humanPlayerCount = gameType.NumberOfPlayers - 1 - botUsers.Count;
+    if (humanPlayerCount < 2)
+      return false;
+    List<int> selectedNumbers = RandomHelper.GetUniqueRandomNumbers(0, humanPlayerCount, humanPlayerCount >= 3 ? 3 : 2);
     int usersAddedCounter = 0;
     for (int i = 0; i < preGameGroups.Count; i++)
     {
@@ -601,11 +641,11 @@ public sealed class PreGameService(IUnitOfWork uow,
         //random role selection
         RoleCardEnum role;
         if (selectedNumbers[0] == usersAddedCounter)
-          role = RoleCardEnum.Accomplice;
+          role = RoleCardEnum.Witness;
         else if (selectedNumbers[1] == usersAddedCounter)
           role = RoleCardEnum.MainDetective;
-        else if (selectedNumbers[2] == usersAddedCounter)
-          role = RoleCardEnum.Witness;
+        else if (selectedNumbers.Count > 2 && selectedNumbers[2] == usersAddedCounter)
+          role = RoleCardEnum.Accomplice;
         else
           role = RoleCardEnum.Detective;
         Guid newGuid = Guid.NewGuid();
@@ -618,7 +658,6 @@ public sealed class PreGameService(IUnitOfWork uow,
           RoleCardId = (short)role,
           Guid = newGuid
         });
-        var softSetting = await softSettingService.GetSoftSettingAsync(false, cancellationToken);
         if (softSetting.CoinCostToEnterPreGame > 0)
         {
           CoinUsedUser? coinUsedUser = await coinUsedUserRepository.GetPreGameSavePaymentAsync(joined[j].Guid, cancellationToken);
@@ -636,10 +675,31 @@ public sealed class PreGameService(IUnitOfWork uow,
         }
         usersAddedCounter++;
       }
-
       preGameGroups[i].PreGameGroupStatusId = (short)PreGameGroupStatusEnum.InGame;
       preGameGroups[i].Game = game;
     }
+    if(botUsers.Any())
+    {
+      for (int i = 0; i < botUsers.Count; i++)
+      {
+        RoleCardEnum role;
+        if (humanPlayerCount == 2 && i == 0)
+          role = RoleCardEnum.Accomplice;
+        else
+          role = RoleCardEnum.Detective;
+        Guid newGuid = Guid.NewGuid();
+        participateRepository.Add(new Participate()
+        {
+          UserId = botUsers[i].Id,
+          Game = game,
+          IsActive = true,
+          OrderOfParticipation = counter++,
+          RoleCardId = (short)role,
+          Guid = newGuid
+        });
+      }
+    }
+    return true;
   }
 
   private async Task Add12RandomCharactersToGame(Game game, CancellationToken cancellationToken = default)

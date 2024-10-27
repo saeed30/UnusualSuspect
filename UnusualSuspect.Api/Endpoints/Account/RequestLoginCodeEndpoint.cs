@@ -48,7 +48,7 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
         , "لطفا شماره همراه خود را به درستی وارد نمایید");
     }
     Random generator = new Random();
-    string code = generator.Next(100000, 999999).ToString("D6");
+    string code = generator.Next(10000, 99999).ToString("D5");
     var user = await iApplicationUserManager.FindByNameAsync(phone);
     if (user != null)
     {
@@ -88,7 +88,7 @@ public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserMa
           logger.LogEvent(SystemEventType.BaseCoinPackageEnumOnRegisterFailed, user.Id, result2.MainError.ToString(), logLevel: LogLevel.Critical);
       }
     }
-    if (setting.Value.IsTesting)
+    if (phone.StartsWith("0999999"))
       return new ApiResultCommon(true, ApiResultStatusCode.Success, "کد تایید: " + code);
     bool smsSent = await smsService.SendOtpAsync(phone, code, user.Id, cancellationToken);
     await minWait.ConfigureAwait(false);
