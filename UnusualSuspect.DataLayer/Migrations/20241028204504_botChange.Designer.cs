@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UnusualSuspect.DataLayer.Context;
 
@@ -11,9 +12,11 @@ using UnusualSuspect.DataLayer.Context;
 namespace UnusualSuspect.DataLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241028204504_botChange")]
+    partial class botChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -835,6 +838,9 @@ namespace UnusualSuspect.DataLayer.Migrations
 
                     b.Property<short>("GameTypeId")
                         .HasColumnType("smallint");
+
+                    b.Property<bool>("IsBotGroup")
+                        .HasColumnType("bit");
 
                     b.Property<short>("PreGameGroupStatusId")
                         .HasColumnType("smallint");

@@ -51,7 +51,8 @@ public sealed class ParticipateRepository
 
   public async Task<bool> IsGameHasOtherActiveParticipantsAsync(int gameId, List<int> userIds)
   {
-    return await BaseEntity.AnyAsync(x => x.IsActive && x.GameId == gameId && !userIds.Contains(x.UserId));
+    return await BaseEntity.AnyAsync(x => x.IsActive && x.GameId == gameId &&
+      !userIds.Contains(x.UserId) && !x.ApplicationUser.IsBot);
   }
   public IQueryable<int> GetUsersGameIds(List<int> userIds)
   {

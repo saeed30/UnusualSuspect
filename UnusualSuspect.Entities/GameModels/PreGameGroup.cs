@@ -12,7 +12,6 @@ public class PreGameGroup : BaseEntity
 	public short GameTypeId { get; set; }
 	public short PreGameGroupStatusId { get; set; }
 	public int? GameId { get; set; }
-	public bool IsBotGroup { get; set; }
 
   [ForeignKey("GameTypeId")]
 	public virtual GameType GameType { get; set; }
