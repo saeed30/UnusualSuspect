@@ -190,35 +190,38 @@ public enum SystemEventType
   SeedCustomerRoleCreateFailed = 65,
 
   [Display(Name = "در زمان ایجاد بازی پرداخت سکه قبل بازی یافت نشد")]
-  PreGamePaymentNotFoundToWhileChangingToGame,
+  PreGamePaymentNotFoundToWhileChangingToGame = 66,
 
   [Display(Name = "هزینه شروع بازی ثبت شده با مقدار آن در تنظیمات برای کاربر برابر نیست")]
-  CoinUsedUserAmountNoEqualToCoinCostToEnterPreGame,
+  CoinUsedUserAmountNoEqualToCoinCostToEnterPreGame = 67,
 
   [Display(Name = "گروه قبل بازی به دلیل انقضا حذف شد")]
-  PregameGroupExpiredAndRemoved,
+  PregameGroupExpiredAndRemoved = 68,
 
   [Display(Name = "درج بسته روزانه الماس با خطا روبرو شد")]
-  DailyGemPackageEnumOnFailed,
+  DailyGemPackageEnumOnFailed = 69,
 
   [Display(Name = "درج بسته روزانه سکه با خطا روبرو شد")]
-  DailyCoinPackageEnumOnFailed,
+  DailyCoinPackageEnumOnFailed = 70,
 
   [Display(Name = "اشکال در زمان تبدیل پاسخ کافه بازار رخ داد")]
-  ErrorOnDeserializingCafeBazzarResponse,
+  ErrorOnDeserializingCafeBazzarResponse = 71,
 
   [Display(Name = "اشکال در زمان استفاده از ChangeGameState به صورت api")]
-  ChangeGameStateApiCallFailed,
+  ChangeGameStateApiCallFailed = 72,
 
   [Display(Name = "خطا در زمان بررسی پرداخت در کافه بازار")]
-  CheckPaymentInCafebazaarError,
+  CheckPaymentInCafebazaarError = 73,
 
   [Display(Name = "پاک سازی دستی کش تنظیمات")]
-  ManualClearSoftSettingCache,
+  ManualClearSoftSettingCache = 74,
 
   [Display(Name = "پاسخ خطا به درخواست بررسی پرداخت کافه بازار")]
-  CafeBazzarCheckPaymentErrorResponse,
+  CafeBazzarCheckPaymentErrorResponse = 75,
 
   [Display(Name = "پاسخ خطا به درخواست بروزرسانی توکن کافه بازار")]
-  CafeBazzarRefreshTokenErrorResponse,
+  CafeBazzarRefreshTokenErrorResponse = 76,
+
+  [Display(Name = "جهت شروع سریع به بازی بات اضافه شد")]
+  BotAddedToTheGame = 77,
 }

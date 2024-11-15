@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Aspose.Cells;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -50,6 +51,7 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
   public async Task<IdentityResult> SeedDatabaseWithAdminUserAsync()
   {
     await InsertOrUpdateBaseData();
+    await InserBotUsers(50);
     var adminUserSeed = adminUserSeedOptions.Value.AdminUser;
     if (adminUserSeed == null) return IdentityResult.Success;
     var name = adminUserSeed.Username;
@@ -147,6 +149,35 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
     }
 
     return IdentityResult.Success;
+  }
+
+  private async Task InserBotUsers(int numberOfBots)
+  {
+    try
+    {
+      ApplicationUser? adminUserResult = await applicationUserManager.FindByNameAsync("bot" + (numberOfBots - 1));
+      if (adminUserResult != null)
+        return;
+      for (int i = 0; i < numberOfBots; i++)
+      {
+        adminUserResult = await applicationUserManager.FindByNameAsync("bot" + i);
+        if (adminUserResult != null)
+          continue;
+        ApplicationUser User = new ApplicationUser
+        {
+          UserName = "bot" + i,
+          Email = "bot" + i + "@site.com",
+          EmailConfirmed = true,
+          LockoutEnabled = true,
+          IsActive = true,
+          SecurityStamp = Guid.NewGuid().ToString(),
+          IsBot = true,
+          NickName = "user" + i
+        };
+        await applicationUserManager.CreateAsync(User, Guid.NewGuid().ToString());
+      }
+    }
+    catch { }//error before new column is added
   }
 
   private async Task InsertOrUpdateBaseData()

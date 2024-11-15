@@ -67,5 +67,6 @@ public class SoftSetting : BaseEntity
   public string CafebazaarClientId { get; set; }
   public string CafebazaarClientSecret { get; set; }
   public string CafebazaarRefreshToken { get; set; }
+  public int WaitTimeToAddEachBotInSec { get; set; }
 
 }

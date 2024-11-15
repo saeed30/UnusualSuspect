@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using UnusualSuspect.Entities.Common;
+using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.Entities.Identity;
 
@@ -48,16 +49,19 @@ public class ApplicationUser : IdentityUser<int>, IEntity<int>
 	public int? RankingDaily { get; set; }
 	public int? RankingWeekly { get; set; }
 	public int? RankingMonthly { get; set; }
+	public bool IsBot { get; set; }
 	public virtual ICollection<ActionForUser> ActionForUsers { set; get; }
 	public virtual ICollection<IdentityUserClaim<int>> Claims { get; set; }
 	public virtual ICollection<IdentityUserLogin<int>> Logins { get; set; }
-	//public virtual ICollection<LogObject> LogObjects { set; get; }
-	//public virtual ICollection<SoftwarerRoleForUser> SoftwarerRoleForUsers { set; get; }
-	//public virtual ICollection<IdentityUserToken<int>> Tokens { get; set; }
-	//public virtual ICollection<AdminPanleUser> AdminPanleUsers { set; get; }
-	//public virtual ICollection<Customer> Customers { set; get; }
+  public virtual ICollection<JoinedPreGame> JoinedPreGames { get; set; }
+  public virtual ICollection<Participate> Participates { get; set; }
+  //public virtual ICollection<LogObject> LogObjects { set; get; }
+  //public virtual ICollection<SoftwarerRoleForUser> SoftwarerRoleForUsers { set; get; }
+  //public virtual ICollection<IdentityUserToken<int>> Tokens { get; set; }
+  //public virtual ICollection<AdminPanleUser> AdminPanleUsers { set; get; }
+  //public virtual ICollection<Customer> Customers { set; get; }
 
-	[NotMapped]
+  [NotMapped]
 	public string FullName { get { return FirstName + " " + LastName; } }
 	[NotMapped]
 	public string? FileConfig { set; get; }

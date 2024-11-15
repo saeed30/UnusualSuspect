@@ -53,7 +53,7 @@ public sealed class PreGameGroupRepository
   public async Task<List<PreGameGroup>> GetTopPreGameGroupByReadyTimeAsync(GameType gameType, int count, CancellationToken cancellationToken = default)
   {
     return await BaseEntity
-      .Where(x => x.ReadyToGameTime != null && x.PreGameGroupStatusId == (short)PreGameGroupStatusEnum.Ready && x.GameTypeId == gameType.Id)
+      .Where(x => x.ReadyToGameTime.HasValue && x.PreGameGroupStatusId == (short)PreGameGroupStatusEnum.Ready && x.GameTypeId == gameType.Id)
       .OrderBy(x => x.ReadyToGameTime).Take(count).ToListAsync(cancellationToken);
   }
 

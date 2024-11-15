@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.ViewModels.Settings;
+using UnusualSuspect.Services.Mapping;
 
 namespace UnusualSuspect.Services.Identity;
 
@@ -180,5 +181,12 @@ public class ApplicationUserManager(UserManager<ApplicationUser> userManager,
     foreach (var error in result.Errors)
       failResult.MessageList += error.Description + ". ";
     return failResult;
+  }
+
+  public Task<List<ApplicationUser>> GetFreeBotUsersAsync(int numberOfBots, CancellationToken cancellationToken)
+  {
+    return users.Where(x => x.IsBot && !x.Participates.Any(y => !y.Game.FinishedTime.HasValue && y.IsActive == true))
+      .OrderBy(x => Guid.NewGuid())
+      .Take(numberOfBots).ToListAsync(cancellationToken);
   }
 }
