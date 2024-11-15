@@ -221,4 +221,7 @@ public enum SystemEventType
 
   [Display(Name = "پاسخ خطا به درخواست بروزرسانی توکن کافه بازار")]
   CafeBazzarRefreshTokenErrorResponse = 76,
+
+  [Display(Name = "جهت شروع سریع به بازی بات اضافه شد")]
+  BotAddedToTheGame = 77,
 }

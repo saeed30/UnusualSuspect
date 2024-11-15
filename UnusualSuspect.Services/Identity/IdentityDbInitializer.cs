@@ -155,11 +155,14 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
   {
     try
     {
-      ApplicationUser? adminUserResult = await applicationUserManager.FindByNameAsync("bot1");
+      ApplicationUser? adminUserResult = await applicationUserManager.FindByNameAsync("bot" + (numberOfBots - 1));
       if (adminUserResult != null)
         return;
       for (int i = 0; i < numberOfBots; i++)
       {
+        adminUserResult = await applicationUserManager.FindByNameAsync("bot" + i);
+        if (adminUserResult != null)
+          continue;
         ApplicationUser User = new ApplicationUser
         {
           UserName = "bot" + i,
@@ -168,7 +171,7 @@ public class IdentityDbInitializer(IServiceScopeFactory scopeFactory,
           LockoutEnabled = true,
           IsActive = true,
           SecurityStamp = Guid.NewGuid().ToString(),
-          //IsBot = true,
+          IsBot = true,
           NickName = "user" + i
         };
         await applicationUserManager.CreateAsync(User, Guid.NewGuid().ToString());

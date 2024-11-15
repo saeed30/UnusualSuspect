@@ -698,6 +698,7 @@ public sealed class PreGameService(IUnitOfWork uow,
           Guid = newGuid
         });
       }
+      logger.LogEvent(SystemEventType.BotAddedToTheGame, preGameGroups[0].Id, "Bot count: " + botUsers.Count);
     }
     return true;
   }
