@@ -183,10 +183,14 @@ public class ApplicationUserManager(UserManager<ApplicationUser> userManager,
     return failResult;
   }
 
-  public Task<List<ApplicationUser>> GetFreeBotUsersAsync(int numberOfBots, CancellationToken cancellationToken)
+  public async Task<List<ApplicationUser>> GetFreeBotUsersAsync(int numberOfBots, CancellationToken cancellationToken = default)
   {
-    return users.Where(x => x.IsBot && !x.Participates.Any(y => !y.Game.FinishedTime.HasValue && y.IsActive == true))
+    return await users.Where(x => x.IsBot && !x.Participates.Any(y => !y.Game.FinishedTime.HasValue && y.IsActive))
       .OrderBy(x => Guid.NewGuid())
       .Take(numberOfBots).ToListAsync(cancellationToken);
+  }
+  public async Task<bool> GetIsBot(int userId, CancellationToken cancellationToken = default)
+  {
+    return (await users.FirstAsync(x => x.Id == userId, cancellationToken)).IsBot;
   }
 }

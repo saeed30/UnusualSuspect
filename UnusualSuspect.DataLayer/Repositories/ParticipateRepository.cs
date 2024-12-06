@@ -49,7 +49,7 @@ public sealed class ParticipateRepository
     return await BaseEntity.Where(x => x.IsActive && x.GameId == gameId).ToListAsync(cancellationToken);
   }
 
-  public async Task<bool> IsGameHasOtherActiveParticipantsAsync(int gameId, List<int> userIds)
+  public async Task<bool> IsGameHasOtherActiveParticipantsAsync(int gameId, IEnumerable<int> userIds)
   {
     return await BaseEntity.AnyAsync(x => x.IsActive && x.GameId == gameId &&
       !userIds.Contains(x.UserId) && !x.ApplicationUser.IsBot);

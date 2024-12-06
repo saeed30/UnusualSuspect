@@ -16,10 +16,10 @@ public interface IGameService
   Task<UnusualSuspectServiceResult<bool>> LeaveGameAsync(int gameId, int userId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool?>> ChooseCardAndGetWinCondition(int gameId, int characterCardId, int userId, CancellationToken cancellationToken = default);
   IQueryable<Game> GetAllActiveGamesWithGameType();
-  Task<UnusualSuspectServiceResult<bool>> StartGameIfAllUsersOnline(int gameId, List<int> userIds);
+  Task<UnusualSuspectServiceResult<bool>> StartGameIfAllUsersOnline(int gameId, IEnumerable<int> userIds);
   Task<bool> GoToTalkingStatus(int gameId);
   Task<bool> GoToTalkingStatus(Game game);
-  Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default);
+  Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, bool ignoreCache = false, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<bool>> SetWitnessAnswer(int gameId, bool witnessAnswer, short questionId, int? userId, CancellationToken cancellationToken = default);
   Task<bool> IsGameParticipantAsync(int userId, int gameId, CancellationToken cancellationToken = default);
   Task<UnusualSuspectServiceResult<GameStatisticsDto>> GetGameStatisticsAsync(int userId, CancellationToken cancellationToken = default);
@@ -31,4 +31,5 @@ public interface IGameService
   Task<UnusualSuspectServiceResult<bool>> SetGameStatusAsync(int gameId, GameStatusEnum gameStatus, CancellationToken cancellationToken = default);
   UnusualSuspectServiceResult<bool> SetGameStatus(Game game, GameStatusEnum gameStatus);
   Task<UnusualSuspectServiceResult<bool>> ManualSetGameStatusAsync(int gameId, GameStatusEnum gameStatus, CancellationToken cancellationToken = default);
+  Task CloseExpiredGamesAsync(CancellationToken cancellationToken);
 }

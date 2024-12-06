@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Threading;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Enums;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
@@ -10,8 +11,11 @@ using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
+using UnusualSuspect.DataLayer.Repositories;
 using UnusualSuspect.Entities.GameModels;
 using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.Services.Contracts.Identity;
+using UnusualSuspect.Services.Services;
 using UnusualSuspect.ViewModels.Settings;
 
 namespace UnusualSuspect.Services.Timer;
@@ -21,6 +25,7 @@ public enum GameTimerEnum
   AutoChooseCard,
   AutoAnswerQuestion,
   UserTurnFinished,
+  UserTurnFinishedForBot,
 }
 public enum UserTimerEnum
 {
@@ -52,6 +57,11 @@ public class TimerManagementService(
         break;
       case GameTimerEnum.UserTurnFinished:
         OnGameTimerStart(userId, gameId, TimeSpan.FromSeconds(setting.Value.GameSetting.TimeToTalkInSeconds), UserTurnFinishedWithNewScope);
+        break;
+      case GameTimerEnum.UserTurnFinishedForBot:
+        Random r = new Random();
+        int sec = r.Next(setting.Value.GameSetting.TimeToTalkInSeconds / 4, setting.Value.GameSetting.TimeToTalkInSeconds * 3 / 4);
+        OnGameTimerStart(userId, gameId, TimeSpan.FromSeconds(sec), UserTurnFinishedWithNewScope);
         break;
       default:
         throw new ArgumentOutOfRangeException(nameof(gameTimerEnum), gameTimerEnum, null);
@@ -152,9 +162,25 @@ public class TimerManagementService(
 
     IGameService gameServiceNew = scope.ServiceProvider.GetRequiredService<IGameService>();
     ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
+    IApplicationUserManager applicationUserManagerNew = scope.ServiceProvider.GetRequiredService<IApplicationUserManager>();
+    IGameRepository gameRepositoryNew = scope.ServiceProvider.GetRequiredService<IGameRepository>();
     loggerNew.LogEvent(SystemEventType.UserTurnFinishedWithNewScopeStarted, gameId, userId.ToString());
     try
     {
+      if (await applicationUserManagerNew.GetIsBot(userId))
+      {
+        Game? game = await gameRepositoryNew.GetGameWithDetailsAsync(gameId);
+        if (game == null)
+          throw new Exception("invalid gameId: " + gameId);
+        var cards = game.CharacterCardGames.Where(x => x.IsActive).Select(x => x.CharacterCardId).ToList();
+        if (cards.Any())
+        {
+          Random r = new Random();
+          int index = r.Next(0, cards.Count);
+          loggerNew.LogEvent(SystemEventType.AutoCandidateForBotUser, gameId, userId.ToString());
+          await gameServiceNew.ChangedCandidateCard(userId, cards[index], gameId);
+        }
+      }
       await gameServiceNew.UserTurnFinishedAsync(userId, gameId);
       loggerNew.LogEvent(SystemEventType.UserTurnFinishedWithNewScopeFinished, gameId, userId.ToString());
     }
@@ -272,7 +298,7 @@ public class TimerManagementService(
           chooseCardResult = await gameServiceNew.ChooseCardAndGetWinCondition(gameId, result[0].CharacterCardId, userId);
       }
       if (!chooseCardResult.Success)
-        loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeErrorOnChoose, gameId, userId.ToString(), null, LogLevel.Critical,null, chooseCardResult.MainError.ToString());
+        loggerNew.LogEvent(SystemEventType.AutoChooseCardWithNewScopeErrorOnChoose, gameId, userId.ToString(), null, LogLevel.Critical, null, chooseCardResult.MainError.ToString());
       await gameServiceNew.SaveChangesAsync();
       if (chooseCardResult.Result.HasValue)
         await notificationServiceNew.RemoveAllUsersFromGame(gameId);

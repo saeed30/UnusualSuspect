@@ -6,6 +6,7 @@ namespace UnusualSuspect.Services.Services.Jobs;
 
 public class RecurringJobsService(IRankingService rankingService,
   IPreGameService preGameService,
+  IGameService gameService,
   IPaymentUserService paymentUserService) : IRecurringJobsService
 {
   [DisableConcurrentExecution(timeoutInSeconds: 10 * 60)]
@@ -34,7 +35,7 @@ public class RecurringJobsService(IRankingService rankingService,
   }
   private static readonly SemaphoreSlim SemaphoreCheckAllUncheckedPayments = new SemaphoreSlim(1, 1);
   [DisableConcurrentExecution(timeoutInSeconds: 60)]
-  public async Task CheckAllUncheckedPayments(CancellationToken cancellationToken)
+  public async Task CheckAllUncheckedPaymentsAsync(CancellationToken cancellationToken)
   {
     try
     {
@@ -49,5 +50,18 @@ public class RecurringJobsService(IRankingService rankingService,
     {
       SemaphoreCheckAllUncheckedPayments.Release();
     }
+  }
+  [DisableConcurrentExecution(timeoutInSeconds: 30 * 60)]
+  public async Task CloseExpiredGamesAsync(CancellationToken cancellationToken)
+  {
+    try
+    {
+      await gameService.CloseExpiredGamesAsync(cancellationToken);
+    }
+    catch (Exception e)
+    {
+      ElmahExtensions.RaiseError(e);
+    }
+
   }
 }

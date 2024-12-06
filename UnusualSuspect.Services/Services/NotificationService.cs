@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using DNTPersianUtils.Core;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Contracts;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
@@ -21,12 +22,12 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
   }
 
   public async Task SendSignalToPreGameGroup(int preGameGroupId, SignalCommands command, object? data = null)
-	{
+  {
     logger.LogEvent(SystemEventType.SendSignalToPreGameGroup, preGameGroupId, command.ToString());
-		await context.Clients.Group(GetPreGameGroupName(preGameGroupId)).GameCommand(command, data);
-	}
+    await context.Clients.Group(GetPreGameGroupName(preGameGroupId)).GameCommand(command, data);
+  }
 
-	public async Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null)
+  public async Task SendSignalToGameGroup(int gameId, SignalCommands command, object? data = null)
   {
     logger.LogEvent(SystemEventType.SendSignalToGameGroup, gameId, command.ToString());
     await context.Clients.Group(gameId.ToString()).GameCommand(command, data);
@@ -69,50 +70,37 @@ public sealed class NotificationService(IHubContext<GameHub, IGameClient> contex
 
   public async Task RemoveFromGroupAsync(int userId, string groupName, string? connectionId = null)
   {
-    if (connectionId != null)
+    if (!string.IsNullOrWhiteSpace(connectionId))
       await context.Groups.RemoveFromGroupAsync(connectionId, groupName);
 
     await SemaphoreUserSignalRGroups.WaitAsync();
     var groups = await memoryCacheService.GetUserSignalRGroups(userId);
     if (groups.Contains(groupName))
-    {
-      groups.Remove(groupName);
-      memoryCacheService.SetUserSignalRGroups(userId, groups);
-    }
+      memoryCacheService.SetUserSignalRGroups(userId, groups.Where(x => x != groupName));
     SemaphoreUserSignalRGroups.Release();
 
     await SemaphoreSignalRGroupOnlineUsers.WaitAsync();
     var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
     if (userIds.Contains(userId))
-    {
-      userIds.Remove(userId);
-      memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
-    }
+      memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds.Where(x => x != userId));
     SemaphoreSignalRGroupOnlineUsers.Release();
   }
 
 
   public async Task AddToGroupAsync(int userId, string connectionId, string groupName)
   {
-    var task = context.Groups.AddToGroupAsync(connectionId, groupName);
+    if (!string.IsNullOrWhiteSpace(connectionId))
+      await context.Groups.AddToGroupAsync(connectionId, groupName);
 
     await SemaphoreUserSignalRGroups.WaitAsync();
     var groups = await memoryCacheService.GetUserSignalRGroups(userId);
     if (!groups.Contains(groupName))
-    {
-      groups.Add(groupName);
-      memoryCacheService.SetUserSignalRGroups(userId, groups);
-    }
+      memoryCacheService.SetUserSignalRGroups(userId, groups.Concat([groupName]));
     SemaphoreUserSignalRGroups.Release();
     await SemaphoreSignalRGroupOnlineUsers.WaitAsync();
     var userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
     if (!userIds.Contains(userId))
-    {
-      userIds.Add(userId);
-      memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds);
-    }
+      memoryCacheService.SetSignalRGroupOnlineUsers(groupName, userIds.Concat([userId]));
     SemaphoreSignalRGroupOnlineUsers.Release();
-
-    await task;
   }
 }

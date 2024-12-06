@@ -1,10 +1,6 @@
-﻿using Aspose.Cells;
-using ElmahCore;
-using Microsoft.AspNetCore.Identity;
+﻿using ElmahCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Security.AccessControl;
 using UnusualSuspect.ApiViewModels.Endpoints.Game;
 using UnusualSuspect.ApiViewModels.Endpoints.PreGame;
 using UnusualSuspect.ApiViewModels.Enums;
@@ -21,6 +17,7 @@ using UnusualSuspect.Entities.Models;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
 using UnusualSuspect.Services.Mapping;
+using UnusualSuspect.Services.Timer;
 using UnusualSuspect.ViewModels.Dto;
 using UnusualSuspect.ViewModels.PreGame;
 using UnusualSuspect.ViewModels.Settings;
@@ -45,6 +42,7 @@ public sealed class PreGameService(IUnitOfWork uow,
     ICoinUsedUserRepository coinUsedUserRepository,
     ICoinUsedService coinUsedService,
     IOptionsSnapshot<ProjectSetting> setting,
+    ITimerManagementService timerManagementService,
     ILogger<PreGameService> logger)
   : IPreGameService
 {
@@ -471,7 +469,7 @@ public sealed class PreGameService(IUnitOfWork uow,
         {
           currentGamePreGameGroups.AddRange(topGroups);
           currentGameUserCount = totalPlayersInQueue;
-          botUsers = await GetFreeBotUsersAsync(gameType.NumberOfPlayers - currentGameUserCount, cancellationToken);
+          botUsers = await applicationUserManager.GetFreeBotUsersAsync(gameType.NumberOfPlayers - currentGameUserCount, cancellationToken);
           if (botUsers == null || botUsers.Count != gameType.NumberOfPlayers - currentGameUserCount)
             return; //could not get free bots
           currentGameUserCount += botUsers.Count;
@@ -500,16 +498,22 @@ public sealed class PreGameService(IUnitOfWork uow,
         if (game == null)
           return;
         await SaveChangesAsync(cancellationToken);
-        Game? gameWithDetails = await gameRepository.GetGameWithDetailsAsync(game.Id, cancellationToken);
+        Game? gameWithDetails = await gameRepository.GetGameWithDetailsAsync(game.Id, false, cancellationToken);
         if (gameWithDetails == null)
         {
           ElmahExtensions.RaiseError(new Exception("Game not available after creation! id: " + game.Id));
           return;
         }
+        List<int> onlineUserIds = (await memoryCacheService.GetSignalRGroupOnlineUsers(gameWithDetails.Id.ToString())).ToList();
+        onlineUserIds.AddRange(gameWithDetails.Participates.Where(x => x.ApplicationUser.IsBot).Select(x => x.UserId).ToList());
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
-          gameWithDetails.ToGameFlowDto(),
-          await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), gameWithDetails.GameStatusId,
+          gameWithDetails.ToGameFlowDto(), onlineUserIds, gameWithDetails.GameStatusId,
           null, gameWithDetails.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds));
+
+        //start remove time for all users on create game
+        foreach (int userId in gameWithDetails.Participates.Where(x => !x.ApplicationUser.IsBot).Select(x => x.UserId))
+          timerManagementService.OnUserTimerStart(userId, UserTimerEnum.OutOfGameTimeout);
+
         needToRefill = true;
       }
       else
@@ -579,11 +583,6 @@ public sealed class PreGameService(IUnitOfWork uow,
      */
   }
 
-  private async Task<List<ApplicationUser>> GetFreeBotUsersAsync(int numberOfBots, CancellationToken cancellationToken = default)
-  {
-    return await applicationUserManager.GetFreeBotUsersAsync(numberOfBots, cancellationToken);
-  }
-
   private async Task<Game?> CreateGameWithSelectedPreGameGroupAsync(List<PreGameGroup> preGameGroups, GameType gameType,
     List<ApplicationUser> botUsers, SoftSetting softSetting, CancellationToken cancellationToken = default)
   {
@@ -620,10 +619,10 @@ public sealed class PreGameService(IUnitOfWork uow,
     List<ApplicationUser> botUsers, SoftSetting softSetting, CancellationToken cancellationToken = default)
   {
     short counter = 1;
-    int humanPlayerCount = gameType.NumberOfPlayers - 1 - botUsers.Count;
+    int humanPlayerCount = gameType.NumberOfPlayers - botUsers.Count;
     if (humanPlayerCount < 2)
       return false;
-    List<int> selectedNumbers = RandomHelper.GetUniqueRandomNumbers(0, humanPlayerCount, humanPlayerCount >= 3 ? 3 : 2);
+    List<int> selectedNumbers = RandomHelper.GetUniqueRandomNumbers(0, humanPlayerCount - 1, humanPlayerCount >= 3 ? 3 : 2);
     int usersAddedCounter = 0;
     for (int i = 0; i < preGameGroups.Count; i++)
     {
@@ -678,7 +677,7 @@ public sealed class PreGameService(IUnitOfWork uow,
       preGameGroups[i].PreGameGroupStatusId = (short)PreGameGroupStatusEnum.InGame;
       preGameGroups[i].Game = game;
     }
-    if(botUsers.Any())
+    if (botUsers.Any())
     {
       for (int i = 0; i < botUsers.Count; i++)
       {

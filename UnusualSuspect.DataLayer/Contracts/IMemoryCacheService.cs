@@ -6,10 +6,10 @@ namespace UnusualSuspect.DataLayer.Contracts;
 
 public interface IMemoryCacheService
 {
-  Task<List<string>> GetUserSignalRConnections(int userId);
-  void SetUserSignalRConnections(int userId, List<string> connections);
-  Task<List<string>> GetUserSignalRGroups(int userId);
-  void SetUserSignalRGroups(int userId, List<string> groups);
+  Task<IEnumerable<string>> GetUserSignalRConnections(int userId);
+  void SetUserSignalRConnections(int userId, IEnumerable<string> connections);
+  Task<IEnumerable<string>> GetUserSignalRGroups(int userId);
+  void SetUserSignalRGroups(int userId, IEnumerable<string> groups);
   //Task<TurnOfPlayGetResponse?> GetTurnOfPlay(int gameId);
   //void SetTurnOfPlay(int gameId, TurnOfPlayGetResponse model);
   Task ResetTurnOfPlay(int gameId, TurnOfPlayTalkingState model, DateTime currentUserTurnStartedTime, CancellationToken cancellationToken = default);
@@ -17,8 +17,8 @@ public interface IMemoryCacheService
 	Task<Game?> GetGameWithDetails(int gameId, CancellationToken cancellationToken = default);
   void SetGameWithDetails(Game game);
   void ClearGameWithDetails(int gameId);
-  Task<List<int>> GetSignalRGroupOnlineUsers(string groupName);
-  void SetSignalRGroupOnlineUsers(string groupName, List<int> userIds);
+  Task<IEnumerable<int>> GetSignalRGroupOnlineUsers(string groupName);
+  void SetSignalRGroupOnlineUsers(string groupName, IEnumerable<int> userIds);
   void SetGameWithDetails(SoftSetting model);
   Task<SoftSetting?> GetSoftSettingAsync(CancellationToken cancellationToken = default);
   SoftSetting? GetSoftSetting();

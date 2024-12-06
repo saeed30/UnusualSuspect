@@ -12,7 +12,7 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
   private const int CacheTimeInMinutes = 60;
 
   #region UserSignalRConnections
-  public async Task<List<string>> GetUserSignalRConnections(int userId)
+  public async Task<IEnumerable<string>> GetUserSignalRConnections(int userId)
   {
     var connectionIds = await cache.GetOrCreateAsync(GetUserSignalRConnectionsKey(userId), entry =>
     {
@@ -21,12 +21,12 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
       entry.Priority = CacheItemPriority.High;
       entry.Size = 1;
 
-      return Task.FromResult(new List<string>());
+      return Task.FromResult(new List<string>().AsEnumerable());
     });
     return connectionIds;
   }
 
-  public void SetUserSignalRConnections(int userId, List<string> connections)
+  public void SetUserSignalRConnections(int userId, IEnumerable<string> connections)
   {
     cache.Set(GetUserSignalRConnectionsKey(userId), connections, new MemoryCacheEntryOptions()
     {
@@ -42,7 +42,7 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
   #endregion UserSignalRConnections
 
   #region UserSignalRGroups
-  public async Task<List<string>> GetUserSignalRGroups(int userId)
+  public async Task<IEnumerable<string>> GetUserSignalRGroups(int userId)
   {
     var groups = await cache.GetOrCreateAsync(GetUserSignalRGroupsKey(userId), entry =>
     {
@@ -51,12 +51,12 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
       entry.Priority = CacheItemPriority.High;
       entry.Size = 1;
 
-      return Task.FromResult(new List<string>());
+      return Task.FromResult(new List<string>().AsEnumerable());
     });
     return groups;
   }
 
-  public void SetUserSignalRGroups(int userId, List<string> groups)
+  public void SetUserSignalRGroups(int userId, IEnumerable<string> groups)
   {
     cache.Set(GetUserSignalRGroupsKey(userId), groups, new MemoryCacheEntryOptions()
     {
@@ -72,7 +72,7 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
 
   #endregion UserSignalRGroups
   #region SignalRGroupsOnlineUsers
-  public async Task<List<int>> GetSignalRGroupOnlineUsers(string groupName)
+  public async Task<IEnumerable<int>> GetSignalRGroupOnlineUsers(string groupName)
   {
     var userIds = await cache.GetOrCreateAsync(GetSignalRGroupOnlineUsersKey(groupName), entry =>
     {
@@ -81,12 +81,12 @@ public sealed class MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheSe
       entry.Priority = CacheItemPriority.High;
       entry.Size = 1;
 
-      return Task.FromResult(new List<int>());
+      return Task.FromResult(new List<int>().AsEnumerable());
     });
     return userIds;
   }
 
-  public void SetSignalRGroupOnlineUsers(string groupName, List<int> userIds)
+  public void SetSignalRGroupOnlineUsers(string groupName, IEnumerable<int> userIds)
   {
     cache.Set(GetSignalRGroupOnlineUsersKey(groupName), userIds, new MemoryCacheEntryOptions()
     {

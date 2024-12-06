@@ -17,6 +17,7 @@ using UnusualSuspect.ApiViewModels.SignalCommandsData;
 using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.ViewModels.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -60,7 +61,7 @@ public sealed class GameService(IUnitOfWork uow,
     {
       if (await participateRepository.GetParticipantRoleAsync(gameId.Value, userId, cancellationToken) == null)
         return LogicErrorCode.UserDoNotParticipateInThisGame;
-      game = await gameRepository.GetGameWithDetailsAsync(gameId.Value, cancellationToken);
+      game = await gameRepository.GetGameWithDetailsAsync(gameId.Value, false, cancellationToken);
       if (game == null)
         return LogicErrorCode.InvalidGameId;
     }
@@ -71,10 +72,12 @@ public sealed class GameService(IUnitOfWork uow,
         return new UnusualSuspectServiceResult<GameGetResponse>(result.Errors);
       game = result.Result;
     }
+    List<int> onlineUserIds = (await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString())).ToList();
+    onlineUserIds.AddRange(game.Participates.Where(x => x.ApplicationUser.IsBot).Select(x => x.UserId).ToList());
     return new UnusualSuspectServiceResult<GameGetResponse>(new GameGetResponse(
       game.ToGameBaseDto(), game.ToGameFlowDto(),
-      await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId,
-      game.ToPrivateInfoDto(userId), game.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds));
+      onlineUserIds, game.GameStatusId, game.ToPrivateInfoDto(userId),
+      game.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds));
   }
 
 
@@ -223,7 +226,7 @@ public sealed class GameService(IUnitOfWork uow,
     Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
     if (game == null)
       return false;
-    Game? gameCached = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
+    Game? gameCached = await gameRepository.GetGameWithDetailsAsync(gameId, false, cancellationToken);
     int turn = game.CharacterCardGames.Count(x => !x.IsActive) + 1;
     if (turn > 11)
     {
@@ -252,7 +255,7 @@ public sealed class GameService(IUnitOfWork uow,
     return gameRepository.GetAllActiveGamesWithGameType();
   }
 
-  public async Task<UnusualSuspectServiceResult<bool>> StartGameIfAllUsersOnline(int gameId, List<int> userIds)
+  public async Task<UnusualSuspectServiceResult<bool>> StartGameIfAllUsersOnline(int gameId, IEnumerable<int> userIds)
   {
     Game? game = await gameRepository.GetByIdAsync(gameId);
     if (game == null)
@@ -289,16 +292,18 @@ public sealed class GameService(IUnitOfWork uow,
     return true;
   }
 
-  public async Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, CancellationToken cancellationToken = default)
+  public async Task<UnusualSuspectServiceResult<GameDetailsViewModel>> GetDetailByIdAsync(int gameId, bool ignoreCache = false, CancellationToken cancellationToken = default)
   {
-    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken, true);
+    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, ignoreCache, cancellationToken);
     if (game == null)
       return LogicErrorCode.InvalidGameId;
+    List<int> onlineUserIds = (await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString())).ToList();
+    onlineUserIds.AddRange(game.Participates.Where(x => x.ApplicationUser.IsBot).Select(x => x.UserId).ToList());
     GameDetailsViewModel model = new GameDetailsViewModel()
     {
       GameGetResponse = new GameGetResponse(
-        game.ToGameBaseDto(), game.ToGameFlowDto(),
-        await memoryCacheService.GetSignalRGroupOnlineUsers(game.Id.ToString()), game.GameStatusId, null, game.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds),
+        game.ToGameBaseDto(), game.ToGameFlowDto(), onlineUserIds,
+        game.GameStatusId, null, game.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds),
       FinishedTime = game.FinishedTime,
       CreateTime = game.CreateTime,
       GameStatusTitle = ((GameStatusEnum)game.GameStatusId).ToString()
@@ -365,7 +370,7 @@ public sealed class GameService(IUnitOfWork uow,
     {
       if (await participateRepository.GetParticipantRoleAsync(gameId.Value, userId, cancellationToken) == null)
         return LogicErrorCode.UserDoNotParticipateInThisGame;
-      game = await gameRepository.GetGameWithDetailsAsync(gameId.Value, cancellationToken);
+      game = await gameRepository.GetGameWithDetailsAsync(gameId.Value, false, cancellationToken);
       if (game == null)
         return LogicErrorCode.InvalidGameId;
     }
@@ -403,7 +408,7 @@ public sealed class GameService(IUnitOfWork uow,
   public async Task<UnusualSuspectServiceResult<bool>> UserTurnFinishedAsync(int userId, int gameId,
     CancellationToken cancellationToken = default)
   {
-    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, cancellationToken);
+    Game? game = await gameRepository.GetGameWithDetailsAsync(gameId, false, cancellationToken);
     if (game == null)
       return LogicErrorCode.InvalidGameId;
     TurnOfPlayTalkingState? model = game.ToTurnOfPlayTalkingState();
@@ -433,7 +438,21 @@ public sealed class GameService(IUnitOfWork uow,
     await memoryCacheService.ResetTurnOfPlay(gameId, model, currentUserTurnStartedTime, cancellationToken);
     await notificationService.SendSignalToGameGroup(gameId, SignalCommands.PlayerTurnChange,
       model.OrderOfParticipationTurnToTalk);
-    timerManagementService.OnGameTimerStart(next.UserId, gameId, GameTimerEnum.UserTurnFinished);
+    if (next.ApplicationUser.IsBot)
+    {
+      //var cards = game.CharacterCardGames.Where(x => x.IsActive).Select(x => x.CharacterCardId).ToList();
+      //if (cards.Any())
+      //{
+      //  Random r = new Random();
+      //  int index = r.Next(0, cards.Count);
+      //  logger.LogEvent(SystemEventType.AutoCandidateForBotUserAfterPrevious, gameId, userId.ToString());
+      //  await ChangedCandidateCard(userId, cards[index], gameId);
+      //}
+      //await UserTurnFinishedAsync(next.UserId, gameId, cancellationToken);
+      timerManagementService.OnGameTimerStart(next.UserId, gameId, GameTimerEnum.UserTurnFinishedForBot);
+    }
+    else
+      timerManagementService.OnGameTimerStart(next.UserId, gameId, GameTimerEnum.UserTurnFinished);
     return new UnusualSuspectServiceResult<bool>(true);
   }
 
@@ -563,7 +582,18 @@ public sealed class GameService(IUnitOfWork uow,
     }
     return new UnusualSuspectServiceResult<bool>(true);
   }
-
+  public async Task CloseExpiredGamesAsync(CancellationToken cancellationToken)
+  {
+    while (true)
+    {
+      Game? game = await gameRepository.GetAll().FirstOrDefaultAsync(x => !x.FinishedTime.HasValue && x.CreateTime < DateTime.Now.AddDays(-1), cancellationToken);
+      if (game == null)
+        break;
+      await FinishGameAsync(game.Id, null, cancellationToken);
+      await uow.SaveChangesAsync(cancellationToken);
+      logger.LogEvent(SystemEventType.GameAutoFinishedOnExpire, game.Id, logLevel: LogLevel.Information);
+    }
+  }
   private short GetStarterOrderOfParticipation(ICollection<Participate> gameParticipates)
   {
     int random = new Random().Next(0, gameParticipates.Count - 2);

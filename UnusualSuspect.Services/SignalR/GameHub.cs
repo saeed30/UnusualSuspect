@@ -185,7 +185,7 @@ public sealed class GameHub(IGameService gameService,
   }
   private async Task OnUserConnectionStatusChanged(int userId, bool isConnected)
   {
-    var connections = await memoryCacheService.GetUserSignalRConnections(userId);
+    var connections = (await memoryCacheService.GetUserSignalRConnections(userId)).ToList();
     if (isConnected)
     {
       if (!connections.Contains(Context.ConnectionId))
@@ -207,7 +207,7 @@ public sealed class GameHub(IGameService gameService,
       {
         TimerManagementService.OnUserTimerStop(userId);
         await notificationService.AddToGroupAsync(userId, Context.ConnectionId, groupName);
-        List<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
+        IEnumerable<int> userIds = await memoryCacheService.GetSignalRGroupOnlineUsers(groupName);
         await Clients.Group(groupName).GameCommand(SignalCommands.GameMemberConnected, userIds);
         UnusualSuspectServiceResult<bool> done = await gameService.StartGameIfAllUsersOnline(participate.GameId, userIds);
         if (done.Success && done.Result)

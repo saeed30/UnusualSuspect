@@ -224,4 +224,13 @@ public enum SystemEventType
 
   [Display(Name = "جهت شروع سریع به بازی بات اضافه شد")]
   BotAddedToTheGame = 77,
+
+  [Display(Name = "انتخاب خودکار کاندید برای بات")]
+  AutoCandidateForBotUser = 78,
+
+  [Display(Name = "انتخاب خودکار کاندید برای بات پس از پایان کاربر قبلی")]
+  AutoCandidateForBotUserAfterPrevious = 79,
+
+  [Display(Name = "بسته شدن بازی بعد از منقضی شدن زمان")]
+  GameAutoFinishedOnExpire = 80,
 }

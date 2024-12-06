@@ -19,7 +19,7 @@ public sealed class GameRepository(
     IDapperRepository dapperRepository)
   : EfRepository<Game>(uow, logger), IGameRepository
 {
-  public async Task<Game?> GetGameWithDetailsAsync(int id, CancellationToken cancellationToken = default, bool ignoreCache = false)
+  public async Task<Game?> GetGameWithDetailsAsync(int id, bool ignoreCache = false, CancellationToken cancellationToken = default)
   {
     Game? game = null;
     if (!ignoreCache)
@@ -75,7 +75,7 @@ public sealed class GameRepository(
   {
     Game? game = await BaseEntity.FirstOrDefaultAsync(
       x => x.FinishedTime == null &&
-           x.Participates.Any(p => p.UserId == userId), cancellationToken);
+           x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
     return game;
   }
   public async Task<Game?> GetUserCurrentGameWithDetailsAsync(int userId, CancellationToken cancellationToken = default)
@@ -85,7 +85,7 @@ public sealed class GameRepository(
            x.Participates.Any(p => p.UserId == userId && p.IsActive), cancellationToken);
     if (game == null)
       return null;
-    return await GetGameWithDetailsAsync(game.Id, cancellationToken);
+    return await GetGameWithDetailsAsync(game.Id, false, cancellationToken);
   }
 
   public async Task<bool> UserIsInActiveGameAsync(int userId, CancellationToken cancellationToken = default)

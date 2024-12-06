@@ -25,5 +25,6 @@ public interface IApplicationUserManager
   ApplicationUser DetailsUserWithPhoneNumber(string PhoneNumber);
   ApplicationUser? FindByName(string username);
   Task<ResultAction> EditPassword(ApplicationUser model);
-  Task<List<ApplicationUser>> GetFreeBotUsersAsync(int numberOfBots, CancellationToken cancellationToken);
+  Task<List<ApplicationUser>> GetFreeBotUsersAsync(int numberOfBots, CancellationToken cancellationToken = default);
+  Task<bool> GetIsBot(int userId, CancellationToken cancellationToken = default);
 }

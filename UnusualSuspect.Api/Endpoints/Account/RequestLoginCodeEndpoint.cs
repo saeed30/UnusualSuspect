@@ -1,9 +1,7 @@
 ﻿using Ardalis.ApiEndpoints;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnusualSuspect.ApiViewModels.Endpoints.Account;
@@ -12,7 +10,6 @@ using UnusualSuspect.Common.Models;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.Services.Contracts;
 using UnusualSuspect.Services.Contracts.Identity;
-using UnusualSuspect.ViewModels.Settings;
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.Common.Enums;
@@ -22,7 +19,6 @@ using UnusualSuspect.DataLayer;
 namespace UnusualSuspect.Api.Endpoints.Account;
 
 public class RequestLoginCodeEndpoint(IApplicationUserManager iApplicationUserManager,
-    IOptionsSnapshot<ProjectSetting> setting,
     ISmsService smsService,
     ILogger<RequestLoginCodeEndpoint> logger,
     IGemService gemService,

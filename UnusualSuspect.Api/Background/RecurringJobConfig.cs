@@ -18,14 +18,21 @@ namespace UnusualSuspect.Api.Background
         });
       RecurringJob.AddOrUpdate<IRecurringJobsService>("DeleteExpiredPregameGroups",
         job => job.DeleteExpiredPregameGroupsAsync(CancellationToken.None),
-        "*/5 * * * *",
+        "*/30 * * * *",
         new RecurringJobOptions()
         {
           TimeZone = TimeZoneInfo.Local
         });
       RecurringJob.AddOrUpdate<IRecurringJobsService>("CheckAllUncheckedPayments",
-        job => job.CheckAllUncheckedPayments(CancellationToken.None),
+        job => job.CheckAllUncheckedPaymentsAsync(CancellationToken.None),
         "*/2 * * * *",
+        new RecurringJobOptions()
+        {
+          TimeZone = TimeZoneInfo.Local
+        });
+      RecurringJob.AddOrUpdate<IRecurringJobsService>("CloseExpiredGames",
+        job => job.CloseExpiredGamesAsync(CancellationToken.None),
+        "0 */2 * * *",
         new RecurringJobOptions()
         {
           TimeZone = TimeZoneInfo.Local

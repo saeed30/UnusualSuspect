@@ -33,7 +33,7 @@ public class GameController(ILogger<GameController> logger,
   [ServiceFilter(typeof(UserFilters))]
   public async Task<IActionResult> Details(int id, CancellationToken cancellationToken = default)
   {
-    var game = await gameService.GetDetailByIdAsync(id, cancellationToken);
+    var game = await gameService.GetDetailByIdAsync(id, true, cancellationToken);
     if (!game.Success)
       return NotFound();
     return View(game.Result);
