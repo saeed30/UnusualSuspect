@@ -2,13 +2,15 @@
 using Microsoft.Extensions.Logging;
 using UnusualSuspect.ApiViewModels.Enums.BaseData;
 using UnusualSuspect.DataLayer.Common;
+using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
 
 namespace UnusualSuspect.DataLayer.Repositories;
 
-public sealed class JoinedPreGameRepository
-  (IUnitOfWork uow, ILogger<JoinedPreGameRepository> logger) : EfRepository<JoinedPreGame>(uow, logger),
+public sealed class JoinedPreGameRepository(IUnitOfWork uow,
+	ILogger<JoinedPreGameRepository> logger,
+  IDapperRepository dapperRepository) : EfRepository<JoinedPreGame>(uow, logger),
     IJoinedPreGameRepository
 {
   public async Task<bool> AllJoinedPreGameGroupUsersAreReadyAsync(int preGameGroupId, CancellationToken cancellationToken = default)
@@ -93,5 +95,17 @@ public sealed class JoinedPreGameRepository
 		if(readyToGameStatusEnum.HasValue)
       return await BaseEntity.Where(x => x.UserId == userId && x.ReadyToGameStatusId == (short)readyToGameStatusEnum.Value).ToListAsync(cancellationToken);
     return await BaseEntity.Where(x => x.UserId == userId).ToListAsync(cancellationToken);
+  }
+
+  public async Task<bool> HaveDuplicateReadyJoinedPregameByPregameGroupIdAsync(int preGameGroupId, CancellationToken cancellationToken = default)
+  {
+		return await dapperRepository.QuerySingleAsync<int>(@$"select count(1) from PreGameGroup p join JoinedPreGame j on p.id = j.PreGameGroupId
+			join JoinedPreGame j2 on j.UserId = j2.UserId
+			join PreGameGroup p2 on j2.PreGameGroupId = p2.Id
+			where p.GameTypeId = p2.GameTypeId and p2.PreGameGroupStatusId = {(int)PreGameGroupStatusEnum.Ready} and p.id = @preGameGroupId",
+			new
+			{
+        preGameGroupId
+      }) > 0;
   }
 }

@@ -9,6 +9,7 @@ using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.Common.Utilities;
 using UnusualSuspect.DataLayer;
+using UnusualSuspect.DataLayer.Common;
 using UnusualSuspect.DataLayer.Contracts;
 using UnusualSuspect.DataLayer.Contracts.Repository;
 using UnusualSuspect.Entities.GameModels;
@@ -127,8 +128,15 @@ public sealed class PreGameService(IUnitOfWork uow,
     List<JoinedPreGame> groups = await joinedPreGameRepository.GetByUserIdAsync(userId, ReadyToGameStatusEnum.Ready, cancellationToken);
     if (!groups.Any())
       return new UnusualSuspectServiceResult<bool>(false);
-    foreach (JoinedPreGame joinedPreGame in groups)
+    foreach (JoinedPreGame joinedPreGame in groups.Where(x => x.ReadyToGameStatusId != (int)ReadyToGameStatusEnum.NotReady))
+    {
       await ChangeUserReadyStatusAsync(joinedPreGame, ReadyToGameStatusEnum.NotReady, cancellationToken);
+      await notificationService.SendSignalToPreGameGroup(joinedPreGame.PreGameGroupId, SignalCommands.UserActiveStatusChangedInPregameGroup,
+        new { ReadyToGameStatusEnum = ReadyToGameStatusEnum.NotReady, UserId = joinedPreGame.UserId });
+      var pregame = await preGameGroupRepository.GetByIdAsync(joinedPreGame.PreGameGroupId, cancellationToken);
+      if (pregame.PreGameGroupStatusId == (int)PreGameGroupStatusEnum.Ready)
+        pregame.PreGameGroupStatusId = (int)PreGameGroupStatusEnum.NotReady;
+    }
     return new UnusualSuspectServiceResult<bool>(true);
   }
 
@@ -299,6 +307,8 @@ public sealed class PreGameService(IUnitOfWork uow,
       IQueryable<int> gameIds = participateRepository.GetUsersGameIds(preGameGroup.JoinedPreGames.Select(x => x.UserId).ToList());
       if (gameIds.Any())
         return LogicErrorCode.CurrentGroupUsersAreInGame;
+      if (await joinedPreGameRepository.HaveDuplicateReadyJoinedPregameByPregameGroupIdAsync(preGameGroup.Id))
+        return LogicErrorCode.CurrentGroupUsersAreInReadyPreGameGroup;
       preGameGroup.PreGameGroupStatusId = (int)PreGameGroupStatusEnum.Ready;
       preGameGroup.ReadyToGameTime = DateTime.Now;
     }
@@ -463,6 +473,14 @@ public sealed class PreGameService(IUnitOfWork uow,
       List<ApplicationUser> botUsers = new List<ApplicationUser>();
       if (totalPlayersInQueue < gameType.NumberOfPlayers && softSetting.WaitTimeToAddEachBotInSec > 0)//not enough players to create game
       {
+        bool valid = true;
+        foreach (var item in topGroups.Where(x => !x.ReadyToGameTime.HasValue))
+        {
+          logger.LogEvent(SystemEventType.PregameGroupDoNotHaveReadyTimeInCombineGame, item.Id, logLevel: LogLevel.Critical);
+          valid = false;
+        }
+        if (!valid)
+          return;
         double mostWaitTime = (DateTime.Now - topGroups.Min(x => x.ReadyToGameTime.Value)).TotalSeconds;
         int numberOfPlayersCanBeAdded = (int)Math.Floor(mostWaitTime / softSetting.WaitTimeToAddEachBotInSec);
         if (numberOfPlayersCanBeAdded + totalPlayersInQueue >= gameType.NumberOfPlayers)//can start game using bots
@@ -504,14 +522,23 @@ public sealed class PreGameService(IUnitOfWork uow,
           ElmahExtensions.RaiseError(new Exception("Game not available after creation! id: " + game.Id));
           return;
         }
-        List<int> onlineUserIds = (await memoryCacheService.GetSignalRGroupOnlineUsers(gameWithDetails.Id.ToString())).ToList();
+        List<int> onlineUserIds = new List<int>();
+        foreach (int userId in gameWithDetails.Participates.Where(x => !x.ApplicationUser.IsBot).Select(x => x.UserId))
+        {
+          foreach (var connectionId in await memoryCacheService.GetUserSignalRConnections(userId))
+          {
+            if(!onlineUserIds.Contains(userId))
+              onlineUserIds.Add(userId);
+            await notificationService.AddToGroupAsync(userId, connectionId, game.Id.ToString());
+          }
+        }
         onlineUserIds.AddRange(gameWithDetails.Participates.Where(x => x.ApplicationUser.IsBot).Select(x => x.UserId).ToList());
         await notificationService.NotifyOnGameStart(new GameGetResponse(gameWithDetails.ToGameBaseDto(),
           gameWithDetails.ToGameFlowDto(), onlineUserIds, gameWithDetails.GameStatusId,
           null, gameWithDetails.CachedTime.ToString(), setting.Value.GameSetting.TimeToTalkInSeconds));
 
         //start remove time for all users on create game
-        foreach (int userId in gameWithDetails.Participates.Where(x => !x.ApplicationUser.IsBot).Select(x => x.UserId))
+        foreach (int userId in gameWithDetails.Participates.Where(x => !x.ApplicationUser.IsBot && !onlineUserIds.Contains(x.UserId)).Select(x => x.UserId))
           timerManagementService.OnUserTimerStart(userId, UserTimerEnum.OutOfGameTimeout);
 
         needToRefill = true;
@@ -640,11 +667,11 @@ public sealed class PreGameService(IUnitOfWork uow,
         //random role selection
         RoleCardEnum role;
         if (selectedNumbers[0] == usersAddedCounter)
-          role = RoleCardEnum.Witness;
-        else if (selectedNumbers[1] == usersAddedCounter)
           role = RoleCardEnum.MainDetective;
-        else if (selectedNumbers.Count > 2 && selectedNumbers[2] == usersAddedCounter)
+        else if (selectedNumbers[1] == usersAddedCounter)
           role = RoleCardEnum.Accomplice;
+        else if (selectedNumbers.Count > 2 && selectedNumbers[2] == usersAddedCounter && humanPlayerCount == gameType.NumberOfPlayers)
+          role = RoleCardEnum.Witness;
         else
           role = RoleCardEnum.Detective;
         Guid newGuid = Guid.NewGuid();
@@ -683,7 +710,7 @@ public sealed class PreGameService(IUnitOfWork uow,
       {
         RoleCardEnum role;
         if (humanPlayerCount == 2 && i == 0)
-          role = RoleCardEnum.Accomplice;
+          role = RoleCardEnum.Witness;
         else
           role = RoleCardEnum.Detective;
         Guid newGuid = Guid.NewGuid();

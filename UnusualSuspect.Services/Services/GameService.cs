@@ -18,6 +18,7 @@ using UnusualSuspect.Common.Enums;
 using UnusualSuspect.Common.Extensions;
 using UnusualSuspect.ViewModels.Dto;
 using Microsoft.EntityFrameworkCore;
+using UnusualSuspect.DataLayer.Migrations;
 
 namespace UnusualSuspect.Services.Services;
 
@@ -221,19 +222,24 @@ public sealed class GameService(IUnitOfWork uow,
 
   private async Task<bool> SetAnswerIfNoWitnessInGame(int gameId, CancellationToken cancellationToken = default)
   {
-    if ((await participateRepository.GetGameActiveParticipantsAsync(gameId, RoleCardEnum.Witness, cancellationToken)).Any())
+    if (await participateRepository.GetAll().AnyAsync(x=>x.GameId == gameId && x.RoleCardId == (short)RoleCardEnum.Witness && x.IsActive && !x.ApplicationUser.IsBot, cancellationToken))
       return false;
     Game? game = await gameRepository.GetByIdAsync(gameId, cancellationToken);
     if (game == null)
       return false;
     Game? gameCached = await gameRepository.GetGameWithDetailsAsync(gameId, false, cancellationToken);
-    int turn = game.CharacterCardGames.Count(x => !x.IsActive) + 1;
+    if(gameCached == null)
+    {
+      ElmahExtensions.RaiseError(new Exception("invalid gameId in SetAnswerIfNoWitnessInGame - " + gameId));
+      return false;
+    }
+    int turn = gameCached.CharacterCardGames.Count(x => !x.IsActive) + 1;
     if (turn > 11)
     {
       ElmahExtensions.RaiseError(new Exception("invalid turn in method: SetAnswerIfNoWitnessInGame - " + turn));
       return false;
     }
-    if (gameCached == null || !gameCached.CharacterCardGames.Any(x => x.IsActive && x.IsMurderer) &&
+    if (!gameCached.CharacterCardGames.Any(x => x.IsActive && x.IsMurderer) &&
         gameCached.QuestionGames.All(x => x.Turn != turn))
       return false;
     short cardId = gameCached.CharacterCardGames.First(x => x.IsActive && x.IsMurderer).CharacterCardId;
@@ -246,6 +252,15 @@ public sealed class GameService(IUnitOfWork uow,
         $"CharacterCardId: {cardId} and questionId: {questionId}", logLevel: LogLevel.Critical);
       return false;
     }
+    QuestionGame? questionGame = await questionGameRepository.GetQuestionGameByQuestionAndGame(gameId, questionId);
+    if (questionGame == null)
+    {
+      logger.LogEvent(SystemEventType.QuestionNotFoundInGame, gameId,
+        $"gameId: {gameId} and questionId: {questionId}", logLevel: LogLevel.Critical);
+      return false;
+    }
+    questionGame.AnswerUserId = null;
+    questionGame.UserAnswer = result.Result;
     game.WitnessLastAnswer = result.Result;
     return true;
   }
@@ -279,6 +294,7 @@ public sealed class GameService(IUnitOfWork uow,
       return false;
     return await GoToTalkingStatus(game);
   }
+
   public async Task<bool> GoToTalkingStatus(Game game)
   {
     var result = await StartTurnOfPlayAsync(game.Id);
@@ -386,6 +402,7 @@ public sealed class GameService(IUnitOfWork uow,
       return LogicErrorCode.GameNotFinished;
     return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse(await softSettingService.GetSoftSettingAsync(false, cancellationToken)));
   }
+
   public async Task<UnusualSuspectServiceResult<TurnOfPlayTalkingState>> StartTurnOfPlayAsync(int gameId)
   {
     Game? game = await gameRepository.GetGameWithDetailsAsync(gameId);
@@ -456,10 +473,6 @@ public sealed class GameService(IUnitOfWork uow,
     return new UnusualSuspectServiceResult<bool>(true);
   }
 
-
-
-
-
   public async Task<UnusualSuspectServiceResult<TurnOfPlayGetResponse>> GetTurnOfPlayGetAsync(
     int userId, CancellationToken cancellationToken = default)
   {
@@ -528,6 +541,7 @@ public sealed class GameService(IUnitOfWork uow,
       return LogicErrorCode.InvalidGameId;
     return SetGameStatus(game, gameStatus);
   }
+
   public UnusualSuspectServiceResult<bool> SetGameStatus(Game game, GameStatusEnum gameStatus)
   {
     game.GameStatusId = (short)gameStatus;
@@ -582,6 +596,7 @@ public sealed class GameService(IUnitOfWork uow,
     }
     return new UnusualSuspectServiceResult<bool>(true);
   }
+
   public async Task CloseExpiredGamesAsync(CancellationToken cancellationToken)
   {
     while (true)
@@ -594,6 +609,7 @@ public sealed class GameService(IUnitOfWork uow,
       logger.LogEvent(SystemEventType.GameAutoFinishedOnExpire, game.Id, logLevel: LogLevel.Information);
     }
   }
+
   private short GetStarterOrderOfParticipation(ICollection<Participate> gameParticipates)
   {
     int random = new Random().Next(0, gameParticipates.Count - 2);
@@ -602,6 +618,7 @@ public sealed class GameService(IUnitOfWork uow,
       .ToList()[random]
       .OrderOfParticipation;
   }
+
   private Participate GetNextUserOrderOfParticipation(int gameId, ICollection<Participate> participates,
     short currentOrderOfParticipation)
   {

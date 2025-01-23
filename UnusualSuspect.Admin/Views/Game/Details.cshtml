@@ -133,7 +133,7 @@
             {
                   <tr>
                     <td>@characterDto.CharacterId</td>
-                    <td></td>
+                    <td>@(Model.GameGetResponse.GameBaseDto.PrivateInfoDto != null && Model.GameGetResponse.GameBaseDto.PrivateInfoDto.MurdererId == characterDto.Id ? "بله" : "")</td>
                     <td>@characterDto.ImageUrl</td>
                     <td>@characterDto.Title</td>
                     <td>@(Model.GameGetResponse.GameFlowDto.ActiveCharacterIds.Contains(characterDto.CharacterId) ? "فعال" : "حذف شده")</td>

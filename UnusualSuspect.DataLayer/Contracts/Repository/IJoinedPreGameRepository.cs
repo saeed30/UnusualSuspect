@@ -20,4 +20,5 @@ public interface IJoinedPreGameRepository : IAsyncRepository<JoinedPreGame>
   Task<bool> IsGroupMember(int userId, int preGameGroupId, CancellationToken cancellationToken = default);
   Task<IEnumerable<JoinedPreGame>> GetAllOwnedByUserId(int userId, CancellationToken cancellationToken = default);
   Task<List<JoinedPreGame>> GetByUserIdAsync(int userId, ReadyToGameStatusEnum? readyToGameStatusEnum = null, CancellationToken cancellationToken = default);
+  Task<bool> HaveDuplicateReadyJoinedPregameByPregameGroupIdAsync(int preGameGroupId, CancellationToken cancellationToken = default);
 }

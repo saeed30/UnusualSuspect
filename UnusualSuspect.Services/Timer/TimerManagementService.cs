@@ -129,11 +129,11 @@ public class TimerManagementService(
     using var scope = scopeFactory.CreateScope();
     IOptionsSnapshot<ProjectSetting> setting = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ProjectSetting>>();
     ILogger<TimerManagementService> loggerNew = scope.ServiceProvider.GetRequiredService<ILogger<TimerManagementService>>();
-    if (setting.Value.IsTesting)
-    {
-      loggerNew.LogEvent(SystemEventType.LeaveCurrentGameNotDoneWhenTesting, userId);
-      return;
-    }
+    //if (setting.Value.IsTesting)
+    //{
+    //  loggerNew.LogEvent(SystemEventType.LeaveCurrentGameNotDoneWhenTesting, userId);
+    //  return;
+    //}
 
     IGameService gameServiceNew = scope.ServiceProvider.GetRequiredService<IGameService>();
     try

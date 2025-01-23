@@ -233,4 +233,10 @@ public enum SystemEventType
 
   [Display(Name = "بسته شدن بازی بعد از منقضی شدن زمان")]
   GameAutoFinishedOnExpire = 80,
+
+  [Display(Name = "زمان اعلام آمادگی گروه در زمان ایجاد بازی یافت نشد")]
+  PregameGroupDoNotHaveReadyTimeInCombineGame = 81,
+
+  [Display(Name = "سوال مورد نظر در بازی یافت نشد")]
+  QuestionNotFoundInGame = 82,
 }

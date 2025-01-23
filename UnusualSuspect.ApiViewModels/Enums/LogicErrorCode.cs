@@ -148,5 +148,7 @@ namespace UnusualSuspect.ApiViewModels.Enums
     CafeBazaarPurchaseTokenWasUsed = 71,
     [Display(Name = "درخواست به سرویس خارجی با خطا پاسخ داده شد")]
     ApiRespondedWithError = 72,
+    [Display(Name = "بعضی از اعضای گروه در یک گروه آماده دیگر هستند")]
+    CurrentGroupUsersAreInReadyPreGameGroup = 73,
   }
 }

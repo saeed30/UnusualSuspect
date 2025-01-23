@@ -3,12 +3,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
 </head>
 <body>
-<h2>SendMessage</h2>
+<h1>SendMessage</h1>
 <div id="messages"></div>
 <input id="message" type="text" placeholder="message"/>
 <button id="send">Send</button>
 <hr/>
-<h2>FinishedTalking</h2>
+<h1>FinishedTalking</h1>
 <input id="gameId" type="text"  placeholder="gameId"/>
 <button id="FinishedTalking">FinishedTalking</button>
 <hr/>
@@ -18,9 +18,9 @@
 <button id="CandidateCard">CandidateCard</button>
 
 <script>
-var token = "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwidHlwIjoiSldUIiwiY3R5IjoiSldUIn0.RNeYvNKEO4spmt8aZyc_pfEbAuiJuLr-J8IBgyxu-fIKecuyRMi_eg.mM9zI5Io37EASCfUto4hyA.fovws135a6UcZzmw2VVeTCJfrPJ4Ckw3ym8zj0yUE7nW_hzHa8Loc5Uff2RxFPzkXiLCoNlABSSGD7h2pMLqczOPanUTB5ZnZ_l9xNFVqwys5ARupHnox7IjU4RlE-xIwXUw5i7KG3kHIJbH_jyeMoOt0wjXjcfk3hIoGUYDSo8mJ9TIc-LJ7kTpehxJqZD4dpzDl1g907itxf7vTwLH2ujWK2LDJqQoBXsJ_6TnFAa1cOhsMxet2AyY1S_nV2q4n82vG5klz16Yw0IKnV94TrQnjnAgeVkE7eXu1H7EekJvzJ3bTO2NZyhYM8zgWyJVYg_OYogKSFj03b4ZYwsoJb4uKW9qwwrjg8qfphM7P6-WIe33SO0WD513zPEBYvPjY8l6eYuk4f6ouCeIzQ7KoSY6sWmBSurRYRJYvFHVx5TQ1yZ6J1qn7fG4IAS4La0yjbe-444bm2rZgNp_skQxaPcvUtVHGs0i8eYr64KrPnsZxk8AouZqJIFVVzDYUxRqWkuHlgK-F1gdblgIkaAFUu5B4LgtOxi1Qr-KNSlDKqExgbaF0FvHx43oodfIn1kbiK4dEgVXUITyS51SVwqfgzT2ZBmoHgGCXwMqUb3KkDs.0-L2VtxWz6_zbhDYS-73ug";
+var token = "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwidHlwIjoiSldUIiwiY3R5IjoiSldUIn0.RLxfQeunEeH3jm9DZw6ACwAAXaWE6GJaRvjOQdEyTzOo8T7m5uHBPQ.3uhoUPaYsCGdJCQQmcwCYA.Gz1ywg5MXzCxhS0gIvtVGrnyeVggGcskTxz_NaAvkTSMp4QDK2iAbz5-2UdXOmQ9bDbfLaFBdohHPhSrSdIuWaljp5fVllMgaZXAyFki9E6Ok4HeNMGXlTfQGYinLweLn5SRwh7-lRTUrl96Tyjwh4YGS6WVBD4WJuVEp_TISDsFjuz1bijUHM95X0hq6Vbfh72s54UlGqjmntDHJZlyE1ahtfuRTGpQy6bwREZhK4YP_Aw6orjR7Qt-VsYYj7zZZ-cSAHGIJ-jUqO69te3R3R1b0qeF7Jgsa6070dFo5t3Dt66x-Go2VVDeGhAAzyLyK85kwmG9jYQEYUjeleaWq1mfoFYoOcs9-A5MpTDufnozXejwXHigXQ5Xp4zHq8CzrBhttSlzhFcljTw9KgTCPDwvMRd9jZ_icxVSCdEkCuHRJThxRyiy3Op1YQtzo9GBLtLIFUW6MuCMrCpFV197A6BZO07I8yofTafvxdQPBFFgJbOI8ngWuHV1rryx54Vw7_Xnw_EPKAOoZMSF9kPtHa434PGsnuzAAOzgIi71ZGri8HHlPO4NSlgiBY2WPG8YD9pRPnvgxwxeYcIkDpB3Kko6HqIZNrcc7RlRVEXlt9Y.4VzXpytosHCGejZPRHdYsw";
 // Create a connection to the hub
-var connection = new signalR.HubConnectionBuilder().configureLogging(signalR.LogLevel.Debug).withUrl("http://localhost:22957/GameHub", {
+var connection = new signalR.HubConnectionBuilder().configureLogging(signalR.LogLevel.Debug).withUrl("http://185.252.28.45/GameHub", {
 	  accessTokenFactory: () => token,
       skipNegotiation: true,
       transport: signalR.HttpTransportType.WebSockets
@@ -50,7 +50,7 @@ event.preventDefault();
 });
 
 document.getElementById("FinishedTalking").addEventListener("click", function (event) {
-var gameId = parseInt(document.getElementById("gameId").value);
+var gameId = document.getElementById("gameId").value;
 connection.invoke("FinishedTalking", gameId).catch(function (err) {
 return console.error(err.toString());
 });
@@ -58,8 +58,8 @@ event.preventDefault();
 });
 
 document.getElementById("CandidateCard").addEventListener("click", function (event) {
-var gameId = parseInt(document.getElementById("gameId2").value);
-var cardId = parseInt(document.getElementById("cardId").value);
+var gameId = document.getElementById("gameId2").value;
+var cardId = document.getElementById("cardId").value;
 connection.invoke("CandidateCard", cardId, gameId).catch(function (err) {
 return console.error(err.toString());
 });
