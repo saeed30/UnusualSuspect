@@ -22,8 +22,8 @@ public sealed class GameRepository(
   public async Task<Game?> GetGameWithDetailsAsync(int id, bool ignoreCache = false, CancellationToken cancellationToken = default)
   {
     Game? game = null;
-    if (!ignoreCache)
-      game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
+    //if (!ignoreCache)
+    //  game = await memoryCacheService.GetGameWithDetails(id, cancellationToken);
     if (game == null)
     {
       game = await BaseEntity.AsNoTrackingWithIdentityResolution().AsSplitQuery()

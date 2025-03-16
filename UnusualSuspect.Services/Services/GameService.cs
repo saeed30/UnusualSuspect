@@ -58,6 +58,7 @@ public sealed class GameService(IUnitOfWork uow,
     CancellationToken cancellationToken = default)
   {
     Game? game;
+    logger.LogEvent(SystemEventType.GameGetCalled, gameId, userId.ToString(), logLevel: LogLevel.Information);
     if (gameId.HasValue)
     {
       if (await participateRepository.GetParticipantRoleAsync(gameId.Value, userId, cancellationToken) == null)
@@ -153,6 +154,7 @@ public sealed class GameService(IUnitOfWork uow,
           finalGameStatus.Value == GameStatusEnum.FinishedAndWonTheGame, pars, cancellationToken);
       }
     }
+    TimerManagementService.OnGameTimerStop(gameId);
     game.FinishedTime = DateTime.Now;
     List<int> preGameGroupIds = await preGameGroupRepository.ResetGroupsStatusAfterFinishingTheGameAsync(gameId, cancellationToken);
     await joinedPreGameRepository.ResetJoinedPreGameAfterFinishingTheGameAsync(preGameGroupIds, cancellationToken);
@@ -399,7 +401,10 @@ public sealed class GameService(IUnitOfWork uow,
     }
     if (game.GameStatusId != (short)GameStatusEnum.FinishedAndLostTheGame &&
        game.GameStatusId != (short)GameStatusEnum.FinishedAndWonTheGame)
+    {
+      logger.LogEvent(SystemEventType.GameFinishedWhenStatusIsNot, game.Id, $"user: {userId} - statusId: {game.GameStatusId}");
       return LogicErrorCode.GameNotFinished;
+    }
     return new UnusualSuspectServiceResult<FinishedResponse>(game.ToFinishedResponse(await softSettingService.GetSoftSettingAsync(false, cancellationToken)));
   }
 

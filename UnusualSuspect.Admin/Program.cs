@@ -85,7 +85,7 @@ app.UseSerilogRequestLogging(opts =>
 );
 app.UseHttpsRedirection();
 app.UseElmahCore(projectSetting);
-app.UseStaticFiles();
+app.MapStaticAssets();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(

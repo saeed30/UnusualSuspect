@@ -239,4 +239,10 @@ public enum SystemEventType
 
   [Display(Name = "سوال مورد نظر در بازی یافت نشد")]
   QuestionNotFoundInGame = 82,
+
+  [Display(Name = "فراخوانی تابع دریافت اطلاعات بازی")]
+  GameGetCalled = 83,
+
+  [Display(Name = "فراخوانی اتمام بازی زمانی که بازی هنوز تمام نشده")]
+  GameFinishedWhenStatusIsNot = 84,
 }

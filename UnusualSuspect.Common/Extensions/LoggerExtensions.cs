@@ -12,7 +12,7 @@ public static class LoggerExtensions
     if (string.IsNullOrWhiteSpace(message))
       message = eventType.ToDisplay();
     logLevel ??= LogLevel.Information;
-    using (logger.BeginScope("{DataKey} - {EventType} - {ExtraInfo}", dataKey, eventType, extraInfo))
+    using (logger.BeginScope("{DataKey} - {EventTypeId} - {ExtraInfo}", dataKey, (int)eventType, extraInfo))
     {
       logger.Log(logLevel.Value, exception, message, paramStrings);
     }
