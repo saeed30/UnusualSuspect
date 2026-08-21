@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using System.IO;
 using System;
 using UnusualSuspect.IocConfig;
@@ -20,18 +20,19 @@ using UnusualSuspect.Services.SignalR;
 using System.Threading;
 using UnusualSuspect.Services;
 using UnusualSuspect.Services.Contracts;
+using UnusualSuspect.Api.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers(options =>
 {
-  options.UseNamespaceRouteToken();
+    options.UseNamespaceRouteToken();
 });
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-  options.SuppressInferBindingSourcesForParameters = true;
+    options.SuppressInferBindingSourcesForParameters = true;
 });
 ConfigurationManager configuration = builder.Configuration;
 builder.Services.Configure<ProjectSetting>(options => configuration.Bind(options));
@@ -40,8 +41,8 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
   loggerConfiguration.ReadFrom.Configuration(context.Configuration));
 Serilog.Debugging.SelfLog.Enable(msg =>
 {
-  Debug.Print(msg);
-  //Debugger.Break();
+    Debug.Print(msg);
+    //Debugger.Break();
 });
 Log.Logger = new LoggerConfiguration()
   .WriteTo.Console()
@@ -51,34 +52,25 @@ builder.Services.AddCustomServices(configuration);
 
 builder.Services.AddSwaggerGen(c =>
 {
-  c.SwaggerDoc("v1", new OpenApiInfo { Title = "UnusualSuspect.Api", Version = "v1" });
-  c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "UnusualSuspect.Api.xml"));
-  c.UseApiEndpoints();
-  c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-  {
-    In = ParameterLocation.Header,
-    Description = "Please insert JWT with Bearer into field",
-    Name = "Authorization",
-    Type = SecuritySchemeType.ApiKey
-  });
-  c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-   {
-     new OpenApiSecurityScheme
-     {
-       Reference = new OpenApiReference
-       {
-         Type = ReferenceType.SecurityScheme,
-         Id = "Bearer"
-       }
-      },
-      new string[] { }
-    }
-  });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "UnusualSuspect.Api", Version = "v1" });
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "UnusualSuspect.Api.xml"));
+    c.UseApiEndpoints();
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please insert JWT with Bearer into field",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+    c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+    });
 });
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies()
-  .Where(a => !string.Equals(a.FullName, "Microsoft.Data.SqlClient, Version=5.0.0.0, Culture=neutral, PublicKeyToken=23ec7fc2d6eaa4a5",//for fixing error when upgrade to .Net 8
-    StringComparison.OrdinalIgnoreCase)));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 // Hangfire Client
 builder.Services.AddHangfire(config => config
@@ -92,18 +84,18 @@ builder.Services.AddHangfireServer();
 builder.Services.AddOutputCache();
 builder.Services.AddCors(options =>
 {
-  options.AddPolicy(name: "AllowAll",
-    b =>
-    {
-      b.AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .SetIsOriginAllowed((host) => true);
-    });
+    options.AddPolicy(name: "AllowAll",
+      b =>
+      {
+          b.AllowAnyOrigin()
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .SetIsOriginAllowed((host) => true);
+      });
 });
 builder.Services.AddSignalR(o =>
   {
-    o.EnableDetailedErrors = true;
+      o.EnableDetailedErrors = true;
   }
   );
 builder.Services.AddMemoryCache();
@@ -116,35 +108,35 @@ var app = builder.Build();
 //avoid error for favicon request
 app.Use(async (context, next) =>
 {
-  if (context.Request.Path.Value == "/favicon.ico")
-  {
-    // Favicon request, return 404
-    context.Response.StatusCode = StatusCodes.Status404NotFound;
-    return;
-  }
-  // No favicon, call next middleware
-  await next.Invoke();
+    if (context.Request.Path.Value == "/favicon.ico")
+    {
+        // Favicon request, return 404
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+    // No favicon, call next middleware
+    await next.Invoke();
 });
 if (app.Environment.IsDevelopment())
 {
-  app.UseDeveloperExceptionPage();
+    app.UseDeveloperExceptionPage();
 }
 app.Use(async (context, next) =>
 {
-  context.Response.Headers.Add(
-    "Content-Security-Policy",
-    "font-src 'self' data:;");
+    context.Response.Headers.Add(
+      "Content-Security-Policy",
+      "font-src 'self' data:;");
 
-  await next();
+    await next();
 });
 
 app.UseSerilogRequestLogging(opts =>
   {
-    opts.GetLevel = (httpContext, elapsed, ex) => elapsed > 1000 ? LogEventLevel.Warning : LogEventLevel.Information;
-    opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-      diagnosticContext.Set("UserName", httpContext.User.Identity == null || !httpContext.User.Identity.IsAuthenticated
-        ? null : httpContext.User.Identity.Name);
-    opts.MessageTemplate = "{RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms by {UserName}";
+      opts.GetLevel = (httpContext, elapsed, ex) => elapsed > 1000 ? LogEventLevel.Warning : LogEventLevel.Information;
+      opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        diagnosticContext.Set("UserName", httpContext.User.Identity == null || !httpContext.User.Identity.IsAuthenticated
+          ? null : httpContext.User.Identity.Name);
+      opts.MessageTemplate = "{RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms by {UserName}";
   }
 );
 
@@ -159,36 +151,36 @@ app.UseRateLimiter();
 app.UseMiddleware<LogExtraInfoMiddleware>();
 if (app.Environment.IsDevelopment() || projectSetting.IsTesting)
 {
-  // Enable middleware to serve generated Swagger as a JSON endpoint.
-  app.UseSwagger();
+    // Enable middleware to serve generated Swagger as a JSON endpoint.
+    app.UseSwagger();
 
-  // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-  app.UseSwaggerUI(c =>
-  {
-    c.DisplayRequestDuration();
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "UnusualSuspect.Api V1");
-  });
+    // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+    app.UseSwaggerUI(c =>
+    {
+        c.DisplayRequestDuration();
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "UnusualSuspect.Api V1");
+    });
 }
 
 app.MapControllers().RequireRateLimiting(nameof(CustomRateLimiterPolicy)).RequireAuthorization();
 app.UseHangfireDashboard();
 app.MapHangfireDashboard("/hangfire", new DashboardOptions()
 {
-  DashboardTitle = "Hangfire dashboard",
-  //Authorization = new[]
-  //{
-  //  new HangfireCustomBasicAuthenticationFilter()
-  //  {
-  //    User = projectSetting.HangfireSetting.AdminUsername,
-  //    Pass = projectSetting.HangfireSetting.AdminPassword
-  //  }
-  //}
+    DashboardTitle = "Hangfire dashboard",
+    //Authorization = new[]
+    //{
+    //  new HangfireCustomBasicAuthenticationFilter()
+    //  {
+    //    User = projectSetting.HangfireSetting.AdminUsername,
+    //    Pass = projectSetting.HangfireSetting.AdminPassword
+    //  }
+    //}
 });
 RecurringJobConfig.Config();
 app.UseCors("AllowAll");
 app.MapHub<GameHub>("GameHub", option =>
 {
-  option.CloseOnAuthenticationExpiration = true;
+    option.CloseOnAuthenticationExpiration = true;
 });
 
 

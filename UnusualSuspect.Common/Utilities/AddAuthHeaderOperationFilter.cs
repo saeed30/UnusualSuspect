@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Pluralize.NET;
 using Swashbuckle.AspNetCore.SwaggerGen;
 

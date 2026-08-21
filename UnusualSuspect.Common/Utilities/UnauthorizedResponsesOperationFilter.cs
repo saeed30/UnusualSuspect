@@ -1,6 +1,6 @@
 ﻿using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Authorization;
 
 namespace UnusualSuspect.Common.Utilities;
@@ -33,15 +33,22 @@ public class UnauthorizedResponsesOperationFilter : IOperationFilter
             operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Forbidden" });
         }
 
+        //operation.Security.Add(new OpenApiSecurityRequirement
+        //{
+        //    {
+        //        new OpenApiSecurityScheme
+        //        {
+        //            Scheme = schemeName,
+        //            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "OAuth2" }
+        //        },
+        //        Array.Empty<string>() //new[] { "readAccess", "writeAccess" }
+        //    }
+        //});
         operation.Security.Add(new OpenApiSecurityRequirement
         {
             {
-                new OpenApiSecurityScheme
-                {
-                    Scheme = schemeName,
-                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "OAuth2" }
-                },
-                Array.Empty<string>() //new[] { "readAccess", "writeAccess" }
+                new OpenApiSecuritySchemeReference("OAuth2", context.Document),
+                new List<string>() // or new List<string> { "scope1", "scope2" } if needed
             }
         });
     }

@@ -1,17 +1,18 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json.Serialization;
+using Serilog;
+using Serilog.Events;
+using System.Diagnostics;
+using System.Globalization;
+using UnusualSuspect.Admin.Infrastructure;
 using UnusualSuspect.Admin.Models;
 using UnusualSuspect.Common;
-using UnusualSuspect.IocConfig;
-using UnusualSuspect.ViewModels.Settings;
-using System.Globalization;
-using UnusualSuspect.Services.Services;
-using Serilog;
 using UnusualSuspect.Common.Middlewares;
-using System.Diagnostics;
-using Serilog.Events;
+using UnusualSuspect.IocConfig;
+using UnusualSuspect.Services.Services;
 using UnusualSuspect.Services.SignalR;
+using UnusualSuspect.ViewModels.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -57,7 +58,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSignalR();
 builder.Services.AddMemoryCache();
 builder.Services.AddKendo();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 ///////////////////////////////////////////////////////
 
