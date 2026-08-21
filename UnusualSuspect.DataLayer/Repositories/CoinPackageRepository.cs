@@ -9,8 +9,8 @@ namespace UnusualSuspect.DataLayer.Repositories;
 public class CoinPackageRepository(IUnitOfWork uow, ILogger<CoinPackageRepository> logger)
   : EfRepository<CoinPackage, short>(uow, logger), ICoinPackageRepository
 {
-  public async Task<List<CoinPackage>> GetAllActivePublicAsync(CancellationToken cancellationToken)
+  public async Task<IEnumerable<CoinPackage>> GetAllActivePublicAsync(CancellationToken cancellationToken)
   {
-    return await BaseEntity.Where(x => x.IsActive && x.IsPublic).ToListAsync(cancellationToken);
+    return await BaseEntity.Where(x => x.IsActive && x.IsPublic).OrderBy(x => x.ViewOrder).AsNoTracking().ToListAsync(cancellationToken);
   }
 }

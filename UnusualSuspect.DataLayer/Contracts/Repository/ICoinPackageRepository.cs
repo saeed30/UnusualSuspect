@@ -3,5 +3,5 @@
 namespace UnusualSuspect.DataLayer.Contracts.Repository;
 public interface ICoinPackageRepository : IAsyncRepository<CoinPackage, short>
 {
-  Task<List<CoinPackage>> GetAllActivePublicAsync(CancellationToken cancellationToken);
+  Task<IEnumerable<CoinPackage>> GetAllActivePublicAsync(CancellationToken cancellationToken);
 }

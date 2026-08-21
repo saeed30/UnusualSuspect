@@ -20,11 +20,11 @@ public sealed class CoinService(ICoinPackageRepository coinPackageRepository,
 {
   public async Task<UnusualSuspectServiceResult<PackagesGetResponse>> GetPublicPackagesAsync(CancellationToken cancellationToken = default)
   {
-    List<CoinPackage> result = await coinPackageRepository.GetAllActivePublicAsync(cancellationToken);
+    IEnumerable<CoinPackage> result = await coinPackageRepository.GetAllActivePublicAsync(cancellationToken);
     return new UnusualSuspectServiceResult<PackagesGetResponse>(
       new PackagesGetResponse()
       {
-        PackageDtos = result.OrderBy(x => x.ViewOrder).ToPackageDto()
+        PackageDtos = result.ToPackageDto()
       }
     );
   }
