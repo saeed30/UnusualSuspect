@@ -19,18 +19,19 @@ public class EnterExitSignalingPreGameEndpoint(IPreGameService preGameService, I
   {
     if (request.ConnectionId.IsNull())
       return new BadRequestResult();
-    if (request.IsEntering)
+    int userId = CurrentUser.UserId;
+		if (request.IsEntering)
     {
-      UnusualSuspectServiceResult<bool> result = await preGameService.IsMemberOfPregameGroup(CurrentUser.UserId, request.PreGameGroupId, cancellationToken);
+      UnusualSuspectServiceResult<bool> result = await preGameService.IsMemberOfPregameGroup(userId, request.PreGameGroupId, cancellationToken);
       if(!result.Success)
         return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
       if(!result.Result)
         return new ApiResultCommon(false, ApiResultStatusCode.LogicError, LogicErrorCode.UserNotMemberOfPreGameGroup.ToString());
-      await notificationService.AddToGroupAsync(CurrentUser.UserId, request.ConnectionId, "pre" + request.PreGameGroupId);
+      await notificationService.AddToGroupAsync(userId, request.ConnectionId, "pre" + request.PreGameGroupId);
     }
     else
     {
-      await notificationService.RemoveFromGroupAsync(CurrentUser.UserId, "pre" + request.PreGameGroupId, request.ConnectionId);
+      await notificationService.RemoveFromGroupAsync(userId, "pre" + request.PreGameGroupId, request.ConnectionId);
     }
     return new OkResult();
   }

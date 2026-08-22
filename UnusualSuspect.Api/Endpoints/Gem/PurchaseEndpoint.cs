@@ -22,18 +22,19 @@ public sealed class PurchaseEndpoint(IGemService gemService,
   [HttpPost("api/[namespace]/Purchase")]
   public override async Task<ActionResult<ApiResultCommon>> HandleAsync(GemPurchaseRequest request, CancellationToken cancellationToken = default)
   {
+    int userId = CurrentUser.UserId;
     UnusualSuspectServiceResult<(int?, PriceTypeEnum?)> result =
       await gemService.BuyPackagesAsync(request.ToGemPurchaseRequestDto(),
-      CurrentUser.UserId, cancellationToken);
+			userId, cancellationToken);
     if (!result.Success)
       return new ApiResultCommon(false, ApiResultStatusCode.LogicError, result.MainError.ToString());
     if (result.Result.Item1.HasValue)
     {
       await uow.SaveChangesAsync(cancellationToken);
       if (result.Result.Item2.HasValue && result.Result.Item2.Value == PriceTypeEnum.Money)
-        backgroundJobs.Enqueue<IGemCoinCalculationJobsService>(job => job.ValidatePayments(CurrentUser.UserId));
+        backgroundJobs.Enqueue<IGemCoinCalculationJobsService>(job => job.ValidatePayments(userId));
       else
-        backgroundJobs.Enqueue<IGemCoinCalculationJobsService>(job => job.RecalculateGemAndCoinByUserId(CurrentUser.UserId));
+        backgroundJobs.Enqueue<IGemCoinCalculationJobsService>(job => job.RecalculateGemAndCoinByUserId(userId));
     }
     return new ApiResultCommon(result.Result.Item1.HasValue, ApiResultStatusCode.Success);
   }

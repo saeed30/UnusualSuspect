@@ -26,21 +26,22 @@ namespace UnusualSuspect.Api.Endpoints.User
     public override async Task<ActionResult<ApiResultCommon<DailyRewardGetResponse>>> HandleAsync(
         CancellationToken cancellationToken = default)
     {
-      if (!(await gemService.GivenTodayAward(CurrentUser.UserId, cancellationToken)) ||
-          !(await coinService.GivenTodayAward(CurrentUser.UserId, cancellationToken)))
+      int userId = CurrentUser.UserId;
+			if (!(await gemService.GivenTodayAward(userId, cancellationToken)) ||
+          !(await coinService.GivenTodayAward(userId, cancellationToken)))
       {
         UnusualSuspectServiceResult<(int?, PriceTypeEnum?)> result1 =
-          await gemService.BuyPackagesAsync(BaseGemPackageEnum.DailyAward, CurrentUser.UserId, true, cancellationToken);
+          await gemService.BuyPackagesAsync(BaseGemPackageEnum.DailyAward, userId, true, cancellationToken);
         UnusualSuspectServiceResult<(int?, PriceTypeEnum?)> result2 =
-          await coinService.BuyPackagesAsync(BaseCoinPackageEnum.DailyAward, CurrentUser.UserId, true, cancellationToken);
+          await coinService.BuyPackagesAsync(BaseCoinPackageEnum.DailyAward, userId, true, cancellationToken);
         if (result1.Success && result2.Success)
           await uow.SaveChangesAsync(cancellationToken);
         else
         {
           if (!result1.Success)
-            logger.LogEvent(SystemEventType.DailyGemPackageEnumOnFailed, CurrentUser.UserId, result1.MainError.ToString(), logLevel: LogLevel.Critical);
+            logger.LogEvent(SystemEventType.DailyGemPackageEnumOnFailed, userId, result1.MainError.ToString(), logLevel: LogLevel.Critical);
           if (!result2.Success)
-            logger.LogEvent(SystemEventType.DailyCoinPackageEnumOnFailed, CurrentUser.UserId, result2.MainError.ToString(), logLevel: LogLevel.Critical);
+            logger.LogEvent(SystemEventType.DailyCoinPackageEnumOnFailed, userId, result2.MainError.ToString(), logLevel: LogLevel.Critical);
         }
         return new ApiResultCommon<DailyRewardGetResponse>(true, ApiResultStatusCode.Success,
           new DailyRewardGetResponse()
