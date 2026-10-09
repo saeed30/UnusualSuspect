@@ -13,12 +13,9 @@ public class DynamicAdminMenuViewComponent : ViewComponent
     }
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var items = await customeMenuService.ReturnRoleMenus(User.Identity.Name, User.IsInRole("Admin"));
-        if(items != null)
-            foreach(var item in items)
-            {
-                item.ChildeCustomeMenus = customeMenuService.CustomMenuListWithParentId(item.Id);
-            }
+        // Cached, with children already loaded (one query instead of one per menu item). The list is shared
+        // between requests, so the view must only read it.
+        var items = await customeMenuService.ReturnRoleMenusWithChildrenAsync(User.Identity.Name, User.IsInRole("Admin"));
         return View(items);
     }
 }

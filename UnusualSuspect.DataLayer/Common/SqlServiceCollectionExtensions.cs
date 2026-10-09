@@ -28,7 +28,7 @@ public static class SqlServiceCollectionExtensions
                         sqlServerOptionsBuilder.EnableRetryOnFailure();
                         sqlServerOptionsBuilder.MigrationsAssembly("UnusualSuspect.DataLayer");
                     });
-        optionsBuilder.AddInterceptors(new PersianYeKeCommandInterceptor());
+        optionsBuilder.AddInterceptors(new PersianYeKeCommandInterceptor(), new AdminMenuCacheInvalidationInterceptor());
         optionsBuilder.ConfigureWarnings(warnings =>
         {
         });
@@ -44,8 +44,8 @@ public static class SqlServiceCollectionExtensions
                         sqlServerOptionsBuilder.EnableRetryOnFailure();
                         sqlServerOptionsBuilder.MigrationsAssembly("UnusualSuspect.DataLayer");
                     });
-        optionsBuilder.UseInternalServiceProvider(serviceProvider); 
-        optionsBuilder.AddInterceptors(new PersianYeKeCommandInterceptor());
+        optionsBuilder.UseInternalServiceProvider(serviceProvider);
+        optionsBuilder.AddInterceptors(new PersianYeKeCommandInterceptor(), new AdminMenuCacheInvalidationInterceptor());
         optionsBuilder.ConfigureWarnings(warnings =>
         {
         });
