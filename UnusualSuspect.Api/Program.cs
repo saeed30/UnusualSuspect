@@ -81,7 +81,12 @@ builder.Services.AddHangfire(config => config
   .UseActivator(new HangfireActivator(builder.Services.BuildServiceProvider())));
 // Hangfire Server
 builder.Services.AddHangfireServer();
-builder.Services.AddOutputCache();
+builder.Services.AddOutputCache(options =>
+{
+	options.AddPolicy(
+			"PublicData",
+			builder => builder.AddPolicy<PublicDataOutputCachePolicy>(), true);
+});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowAll",
