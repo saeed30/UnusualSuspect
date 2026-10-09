@@ -37,8 +37,11 @@ builder.Services.AddControllers().AddJsonOptions(jsonOptions =>
 {
     jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null;
 }).AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-
+var razorPagesBuilder = builder.Services.AddRazorPages();
+if (builder.Environment.IsDevelopment())
+{
+	razorPagesBuilder.AddRazorRuntimeCompilation();
+}
 
 builder.Services.AddControllers().AddNewtonsoftJson(opt =>
 {

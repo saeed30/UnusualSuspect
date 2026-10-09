@@ -113,6 +113,6 @@ select GamesPlayed = COUNT(1),
 GamesWon = isnull(SUM(case when g.GameStatusId = {(short)GameStatusEnum.FinishedAndWonTheGame} then 1 else 0 end), 0),
 GamesLost = isnull(SUM(case when g.GameStatusId = {(short)GameStatusEnum.FinishedAndLostTheGame} then 1 else 0 end), 0)
 from Participate p join Game g on p.GameId = g.Id
-where g.FinishedTime is not null and p.UserId = {userId}");
+where g.FinishedTime is not null and p.UserId = @userId", new { userId }, cancellationToken);
   }
 }
