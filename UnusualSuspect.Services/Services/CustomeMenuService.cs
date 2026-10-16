@@ -10,6 +10,7 @@ using UnusualSuspect.ViewModels.Models;
 using UnusualSuspect.ViewModels.Settings;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace UnusualSuspect.Services.Services;
@@ -31,6 +32,11 @@ public interface ICustomeMenuService
     ResultAction UpdateActionCustomeMenu();
       Task<List<CustomMenu>> ReturnRoleMenus(string Username, bool IsAdmin);
     List<CustomMenu> CustomMenuListWithParentId(int parentId);
+    /// <summary>
+    /// The menu shown to the user, parents with their <see cref="CustomMenu.ChildeCustomeMenus"/> filled in.
+    /// The result is cached and shared between requests: callers must treat it as read-only.
+    /// </summary>
+    Task<List<CustomMenu>> ReturnRoleMenusWithChildrenAsync(string Username, bool IsAdmin, CancellationToken cancellationToken = default);
 }
 
 public class CustomeMenuService : ICustomeMenuService
@@ -43,8 +49,13 @@ public class CustomeMenuService : ICustomeMenuService
     //private readonly DbSet<ApplicationUserRole> UserRoles;
     private readonly ILogService logService;
     private readonly IApplicationRoleService _applicationRoleManager;
-    public CustomeMenuService(ILogger<BaseInfoService> logger, IUnitOfWork uow, ILogService _iLogService, IApplicationRoleService ApplicationRoleManager)
+    private readonly IMemoryCache _cache;
+    // Safety net: menus are expired immediately when related data is saved (AdminMenuCacheInvalidationInterceptor),
+    // but entries also expire on their own so a change made by another instance shows up eventually.
+    private static readonly TimeSpan MenuCacheDuration = TimeSpan.FromMinutes(2);
+    public CustomeMenuService(ILogger<BaseInfoService> logger, IUnitOfWork uow, ILogService _iLogService, IApplicationRoleService ApplicationRoleManager, IMemoryCache cache)
     {
+        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
         _uow = uow ?? throw new ArgumentNullException(nameof(_uow));
         customMenus = uow.Set<CustomMenu>();
@@ -311,5 +322,57 @@ public class CustomeMenuService : ICustomeMenuService
 
         return await customMenus.Include("AmAction").Include("AmAction.AMController").Where(x => x.ParentId == null && (IsAdmin || x.AmAction.ActionForRoles.Any(u => roles.Contains(u.RoleId.Value))
         || x.ChildeCustomeMenus.Any(u => u.AmAction.ActionForRoles.Any(u => roles.Contains(u.RoleId.Value))))).ToListAsync();
+    }
+
+    public async Task<List<CustomMenu>> ReturnRoleMenusWithChildrenAsync(string Username, bool IsAdmin, CancellationToken cancellationToken = default)
+    {
+        if (Username.IsNull())
+            return null;
+
+        var cacheKey = $"AdminMenu:{(IsAdmin ? "admin" : "user")}:{Username}";
+        if (_cache.TryGetValue(cacheKey, out List<CustomMenu> cachedMenus))
+            return cachedMenus;
+
+        // Taken before reading: if related data is saved while the queries below run, this token is already
+        // expired when the entry is stored, so a possibly stale menu is not kept.
+        var changeToken = UnusualSuspect.DataLayer.Common.AdminMenuCache.CreateChangeToken();
+
+        var userId = await Users.AsNoTracking()
+            .Where(x => x.UserName == Username)
+            .Select(x => (int?)x.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (userId == null)
+            return null;
+
+        var roles = _applicationRoleManager.GetUserRoles(userId.Value);
+
+        // No-tracking: the result is cached and shared, so it must not be attached to this request's DbContext.
+        var menus = await customMenus.AsNoTracking()
+            .Include("AmAction.AMController")
+            .Where(x => x.ParentId == null && (IsAdmin
+                || x.AmAction.ActionForRoles.Any(r => roles.Contains(r.RoleId.Value))
+                || x.ChildeCustomeMenus.Any(c => c.AmAction.ActionForRoles.Any(r => roles.Contains(r.RoleId.Value)))))
+            .ToListAsync(cancellationToken);
+
+        // All children of all returned parents in one query (previously one query per parent).
+        if (menus.Count > 0)
+        {
+            var parentIds = menus.Select(x => x.Id).ToList();
+            var children = await customMenus.AsNoTracking()
+                .Include("AmAction.AMController")
+                .Where(x => x.ParentId != null && parentIds.Contains(x.ParentId.Value))
+                .OrderBy(x => x.ParentId).ThenBy(x => x.PositionId)
+                .ToListAsync(cancellationToken);
+            var childrenByParent = children.ToLookup(x => x.ParentId);
+            foreach (var menu in menus)
+                menu.ChildeCustomeMenus = childrenByParent[menu.Id].ToList();
+        }
+
+        _cache.Set(cacheKey, menus, new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = MenuCacheDuration,
+            Size = 1
+        }.AddExpirationToken(changeToken));
+        return menus;
     }
 }
