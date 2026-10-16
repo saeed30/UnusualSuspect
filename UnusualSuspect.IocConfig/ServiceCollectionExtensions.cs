@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -44,6 +45,12 @@ namespace UnusualSuspect.IocConfig;
 
 public static class ServiceCollectionExtensions
 {
+  /// <summary>
+  /// How long a successful JWT security-stamp check is remembered (see OnTokenValidated).
+  /// Lower it for faster revocation, raise it to save more database calls.
+  /// </summary>
+  private static readonly TimeSpan SecurityStampCacheDuration = TimeSpan.FromSeconds(60);
+
   private static IServiceCollection AddGameServices(this IServiceCollection services, IConfiguration configuration)
   {
     var assembliesToScan = new[]
@@ -240,6 +247,7 @@ public static class ServiceCollectionExtensions
   public static void AddJwtAuthentication(this IServiceCollection services, ProjectSetting projectSettings)
   {
     var jwtSettings = projectSettings.JwtSettings;
+    services.AddMemoryCache(); // used by OnTokenValidated; safe to call more than once
     services.AddAuthentication(options =>
     {
       options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -335,27 +343,57 @@ public static class ServiceCollectionExtensions
         //    },
         OnTokenValidated = async context =>
             {
-              var signInManager = context.HttpContext.RequestServices.GetRequiredService<IApplicationSignInService>();
-              var userManager = context.HttpContext.RequestServices.GetRequiredService<IApplicationUserManager>();
-
-              var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
-              if (claimsIdentity.Claims?.Any() != true)
+              var claimsIdentity = context.Principal?.Identity as ClaimsIdentity;
+              if (claimsIdentity?.Claims?.Any() != true)
+              {
                 context.Fail("This token has no claims.");
-
+                return;
+              }
 
               var securityStamp = claimsIdentity.FindFirstValue(new ClaimsIdentityOptions().SecurityStampClaimType);
               if (!securityStamp.HasValue())
+              {
                 context.Fail("This token has no security stamp");
+                return;
+              }
 
               var userId = claimsIdentity.GetUserId();
+              if (!userId.HasValue())
+              {
+                context.Fail("This token has no user id.");
+                return;
+              }
+
+              // A successful check is remembered for a short time, keyed by user id + the stamp carried by
+              // the token, so most API calls do not need a database round trip. Failures are never cached.
+              // Trade-off: a token whose stamp was just invalidated (password change, forced sign-out)
+              // can still be accepted for up to SecurityStampCacheDuration.
+              var cache = context.HttpContext.RequestServices.GetRequiredService<IMemoryCache>();
+              var cacheKey = $"jwt-security-stamp:{userId}:{securityStamp}";
+              if (cache.TryGetValue(cacheKey, out _))
+                return;
+
+              var userManager = context.HttpContext.RequestServices.GetRequiredService<IApplicationUserManager>();
               var user = await userManager.FindByIdAsync(userId);
+              if (user == null)
+              {
+                context.Fail("User not found.");
+                return;
+              }
 
+              // Same rule ASP.NET Core Identity's SignInManager.ValidateSecurityStampAsync applies, so the
+              // separate (second) check that used to follow is no longer needed.
               if (user.SecurityStamp != securityStamp)
+              {
                 context.Fail("Token security stamp is not valid.");
+                return;
+              }
 
-              var validatedUser = await signInManager.ValidateSecurityStampAsync(context.Principal);
-              if (validatedUser == null)
-                context.Fail("Token security stamp is not valid.");
+              cache.Set(cacheKey, true, new MemoryCacheEntryOptions
+              {
+                AbsoluteExpirationRelativeToNow = SecurityStampCacheDuration,
+                Size = 1
+              });
 
               //await usermanager.UpdateLastLoginDateAsync(user);
             }
