@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using UnusualSuspect.Entities.Common;
@@ -68,52 +69,77 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 		//		.ValueGeneratedNever();
 	}
 
-	public override int SaveChanges()
-	{
-		ChangeTracker.DetectChanges();
-		beforeSaveChanges();
-		ChangeTracker.AutoDetectChangesEnabled = false;
-		var result = base.SaveChanges();
-		ChangeTracker.AutoDetectChangesEnabled = true;
-		return result;
-	}
+	// EF Core's parameterless SaveChanges()/SaveChangesAsync(ct) call the (bool) overloads internally.
+	// All the work therefore lives in the (bool) overloads only; the parameterless ones just delegate,
+	// so validation and string cleaning run exactly once per save.
+	public override int SaveChanges() => SaveChanges(acceptAllChangesOnSuccess: true);
+
 	public override int SaveChanges(bool acceptAllChangesOnSuccess)
 	{
 		ChangeTracker.DetectChanges();
-		beforeSaveChanges();
+		var autoDetectWasEnabled = ChangeTracker.AutoDetectChangesEnabled;
 		ChangeTracker.AutoDetectChangesEnabled = false;
-		var result = base.SaveChanges(acceptAllChangesOnSuccess);
-		ChangeTracker.AutoDetectChangesEnabled = true;
-		return result;
+		try
+		{
+			beforeSaveChanges();
+			return base.SaveChanges(acceptAllChangesOnSuccess);
+		}
+		finally
+		{
+			ChangeTracker.AutoDetectChangesEnabled = autoDetectWasEnabled;
+		}
 	}
-	public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-	{
-		beforeSaveChanges();
-		return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-	}
+
 	public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+		=> SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken);
+
+	public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
 	{
 		ChangeTracker.DetectChanges();
-		beforeSaveChanges();
+		var autoDetectWasEnabled = ChangeTracker.AutoDetectChangesEnabled;
 		ChangeTracker.AutoDetectChangesEnabled = false;
-		var result = base.SaveChangesAsync(cancellationToken);
-		ChangeTracker.AutoDetectChangesEnabled = true;
-		return result;
+		try
+		{
+			beforeSaveChanges();
+			return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+		}
+		finally
+		{
+			ChangeTracker.AutoDetectChangesEnabled = autoDetectWasEnabled;
+		}
 	}
 	public string GetConnectionString()
 	{
 		return this.Database.GetConnectionString();
 	}
 
+	// Called with AutoDetectChanges already switched off (the callers ran DetectChanges once just before),
+	// so the ChangeTracker.Entries() calls below do not trigger further DetectChanges passes.
 	private void beforeSaveChanges()
 	{
 		validateEntities();
-		_cleanString();
+		// Cleaning may rewrite string values; run DetectChanges again only when something actually changed
+		// so the new values are picked up before saving.
+		if (_cleanString())
+			ChangeTracker.DetectChanges();
 	}
 
+	// Public, readable and writable string properties per entity type. Reflection is done once per type
+	// instead of on every save for every changed entity.
+	private static readonly ConcurrentDictionary<Type, PropertyInfo[]> _stringPropertiesCache = new();
 
-	private void _cleanString()
+	private static PropertyInfo[] GetStringProperties(Type entityType)
 	{
+		return _stringPropertiesCache.GetOrAdd(entityType, static type =>
+			type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+				.Where(p => p.CanRead && p.CanWrite && p.PropertyType == typeof(string))
+				.ToArray());
+	}
+
+	/// <returns>true if at least one property value was changed.</returns>
+	private bool _cleanString()
+	{
+		var anyChanged = false;
 		var changedEntities = ChangeTracker.Entries()
 				.Where(x => x.State == EntityState.Added || x.State == EntityState.Modified);
 		foreach (var item in changedEntities)
@@ -121,12 +147,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 			if (item.Entity == null)
 				continue;
 
-			var properties = item.Entity.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-					.Where(p => p.CanRead && p.CanWrite && p.PropertyType == typeof(string));
-
-			foreach (var property in properties)
+			foreach (var property in GetStringProperties(item.Entity.GetType()))
 			{
-				var propName = property.Name;
 				var val = (string)property.GetValue(item.Entity, null);
 
 				if (val.HasValue())
@@ -135,9 +157,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int
 					if (newVal == val)
 						continue;
 					property.SetValue(item.Entity, newVal, null);
+					anyChanged = true;
 				}
 			}
 		}
+		return anyChanged;
 	}
 
 	private void validateEntities()
