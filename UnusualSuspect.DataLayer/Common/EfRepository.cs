@@ -34,7 +34,7 @@ public class EfRepository<T, TY>(IUnitOfWork uow, ILogger<EfRepository<T, TY>> l
 
   public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default)
   {
-    return await BaseEntity.ToListAsync(cancellationToken);
+    return await BaseEntity.AsNoTracking().ToListAsync(cancellationToken);
   }
 
   /// <inheritdoc />
@@ -43,7 +43,7 @@ public class EfRepository<T, TY>(IUnitOfWork uow, ILogger<EfRepository<T, TY>> l
     int page,
           CancellationToken cancellationToken = default)
   {
-    return await BaseEntity.Skip(perPage * (page - 1)).Take(perPage).ToListAsync(cancellationToken);
+    return await BaseEntity.AsNoTracking().Skip(perPage * (page - 1)).Take(perPage).ToListAsync(cancellationToken);
   }
 
   public T Add(T entity)
