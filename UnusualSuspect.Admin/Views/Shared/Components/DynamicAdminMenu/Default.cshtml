@@ -1,6 +1,10 @@
 ﻿@model List<CustomMenu>
 @*@inject INotificationService  notificationService*@
-
+@{
+    // Set by DynamicAdminMenuViewComponent: the entry for the current page, and its parent group (if any).
+    var activeItemId = ViewData["ActiveMenuItemId"] as int?;
+    var activeParentId = ViewData["ActiveMenuParentId"] as int?;
+}
 
 <ul>
     @if(Model != null)
@@ -9,8 +13,9 @@
     {
         if (menuItem.ChildeCustomeMenus == null || menuItem.ChildeCustomeMenus.Count == 0)
         {
+            var isActive = activeItemId == menuItem.Id;
             <li>
-                <a href="@(menuItem.AmAction == null ? "" : ("/" + menuItem.AmAction.AMController.Name + "/" + menuItem.AmAction.Name + menuItem.Parameter))">
+                <a class="@(isActive ? "active" : null)" aria-current="@(isActive ? "page" : null)" href="@(menuItem.AmAction == null ? "" : ("/" + menuItem.AmAction.AMController.Name + "/" + menuItem.AmAction.Name + menuItem.Parameter))">
                     <span>
                         @if (menuItem.FontAweSomeIcon != null)
                         {
@@ -31,22 +36,25 @@
         }
         else
         {
+            // The group that contains the current page starts open and highlighted.
+            var isGroupOpen = activeParentId == menuItem.Id;
             <li>
-                <a data-bs-toggle="collapse" href="#@("collapseExample"+menuItem.Id.ToString())" role="button" aria-expanded="false" aria-controls="collapseExample">
+                <a class="@(isGroupOpen ? "active" : null)" data-bs-toggle="collapse" href="#@("collapseExample"+menuItem.Id.ToString())" role="button" aria-expanded="@(isGroupOpen ? "true" : "false")" aria-controls="collapseExample">
                     <span>
                         <i class="fa fa-bars"></i>
                         @menuItem.Name
                     </span>
                     <i class="fa fa-angle-down"></i>
                 </a>
-                <div class="collapse" id="@("collapseExample"+menuItem.Id.ToString())">
+                <div class="@("collapse" + (isGroupOpen ? " show" : ""))" id="@("collapseExample"+menuItem.Id.ToString())">
                     <div class="card card-body">
                         <ul class="p-0 inner-ul">
 
                             @foreach (var menuItem2 in menuItem.ChildeCustomeMenus.ToList().OrderBy(m=>m.PositionId))
                             {
+                                var isChildActive = activeItemId == menuItem2.Id;
                                 <li>
-                                    <a href="@(menuItem2.AmAction == null ? "" : ("/" + menuItem2.AmAction.AMController.Name + "/" + menuItem2.AmAction.Name + menuItem2.Parameter))">
+                                    <a class="@(isChildActive ? "active" : null)" aria-current="@(isChildActive ? "page" : null)" href="@(menuItem2.AmAction == null ? "" : ("/" + menuItem2.AmAction.AMController.Name + "/" + menuItem2.AmAction.Name + menuItem2.Parameter))">
                                         @menuItem2.Name
 @*                                        @if (menuItem2.NotifName != null)
                                         {
