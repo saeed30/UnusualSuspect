@@ -51952,6 +51952,15 @@ body {
     .inner-ul a:hover {
         color:#ffc700;
     }
+/* Side menu: current page (a.active) and the group that contains it. Set by DynamicAdminMenu/Default.cshtml. */
+.rightPanel ul a.active {
+    color: #ffc700;
+    background: rgba(255, 199, 0, 0.12);
+    font-weight: 600;
+}
+.rightPanel ul a.active span i {
+    color: #fff;
+}
 /*    .rightPanel ul a:before {
         content: '';
         position: absolute;
